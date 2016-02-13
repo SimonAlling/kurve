@@ -1,0 +1,223 @@
+* {
+	margin: 0;
+	padding: 0;
+	image-rendering: -moz-crisp-edges;
+	image-rendering: pixelated;
+}
+
+html, body {
+	width: 100%;
+	height: 100%;
+}
+
+body {
+	background-color: #3C3C3C;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+}
+
+#wrapper {
+	display: flex;
+	align-items: center;
+}
+
+.border {
+	border-style: solid;
+	display: flex;
+}
+
+#border2 {
+	border-color: #717171;
+}
+
+#border3 {
+	border-color: #616161;
+}
+
+#border4 {
+	border-color: #515151;
+}
+
+#canvas {
+	background-color: black;
+	border-color: #828282;
+	z-index: 10;
+}
+
+#left, #scoreboard {
+	z-index: 5;
+	box-sizing: border-box;
+	min-height: 100%;
+}
+
+.digit {
+}
+
+.red.digit {
+	background-image: url("resources/kurve-digits-red.png");
+}
+
+.yellow.digit {
+	background-image: url("resources/kurve-digits-yellow.png");
+}
+
+.orange.digit {
+	background-image: url("resources/kurve-digits-orange.png");
+}
+
+.green.digit {
+	background-image: url("resources/kurve-digits-green.png");
+}
+
+.pink.digit {
+	background-image: url("resources/kurve-digits-pink.png");
+}
+
+.blue.digit {
+	background-image: url("resources/kurve-digits-blue.png");
+}
+
+.digit.d1 {
+	background-position: -28px 0;
+}
+
+
+
+/* ======== 1x ======== */
+/*
+640 = Kurve width
+480 = Kurve height
+559 = Kurve field width (excluding border)
+77  = Scoreboard width (excluding border)
+81  = Scoreboard width (including border)
+721 = 559 + 2*81 = total width including borders, #left and scoreboard
+*/
+@media screen and (min-width: 640px) and (min-height: 480px) {
+	body { justify-content: flex-end; }
+	#canvas {
+	    width: 559px;
+	    height: 480px;
+	}
+	.border     { border-width: 1px; }
+	aside       { width: 77px; height: 480px; }
+	#scoreboard { padding-left: 9px; }
+	.digit      { width: 28px; height: 43px; }
+}
+
+@media screen and (min-width: 721px) and (min-height: 480px) {
+	body { justify-content: center; }
+}
+
+
+/* ======== 2x ======== */
+@media screen and (min-width: 1280px) and (min-height: 960px) {
+	body { justify-content: flex-end; }
+	#wrapper {
+		zoom: 2;
+		-moz-transform: scale(2);
+	}
+}
+
+@media screen and (min-width: 1442px) and (min-height: 960px) {
+	body { justify-content: center; }
+}
+
+
+/* ======== 3x ======== */
+@media screen and (min-width: 1920px) and (min-height: 1440px) {
+	body { justify-content: flex-end; }
+	#wrapper {
+		zoom: 3;
+		-moz-transform: scale(3);
+	}
+	body { justify-content: center; }
+}
+
+@media screen and (min-width: 2163px) and (min-height: 1440px) {
+	body { justify-content: center; }
+}
+
+
+/* ======== 4x ======== */
+@media screen and (min-width: 2560px) and (min-height: 1920px) { /*TODO*/
+	body { justify-content: flex-end; }
+	#wrapper {
+		zoom: 4;
+	}
+}
+
+@media screen and (min-width: 2884px) and (min-height: 1920px) { /*TODO*/
+	body { justify-content: center; }
+}
+
+
+/* ======== 5x ======== */
+@media screen and (min-width: 3200px) and (min-height: 2400px) { /*TODO*/
+	body { justify-content: flex-end; }
+	#wrapper {
+		zoom: 5;
+	}
+}
+
+@media screen and (min-width: 3605px) and (min-height: 2400px) { /*TODO*/
+	body { justify-content: center; }
+}
+
+
+/* ======== 2x ======== */
+/*@media screen and (min-width: 1280px) and (min-height: 960px) {
+	body { justify-content: flex-end; }
+	#canvas {
+    	width: 1118px;
+	    height: 960px;
+	}
+	.border     { border-width: 2px; }
+	aside       { width: 154px; height: 960px; }
+	#scoreboard { padding-left: 18px; }
+	.digit      { width: 56px; height: 86px; background-size: 560px; }
+}*/
+
+
+/* ======== 3x ======== */
+/*@media screen and (min-width: 1920px) and (min-height: 1440px) {
+	body { justify-content: flex-end; }
+	#canvas {
+	    width: 1677px;
+	    height: 1440px;
+	}
+	.border     { border-width: 3px; }
+	aside       { width: 231px; height: 1440px; }
+	#scoreboard { padding-left: 27px; }
+	.digit      { width: 84px; height: 129px; background-size: 840px; }
+}*/
+
+
+/* ======== 4x ======== */
+/*@media screen and (min-width: 2560px) and (min-height: 1920px) {
+	body { justify-content: flex-end; }
+	#canvas {
+	    width: 2236px;
+	    height: 1920px;
+	}
+	.border     { border-width: 4px; }
+	aside       { width: 308px; height: 1920px; }
+	#scoreboard { padding-left: 36px; }
+	.digit      { width: 112px; height: 172px; background-size: 1120px; }
+}*/
+
+
+
+/* ======== 5x ======== */
+/*@media screen and (min-width: 3200px) and (min-height: 2400px) {
+	body { justify-content: flex-end; }
+	#canvas {
+	    width: 2795px;
+	    height: 2400px;
+	}
+	.border     { border-width: 5px; }
+	aside       { width: 385px; height: 2400px; }
+	#scoreboard { padding-left: 45px; }
+	.digit      { width: 140px; height: 215px; background-size: 1400px; }
+}*/
