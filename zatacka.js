@@ -8,14 +8,15 @@ var canvasWidth = canvas.width;
 var canvasHeight = canvas.height;
 var pixels = new Array(canvasWidth*canvasHeight).fill(0);
 
-var KEY = Object.freeze({ BACKSPACE: 8, TAB: 9, ENTER: 13, SHIFT: 16, CTRL: 17, ALT: 18, PAUSE: 19, CAPS_LOCK: 20, ESCAPE: 27, SPACE: 32, PAGE_UP: 33, PAGE_DOWN: 34, END: 35, HOME: 36, LEFT_ARROW: 37, UP_ARROW: 38, RIGHT_ARROW: 39, DOWN_ARROW: 40, INSERT: 45, DELETE: 46, 0: 48, 1: 49, 2: 50, 3: 51, 4: 52, 5: 53, 6: 54, 7: 55, 8: 56, 9: 57, A: 65, B: 66, C: 67, D: 68, E: 69, F: 70, G: 71, H: 72, I: 73, J: 74, K: 75, L: 76, M: 77, N: 78, O: 79, P: 80, Q: 81, R: 82, S: 83, T: 84, U: 85, V: 86, W: 87, X: 88, Y: 89, Z: 90, LEFT_META: 91, RIGHT_META: 92, SELECT: 93, NUMPAD_0: 96, NUMPAD_1: 97, NUMPAD_2: 98, NUMPAD_3: 99, NUMPAD_4: 100, NUMPAD_5: 101, NUMPAD_6: 102, NUMPAD_7: 103, NUMPAD_8: 104, NUMPAD_9: 105, MULTIPLY: 106, ADD: 107, SUBTRACT: 109, DECIMAL: 110, DIVIDE: 111, F1: 112, F2: 113, F3: 114, F4: 115, F5: 116, F6: 117, F7: 118, F8: 119, F9: 120, F10: 121, F11: 122, F12: 123, NUM_LOCK: 144, SCROLL_LOCK: 145, SEMICOLON: 186, EQUALS: 187, COMMA: 188, DASH: 189, PERIOD: 190, FORWARD_SLASH: 191, GRAVE_ACCENT: 192, OPEN_BRACKET: 219, BACK_SLASH: 220, CLOSE_BRACKET: 221, SINGLE_QUOTE: 222 });
+var KEY = Object.freeze({ BACKSPACE: 8, TAB: 9, ENTER: 13, SHIFT: 16, CTRL: 17, ALT: 18, PAUSE: 19, CAPS_LOCK: 20, ESCAPE: 27, SPACE: 32, PAGE_UP: 33, PAGE_DOWN: 34, END: 35, HOME: 36, LEFT_ARROW: 37, UP_ARROW: 38, RIGHT_ARROW: 39, DOWN_ARROW: 40, INSERT: 45, DELETE: 46, "0": 48, "1": 49, "2": 50, "3": 51, "4": 52, "5": 53, "6": 54, "7": 55, "8": 56, "9": 57, A: 65, B: 66, C: 67, D: 68, E: 69, F: 70, G: 71, H: 72, I: 73, J: 74, K: 75, L: 76, M: 77, N: 78, O: 79, P: 80, Q: 81, R: 82, S: 83, T: 84, U: 85, V: 86, W: 87, X: 88, Y: 89, Z: 90, LEFT_META: 91, RIGHT_META: 92, SELECT: 93, NUMPAD_0: 96, NUMPAD_1: 97, NUMPAD_2: 98, NUMPAD_3: 99, NUMPAD_4: 100, NUMPAD_5: 101, NUMPAD_6: 102, NUMPAD_7: 103, NUMPAD_8: 104, NUMPAD_9: 105, MULTIPLY: 106, ADD: 107, SUBTRACT: 109, DECIMAL: 110, DIVIDE: 111, F1: 112, F2: 113, F3: 114, F4: 115, F5: 116, F6: 117, F7: 118, F8: 119, F9: 120, F10: 121, F11: 122, F12: 123, NUM_LOCK: 144, SCROLL_LOCK: 145, SEMICOLON: 186, EQUALS: 187, COMMA: 188, DASH: 189, PERIOD: 190, FORWARD_SLASH: 191, GRAVE_ACCENT: 192, OPEN_BRACKET: 219, BACK_SLASH: 220, CLOSE_BRACKET: 221, SINGLE_QUOTE: 222 });
 
 var config = {
-    tickrate: 500, // Hz
+    tickrate: 600, // Hz
+    drawrate: 60, // Hz
     kurveThickness: 3,
     minSpawnAngle: -Math.PI/2,
     maxSpawnAngle:  Math.PI/2,
-    spawnMargin: 50,
+    spawnMargin: 100,
     spawnArea: null,
     maxPlayers: 6,
     speed: 64, // Kuxels per second
@@ -32,7 +33,8 @@ var config = {
 };
 
 config.spawnArea = computeSpawnArea(config.spawnMargin);
-
+var ticksSinceDraw = 0;
+var maxTicksBeforeDraw = config.tickrate/config.drawrate;
 
 
 
@@ -50,34 +52,22 @@ function isInt(n) {
 }
 
 function init() {
+
 }
 
 
 var Keyboard = {
-    _pressed: {},
-
+    pressed: {},
     isDown: function(keyCode) {
-        return this._pressed[keyCode];
+        return this.pressed[keyCode];
     },
-
     onKeydown: function(event) {
-        this._pressed[event.keyCode] = true;
+        this.pressed[event.keyCode] = true;
     },
-
     onKeyup: function(event) {
-        delete this._pressed[event.keyCode];
+        delete this.pressed[event.keyCode];
     }
 };
-
-// TODO maybe remove
-function getColorAt(data, x, y) {
-    return (y * canvasWidth + x) * 4;
-    for (var i = (y * canvasWidth + x) * 4; i < 4; i += 4) {
-        if (data[i] !== 0) {
-            return false;
-        }
-    }
-}
 
 function isOnField(x, y) {
     return x >= 0
@@ -100,39 +90,16 @@ function isOccupiedByOpponent(left, top, id) {
     return false;
 }
 
-function isOccupiedBySelf(left, top, id) {
-    // TODO THIS IS A DUMMY 
-    return false;
-    var x, y;
-    var right = left + config.kurveThickness;
-    var bottom = top + config.kurveThickness;
-    for (y = top; y < bottom; y++) {
-        for (x = left; x < right; x++) {
-            if (pixels[pixelAddress(x, y)] === id) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 function isOccupied(left, top) {
-    var x, y;
-    var right = left + config.kurveThickness;
-    var bottom = top + config.kurveThickness;
-    for (y = top; y < bottom; y++) {
-        for (x = left; x < right; x++) {
-            if (pixels[y*canvasWidth + x] > 0) {
-                return true;
-            }
-        }
-    }
-    return false;
+    return isOccupiedByOpponent(left, top, undefined);
 }
 
 function isOccupiedPixel(x, y) {
-    //console.log("isOccupiedPixel("+x+", "+y+")? return "+(pixels[pixelAddress(x, y)] > 0));
-    return pixels[pixelAddress(x, y)] > 0;
+    return isOccupiedPixelAddress(pixelAddress(x, y));
+}
+
+function isOccupiedPixelAddress(addr) {
+    return pixels[addr] > 0;
 }
 
 
@@ -153,7 +120,7 @@ function computeSpawnArea(margin) {
 }
 
 function computeAngleChange() {
-    return (config.speed) / (config.tickrate * config.turningRadius);
+    return config.speed / (config.tickrate * config.turningRadius);
 }
 
 /**
@@ -168,21 +135,36 @@ function randomFloat(min, max) {
     return Math.random() * (max - min) + min;
 }
 
-// Translate a pair of coordinates (x, y) into a single pixel address:
+// Translates a pair of coordinates (x, y) into a single pixel address:
 function pixelAddress(x, y) {
     return y*canvasWidth + x;
 }
 
+// Returns true iff the two specified rectangles overlap each other:
+function isOverlap(left1, top1, left2, top2, thickness) {
+    return left2 > (left1 - thickness)
+        && left2 < (left1 + thickness)
+        && top2  > (top1  - thickness)
+        && top2  < (top1  + thickness);
+}
+
+// Returns an array with the pixel addresses to the pixels comprising the square at (left, top):
+function getPixels(left, top) {
+    var pixels = [];
+    var right = left + config.kurveThickness;
+    var bottom = top + config.kurveThickness;
+    for (var y = top; y < bottom; y++) {
+        for (var x = left; x < right; x++) {
+            pixels.push(pixelAddress(x, y));
+        }
+    }
+    return pixels;
+}
+
 function generateSpawnPosition() {
-    var x_min = config.spawnArea.x_min,
-        x_max = config.spawnArea.x_max,
-        y_min = config.spawnArea.y_min,
-        y_max = config.spawnArea.y_max;
-    var x = randomFloat(x_min, x_max);
-    var y = randomFloat(y_min, y_max);
     return {
-        x: x,
-        y: y
+        x: randomFloat(config.spawnArea.x_min, config.spawnArea.x_max),
+        y: randomFloat(config.spawnArea.y_min, config.spawnArea.y_max)
     };
 }
 
@@ -198,20 +180,11 @@ function generateSpawnDirection() {
  *   How much to interpolate between frames.
  */
 function draw(interpolationPercentage) {
-    // console.log("draw("+interpolationPercentage+")");
     var livePlayers = game.livePlayers;
-    for (var i = 0, len = livePlayers.length; i < len; i++) {
-        if (livePlayers[i] instanceof Player) {
-            livePlayers[i].draw();
-        }
+    // We cannot cache the length here since it is changed if some player dies:
+    for (var i = 0; i < livePlayers.length; i++) {
+        livePlayers[i].draw();
     }
-}
-
-/**
- * For profiling.
- *
- */
-function begin() {
 }
 
 /**
@@ -224,8 +197,8 @@ function update(delta) {
     for (var i = 0, len = game.livePlayers.length; i < len; i++) {
         game.livePlayers[i].update(delta);
     }
+    ticksSinceDraw++;
 }
-
 
 /**
  * Updates the FPS counter etc.
@@ -260,7 +233,10 @@ function Player(id, name, color, keyL, keyR) {
         this.color = color || config.players[id].color || "white";
         this.keyL  = keyL  || config.players[id].keyL  || null;
         this.keyR  = keyR  || config.players[id].keyR  || null;
-        this.queuedDraws = new Queue();
+        this.queuedDraws  = new Queue();
+        this.lastDraw     = { "x": null, "y": null };
+        this.secondLastDraw = { "x": null, "y": null };
+        this.thirdLastDraw = { "x": null, "y": null };
     } else {
         throw new Error("Cannot create a player with ID "+id+".");
     }
@@ -285,6 +261,28 @@ Player.prototype.getName = function() {
     return this.name;
 };
 
+Player.prototype.toString = function() {
+    return this.name;
+};
+
+Player.prototype.isAlive = function() {
+    return this.alive;
+};
+
+Player.prototype.occupies = function(left, top) {
+    var x, y;
+    var right = left + config.kurveThickness;
+    var bottom = top + config.kurveThickness;
+    for (y = top; y < bottom; y++) {
+        for (x = left; x < right; x++) {
+            if (pixels[pixelAddress(x, y)] > 0 && pixels[pixelAddress(x, y)] === this.id) {
+                return true;
+            }
+        }
+    }
+    return false;
+};
+
 Player.prototype.setKeybind = function(dir, key) {
     if (dir === LEFT) {
         this.keyL = key;
@@ -297,30 +295,6 @@ Player.prototype.setKeybind = function(dir, key) {
     }
 };
 
-Player.prototype.spawn = function() {
-    var spawnPosition = generateSpawnPosition();
-    this.x = spawnPosition.x;
-    this.y = spawnPosition.y;
-    var spawnDirection = generateSpawnDirection();
-    this.direction = spawnDirection;
-    console.log(this+" spawning at ("+Math.floor(spawnPosition.x)+", "+Math.floor(spawnPosition.y)+") with direction "+Math.round(spawnDirection*180/Math.PI)+" deg.");
-    this.alive = true;
-};
-
-Player.prototype.die = function(cause) {
-    console.log(this+" died from "+cause+".");
-    game.death(this);
-    this.alive = false;
-};
-
-Player.prototype.isAlive = function() {
-    return this.alive;
-};
-
-Player.prototype.incrementScore = function() {
-    this.score++;
-};
-
 Player.prototype.reset = function() {
     this.score = 0;
     this.alive = false;
@@ -329,17 +303,81 @@ Player.prototype.reset = function() {
     this.x = null;
     this.y = null;
     this.direction = 0;
+    this.queuedDraws  = new Queue();
+    this.lastDraw     = { "x": null, "y": null };
+    this.secondLastDraw = { "x": null, "y": null };
+    this.thirdLastDraw = { "x": null, "y": null };
 };
 
-Player.prototype.occupySquare = function(left, top) {
+Player.prototype.spawn = function() {
+    var spawnPosition = generateSpawnPosition();
+    this.x = spawnPosition.x;
+    this.y = spawnPosition.y;
+    var spawnDirection = generateSpawnDirection();
+    this.direction = spawnDirection;
+    console.log(this+" spawning at ("+Math.round(spawnPosition.x)+", "+Math.round(spawnPosition.y)+") with direction "+Math.round(spawnDirection*180/Math.PI)+" deg.");
+    this.alive = true;
+};
+
+Player.prototype.occupy = function(left, top) {
     var id = this.id;
     var right = left + config.kurveThickness;
     var bottom = top + config.kurveThickness;
+    var thickness = config.kurveThickness;
     for (var y = top; y < bottom; y++) {
         for (var x = left; x < right; x++) {
             pixels[pixelAddress(x, y)] = id;
         }
     }
+    this.thirdLastDraw = { "x": this.secondLastDraw.left, "y": this.secondLastDraw.top };
+    this.secondLastDraw = { "x": this.lastDraw.left, "y": this.lastDraw.top };
+    this.lastDraw = { "x": left, "y": top };
+    context.fillStyle = this.color;
+    context.fillRect(left, top, thickness, thickness);
+};
+
+Player.prototype.die = function(cause) {
+    console.log(this+" died from "+cause+".");
+    game.death(this);
+    this.alive = false;
+};
+
+Player.prototype.incrementScore = function() {
+    this.score++;
+};
+
+Player.prototype.justDrewAt = function(left, top) {
+    return this.lastDraw.x === left && this.lastDraw.y === top;
+};
+
+Player.prototype.overlapsOwnNeck = function(left, top) {
+    return isOverlap(left, top, this.lastDraw.x, this.lastDraw.y, config.kurveThickness)
+        || isOverlap(left, top, this.secondLastDraw.x, this.secondLastDraw.y, config.kurveThickness)
+        || isOverlap(left, top, this.thirdLastDraw.x, this.thirdLastDraw.y, config.kurveThickness);
+};
+
+Player.prototype.getNewPixels = function(left, top) {
+    var right = left + config.kurveThickness;
+    var bottom = top + config.kurveThickness;
+    var newPixels = [];
+    var oldPixels = getPixels(this.lastDraw.x, this.lastDraw.y).concat(getPixels(this.secondLastDraw.x, this.secondLastDraw.y)).concat(getPixels(this.thirdLastDraw.x, this.thirdLastDraw.y));
+    var maybeNewPixels = getPixels(left, top);
+    for (var i = 0, len = maybeNewPixels.length; i < len; i++) {
+        if (oldPixels.indexOf(maybeNewPixels[i]) === -1) {
+            newPixels.push(maybeNewPixels[i]);
+        }
+    }
+    return newPixels;
+};
+
+Player.prototype.isCrashingIntoSelf = function(left, top) {
+    var newPixels = this.getNewPixels(left, top);
+    for (var i = 0, len = newPixels.length; i < len; i++) {
+        if (isOccupiedPixelAddress(newPixels[i])) {
+            return true;
+        }
+    }
+    return false;
 };
 
 /**
@@ -351,26 +389,28 @@ Player.prototype.occupySquare = function(left, top) {
 Player.prototype.draw = function() {
     var id = this.id;
     var queuedDraws = this.queuedDraws;
-    var currentDraw;
     var thickness  = config.kurveThickness;
+    var currentDraw;
     var left, top, right, bottom, x, y, pixelAddress;
     while (this.isAlive() && !this.queuedDraws.isEmpty()) {
         // Player is alive and there are queued draw operations to handle.
         currentDraw =  queuedDraws.dequeue();
-        left = Math.floor(currentDraw.x - thickness/2);
-        top  = Math.floor(currentDraw.y - thickness/2);
-        if (!isOnField(left, top)) {
-            this.die("crashing into the wall");
-        } else if (isOccupiedByOpponent(left, top, id)) {
-            // The player wants to draw on the field, but on a spot occupied by an opponent.
-            this.die("crashing into an opponent");
-        } else if (isOccupiedBySelf(left, top, id)) {
-            // The player wants to draw on the field, but on a spot occupied by itself.
-            this.die("crashing into itself");
-        } else {
-            this.occupySquare(left, top);
-            context.fillStyle = this.color;
-            context.fillRect(left, top, thickness, thickness);
+        left = Math.round(currentDraw.x - thickness/2);
+        top  = Math.round(currentDraw.y - thickness/2);
+        if (!this.justDrewAt(left, top)) {
+            // The new draw position is not identical to the last one.
+            if (!isOnField(left, top)) {
+                // The player wants to draw outside the playing field.
+                this.die("crashing into the wall");
+            } else if (isOccupiedByOpponent(left, top, id)) {
+                // The player wants to draw on a spot occupied by an opponent.
+                this.die("crashing into an opponent");
+            } else if (this.isCrashingIntoSelf(left, top)) {
+                // The player wants to draw on a spot occupied by itself.
+                this.die("crashing into itself");
+            } else {
+                this.occupy(left, top);
+            }
         }
     }
 };
@@ -382,7 +422,6 @@ Player.prototype.draw = function() {
  *   The amount of time since the last time the player was updated, in seconds.
  */
 Player.prototype.update = function(delta) {
-    // TODO fixa så det ritas exakt identiskt oberoende av framerate
     if (Keyboard.isDown(this.keyL)) {
         this.direction += computeAngleChange();
     }
@@ -395,11 +434,9 @@ Player.prototype.update = function(delta) {
     var theta = this.velocity * delta / 1000;
     this.x = this.x + theta * Math.cos(this.direction);
     this.y = this.y - theta * Math.sin(this.direction);
-    this.queuedDraws.enqueue({"x": this.x, "y": this.y });
-};
-
-Player.prototype.toString = function() {
-    return this.name;
+    if (ticksSinceDraw % maxTicksBeforeDraw === 0) {
+        this.queuedDraws.enqueue({"x": this.x, "y": this.y });
+    }
 };
 
 
@@ -463,6 +500,7 @@ game.addPlayer(new Player(5));
 game.addPlayer(new Player(6));
 game.start();
 
+// Debugging:
 // game.players[1].direction = 0;
 // game.players[1].x = 500;
 // game.players[1].y = 50;
@@ -476,7 +514,6 @@ function drawManually(x, y, color) {
 }
 
 MainLoop
-    //.setBegin(begin)
     .setUpdate(update)
     .setDraw(draw)
     .setEnd(end)
