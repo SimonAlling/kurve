@@ -140,6 +140,12 @@ function pixelAddress(x, y) {
     return y*canvasWidth + x;
 }
 
+function pixelAddressToCoordinates(addr) {
+    var x = addr % canvasWidth;
+    var y = (addr - x) / canvasWidth;
+    return "("+x+", "+y+")";
+}
+
 // Returns true iff the two specified rectangles overlap each other:
 function isOverlap(left1, top1, left2, top2, thickness) {
     return left2 > (left1 - thickness)
@@ -329,8 +335,8 @@ Player.prototype.occupy = function(left, top) {
             pixels[pixelAddress(x, y)] = id;
         }
     }
-    this.thirdLastDraw = { "x": this.secondLastDraw.left, "y": this.secondLastDraw.top };
-    this.secondLastDraw = { "x": this.lastDraw.left, "y": this.lastDraw.top };
+    this.thirdLastDraw = { "x": this.secondLastDraw.x, "y": this.secondLastDraw.y };
+    this.secondLastDraw = { "x": this.lastDraw.x, "y": this.lastDraw.y };
     this.lastDraw = { "x": left, "y": top };
     context.fillStyle = this.color;
     context.fillRect(left, top, thickness, thickness);
@@ -374,6 +380,18 @@ Player.prototype.isCrashingIntoSelf = function(left, top) {
     var newPixels = this.getNewPixels(left, top);
     for (var i = 0, len = newPixels.length; i < len; i++) {
         if (isOccupiedPixelAddress(newPixels[i])) {
+            // For debugging the seemingly random death on self:
+            // console.log(this+" dying at ("+left+", "+top+")");
+            // console.log(newPixels);
+            // console.log(this+".lastDraw:");
+            // console.log(this.lastDraw);
+            // console.log(this+".secondLastDraw:");
+            // console.log(this.secondLastDraw);
+            // console.log(this+".thirdLastDraw:");
+            // console.log(this.thirdLastDraw);
+            // for (var n = 0; n < newPixels.length; n++) {
+            //     console.log(pixelAddressToCoordinates(newPixels[n]));
+            // }
             return true;
         }
     }
