@@ -52,36 +52,38 @@ body {
 	min-height: 100%;
 }
 
-.digit {
+#scoreboard {
+	padding: 0 12px 0 9px;
 }
 
-.red.digit {
-	background-image: url("resources/kurve-digits-red.png");
+.digits {
+	height: 43px;
 }
 
-.yellow.digit {
-	background-image: url("resources/kurve-digits-yellow.png");
+.digits > div {
+	height: 43px;
+	width: 28px;
+	display: inline-block;
+	float: right;
 }
 
-.orange.digit {
-	background-image: url("resources/kurve-digits-orange.png");
-}
+.red.digits    div { background-image: url("resources/kurve-digits-red.png");    }
+.yellow.digits div { background-image: url("resources/kurve-digits-yellow.png"); }
+.orange.digits div { background-image: url("resources/kurve-digits-orange.png"); }
+.green.digits  div { background-image: url("resources/kurve-digits-green.png");  }
+.pink.digits   div { background-image: url("resources/kurve-digits-pink.png");   }
+.blue.digits   div { background-image: url("resources/kurve-digits-blue.png");   }
 
-.green.digit {
-	background-image: url("resources/kurve-digits-green.png");
-}
-
-.pink.digit {
-	background-image: url("resources/kurve-digits-pink.png");
-}
-
-.blue.digit {
-	background-image: url("resources/kurve-digits-blue.png");
-}
-
-.digit.d1 {
-	background-position: -28px 0;
-}
+.digits .d0 { background-position:    0   0; }
+.digits .d1 { background-position:  -28px 0; }
+.digits .d2 { background-position:  -56px 0; }
+.digits .d3 { background-position:  -84px 0; }
+.digits .d4 { background-position: -112px 0; }
+.digits .d5 { background-position: -140px 0; }
+.digits .d6 { background-position: -168px 0; }
+.digits .d7 { background-position: -196px 0; }
+.digits .d8 { background-position: -224px 0; }
+.digits .d9 { background-position: -252px 0; }
 
 
 
@@ -102,7 +104,6 @@ body {
 	}
 	.border     { border-width: 1px; }
 	aside       { width: 77px; height: 480px; }
-	#scoreboard { padding-left: 9px; }
 	.digit      { width: 28px; height: 43px; }
 }
 
