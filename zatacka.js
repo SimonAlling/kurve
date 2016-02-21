@@ -344,7 +344,7 @@ Player.prototype.occupy = function(left, top) {
 
 Player.prototype.die = function(cause) {
     console.log(this+" died from "+cause+".");
-    game.death(this);
+    game.deathOf(this);
     this.alive = false;
 };
 
@@ -497,13 +497,22 @@ Game.prototype.start = function() {
     }
 };
 
-Game.prototype.death = function(player) {
-    for (var i = 0, len = this.livePlayers.length; i < len; i++) {
+Game.prototype.deathOf = function(player) {
+    for (var i = 0; i < this.livePlayers.length; i++) {
         if (this.livePlayers[i] === player) {
+            // Remove dead player from livePlayers:
             this.livePlayers.splice(i, 1);
+            break;
         }
     }
+    for (var i = 0, len = this.livePlayers.length; i < len; i++) {
+        this.livePlayers[i].score++;
+    }
+    // for (var i = 1, len = this.players.length; i < len; i++) {
+    //     console.log(this.players[i] + ": " +this.players[i].score);
+    // }
 };
+
 
 
 window.addEventListener("keyup"  , function(event) { Keyboard.onKeyup(event);   }, false);
