@@ -529,48 +529,6 @@ Game.prototype.getNumberOfActivePlayers = function() {
 };
 
 
-
-/**
- * GUIController constructor. Controls the game chrome.
- */
-function GUIController() {
-    this.scoreboard = document.getElementById("scoreboard");
-    if (!(this.scoreboard instanceof HTMLElement)) {
-        console.error("Scoreboard HTML element could not be found.");
-    }
-}
-
-
-/**
- * Updates the displayed score of the specified player to the specified value.
- *
- * @param {Number} id
- *   The id of the player whose score is to be updated.
- * @param {Number} newScore
- *   The new score to display.
- */
-GUIController.prototype.updateScoreOfPlayer = function(id, newScore) {
-    if (!(this.scoreboard instanceof HTMLElement)) {
-        console.error("Scoreboard HTML element could not be found.");
-    } else {
-        var scoreboardItem = this.scoreboard.children[id-1]; // minus 1 necessary since players are 1-indexed
-        var onesDigit = newScore % 10;                       // digit at the ones position (4 in 14)
-        var tensDigit = (newScore - (newScore % 10)) / 10;   // digit at the tens position (1 in 14)
-        if (scoreboardItem instanceof HTMLDivElement && scoreboardItem.children[0] instanceof HTMLDivElement && scoreboardItem.children[1] instanceof HTMLDivElement) {
-            // The digit elements are ordered such that children[0] is ones, children[1] is tens, and so on.
-            // First, we have to remove all digit classes:
-            scoreboardItem.children[0].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
-            scoreboardItem.children[1].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
-            // Add appropriate classes to ones and tens position, respectively:
-            scoreboardItem.children[0].classList.add("d"+onesDigit);
-            scoreboardItem.children[1].classList.add("d"+tensDigit);
-        } else {
-            console.error("Could not find HTML scoreboard entry for "+this.players[id].toString()+".");
-        }
-    }
-};
-
-
 /**
  * Adds a player to the game.
  *
@@ -618,6 +576,46 @@ Game.prototype.deathOf = function(player) {
     // }
 };
 
+
+
+/**
+ * GUIController constructor. Controls the game chrome.
+ */
+function GUIController() {
+    this.scoreboard = document.getElementById("scoreboard");
+    if (!(this.scoreboard instanceof HTMLElement)) {
+        console.error("Scoreboard HTML element could not be found.");
+    }
+}
+
+/**
+ * Updates the displayed score of the specified player to the specified value.
+ *
+ * @param {Number} id
+ *   The id of the player whose score is to be updated.
+ * @param {Number} newScore
+ *   The new score to display.
+ */
+GUIController.prototype.updateScoreOfPlayer = function(id, newScore) {
+    if (!(this.scoreboard instanceof HTMLElement)) {
+        console.error("Scoreboard HTML element could not be found.");
+    } else {
+        var scoreboardItem = this.scoreboard.children[id-1]; // minus 1 necessary since players are 1-indexed
+        var onesDigit = newScore % 10;                       // digit at the ones position (4 in 14)
+        var tensDigit = (newScore - (newScore % 10)) / 10;   // digit at the tens position (1 in 14)
+        if (scoreboardItem instanceof HTMLDivElement && scoreboardItem.children[0] instanceof HTMLDivElement && scoreboardItem.children[1] instanceof HTMLDivElement) {
+            // The digit elements are ordered such that children[0] is ones, children[1] is tens, and so on.
+            // First, we have to remove all digit classes:
+            scoreboardItem.children[0].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
+            scoreboardItem.children[1].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
+            // Add appropriate classes to ones and tens position, respectively:
+            scoreboardItem.children[0].classList.add("d"+onesDigit);
+            scoreboardItem.children[1].classList.add("d"+tensDigit);
+        } else {
+            console.error("Could not find HTML scoreboard entry for "+this.players[id].toString()+".");
+        }
+    }
+};
 
 
 window.addEventListener("keyup"  , function(event) { Keyboard.onKeyup(event);   }, false);
