@@ -248,6 +248,14 @@ function Player(id, name, color, keyL, keyR) {
     }
 }
 
+// "Constants" for easier use of player IDs:
+Player.RED = 1;
+Player.YELLOW = 2;
+Player.ORANGE = 3;
+Player.GREEN = 4;
+Player.PINK = 5;
+Player.BLUE = 6;
+
 Player.prototype.score = 0;
 Player.prototype.alive = false;
 Player.prototype.x = null;
@@ -618,12 +626,12 @@ window.addEventListener("keydown", function(event) { Keyboard.onKeydown(event); 
 var GUI = new GUIController();
 
 var game = new Game(config.maxPlayers);
-game.addPlayer(new Player(1));
-game.addPlayer(new Player(2));
-game.addPlayer(new Player(3));
-game.addPlayer(new Player(4));
-game.addPlayer(new Player(5));
-game.addPlayer(new Player(6));
+game.addPlayer(new Player(Player.RED));
+game.addPlayer(new Player(Player.YELLOW));
+game.addPlayer(new Player(Player.ORANGE));
+game.addPlayer(new Player(Player.GREEN));
+game.addPlayer(new Player(Player.PINK));
+game.addPlayer(new Player(Player.BLUE));
 game.start();
 
 // Debugging:
