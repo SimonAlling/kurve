@@ -74,7 +74,17 @@ body {
 .pink.digits   div { background-image: url("resources/kurve-digits-pink.png");   }
 .blue.digits   div { background-image: url("resources/kurve-digits-blue.png");   }
 
-.digits .d0 { background-position:    0   0; }
+/* Don't display 0: */
+.digits .d0 {
+	background-position: 0 0;
+	display: none;
+}
+
+/* Except for at the ones position: */
+.digits .d0:first-child {
+	display: block;
+}
+
 .digits .d1 { background-position:  -28px 0; }
 .digits .d2 { background-position:  -56px 0; }
 .digits .d3 { background-position:  -84px 0; }
