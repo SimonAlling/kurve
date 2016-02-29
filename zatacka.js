@@ -463,13 +463,62 @@ Player.prototype.update = function(delta) {
 
 
 /**
+ * Round constructor. A Round object holds information about a round.
+ */
+function Round(maxPlayers) {
+    this.scoreboard = (new Array(maxPlayers+1)).fill(0);
+}
+
+Round.prototype.finished = false;
+Round.prototype.length = null;
+
+Round.prototype.isFinished = function() {
+    return this.finished;
+};
+
+Round.prototype.getLength = function() {
+    return this.length;
+};
+
+
+
+
+
+/**
  * Game constructor. A Game object holds information about a running game.
  */
-function Game() {
-    this.players = new Array(config.maxPlayers+1).fill(null);
+function Game(maxPlayers) {
+    // Length not dependent on number of ACTIVE players; empty player slots are null:
+    this.players = new Array(maxPlayers+1).fill(null);
     this.livePlayers = [];
-    this.scoreboard = (new Array(config.maxPlayers+1)).fill(0);
+    this.rounds = Game.emptyRoundsArray(maxPlayers);
+    this.scoreboard = (new Array(maxPlayers+1)).fill(null);
 }
+
+Game.calculateTargetScore = function(numberOfActivePlayers) {
+    return (numberOfActivePlayers - 1) * 10;
+};
+
+Game.emptyRoundsArray = function(maxPlayers) {
+    var rounds = new Array(maxPlayers + 1);
+};
+
+
+Game.prototype.numberOfActivePlayers = 0;
+Game.prototype.targetScore = null;
+
+Game.prototype.setTargetScore = function(s) {
+    console.log("Setting target score to "+s+".");
+    this.targetScore = s;
+};
+
+Game.prototype.getTargetScore = function() {
+    return this.targetScore;
+};
+
+Game.prototype.getNumberOfActivePlayers = function() {
+    return this.numberOfActivePlayers;
+};
 
 /**
  * Adds a player to the game.
@@ -480,18 +529,23 @@ function Game() {
  *   Player number, e.g. RED = P1, YELLOW = P2, ... , BLUE = P6.
  */
 Game.prototype.addPlayer = function(player) {
-   this.players[player.getID()] = player;
-   console.log("Added "+player+" as player "+player.getID()+".");
+    if (this.players[player.getID()] !== null) {
+        console.warn("There is already a player with ID "+player.getID()+". It will be replaced.");
+    }
+    this.players[player.getID()] = player;
+    console.log("Added "+player+" as player "+player.getID()+".");
 };
 
 Game.prototype.start = function() {
     // Grab all added players and put them in livePlayers:
     for (var i = 0, len = this.players.length; i < len; i++) {
         if (this.players[i] instanceof Player) {
+            this.numberOfActivePlayers++;
             this.livePlayers.push(this.players[i]);
             console.log("Added "+this.players[i]+" to livePlayers.");
         }
     }
+    this.setTargetScore(Game.calculateTargetScore(this.numberOfActivePlayers));
     for (i = 0, len = this.livePlayers.length; i < len; i++) {
         this.livePlayers[i].spawn();
     }
@@ -518,7 +572,7 @@ Game.prototype.deathOf = function(player) {
 window.addEventListener("keyup"  , function(event) { Keyboard.onKeyup(event);   }, false);
 window.addEventListener("keydown", function(event) { Keyboard.onKeydown(event); }, false);
 
-var game = new Game();
+var game = new Game(config.maxPlayers);
 game.addPlayer(new Player(1));
 game.addPlayer(new Player(2));
 game.addPlayer(new Player(3));
