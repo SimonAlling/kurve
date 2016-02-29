@@ -30,6 +30,7 @@ body {
 
 #border2 {
 	border-color: #717171;
+	position: relative; /* to allow absolute positioning of #lobby */
 }
 
 #border3 {
@@ -39,6 +40,59 @@ body {
 #border4 {
 	border-color: #515151;
 }
+
+#lobby {
+	background-color: rgba(0, 0, 0, 0.8);
+	height: 480px;
+	left: 0;
+	margin: 1px;
+	position: absolute;
+	top: 0;
+	width: 559px;
+	z-index: 20;
+}
+
+#lobby #controls {
+	list-style-type: none;
+	margin-left: 81px;
+	margin-top: 50px;
+}
+
+#lobby #controls li {
+	height: 50px;
+}
+
+#lobby #controls li div {
+	float: left;
+	height: 100%;
+	background-repeat: no-repeat;
+}
+
+#lobby #controls .controls {
+	width: 159px;
+}
+
+#lobby #controls .ready {
+	display: none;
+	width: 80px;
+}
+
+#lobby #controls .ready.active {
+	display: block;
+}
+
+#lobby #controls .red.controls    { background-image: url("resources/kurve-lobby-controls-red.png");    }
+#lobby #controls .red.ready       { background-image: url("resources/kurve-lobby-ready-red.png");       }
+#lobby #controls .yellow.controls { background-image: url("resources/kurve-lobby-controls-yellow.png"); }
+#lobby #controls .yellow.ready    { background-image: url("resources/kurve-lobby-ready-yellow.png");    }
+#lobby #controls .orange.controls { background-image: url("resources/kurve-lobby-controls-orange.png"); }
+#lobby #controls .orange.ready    { background-image: url("resources/kurve-lobby-ready-orange.png");    }
+#lobby #controls .green.controls  { background-image: url("resources/kurve-lobby-controls-green.png");  }
+#lobby #controls .green.ready     { background-image: url("resources/kurve-lobby-ready-green.png");     }
+#lobby #controls .pink.controls   { background-image: url("resources/kurve-lobby-controls-pink.png");   }
+#lobby #controls .pink.ready      { background-image: url("resources/kurve-lobby-ready-pink.png");      }
+#lobby #controls .blue.controls   { background-image: url("resources/kurve-lobby-controls-blue.png");   }
+#lobby #controls .blue.ready      { background-image: url("resources/kurve-lobby-ready-blue.png");      }
 
 #canvas {
 	background-color: black;
