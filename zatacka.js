@@ -650,7 +650,7 @@ MainLoop
     .setDraw(draw)
     .setEnd(end)
     .setSimulationTimestep(1000/config.tickrate)
-    .setMaxAllowedFPS(30)
+    .setMaxAllowedFPS(60)
     .start();
 
 return {
