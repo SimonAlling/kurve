@@ -326,7 +326,6 @@ Player.prototype.setKeybind = function(dir, key) {
 };
 
 Player.prototype.reset = function() {
-    this.score = 0;
     this.alive = false;
     this.lastY = null;
     this.lastX = null;
@@ -559,6 +558,15 @@ function Game(maxPlayers) {
     this.rounds = Game.emptyRoundsArray(maxPlayers);
     this.scoreboard = (new Array(maxPlayers+1)).fill(null);
     this.mode = undefined;
+    this.waitingForSpace = false;
+    var self = this;
+    this.inGameKeyListener = function(event) {
+        if (event.keyCode === KEY.SPACE && self.waitingForSpace) {
+            self.nextRound();
+        } else if (event.keyCode === KEY.ESCAPE) {
+            // handle Esc
+        }
+    };
 }
 
 Game.PRACTICE    = "practice";
@@ -647,6 +655,8 @@ Game.prototype.start = function() {
             console.log("Added "+this.players[i]+" to livePlayers.");
         }
     }
+    var self = this;
+    document.addEventListener("keydown", self.inGameKeyListener);
     this.setTargetScore(Game.calculateTargetScore(this.getNumberOfActivePlayers()));
     this.spawnPlayers();
 };
@@ -673,6 +683,30 @@ Game.prototype.startPlayers = function() {
     MainLoop.start();
 };
 
+Game.prototype.stopPlayers = function() {
+    var self = this;
+    for (var i = 0, len = this.activePlayers.length; i < len; i++) {
+        self.activePlayers[i].stop();
+    }
+};
+
+Game.prototype.clearCanvas = function() {
+    context.clearRect(0, 0, canvasWidth, canvasHeight);
+};
+
+Game.prototype.nextRound = function() {
+    this.clearCanvas();
+    for (var i = 1; i < this.activePlayers.length; i++) {
+        this.activePlayers[i].reset();
+    }
+    this.spawnPlayers();
+};
+
+Game.prototype.freeze = function() {
+    this.stopPlayers();
+    this.waitingForSpace = true;
+};
+
 Game.prototype.deathOf = function(player) {
     for (var i = 0; i < this.livePlayers.length; i++) {
         if (this.livePlayers[i] === player) {
@@ -686,9 +720,11 @@ Game.prototype.deathOf = function(player) {
         GUIController.updateScoreOfPlayer(this.livePlayers[i].getID(), this.livePlayers[i].getScore());
     }
     if (this.livePlayers.length === 1 && this.getMode() === Game.COMPETITIVE) {
-        console.log("FREEZE; round over");
+        console.log("Round over. "+this.livePlayers[0]+" won.");
+        this.freeze();
     } else if (this.livePlayers.length === 0) {
-        console.log("FREEZE; round over");
+        console.log("Round over.");
+        this.freeze();
     }
 };
 
