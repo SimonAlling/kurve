@@ -369,10 +369,10 @@ Player.prototype.spawn = function() {
     var self = this;
     setTimeout(function() { self.stopFlickering(); }, config.flickerDuration);
     console.log(this+" spawning at ("+Math.round(spawnPosition.x)+", "+Math.round(spawnPosition.y)+") with direction "+Math.round(spawnDirection*180/Math.PI)+" deg.");
-    this.alive = true;
 };
 
 Player.prototype.start = function() {
+    this.alive = true;
     this.velocity = config.speed;
 };
 
@@ -394,7 +394,7 @@ Player.prototype.occupy = function(left, top) {
 };
 
 Player.prototype.die = function(cause) {
-    console.log(this+" died from "+cause+".");
+    console.log(this+" died at ("+Math.round(this.x)+", "+Math.round(this.y)+") from "+cause+".");
     game.deathOf(this);
     this.alive = false;
 };
@@ -457,13 +457,12 @@ Player.prototype.isCrashingIntoSelf = function(left, top) {
  */
 Player.prototype.draw = function() {
     var id = this.id;
-    var queuedDraws = this.queuedDraws;
-    var thickness  = config.kurveThickness;
+    var thickness = config.kurveThickness;
     var currentDraw;
     var left, top, right, bottom, x, y, pixelAddress;
     while (this.isAlive() && !this.queuedDraws.isEmpty()) {
         // Player is alive and there are queued draw operations to handle.
-        currentDraw =  queuedDraws.dequeue();
+        currentDraw =  this.queuedDraws.dequeue();
         left = Math.round(currentDraw.x - thickness/2);
         top  = Math.round(currentDraw.y - thickness/2);
         if (!this.justDrewAt(left, top)) {
@@ -508,7 +507,7 @@ Player.prototype.update = function(delta) {
     var theta = this.velocity * delta / 1000;
     this.x = this.x + theta * Math.cos(this.direction);
     this.y = this.y - theta * Math.sin(this.direction);
-    if (ticksSinceDraw % maxTicksBeforeDraw === 0) {
+    if (this.isAlive() && ticksSinceDraw % maxTicksBeforeDraw === 0) {
         this.queuedDraws.enqueue({"x": this.x, "y": this.y });
     }
 };
@@ -547,6 +546,7 @@ function Game(maxPlayers) {
     // Length not dependent on number of ACTIVE players; empty player slots are null:
     this.players = new Array(maxPlayers+1).fill(null);
     this.livePlayers = [];
+    this.activePlayers = [];
     this.rounds = Game.emptyRoundsArray(maxPlayers);
     this.scoreboard = (new Array(maxPlayers+1)).fill(null);
 }
@@ -559,8 +559,6 @@ Game.emptyRoundsArray = function(maxPlayers) {
     var rounds = new Array(maxPlayers + 1);
 };
 
-
-Game.prototype.numberOfActivePlayers = 0;
 Game.prototype.targetScore = null;
 
 Game.prototype.setTargetScore = function(s) {
@@ -572,8 +570,20 @@ Game.prototype.getTargetScore = function() {
     return this.targetScore;
 };
 
+// Works in lobby:
+Game.prototype.getNumberOfReadyPlayers = function() {
+    var n = 0;
+    for (var i = 0, len = this.players.length; i < len; i++) {
+        if (this.players[i] instanceof Player) {
+            n++;
+        }
+    }
+    return n;
+};
+
+// Works after game.start() only:
 Game.prototype.getNumberOfActivePlayers = function() {
-    return this.numberOfActivePlayers;
+    return this.activePlayers.length;
 };
 
 
@@ -587,7 +597,6 @@ Game.prototype.addPlayer = function(player) {
     if (this.players[player.getID()] !== null) {
         console.warn("There is already a player with ID "+player.getID()+". It will be replaced.");
     }
-    this.numberOfActivePlayers++;
     this.players[player.getID()] = player;
     console.log("Added "+player+" as player "+player.getID()+".");
 };
@@ -602,7 +611,6 @@ Game.prototype.removePlayer = function(id) {
     if (this.players[id] === null) {
         console.warn("Cannot remove player "+id+" because they are not in the game.");
     } else {
-        this.numberOfActivePlayers--;
         console.log("Removed "+this.players[id]+" (player "+id+").");
         this.players[id] = null;
     }
@@ -612,15 +620,35 @@ Game.prototype.start = function() {
     // Grab all added players and put them in livePlayers:
     for (var i = 0, len = this.players.length; i < len; i++) {
         if (this.players[i] instanceof Player) {
-            this.numberOfActivePlayers++;
+            this.activePlayers.push(this.players[i]);
             this.livePlayers.push(this.players[i]);
             console.log("Added "+this.players[i]+" to livePlayers.");
         }
     }
-    this.setTargetScore(Game.calculateTargetScore(this.numberOfActivePlayers));
-    for (i = 0, len = this.livePlayers.length; i < len; i++) {
-        this.livePlayers[i].spawn();
+    this.setTargetScore(Game.calculateTargetScore(this.getNumberOfActivePlayers()));
+    this.spawnPlayers();
+};
+
+Game.prototype.spawnPlayers = function() {
+    var activePlayers = this.activePlayers;
+    var self = this;
+    function spawnNextPlayer(next) {
+        if (activePlayers[next] instanceof Player) {
+            activePlayers[next].spawn();
+            setTimeout(spawnNextPlayer, config.flickerDuration, next+1);
+        } else {
+            self.startPlayers();
+        }
     }
+    spawnNextPlayer(0);
+};
+
+Game.prototype.startPlayers = function() {
+    var self = this;
+    for (var i = 0, len = this.activePlayers.length; i < len; i++) {
+        self.activePlayers[i].start();
+    }
+    MainLoop.start();
 };
 
 Game.prototype.deathOf = function(player) {
@@ -658,7 +686,7 @@ GUIController.lobbyKeyListener = function(event) {
         }
     }
     if (event.keyCode === KEY.SPACE) {
-        if (game.getNumberOfActivePlayers() > 0) {
+        if (game.getNumberOfReadyPlayers() > 0) {
             GUIController.startGame();
         }
     }
@@ -682,7 +710,6 @@ GUIController.startGame = function() {
         }
     }
     game.start();
-    MainLoop.start();
 };
 
 GUIController.showScoreOfPlayer = function(id) {
