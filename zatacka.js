@@ -380,6 +380,11 @@ Player.prototype.start = function() {
     this.velocity = config.speed;
 };
 
+Player.prototype.stop = function() {
+    this.alive = false;
+    this.velocity = 0;
+};
+
 Player.prototype.occupy = function(left, top) {
     var id = this.id;
     var right = left + config.kurveThickness;
@@ -553,7 +558,11 @@ function Game(maxPlayers) {
     this.activePlayers = [];
     this.rounds = Game.emptyRoundsArray(maxPlayers);
     this.scoreboard = (new Array(maxPlayers+1)).fill(null);
+    this.mode = undefined;
 }
+
+Game.PRACTICE    = "practice";
+Game.COMPETITIVE = "competitive";
 
 Game.calculateTargetScore = function(numberOfActivePlayers) {
     return (numberOfActivePlayers - 1) * 10;
@@ -565,9 +574,18 @@ Game.emptyRoundsArray = function(maxPlayers) {
 
 Game.prototype.targetScore = null;
 
+Game.prototype.setMode = function(m) {
+    console.log("Setting game mode to "+m+".");
+    this.mode = m;
+};
+
 Game.prototype.setTargetScore = function(s) {
     console.log("Setting target score to "+s+".");
     this.targetScore = s;
+};
+
+Game.prototype.getMode = function() {
+    return this.mode;
 };
 
 Game.prototype.getTargetScore = function() {
@@ -667,9 +685,11 @@ Game.prototype.deathOf = function(player) {
         this.livePlayers[i].incrementScore();
         GUIController.updateScoreOfPlayer(this.livePlayers[i].getID(), this.livePlayers[i].getScore());
     }
-    // for (var i = 1, len = this.players.length; i < len; i++) {
-    //     console.log(this.players[i] + ": " +this.players[i].score);
-    // }
+    if (this.livePlayers.length === 1 && this.getMode() === Game.COMPETITIVE) {
+        console.log("FREEZE; round over");
+    } else if (this.livePlayers.length === 0) {
+        console.log("FREEZE; round over");
+    }
 };
 
 
@@ -691,7 +711,9 @@ GUIController.lobbyKeyListener = function(event) {
         }
     }
     if (event.keyCode === KEY.SPACE) {
-        if (game.getNumberOfReadyPlayers() > 0) {
+        var numberOfReadyPlayers = game.getNumberOfReadyPlayers();
+        if (numberOfReadyPlayers > 0) {
+            game.setMode(numberOfReadyPlayers === 1 ? Game.PRACTICE : Game.COMPETITIVE);
             GUIController.startGame();
         }
     }
