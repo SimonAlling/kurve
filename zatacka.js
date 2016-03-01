@@ -21,6 +21,8 @@ var config = {
     maxPlayers: 6,
     speed: 64, // Kuxels per second
     turningRadius: 27, // Kuxels (NB: _radius_)
+    flickerFrequency: 20, // Hz, when spawning
+    flickerDuration: 830, // ms, when spawning
     players: [
         null, // => very neat logic since Red = P1, Yellow = P2 etc
         { name: "Red",    color: "#FF2800", keyL: KEY["1"], keyR: KEY.Q },
@@ -178,6 +180,15 @@ function generateSpawnDirection() {
     return randomFloat(config.minSpawnAngle, config.maxSpawnAngle);
 }
 
+function drawKurveSquare(x, y, color) {
+    context.fillStyle = color;
+    context.fillRect(x, y, config.kurveThickness, config.kurveThickness);
+}
+
+function clearKurveSquare(x, y) {
+    context.clearRect(x, y, config.kurveThickness, config.kurveThickness);
+}
+
 
 /**
  * Draws all players.
@@ -263,9 +274,10 @@ Player.prototype.y = null;
 Player.prototype.lastX = null;
 Player.prototype.lastY = null;
 Player.prototype.direction = 0;
-Player.prototype.velocity = config.speed;
+Player.prototype.velocity = 0;
 Player.prototype.keyL = null;
 Player.prototype.keyR = null;
+Player.prototype.flickerTicker = null;
 
 Player.prototype.getID = function() {
     return this.id;
@@ -323,14 +335,45 @@ Player.prototype.reset = function() {
     this.thirdLastDraw = { "x": null, "y": null };
 };
 
+Player.prototype.flicker = function() {
+    var isVisible = false;
+    var x = Math.round(this.x - config.kurveThickness/2);
+    var y = Math.round(this.y - config.kurveThickness/2);
+    var color = this.color;
+    this.flickerTicker = setInterval(function() {
+        if (isVisible) {
+            clearKurveSquare(x, y);
+            isVisible = false;
+        } else {
+            drawKurveSquare(x, y, color);
+            isVisible = true;
+        }
+    }, 1000/config.flickerFrequency);
+};
+
+Player.prototype.stopFlickering = function() {
+    clearInterval(this.flickerTicker);
+    var x = Math.round(this.x - config.kurveThickness/2);
+    var y = Math.round(this.y - config.kurveThickness/2);
+    drawKurveSquare(x, y, this.color);
+};
+
 Player.prototype.spawn = function() {
     var spawnPosition = generateSpawnPosition();
     this.x = spawnPosition.x;
     this.y = spawnPosition.y;
     var spawnDirection = generateSpawnDirection();
     this.direction = spawnDirection;
+    // Player should flicker when it spawns:
+    this.flicker();
+    var self = this;
+    setTimeout(function() { self.stopFlickering(); }, config.flickerDuration);
     console.log(this+" spawning at ("+Math.round(spawnPosition.x)+", "+Math.round(spawnPosition.y)+") with direction "+Math.round(spawnDirection*180/Math.PI)+" deg.");
     this.alive = true;
+};
+
+Player.prototype.start = function() {
+    this.velocity = config.speed;
 };
 
 Player.prototype.occupy = function(left, top) {
