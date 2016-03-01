@@ -138,11 +138,11 @@ body {
 
 .digits {
 	height: 43px;
-	display: none;
+	visibility: hidden;
 }
 
 .active.digits {
-	display: block;
+	visibility: visible;
 }
 
 .digits > div {
