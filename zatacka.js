@@ -287,6 +287,10 @@ Player.prototype.getName = function() {
     return this.name;
 };
 
+Player.prototype.getScore = function() {
+    return this.score;
+};
+
 Player.prototype.toString = function() {
     return this.name;
 };
@@ -660,7 +664,8 @@ Game.prototype.deathOf = function(player) {
         }
     }
     for (var i = 0, len = this.livePlayers.length; i < len; i++) {
-        this.livePlayers[i].score++;
+        this.livePlayers[i].incrementScore();
+        GUIController.updateScoreOfPlayer(this.livePlayers[i].getID(), this.livePlayers[i].getScore());
     }
     // for (var i = 1, len = this.players.length; i < len; i++) {
     //     console.log(this.players[i] + ": " +this.players[i].score);
@@ -706,6 +711,7 @@ GUIController.startGame = function() {
     // Show score of active players:
     for (var i = 1, len = game.players.length; i < len; i++) {
         if (game.players[i] instanceof Player) {
+            this.updateScoreOfPlayer(i, 0);
             this.showScoreOfPlayer(i);
         }
     }
@@ -753,9 +759,9 @@ GUIController.updateScoreOfPlayer = function(id, newScore) {
             // First, we have to remove all digit classes:
             scoreboardItem.children[0].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
             scoreboardItem.children[1].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
-            // Add appropriate classes to ones and tens position, respectively:
-            scoreboardItem.children[0].classList.add("d"+onesDigit);
-            scoreboardItem.children[1].classList.add("d"+tensDigit);
+            // Add appropriate classes to tens and ones position, respectively:
+            scoreboardItem.children[0].classList.add("d"+tensDigit);
+            scoreboardItem.children[1].classList.add("d"+onesDigit);
         } else {
             console.error("Could not find HTML scoreboard entry for "+this.players[id].toString()+".");
         }

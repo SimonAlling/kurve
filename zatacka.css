@@ -139,6 +139,7 @@ body {
 .digits {
 	height: 43px;
 	visibility: hidden;
+	margin-bottom: 37px;
 }
 
 .active.digits {
@@ -149,7 +150,7 @@ body {
 	height: 43px;
 	width: 28px;
 	display: inline-block;
-	float: right;
+	float: left;
 }
 
 .red.digits    div { background-image: url("resources/kurve-digits-red.png");    }
@@ -167,8 +168,8 @@ body {
 }
 
 /* Except for at the ones position: */
-.digits .d0:first-child {
-	display: block;
+.digits .d0:last-child {
+	display: inline-block;
 }
 
 .digits .d1 { background-position:  -28px 0; }
