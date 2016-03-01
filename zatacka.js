@@ -623,20 +623,39 @@ GUIController.initLobby = function() {
 
 GUIController.startGame = function() {
     console.log("OK, let's go!");
-    GUIController.lobby.classList.add("hidden");
+    // Hide lobby:
+    this.lobby.classList.add("hidden");
+    // Remove lobby key listener:
     document.removeEventListener("keydown", GUIController.lobbyKeyListener);
+    // Show score of active players:
+    for (var i = 1, len = game.players.length; i < len; i++) {
+        if (game.players[i] instanceof Player) {
+            this.showScoreOfPlayer(i);
+        }
+    }
     game.start();
     MainLoop.start();
 };
 
+GUIController.showScoreOfPlayer = function(id) {
+    var index = id - 1;
+    var scoreboard = this.scoreboard;
+    if (scoreboard instanceof HTMLElement) {
+        var scoreboardEntry = scoreboard.children[index];
+        if (scoreboardEntry instanceof HTMLElement) {
+            scoreboardEntry.classList.add("active");
+        }
+    }
+};
+
 GUIController.playerReady = function(id) {
     var index = id - 1;
-    GUIController.controlsList.children[index].children[1].classList.add("active");
+    this.controlsList.children[index].children[1].classList.add("active");
 };
 
 GUIController.playerUnready = function(id) {
     var index = id - 1;
-    GUIController.controlsList.children[index].children[1].classList.remove("active");
+    this.controlsList.children[index].children[1].classList.remove("active");
 };
 
 /**

@@ -120,6 +120,10 @@ body {
 	display: none;
 }
 
+.active.digits {
+	display: block;
+}
+
 .digits > div {
 	height: 43px;
 	width: 28px;
@@ -133,9 +137,7 @@ body {
 .green.digits  div { background-image: url("resources/kurve-digits-green.png");  }
 .pink.digits   div { background-image: url("resources/kurve-digits-pink.png");   }
 .blue.digits   div { background-image: url("resources/kurve-digits-blue.png");   }
-.active.digits {
-	display: block;
-}
+
 
 /* Don't display 0: */
 .digits .d0 {
