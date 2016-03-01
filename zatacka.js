@@ -504,7 +504,6 @@ Player.prototype.update = function(delta) {
     if (Keyboard.isDown(this.keyR)) {
         this.direction -= computeAngleChange();
     }
-
     // Debugging:
     var debugFieldID = "debug_" + this.getName().toLowerCase();
     var debugField = document.getElementById(debugFieldID);
@@ -515,7 +514,7 @@ Player.prototype.update = function(delta) {
     var theta = this.velocity * delta / 1000;
     this.x = this.x + theta * Math.cos(this.direction);
     this.y = this.y - theta * Math.sin(this.direction);
-    if (ticksSinceDraw % maxTicksBeforeDraw === 0) {
+    if (this.isAlive() && ticksSinceDraw % maxTicksBeforeDraw === 0) {
         this.queuedDraws.enqueue({"x": this.x, "y": this.y });
     }
 };
@@ -687,17 +686,21 @@ Game.prototype.stopPlayers = function() {
     var self = this;
     for (var i = 0, len = this.activePlayers.length; i < len; i++) {
         self.activePlayers[i].stop();
+        self.activePlayers[i].reset();
     }
 };
 
-Game.prototype.clearCanvas = function() {
+Game.prototype.clearField = function() {
     context.clearRect(0, 0, canvasWidth, canvasHeight);
+    pixels.fill(0);
 };
 
 Game.prototype.nextRound = function() {
-    this.clearCanvas();
-    for (var i = 1; i < this.activePlayers.length; i++) {
+    this.waitingForSpace = false;
+    this.clearField();
+    for (var i = 0; i < this.activePlayers.length; i++) {
         this.activePlayers[i].reset();
+        this.livePlayers[i] = this.activePlayers[i];
     }
     this.spawnPlayers();
 };
