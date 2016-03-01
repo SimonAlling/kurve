@@ -534,15 +534,30 @@ Game.prototype.getNumberOfActivePlayers = function() {
  *
  * @param {Player} player
  *   The Player object representing the player.
- * @param {Number} playerNumber
- *   Player number, e.g. RED = P1, YELLOW = P2, ... , BLUE = P6.
  */
 Game.prototype.addPlayer = function(player) {
     if (this.players[player.getID()] !== null) {
         console.warn("There is already a player with ID "+player.getID()+". It will be replaced.");
     }
+    this.numberOfActivePlayers++;
     this.players[player.getID()] = player;
     console.log("Added "+player+" as player "+player.getID()+".");
+};
+
+/**
+ * Adds a player to the game.
+ *
+ * @param {Number} id
+ *   The ID of the player to be removed.
+ */
+Game.prototype.removePlayer = function(id) {
+    if (this.players[id] === null) {
+        console.warn("Cannot remove player "+id+" because they are not in the game.");
+    } else {
+        this.numberOfActivePlayers--;
+        console.log("Removed "+this.players[id]+" (player "+id+").");
+        this.players[id] = null;
+    }
 };
 
 Game.prototype.start = function() {
@@ -578,15 +593,51 @@ Game.prototype.deathOf = function(player) {
 
 
 
-/**
- * GUIController constructor. Controls the game chrome.
- */
-function GUIController() {
-    this.scoreboard = document.getElementById("scoreboard");
-    if (!(this.scoreboard instanceof HTMLElement)) {
-        console.error("Scoreboard HTML element could not be found.");
+var GUIController = {};
+
+GUIController.lobby = document.getElementById("lobby");
+GUIController.controlsList = document.getElementById("controls");
+GUIController.scoreboard = document.getElementById("scoreboard");
+
+GUIController.lobbyKeyListener = function(event) {
+    for (var i = 1; i < config.players.length; i++) {
+        if (event.keyCode === config.players[i].keyL) {
+            game.addPlayer(new Player(i));
+            GUIController.playerReady(i);
+        } else if (event.keyCode === config.players[i].keyR) {
+            game.removePlayer(i);
+            GUIController.playerUnready(i);
+        }
     }
-}
+    if (event.keyCode === KEY.SPACE) {
+        if (game.getNumberOfActivePlayers() > 0) {
+            GUIController.startGame();
+        }
+    }
+};
+
+GUIController.initLobby = function() {
+    console.log("======== Zatacka Lobby ========");
+    document.addEventListener("keydown", GUIController.lobbyKeyListener);
+};
+
+GUIController.startGame = function() {
+    console.log("OK, let's go!");
+    GUIController.lobby.classList.add("hidden");
+    document.removeEventListener("keydown", GUIController.lobbyKeyListener);
+    game.start();
+    MainLoop.start();
+};
+
+GUIController.playerReady = function(id) {
+    var index = id - 1;
+    GUIController.controlsList.children[index].children[1].classList.add("active");
+};
+
+GUIController.playerUnready = function(id) {
+    var index = id - 1;
+    GUIController.controlsList.children[index].children[1].classList.remove("active");
+};
 
 /**
  * Updates the displayed score of the specified player to the specified value.
@@ -596,7 +647,7 @@ function GUIController() {
  * @param {Number} newScore
  *   The new score to display.
  */
-GUIController.prototype.updateScoreOfPlayer = function(id, newScore) {
+GUIController.updateScoreOfPlayer = function(id, newScore) {
     if (!(this.scoreboard instanceof HTMLElement)) {
         console.error("Scoreboard HTML element could not be found.");
     } else {
@@ -621,16 +672,9 @@ GUIController.prototype.updateScoreOfPlayer = function(id, newScore) {
 window.addEventListener("keyup"  , function(event) { Keyboard.onKeyup(event);   }, false);
 window.addEventListener("keydown", function(event) { Keyboard.onKeydown(event); }, false);
 
-var GUI = new GUIController();
-
 var game = new Game(config.maxPlayers);
-game.addPlayer(new Player(Player.RED));
-game.addPlayer(new Player(Player.YELLOW));
-game.addPlayer(new Player(Player.ORANGE));
-game.addPlayer(new Player(Player.GREEN));
-game.addPlayer(new Player(Player.PINK));
-game.addPlayer(new Player(Player.BLUE));
-game.start();
+
+GUIController.initLobby();
 
 // Debugging:
 // game.players[1].direction = 0;
@@ -650,8 +694,7 @@ MainLoop
     .setDraw(draw)
     .setEnd(end)
     .setSimulationTimestep(1000/config.tickrate)
-    .setMaxAllowedFPS(60)
-    .start();
+    .setMaxAllowedFPS(60);
 
 return {
    "isOccupiedPixel": isOccupiedPixel,
