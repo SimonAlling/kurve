@@ -18,6 +18,27 @@ body {
 	overflow: hidden;
 }
 
+#debug {
+	position: fixed;
+	background-color: black;
+	border: 1px white solid;
+	top: 0;
+	left: 0;
+}
+
+#debug span {
+	font-family: monospace;
+	font-size: 16px;
+	display: block;
+}
+
+#debug_red { color: #FF2800; }
+#debug_yellow { color: #C3C300; }
+#debug_orange { color: #FF7900; }
+#debug_green { color: #00CB00; }
+#debug_pink { color: #DF51B6; }
+#debug_blue { color: #00A2CB; }
+
 #wrapper {
 	display: flex;
 	align-items: center;

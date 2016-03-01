@@ -498,6 +498,11 @@ Player.prototype.update = function(delta) {
         this.direction -= computeAngleChange();
     }
 
+    // Debugging:
+    var debugFieldID = "debug_" + this.getName().toLowerCase();
+    var debugField = document.getElementById(debugFieldID);
+    debugField.textContent = "x ~ "+Math.round(this.x)+", y ~ "+Math.round(this.y);
+
     this.lastX = this.x;
     this.lastY = this.y;
     var theta = this.velocity * delta / 1000;
