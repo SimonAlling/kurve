@@ -507,7 +507,7 @@ Player.prototype.update = function(delta) {
     var theta = this.velocity * delta / 1000;
     this.x = this.x + theta * Math.cos(this.direction);
     this.y = this.y - theta * Math.sin(this.direction);
-    if (this.isAlive() && ticksSinceDraw % maxTicksBeforeDraw === 0) {
+    if (ticksSinceDraw % maxTicksBeforeDraw === 0) {
         this.queuedDraws.enqueue({"x": this.x, "y": this.y });
     }
 };
