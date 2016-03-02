@@ -699,6 +699,11 @@ Game.prototype.nextRound = function() {
     this.waitingForSpace = false;
     this.clearField();
     for (var i = 0; i < this.activePlayers.length; i++) {
+        console.log(this.getTargetScore());
+        if (this.activePlayers[i].getScore() >= this.getTargetScore()) {
+            this.konecHry();
+            return;
+        }
         this.activePlayers[i].reset();
         this.livePlayers[i] = this.activePlayers[i];
     }
@@ -708,6 +713,11 @@ Game.prototype.nextRound = function() {
 Game.prototype.freeze = function() {
     this.stopPlayers();
     this.waitingForSpace = true;
+};
+
+// Game over:
+Game.prototype.konecHry = function() {
+    GUIController.showKonecHry();
 };
 
 Game.prototype.deathOf = function(player) {
@@ -738,6 +748,7 @@ var GUIController = {};
 GUIController.lobby = document.getElementById("lobby");
 GUIController.controlsList = document.getElementById("controls");
 GUIController.scoreboard = document.getElementById("scoreboard");
+GUIController.konecHry = document.getElementById("KONEC_HRY");
 
 GUIController.lobbyKeyListener = function(event) {
     for (var i = 1; i < config.players.length; i++) {
@@ -829,6 +840,10 @@ GUIController.updateScoreOfPlayer = function(id, newScore) {
     }
 };
 
+GUIController.showKonecHry = function() {
+    this.konecHry.classList.remove("hidden");
+    this.resetScoreboard();
+};
 
 window.addEventListener("keyup"  , function(event) { Keyboard.onKeyup(event);   }, false);
 window.addEventListener("keydown", function(event) { Keyboard.onKeydown(event); }, false);

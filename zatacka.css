@@ -63,8 +63,8 @@ body {
 	border-color: #515151;
 }
 
-#lobby {
-	background-color: rgba(0, 0, 0, 0.8);
+#lobby, #KONEC_HRY {
+	background-color: black;
 	display: block;
 	height: 480px;
 	left: 0;
@@ -72,10 +72,13 @@ body {
 	position: absolute;
 	top: 0;
 	width: 559px;
+}
+
+#lobby {
 	z-index: 20;
 }
 
-#lobby.hidden {
+#lobby.hidden, #KONEC_HRY.hidden {
 	display: none;
 }
 
@@ -183,6 +186,10 @@ body {
 .digits .d8 { background-position: -224px 0; }
 .digits .d9 { background-position: -252px 0; }
 
+#KONEC_HRY {
+	z-index: 30;
+	color: white;
+}
 
 
 /* ======== 1x ======== */
