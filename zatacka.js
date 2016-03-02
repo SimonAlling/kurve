@@ -557,10 +557,11 @@ function Game(maxPlayers) {
     this.rounds = Game.emptyRoundsArray(maxPlayers);
     this.scoreboard = (new Array(maxPlayers+1)).fill(null);
     this.mode = undefined;
-    this.waitingForSpace = false;
+    this.waitingForNextRound = false;
+    this.gameOver = false;
     var self = this;
     this.inGameKeyListener = function(event) {
-        if (event.keyCode === KEY.SPACE && self.waitingForSpace) {
+        if (event.keyCode === KEY.SPACE && self.waitingForNextRound) {
             self.nextRound();
         } else if (event.keyCode === KEY.ESCAPE) {
             // handle Esc
@@ -597,6 +598,10 @@ Game.prototype.getMode = function() {
 
 Game.prototype.getTargetScore = function() {
     return this.targetScore;
+};
+
+Game.prototype.isOver = function() {
+    return this.gameOver;
 };
 
 // Works in lobby:
@@ -696,27 +701,28 @@ Game.prototype.clearField = function() {
 };
 
 Game.prototype.nextRound = function() {
-    this.waitingForSpace = false;
     this.clearField();
     for (var i = 0; i < this.activePlayers.length; i++) {
-        console.log(this.getTargetScore());
-        if (this.activePlayers[i].getScore() >= this.getTargetScore()) {
+        if (this.getMode() === Game.COMPETITIVE && this.activePlayers[i].getScore() >= this.getTargetScore()) {
+            // Someone won the game; display KONEC HRY:
             this.konecHry();
             return;
         }
         this.activePlayers[i].reset();
         this.livePlayers[i] = this.activePlayers[i];
     }
+    this.waitingForNextRound = false;
     this.spawnPlayers();
 };
 
 Game.prototype.freeze = function() {
     this.stopPlayers();
-    this.waitingForSpace = true;
+    this.waitingForNextRound = true;
 };
 
 // Game over:
 Game.prototype.konecHry = function() {
+    this.gameOver = true;
     GUIController.showKonecHry();
 };
 
@@ -781,10 +787,12 @@ GUIController.startGame = function() {
     // Remove lobby key listener:
     document.removeEventListener("keydown", GUIController.lobbyKeyListener);
     // Show score of active players:
-    for (var i = 1, len = game.players.length; i < len; i++) {
-        if (game.players[i] instanceof Player) {
-            this.updateScoreOfPlayer(i, 0);
-            this.showScoreOfPlayer(i);
+    if (game.getMode() === Game.COMPETITIVE) {
+        for (var i = 1, len = game.players.length; i < len; i++) {
+            if (game.players[i] instanceof Player) {
+                this.updateScoreOfPlayer(i, 0);
+                this.showScoreOfPlayer(i);
+            }
         }
     }
     game.start();
@@ -836,6 +844,16 @@ GUIController.updateScoreOfPlayer = function(id, newScore) {
             scoreboardItem.children[1].classList.add("d"+onesDigit);
         } else {
             console.error("Could not find HTML scoreboard entry for "+this.players[id].toString()+".");
+        }
+    }
+};
+
+GUIController.resetScoreboard = function() {
+    if (!(this.scoreboard instanceof HTMLElement)) {
+        console.error("Scoreboard HTML element could not be found.");
+    } else {
+        for (var i = 0; i < this.scoreboard.children.length; i++) {
+            scoreboard.children[i].classList.remove("active");
         }
     }
 };
