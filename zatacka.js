@@ -265,13 +265,8 @@ function Player(id, name, color, keyL, keyR) {
     }
 }
 
-// "Constants" for easier use of player IDs:
-Player.RED = 1;
-Player.YELLOW = 2;
-Player.ORANGE = 3;
-Player.GREEN = 4;
-Player.PINK = 5;
-Player.BLUE = 6;
+Player.DIR_L = "left";
+Player.DIR_R = "right";
 
 Player.prototype.score = 0;
 Player.prototype.alive = false;
@@ -320,10 +315,10 @@ Player.prototype.occupies = function(left, top) {
 };
 
 Player.prototype.setKeybind = function(dir, key) {
-    if (dir === LEFT) {
+    if (dir === this.constructor.DIR_L) {
         this.keyL = key;
         log("Set LEFT key of "+this.toString()+" to "+key+".");
-    } else if (dir === RIGHT) {
+    } else if (dir === this.constructor.DIR_R) {
         this.keyR = key;
         log("Set RIGHT key of "+this.toString()+" to "+key+".");
     } else {
