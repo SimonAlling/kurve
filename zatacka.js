@@ -21,18 +21,20 @@ const config = Object.freeze({
     speed: 64, // Kuxels per second
     turningRadius: 27, // Kuxels (NB: _radius_)
     flickerFrequency: 20, // Hz, when spawning
-    flickerDuration: 830, // ms, when spawning
-    players: [
-        null, // => very neat logic since Red = P1, Yellow = P2 etc
-        { name: "Red",    color: "#FF2800", keyL: KEY["1"], keyR: KEY.Q },
-        { name: "Yellow", color: "#C3C300", keyL: KEY.CTRL, keyR: KEY.ALT },
-        { name: "Orange", color: "#FF7900", keyL: KEY.M, keyR: KEY.COMMA },
-        { name: "Green",  color: "#00CB00", keyL: KEY.LEFT_ARROW, keyR: KEY.DOWN_ARROW },
-        { name: "Pink",   color: "#DF51B6", keyL: KEY.DIVIDE, keyR: KEY.MULTIPLY },
-        { name: "Blue",   color: "#00A2CB", keyL: null, keyR: null }
-    ]
-});
+    flickerDuration: 830 // ms, when spawning
+};
 
+var defaultPlayers = [
+    null, // => very neat logic since Red = P1, Yellow = P2 etc
+    { name: "Red"   , color: "#FF2800", keyL: KEY["1"]      , keyR: KEY.Q          },
+    { name: "Yellow", color: "#C3C300", keyL: KEY.CTRL      , keyR: KEY.ALT        },
+    { name: "Orange", color: "#FF7900", keyL: KEY.M         , keyR: KEY.COMMA      },
+    { name: "Green" , color: "#00CB00", keyL: KEY.LEFT_ARROW, keyR: KEY.DOWN_ARROW },
+    { name: "Pink"  , color: "#DF51B6", keyL: KEY.DIVIDE    , keyR: KEY.MULTIPLY   },
+    { name: "Blue"  , color: "#00A2CB", keyL: null          , keyR: null           }
+];
+
+config.spawnArea = computeSpawnArea(config.spawnMargin);
 var ticksSinceDraw = 0;
 var maxTicksBeforeDraw = config.tickrate/config.drawrate;
 
@@ -53,6 +55,44 @@ var Keyboard = {
         delete this.pressed[event.keyCode];
     }
 };
+
+function isPlayerKey(keyCode) {
+    if (game.isStarted()) {
+        for (var i = 0; i < game.players.length; i++) {
+            if (game.players[i] instanceof Player && (keyCode === game.players[i].keyL || keyCode === game.players[i].keyR)) {
+                return true;
+            }
+        }
+    } else {
+        for (var i = 0; i < defaultPlayers.length; i++) {
+            if (defaultPlayers[i] !== null && (keyCode === defaultPlayers[i].keyL || keyCode === defaultPlayers[i].keyR)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function isReservedKey(keyCode) {
+    // Explicitly disable Tab to prevent accidental unfocus:
+    return (keyCode === KEY.TAB || keyCode === KEY.SPACE || keyCode === KEY.ESCAPE || isPlayerKey(keyCode));
+}
+
+function keyDownHandler(event) {
+    Keyboard.onKeydown(event);
+    if (isReservedKey(event.keyCode)) {
+        event.preventDefault();
+    }
+    if (game.isStarted()) {
+        game.inGameKeyHandler(event);
+    } else {
+        game.lobbyKeyHandler(event);
+    }
+}
+
+function keyUpHandler(event) {
+    Keyboard.onKeyup(event);
+}
 
 function isOnField(x, y) {
     return x >= 0
@@ -230,10 +270,10 @@ function end(framerate, panic) {
 function Player(id, name, color, keyL, keyR) {
     if (isInt(id) && id > 0 && id <= config.maxPlayers) {
         this.id    = id;
-        this.name  = name  || config.players[id].name  || "Player "+id;
-        this.color = color || config.players[id].color || "white";
-        this.keyL  = keyL  || config.players[id].keyL  || null;
-        this.keyR  = keyR  || config.players[id].keyR  || null;
+        this.name  = name  || defaultPlayers[id].name  || "Player "+id;
+        this.color = color || defaultPlayers[id].color || "white";
+        this.keyL  = keyL  || defaultPlayers[id].keyL  || null;
+        this.keyR  = keyR  || defaultPlayers[id].keyR  || null;
         this.queuedDraws  = new Queue();
         this.lastDraw     = { "x": null, "y": null };
         this.secondLastDraw = { "x": null, "y": null };
@@ -541,10 +581,11 @@ function Game(maxPlayers) {
     this.rounds = Game.emptyRoundsArray(maxPlayers);
     this.scoreboard = (new Array(maxPlayers+1)).fill(null);
     this.mode = undefined;
+    this.started = false;
     this.waitingForNextRound = false;
     this.waitingForKonecHry = false;
     var self = this;
-    this.keyPressedInGame = function(event) {
+    this.inGameKeyHandler = function(event) {
         if (self.waitingForNextRound) {
             if (event.keyCode === KEY.SPACE) {
                 self.nextRound();
@@ -606,6 +647,30 @@ Game.prototype.getNumberOfActivePlayers = function() {
     return this.activePlayers.length;
 };
 
+Game.prototype.isStarted = function() {
+    return this.started;
+};
+
+Game.prototype.lobbyKeyHandler = function(event) {
+    for (var i = 1; i < defaultPlayers.length; i++) {
+        if (event.keyCode === defaultPlayers[i].keyL) {
+            this.addPlayer(new Player(i));
+            GUIController.playerReady(i);
+        } else if (event.keyCode === defaultPlayers[i].keyR) {
+            this.removePlayer(i);
+            GUIController.playerUnready(i);
+        }
+    }
+    if (event.keyCode === KEY.SPACE) {
+        var numberOfReadyPlayers = game.getNumberOfReadyPlayers();
+        if (numberOfReadyPlayers > 0) {
+            game.setMode(numberOfReadyPlayers === 1 ? Game.PRACTICE : Game.COMPETITIVE);
+            GUIController.gameStarted();
+            game.start();
+        }
+    }
+};
+
 
 /**
  * Adds a player to the game.
@@ -614,11 +679,11 @@ Game.prototype.getNumberOfActivePlayers = function() {
  *   The Player object representing the player.
  */
 Game.prototype.addPlayer = function(player) {
-    if (this.players[player.getID()] !== null) {
-        console.warn("There is already a player with ID "+player.getID()+". It will be replaced.");
+    var id = player.getID();
+    if (this.players[id] === null) {
+        this.players[id] = player;
+        console.log("Player "+id+" ("+player+") ready!");
     }
-    this.players[player.getID()] = player;
-    console.log("Added "+player+" as player "+player.getID()+".");
 };
 
 /**
@@ -628,28 +693,29 @@ Game.prototype.addPlayer = function(player) {
  *   The ID of the player to be removed.
  */
 Game.prototype.removePlayer = function(id) {
-    if (this.players[id] === null) {
-        console.warn("Cannot remove player "+id+" because they are not in the game.");
-    } else {
-        console.log("Removed "+this.players[id]+" (player "+id+").");
+    if (this.players[id] instanceof Player) {
+        console.log("Player "+id+" ("+this.players[id]+") not ready.");
         this.players[id] = null;
     }
 };
 
 Game.prototype.start = function() {
-    // Grab all added players and put them in livePlayers:
+    this.started = true;
+    // Grab all ready players and put them in activePlayers:
     for (var i = 0, len = this.players.length; i < len; i++) {
         if (this.players[i] instanceof Player) {
+            // Tell GUI controller to show scores if in competitive:
+            if (this.mode === Game.COMPETITIVE) {
+                GUIController.updateScoreOfPlayer(i, 0);
+                GUIController.showScoreOfPlayer(i);
+            }
             this.activePlayers.push(this.players[i]);
-            this.livePlayers.push(this.players[i]);
-            console.log("Added "+this.players[i]+" to livePlayers.");
+            console.log("Added "+this.players[i]+" to activePlayers.");
         }
     }
     var self = this;
-    document.addEventListener("keydown", self.keyPressedInGame);
     this.setTargetScore(Game.calculateTargetScore(this.getNumberOfActivePlayers()));
-    // TODO nextRound()?
-    this.spawnPlayers();
+    this.nextRound();
 };
 
 Game.prototype.spawnPlayers = function() {
@@ -753,46 +819,14 @@ GUIController.controlsList = document.getElementById("controls");
 GUIController.scoreboard = document.getElementById("scoreboard");
 GUIController.konecHry = document.getElementById("KONEC_HRY");
 
-GUIController.lobbyKeyListener = function(event) {
-    for (var i = 1; i < config.players.length; i++) {
-        if (event.keyCode === config.players[i].keyL) {
-            game.addPlayer(new Player(i));
-            GUIController.playerReady(i);
-        } else if (event.keyCode === config.players[i].keyR) {
-            game.removePlayer(i);
-            GUIController.playerUnready(i);
-        }
-    }
-    if (event.keyCode === KEY.SPACE) {
-        var numberOfReadyPlayers = game.getNumberOfReadyPlayers();
-        if (numberOfReadyPlayers > 0) {
-            game.setMode(numberOfReadyPlayers === 1 ? Game.PRACTICE : Game.COMPETITIVE);
-            GUIController.startGame();
-        }
-    }
-};
-
 GUIController.initLobby = function() {
     console.log("======== Zatacka Lobby ========");
-    document.addEventListener("keydown", GUIController.lobbyKeyListener);
 };
 
-GUIController.startGame = function() {
-    console.log("OK, let's go!");
+GUIController.gameStarted = function() {
+    console.log("Hiding lobby.");
     // Hide lobby:
     this.lobby.classList.add("hidden");
-    // Remove lobby key listener:
-    document.removeEventListener("keydown", GUIController.lobbyKeyListener);
-    // Show score of active players:
-    if (game.getMode() === Game.COMPETITIVE) {
-        for (var i = 1, len = game.players.length; i < len; i++) {
-            if (game.players[i] instanceof Player) {
-                this.updateScoreOfPlayer(i, 0);
-                this.showScoreOfPlayer(i);
-            }
-        }
-    }
-    game.start();
 };
 
 GUIController.showScoreOfPlayer = function(id) {
@@ -867,8 +901,8 @@ GUIController.escapePressedInGame = function() {
     }
 };
 
-window.addEventListener("keyup"  , function(event) { Keyboard.onKeyup(event);   }, false);
-window.addEventListener("keydown", function(event) { Keyboard.onKeydown(event); }, false);
+window.addEventListener("keydown", keyDownHandler, false);
+window.addEventListener("keyup"  , keyUpHandler  , false);
 
 var game = new Game(config.maxPlayers);
 
