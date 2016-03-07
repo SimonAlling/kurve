@@ -340,12 +340,12 @@ Player.prototype.occupies = function(left, top) {
 Player.prototype.setKeybind = function(dir, key) {
     if (dir === LEFT) {
         this.keyL = key;
-        console.log("Set LEFT key of "+this.toString()+" to "+key+".");
+        log("Set LEFT key of "+this.toString()+" to "+key+".");
     } else if (dir === RIGHT) {
         this.keyR = key;
-        console.log("Set RIGHT key of "+this.toString()+" to "+key+".");
+        log("Set RIGHT key of "+this.toString()+" to "+key+".");
     } else {
-        console.warn("Could not bind "+key+" to "+dir+" because it is not a valid direction.");
+        logWarning("Could not bind "+key+" to "+dir+" because it is not a valid direction.");
     }
 };
 
@@ -395,7 +395,7 @@ Player.prototype.spawn = function() {
     this.flicker();
     var self = this;
     setTimeout(function() { self.stopFlickering(); }, config.flickerDuration);
-    console.log(this+" spawning at ("+Math.round(spawnPosition.x)+", "+Math.round(spawnPosition.y)+") with direction "+Math.round(spawnDirection*180/Math.PI)+" deg.");
+    log(this+" spawning at ("+Math.round(spawnPosition.x)+", "+Math.round(spawnPosition.y)+") with direction "+Math.round(spawnDirection*180/Math.PI)+" deg.");
 };
 
 Player.prototype.start = function() {
@@ -426,7 +426,7 @@ Player.prototype.occupy = function(left, top) {
 };
 
 Player.prototype.die = function(cause) {
-    console.log(this+" died at ("+Math.round(this.x)+", "+Math.round(this.y)+") from "+cause+".");
+    log(this+" died at ("+Math.round(this.x)+", "+Math.round(this.y)+") from "+cause+".");
     game.deathOf(this);
     this.alive = false;
 };
@@ -463,18 +463,6 @@ Player.prototype.isCrashingIntoSelf = function(left, top) {
     var newPixels = this.getNewPixels(left, top);
     for (var i = 0, len = newPixels.length; i < len; i++) {
         if (isOccupiedPixelAddress(newPixels[i])) {
-            // For debugging the seemingly random death on self:
-            // console.log(this+" dying at ("+left+", "+top+")");
-            // console.log(newPixels);
-            // console.log(this+".lastDraw:");
-            // console.log(this.lastDraw);
-            // console.log(this+".secondLastDraw:");
-            // console.log(this.secondLastDraw);
-            // console.log(this+".thirdLastDraw:");
-            // console.log(this.thirdLastDraw);
-            // for (var n = 0; n < newPixels.length; n++) {
-            //     console.log(pixelAddressToCoordinates(newPixels[n]));
-            // }
             return true;
         }
     }
@@ -614,12 +602,12 @@ Game.emptyRoundsArray = function(maxPlayers) {
 Game.prototype.targetScore = null;
 
 Game.prototype.setMode = function(m) {
-    console.log("Setting game mode to "+m+".");
+    log("Setting game mode to "+m+".");
     this.mode = m;
 };
 
 Game.prototype.setTargetScore = function(s) {
-    console.log("Setting target score to "+s+".");
+    log("Setting target score to "+s+".");
     this.targetScore = s;
 };
 
@@ -682,7 +670,7 @@ Game.prototype.addPlayer = function(player) {
     var id = player.getID();
     if (this.players[id] === null) {
         this.players[id] = player;
-        console.log("Player "+id+" ("+player+") ready!");
+        log("Player "+id+" ("+player+") ready!");
     }
 };
 
@@ -694,7 +682,7 @@ Game.prototype.addPlayer = function(player) {
  */
 Game.prototype.removePlayer = function(id) {
     if (this.players[id] instanceof Player) {
-        console.log("Player "+id+" ("+this.players[id]+") not ready.");
+        log("Player "+id+" ("+this.players[id]+") not ready.");
         this.players[id] = null;
     }
 };
@@ -710,7 +698,7 @@ Game.prototype.start = function() {
                 GUIController.showScoreOfPlayer(i);
             }
             this.activePlayers.push(this.players[i]);
-            console.log("Added "+this.players[i]+" to activePlayers.");
+            log("Added "+this.players[i]+" to activePlayers.");
         }
     }
     var self = this;
@@ -764,7 +752,7 @@ Game.prototype.nextRound = function() {
 
 Game.prototype.endRound = function(winner) {
     this.stopPlayers();
-    console.log("Round over." + (winner instanceof Player ? " "+winner+" won." : ""));
+    log("Round over." + (winner instanceof Player ? " "+winner+" won." : ""));
     var someoneWonTheGame = false;
     for (var i = 0; i < this.activePlayers.length; i++) {
         if (this.getMode() === Game.COMPETITIVE && this.activePlayers[i].getScore() >= this.getTargetScore()) {
@@ -820,11 +808,11 @@ GUIController.scoreboard = document.getElementById("scoreboard");
 GUIController.konecHry = document.getElementById("KONEC_HRY");
 
 GUIController.initLobby = function() {
-    console.log("======== Zatacka Lobby ========");
+    log("======== Zatacka Lobby ========");
 };
 
 GUIController.gameStarted = function() {
-    console.log("Hiding lobby.");
+    log("Hiding lobby.");
     // Hide lobby:
     this.lobby.classList.add("hidden");
 };
@@ -860,7 +848,7 @@ GUIController.playerUnready = function(id) {
  */
 GUIController.updateScoreOfPlayer = function(id, newScore) {
     if (!(this.scoreboard instanceof HTMLElement)) {
-        console.error("Scoreboard HTML element could not be found.");
+        logError("Scoreboard HTML element could not be found.");
     } else {
         var scoreboardItem = this.scoreboard.children[id-1]; // minus 1 necessary since players are 1-indexed
         var onesDigit = newScore % 10;                       // digit at the ones position (4 in 14)
@@ -874,14 +862,14 @@ GUIController.updateScoreOfPlayer = function(id, newScore) {
             scoreboardItem.children[0].classList.add("d"+tensDigit);
             scoreboardItem.children[1].classList.add("d"+onesDigit);
         } else {
-            console.error("Could not find HTML scoreboard entry for "+this.players[id].toString()+".");
+            logError("Could not find HTML scoreboard entry for "+this.players[id].toString()+".");
         }
     }
 };
 
 GUIController.resetScoreboard = function() {
     if (!(this.scoreboard instanceof HTMLElement)) {
-        console.error("Scoreboard HTML element could not be found.");
+        logError("Scoreboard HTML element could not be found.");
     } else {
         for (var i = 0; i < this.scoreboard.children.length; i++) {
             scoreboard.children[i].classList.remove("active");
