@@ -101,24 +101,6 @@ function isOnField(x, y) {
         && y+config.kurveThickness <= canvasHeight;
 }
 
-function isOccupiedByOpponent(left, top, id) {
-    var x, y;
-    var right = left + config.kurveThickness;
-    var bottom = top + config.kurveThickness;
-    for (y = top; y < bottom; y++) {
-        for (x = left; x < right; x++) {
-            if (pixels[pixelAddress(x, y)] > 0 && pixels[pixelAddress(x, y)] !== id) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-function isOccupied(left, top) {
-    return isOccupiedByOpponent(left, top, undefined);
-}
-
 function isOccupiedPixel(x, y) {
     return isOccupiedPixelAddress(pixelAddress(x, y));
 }
@@ -426,7 +408,7 @@ Player.prototype.occupy = function(left, top) {
 };
 
 Player.prototype.die = function(cause) {
-    log(this+" died at ("+Math.round(this.x)+", "+Math.round(this.y)+") from "+cause+".");
+    log(this+" "+(cause || "died")+" at ("+Math.round(this.x)+", "+Math.round(this.y)+").");
     game.deathOf(this);
     this.alive = false;
 };
@@ -459,8 +441,9 @@ Player.prototype.getNewPixels = function(left, top) {
     return newPixels;
 };
 
-Player.prototype.isCrashingIntoSelf = function(left, top) {
+Player.prototype.isCrashing = function(left, top) {
     var newPixels = this.getNewPixels(left, top);
+    var id = this.getID();
     for (var i = 0, len = newPixels.length; i < len; i++) {
         if (isOccupiedPixelAddress(newPixels[i])) {
             return true;
@@ -489,13 +472,10 @@ Player.prototype.draw = function() {
             // The new draw position is not identical to the last one.
             if (!isOnField(left, top)) {
                 // The player wants to draw outside the playing field.
-                this.die("crashing into the wall");
-            } else if (isOccupiedByOpponent(left, top, id)) {
-                // The player wants to draw on a spot occupied by an opponent.
-                this.die("crashing into an opponent");
-            } else if (this.isCrashingIntoSelf(left, top)) {
-                // The player wants to draw on a spot occupied by itself.
-                this.die("crashing into itself");
+                this.die("crashed into the wall");
+            } else if (this.isCrashing(left, top)) {
+                // The player wants to draw on a spot occupied by itself or an opponent.
+                this.die("crashed");
             } else {
                 this.occupy(left, top);
             }
