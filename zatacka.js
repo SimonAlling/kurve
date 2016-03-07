@@ -21,8 +21,12 @@ const config = Object.freeze({
     speed: 64, // Kuxels per second
     turningRadius: 27, // Kuxels (NB: _radius_)
     flickerFrequency: 20, // Hz, when spawning
-    flickerDuration: 830 // ms, when spawning
-};
+    flickerDuration: 830, // ms, when spawning
+    minHoleDistance: 90, // Kuxels
+    maxHoleDistance: 300, // Kuxels
+    minHoleLength: 8, // Kuxels
+    maxHoleLength: 12 // Kuxels
+});
 
 var defaultPlayers = [
     null, // => very neat logic since Red = P1, Yellow = P2 etc
@@ -34,7 +38,6 @@ var defaultPlayers = [
     { name: "Blue"  , color: "#00A2CB", keyL: null          , keyR: null           }
 ];
 
-config.spawnArea = computeSpawnArea(config.spawnMargin);
 var ticksSinceDraw = 0;
 var maxTicksBeforeDraw = config.tickrate/config.drawrate;
 
@@ -107,6 +110,14 @@ function isOccupiedPixel(x, y) {
 
 function isOccupiedPixelAddress(addr) {
     return pixels[addr] > 0;
+}
+
+function randomHoleDistance() {
+    return Math.round(randomFloat(config.minHoleDistance, config.maxHoleDistance));
+}
+
+function randomHoleLength() {
+    return randomFloat(config.minHoleLength, config.maxHoleLength);
 }
 
 
@@ -279,6 +290,8 @@ Player.prototype.velocity = 0;
 Player.prototype.keyL = null;
 Player.prototype.keyR = null;
 Player.prototype.flickerTicker = null;
+Player.prototype.hole = false;
+Player.prototype.holeTimer = null;
 
 Player.prototype.getID = function() {
     return this.id;
@@ -298,6 +311,10 @@ Player.prototype.toString = function() {
 
 Player.prototype.isAlive = function() {
     return this.alive;
+};
+
+Player.prototype.isHoly = function() {
+    return this.hole;
 };
 
 Player.prototype.occupies = function(left, top) {
@@ -337,6 +354,9 @@ Player.prototype.reset = function() {
     this.lastDraw     = { "x": null, "y": null };
     this.secondLastDraw = { "x": null, "y": null };
     this.thirdLastDraw = { "x": null, "y": null };
+    this.hole = false;
+    clearTimeout(this.holeTimer);
+    this.holeTimer = null;
 };
 
 Player.prototype.flicker = function() {
@@ -375,9 +395,43 @@ Player.prototype.spawn = function() {
     log(this+" spawning at ("+Math.round(spawnPosition.x)+", "+Math.round(spawnPosition.y)+") with direction "+Math.round(spawnDirection*180/Math.PI)+" deg.");
 };
 
+// Even if the player should be going faster, the average
+// *distance* between the holes will always be the same:
+Player.prototype.randomHoleInterval = function() {
+    return randomHoleDistance() / this.velocity;
+};
+
+// So will the average hole size:
+Player.prototype.randomHoleDuration = function() {
+    return randomHoleLength() / this.velocity;
+};
+
+Player.prototype.beginHole = function(self) {
+    if (self.isAlive()) {
+        self.hole = true;
+        var t = self.randomHoleDuration();
+        self.holeTimer = setTimeout(self.endHole, t*1000, self);
+    }
+};
+
+Player.prototype.endHole = function(self) {
+    self.hole = false;
+    if (self.isAlive()) {
+        self.startHoleTimer();
+    }
+};
+
+Player.prototype.startHoleTimer = function() {
+    var self = this;
+    var t = this.randomHoleInterval();
+    log(new Date().getTime() % 100000+" | "+t+" seconds until "+this+"'s next hole."); // for debugging
+    self.holeTimer = setTimeout(self.beginHole, t*1000, self);
+};
+
 Player.prototype.start = function() {
     this.alive = true;
     this.velocity = config.speed;
+    this.startHoleTimer();
 };
 
 Player.prototype.stop = function() {
@@ -733,7 +787,7 @@ Game.prototype.endRound = function(winner) {
         if (this.getMode() === Game.COMPETITIVE && this.activePlayers[i].getScore() >= this.getTargetScore()) {
             someoneWonTheGame = true;
         }
-        this.activePlayers[i].reset(); // TODO needed?
+        this.activePlayers[i].reset();
     }
     if (someoneWonTheGame) {        
         this.waitingForKonecHry = true;
