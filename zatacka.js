@@ -36,21 +36,6 @@ const config = Object.freeze({
 var ticksSinceDraw = 0;
 var maxTicksBeforeDraw = config.tickrate/config.drawrate;
 
-
-
-Object.typeOf = (function typeOf(global) {
-    return function(obj) {
-        if (obj === global) {
-            return "global";
-        }
-        return ({}).toString.call(obj).match(/\s([a-z|A-Z]+)/)[1].toLowerCase();
-    };
-})(this);
-
-function isInt(n) {
-    return Object.typeOf(n) === 'number' && n % 1 === 0;
-}
-
 function init() {
 
 }
@@ -557,13 +542,19 @@ function Game(maxPlayers) {
     this.scoreboard = (new Array(maxPlayers+1)).fill(null);
     this.mode = undefined;
     this.waitingForNextRound = false;
-    this.gameOver = false;
+    this.waitingForKonecHry = false;
     var self = this;
-    this.inGameKeyListener = function(event) {
-        if (event.keyCode === KEY.SPACE && self.waitingForNextRound) {
-            self.nextRound();
-        } else if (event.keyCode === KEY.ESCAPE) {
-            // handle Esc
+    this.keyPressedInGame = function(event) {
+        if (self.waitingForNextRound) {
+            if (event.keyCode === KEY.SPACE) {
+                self.nextRound();
+            } else if (event.keyCode === KEY.ESCAPE) {
+                GUIController.escapePressedInGame();
+            }
+        } else if (self.waitingForKonecHry) {
+            if (event.keyCode === KEY.SPACE) {
+                self.konecHry();
+            }
         }
     };
 }
@@ -597,10 +588,6 @@ Game.prototype.getMode = function() {
 
 Game.prototype.getTargetScore = function() {
     return this.targetScore;
-};
-
-Game.prototype.isOver = function() {
-    return this.gameOver;
 };
 
 // Works in lobby:
@@ -659,8 +646,9 @@ Game.prototype.start = function() {
         }
     }
     var self = this;
-    document.addEventListener("keydown", self.inGameKeyListener);
+    document.addEventListener("keydown", self.keyPressedInGame);
     this.setTargetScore(Game.calculateTargetScore(this.getNumberOfActivePlayers()));
+    // TODO nextRound()?
     this.spawnPlayers();
 };
 
@@ -700,28 +688,38 @@ Game.prototype.clearField = function() {
 };
 
 Game.prototype.nextRound = function() {
+    this.waitingForNextRound = false;
     this.clearField();
     for (var i = 0; i < this.activePlayers.length; i++) {
-        if (this.getMode() === Game.COMPETITIVE && this.activePlayers[i].getScore() >= this.getTargetScore()) {
-            // Someone won the game; display KONEC HRY:
-            this.konecHry();
-            return;
-        }
-        this.activePlayers[i].reset();
         this.livePlayers[i] = this.activePlayers[i];
     }
-    this.waitingForNextRound = false;
     this.spawnPlayers();
 };
 
-Game.prototype.freeze = function() {
+Game.prototype.endRound = function(winner) {
     this.stopPlayers();
-    this.waitingForNextRound = true;
+    console.log("Round over." + (winner instanceof Player ? " "+winner+" won." : ""));
+    var someoneWonTheGame = false;
+    for (var i = 0; i < this.activePlayers.length; i++) {
+        if (this.getMode() === Game.COMPETITIVE && this.activePlayers[i].getScore() >= this.getTargetScore()) {
+            someoneWonTheGame = true;
+        }
+        this.activePlayers[i].reset(); // TODO needed?
+    }
+    if (someoneWonTheGame) {        
+        this.waitingForKonecHry = true;
+    } else {
+        this.waitingForNextRound = true;
+    }
+};
+
+Game.prototype.quit = function() {
+    // TODO not perfect, but works for now:
+    window.location.reload();
 };
 
 // Game over:
 Game.prototype.konecHry = function() {
-    this.gameOver = true;
     GUIController.showKonecHry();
 };
 
@@ -738,11 +736,11 @@ Game.prototype.deathOf = function(player) {
         GUIController.updateScoreOfPlayer(this.livePlayers[i].getID(), this.livePlayers[i].getScore());
     }
     if (this.livePlayers.length === 1 && this.getMode() === Game.COMPETITIVE) {
-        console.log("Round over. "+this.livePlayers[0]+" won.");
-        this.freeze();
+        // livePlayers[0] won the round:
+        this.endRound(this.livePlayers[0]);
     } else if (this.livePlayers.length === 0) {
-        console.log("Round over.");
-        this.freeze();
+        // The round is over since everyone is dead:
+        this.endRound();
     }
 };
 
@@ -860,6 +858,13 @@ GUIController.resetScoreboard = function() {
 GUIController.showKonecHry = function() {
     this.konecHry.classList.remove("hidden");
     this.resetScoreboard();
+};
+
+GUIController.escapePressedInGame = function() {
+    // TODO can be made better, but works for now:
+    if (confirm("Do you really wish to quit?")) {
+        game.quit();
+    }
 };
 
 window.addEventListener("keyup"  , function(event) { Keyboard.onKeyup(event);   }, false);
