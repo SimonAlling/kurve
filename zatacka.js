@@ -4,6 +4,8 @@ var Zatacka = (function(window, document) {
 
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext("2d");
+var heads = document.getElementById("heads");
+var headsContext = heads.getContext("2d");
 var canvasWidth = canvas.width;
 var canvasHeight = canvas.height;
 var pixels = new Array(canvasWidth*canvasHeight).fill(0);
@@ -206,6 +208,10 @@ function clearKurveSquare(x, y) {
     context.clearRect(x, y, config.kurveThickness, config.kurveThickness);
 }
 
+function clearHeads() {
+    headsContext.clearRect(0, 0, canvasWidth, canvasHeight);
+}
+
 
 /**
  * Draws all players.
@@ -228,6 +234,7 @@ function draw(interpolationPercentage) {
  *   The amount of time since the last update, in seconds.
  */
 function update(delta) {
+    clearHeads();
     for (var i = 0, len = game.livePlayers.length; i < len; i++) {
         game.livePlayers[i].update(delta);
     }
@@ -439,7 +446,13 @@ Player.prototype.stop = function() {
     this.velocity = 0;
 };
 
+Player.prototype.drawHead = function(left, top) {
+    headsContext.fillStyle = this.color;
+    headsContext.fillRect(left, top, config.kurveThickness, config.kurveThickness);
+};
+
 Player.prototype.occupy = function(left, top) {
+    // TODO thickness
     var id = this.id;
     var right = left + config.kurveThickness;
     var bottom = top + config.kurveThickness;
@@ -526,9 +539,16 @@ Player.prototype.draw = function() {
                 // The player wants to draw on a spot occupied by itself or an opponent.
                 this.die("crashed");
             } else {
-                this.occupy(left, top);
+                // Only draw body if not holy:
+                if (!this.isHoly()) {
+                    this.occupy(left, top);
+                }
             }
         }
+    }
+    if (this.isAlive()) {
+        // Always draw the head of the Kurve, but only once per draw() call:
+        this.drawHead(left, top);
     }
 };
 

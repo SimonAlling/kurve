@@ -63,8 +63,7 @@ body {
 	border-color: #515151;
 }
 
-#lobby, #KONEC_HRY {
-	background-color: black;
+.overlay {
 	display: block;
 	height: 480px;
 	left: 0;
@@ -72,6 +71,10 @@ body {
 	position: absolute;
 	top: 0;
 	width: 559px;
+}
+
+#lobby, #KONEC_HRY {
+	background-color: black;
 }
 
 #lobby {
@@ -128,6 +131,10 @@ body {
 	background-color: black;
 	border-color: #828282;
 	z-index: 10;
+}
+
+#heads {
+	z-index: 12;
 }
 
 #left, #scoreboard {
