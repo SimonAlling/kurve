@@ -47,12 +47,17 @@ body {
 
 .border {
 	border-style: solid;
-	display: flex;
+	border-width: 1px;
+	display: flex; /* to prevent weird extra space at the bottom */
+}
+
+#border1 {
+	border-color: #828282;
+	position: relative; /* to allow absolute positioning of descendants*/
 }
 
 #border2 {
 	border-color: #717171;
-	position: relative; /* to allow absolute positioning of #lobby */
 }
 
 #border3 {
@@ -65,15 +70,14 @@ body {
 
 .overlay {
 	display: block;
-	height: 480px;
+	height: 100%;
 	left: 0;
-	margin: 1px;
 	position: absolute;
 	top: 0;
-	width: 559px;
+	width: 100%;
 }
 
-#lobby, #KONEC_HRY {
+#lobby, #KONEC_HRY, #canvas {
 	background-color: black;
 }
 
@@ -128,8 +132,6 @@ body {
 #lobby #controls .blue.ready      { background-image: url("resources/kurve-lobby-ready-blue.png");      }
 
 #canvas {
-	background-color: black;
-	border-color: #828282;
 	z-index: 10;
 }
 
@@ -141,6 +143,8 @@ body {
 	z-index: 5;
 	box-sizing: border-box;
 	min-height: 100%;
+	height: 480px;
+	width: 77px;
 }
 
 #scoreboard {
@@ -234,24 +238,33 @@ body {
 #KONEC_HRY .digits .d9 { background-position: -252px -43px; }
 
 
-/* ======== 1x ======== */
+
+
+/*************************/
+/******** SCALING ********/
+/*************************/
+
 /*
-640 = Kurve width
-480 = Kurve height
-559 = Kurve field width (excluding border)
-77  = Scoreboard width (excluding border)
+640 = Kurve total width
+480 = Kurve total height
+559 = Kurve canvas width (excluding border)
 81  = Scoreboard width (including border)
 721 = 559 + 2*81 = total width including borders, #left and scoreboard
 */
+
+@media screen and (max-width: 640px) {
+	#left { display: none; }
+	body { justify-content: flex-start; }
+	.border { border-left-width: 0; }
+}
+
+/* ======== 1x ======== */
 @media screen and (min-width: 640px) and (min-height: 480px) {
 	body { justify-content: flex-end; }
-	#canvas {
-	    width: 559px;
-	    height: 480px;
+	#wrapper {
+		zoom: 1;
+		-moz-transform: scale(1);
 	}
-	.border     { border-width: 1px; }
-	aside       { width: 77px; height: 480px; }
-	.digit      { width: 28px; height: 43px; }
 }
 
 @media screen and (min-width: 721px) and (min-height: 480px) {
@@ -280,7 +293,6 @@ body {
 		zoom: 3;
 		-moz-transform: scale(3);
 	}
-	body { justify-content: center; }
 }
 
 @media screen and (min-width: 2163px) and (min-height: 1440px) {
@@ -289,83 +301,98 @@ body {
 
 
 /* ======== 4x ======== */
-@media screen and (min-width: 2560px) and (min-height: 1920px) { /*TODO*/
+@media screen and (min-width: 2560px) and (min-height: 1920px) {
 	body { justify-content: flex-end; }
 	#wrapper {
 		zoom: 4;
+		-moz-transform: scale(4);
 	}
 }
 
-@media screen and (min-width: 2884px) and (min-height: 1920px) { /*TODO*/
+@media screen and (min-width: 2884px) and (min-height: 1920px) {
 	body { justify-content: center; }
 }
 
 
 /* ======== 5x ======== */
-@media screen and (min-width: 3200px) and (min-height: 2400px) { /*TODO*/
+@media screen and (min-width: 3200px) and (min-height: 2400px) {
 	body { justify-content: flex-end; }
 	#wrapper {
 		zoom: 5;
+		-moz-transform: scale(5);
 	}
 }
 
-@media screen and (min-width: 3605px) and (min-height: 2400px) { /*TODO*/
+@media screen and (min-width: 3605px) and (min-height: 2400px) {
 	body { justify-content: center; }
 }
 
 
-/* ======== 2x ======== */
-/*@media screen and (min-width: 1280px) and (min-height: 960px) {
+/* ======== 6x ======== */
+@media screen and (min-width: 3840px) and (min-height: 2880px) {
 	body { justify-content: flex-end; }
-	#canvas {
-    	width: 1118px;
-	    height: 960px;
+	#wrapper {
+		zoom: 6;
+		-moz-transform: scale(6);
 	}
-	.border     { border-width: 2px; }
-	aside       { width: 154px; height: 960px; }
-	#scoreboard { padding-left: 18px; }
-	.digit      { width: 56px; height: 86px; background-size: 560px; }
-}*/
+}
+
+@media screen and (min-width: 4326px) and (min-height: 2880px) {
+	body { justify-content: center; }
+}
 
 
-/* ======== 3x ======== */
-/*@media screen and (min-width: 1920px) and (min-height: 1440px) {
+/* ======== 7x ======== */
+@media screen and (min-width: 4480px) and (min-height: 3360px) {
 	body { justify-content: flex-end; }
-	#canvas {
-	    width: 1677px;
-	    height: 1440px;
+	#wrapper {
+		zoom: 7;
+		-moz-transform: scale(7);
 	}
-	.border     { border-width: 3px; }
-	aside       { width: 231px; height: 1440px; }
-	#scoreboard { padding-left: 27px; }
-	.digit      { width: 84px; height: 129px; background-size: 840px; }
-}*/
+}
+
+@media screen and (min-width: 5047px) and (min-height: 3360px) {
+	body { justify-content: center; }
+}
 
 
-/* ======== 4x ======== */
-/*@media screen and (min-width: 2560px) and (min-height: 1920px) {
+/* ======== 8x ======== */
+@media screen and (min-width: 5120px) and (min-height: 3840px) {
 	body { justify-content: flex-end; }
-	#canvas {
-	    width: 2236px;
-	    height: 1920px;
+	#wrapper {
+		zoom: 8;
+		-moz-transform: scale(8);
 	}
-	.border     { border-width: 4px; }
-	aside       { width: 308px; height: 1920px; }
-	#scoreboard { padding-left: 36px; }
-	.digit      { width: 112px; height: 172px; background-size: 1120px; }
-}*/
+}
+
+@media screen and (min-width: 5768px) and (min-height: 3840px) {
+	body { justify-content: center; }
+}
 
 
-
-/* ======== 5x ======== */
-/*@media screen and (min-width: 3200px) and (min-height: 2400px) {
+/* ======== 9x ======== */
+@media screen and (min-width: 5760px) and (min-height: 4320px) {
 	body { justify-content: flex-end; }
-	#canvas {
-	    width: 2795px;
-	    height: 2400px;
+	#wrapper {
+		zoom: 9;
+		-moz-transform: scale(9);
 	}
-	.border     { border-width: 5px; }
-	aside       { width: 385px; height: 2400px; }
-	#scoreboard { padding-left: 45px; }
-	.digit      { width: 140px; height: 215px; background-size: 1400px; }
-}*/
+}
+
+@media screen and (min-width: 6489px) and (min-height: 4320px) {
+	body { justify-content: center; }
+}
+
+
+/* ======== 10x ======== */
+@media screen and (min-width: 6400px) and (min-height: 4800px) {
+	body { justify-content: flex-end; }
+	#wrapper {
+		zoom: 10;
+		-moz-transform: scale(10);
+	}
+}
+
+@media screen and (min-width: 7210px) and (min-height: 4800px) {
+	body { justify-content: center; }
+}
