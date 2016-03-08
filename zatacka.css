@@ -147,10 +147,20 @@ body {
 	padding: 0 12px 0 9px;
 }
 
+#KONEC_HRY {
+	z-index: 30;
+	background-image: url("resources/kurve-konec-hry.png");
+}
+
+#KONEC_HRY #results {
+	list-style-type: none;
+	margin-top: 80px;
+	margin-left: 250px;
+}
+
+/* General rules for digits: */
 .digits {
-	height: 43px;
 	visibility: hidden;
-	margin-bottom: 37px;
 }
 
 .active.digits {
@@ -158,10 +168,18 @@ body {
 }
 
 .digits > div {
-	height: 43px;
-	width: 28px;
 	display: inline-block;
 	float: left;
+}
+
+/* Don't display 0: */
+.digits .d0 {
+	display: none;
+}
+
+/* Except for at the ones position: */
+.digits .d0:last-child {
+	display: inline-block;
 }
 
 .red.digits    div { background-image: url("resources/kurve-digits-red.png");    }
@@ -171,32 +189,49 @@ body {
 .pink.digits   div { background-image: url("resources/kurve-digits-pink.png");   }
 .blue.digits   div { background-image: url("resources/kurve-digits-blue.png");   }
 
-
-/* Don't display 0: */
-.digits .d0 {
-	background-position: 0 0;
-	display: none;
+/* Scoreboard digits: */
+#scoreboard .digits {
+	height: 43px;
+	margin-bottom: 37px;
 }
 
-/* Except for at the ones position: */
-.digits .d0:last-child {
-	display: inline-block;
+#scoreboard .digits > div {
+	height: 43px;
+	width: 28px;
 }
 
-.digits .d1 { background-position:  -28px 0; }
-.digits .d2 { background-position:  -56px 0; }
-.digits .d3 { background-position:  -84px 0; }
-.digits .d4 { background-position: -112px 0; }
-.digits .d5 { background-position: -140px 0; }
-.digits .d6 { background-position: -168px 0; }
-.digits .d7 { background-position: -196px 0; }
-.digits .d8 { background-position: -224px 0; }
-.digits .d9 { background-position: -252px 0; }
+#scoreboard .digits .d0 { background-position:    0px 0; }
+#scoreboard .digits .d1 { background-position:  -28px 0; }
+#scoreboard .digits .d2 { background-position:  -56px 0; }
+#scoreboard .digits .d3 { background-position:  -84px 0; }
+#scoreboard .digits .d4 { background-position: -112px 0; }
+#scoreboard .digits .d5 { background-position: -140px 0; }
+#scoreboard .digits .d6 { background-position: -168px 0; }
+#scoreboard .digits .d7 { background-position: -196px 0; }
+#scoreboard .digits .d8 { background-position: -224px 0; }
+#scoreboard .digits .d9 { background-position: -252px 0; }
 
-#KONEC_HRY {
-	z-index: 30;
-	color: white;
+/* KONEC HRY digits: */
+#KONEC_HRY .digits {
+	height: 14px;
+	margin-bottom: 26px;
 }
+
+#KONEC_HRY .digits > div {
+	height: 14px;
+	width: 16px;
+}
+
+#KONEC_HRY .digits .d0 { background-position:    0px -43px; }
+#KONEC_HRY .digits .d1 { background-position:  -28px -43px; }
+#KONEC_HRY .digits .d2 { background-position:  -56px -43px; }
+#KONEC_HRY .digits .d3 { background-position:  -84px -43px; }
+#KONEC_HRY .digits .d4 { background-position: -112px -43px; }
+#KONEC_HRY .digits .d5 { background-position: -140px -43px; }
+#KONEC_HRY .digits .d6 { background-position: -168px -43px; }
+#KONEC_HRY .digits .d7 { background-position: -196px -43px; }
+#KONEC_HRY .digits .d8 { background-position: -224px -43px; }
+#KONEC_HRY .digits .d9 { background-position: -252px -43px; }
 
 
 /* ======== 1x ======== */
