@@ -854,6 +854,7 @@ var GUIController = {};
 GUIController.lobby = document.getElementById("lobby");
 GUIController.controlsList = document.getElementById("controls");
 GUIController.scoreboard = document.getElementById("scoreboard");
+GUIController.results = document.getElementById("results");
 GUIController.konecHry = document.getElementById("KONEC_HRY");
 
 GUIController.initLobby = function() {
@@ -873,6 +874,12 @@ GUIController.showScoreOfPlayer = function(id) {
         var scoreboardEntry = scoreboard.children[index];
         if (scoreboardEntry instanceof HTMLElement) {
             scoreboardEntry.classList.add("active");
+        }
+    }
+    if (results instanceof HTMLElement) {
+        var resultsEntry = results.children[index];
+        if (resultsEntry instanceof HTMLElement) {
+            resultsEntry.classList.add("active");
         }
     }
 };
@@ -900,9 +907,12 @@ GUIController.updateScoreOfPlayer = function(id, newScore) {
         logError("Scoreboard HTML element could not be found.");
     } else {
         var scoreboardItem = this.scoreboard.children[id-1]; // minus 1 necessary since players are 1-indexed
+        var resultsItem = this.results.children[id-1]; // minus 1 necessary since players are 1-indexed
         var onesDigit = newScore % 10;                       // digit at the ones position (4 in 14)
         var tensDigit = (newScore - (newScore % 10)) / 10;   // digit at the tens position (1 in 14)
-        if (scoreboardItem instanceof HTMLDivElement && scoreboardItem.children[0] instanceof HTMLDivElement && scoreboardItem.children[1] instanceof HTMLDivElement) {
+        
+        // Scoreboard:
+        if (scoreboardItem instanceof HTMLElement && scoreboardItem.children[0] instanceof HTMLElement && scoreboardItem.children[1] instanceof HTMLElement) {
             // The digit elements are ordered such that children[0] is ones, children[1] is tens, and so on.
             // First, we have to remove all digit classes:
             scoreboardItem.children[0].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
@@ -911,7 +921,20 @@ GUIController.updateScoreOfPlayer = function(id, newScore) {
             scoreboardItem.children[0].classList.add("d"+tensDigit);
             scoreboardItem.children[1].classList.add("d"+onesDigit);
         } else {
-            logError("Could not find HTML scoreboard entry for "+this.players[id].toString()+".");
+            logError("Could not find HTML scoreboard entry for player "+id+".");
+        }
+
+        // Results:
+        if (resultsItem instanceof HTMLElement && resultsItem.children[0] instanceof HTMLElement && resultsItem.children[1] instanceof HTMLElement) {
+            // The digit elements are ordered such that children[0] is ones, children[1] is tens, and so on.
+            // First, we have to remove all digit classes:
+            resultsItem.children[0].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
+            resultsItem.children[1].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
+            // Add appropriate classes to tens and ones position, respectively:
+            resultsItem.children[0].classList.add("d"+tensDigit);
+            resultsItem.children[1].classList.add("d"+onesDigit);
+        } else {
+            logError("Could not find HTML results entry for player "+id+".");
         }
     }
 };
