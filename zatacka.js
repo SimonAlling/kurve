@@ -152,6 +152,7 @@ function computeSpawnArea(margin) {
     };
 }
 
+// Computes the angle change for one tick when turning, in radians:
 function computeAngleChange() {
     return config.speed / (config.tickrate * config.turningRadius);
 }
@@ -578,10 +579,12 @@ Player.prototype.update = function(delta) {
     if (Keyboard.isDown(this.keyR)) {
         this.direction -= computeAngleChange();
     }
+    // We want the direction to stay in the interval -pi < angle <= pi:
+    this.direction = normalizeAngle(this.direction);
     // Debugging:
     var debugFieldID = "debug_" + this.getName().toLowerCase();
     var debugField = document.getElementById(debugFieldID);
-    debugField.textContent = "x ~ "+Math.round(this.x)+", y ~ "+Math.round(this.y);
+    debugField.textContent = "x ~ "+Math.round(this.x)+", y ~ "+Math.round(this.y)+", dir = "+round(radToDeg(this.direction), 3);
 
     this.lastX = this.x;
     this.lastY = this.y;
