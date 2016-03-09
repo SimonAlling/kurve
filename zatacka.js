@@ -365,7 +365,6 @@ Player.prototype.setKeybind = function(dir, key) {
 };
 
 Player.prototype.reset = function() {
-    logWarning("Resetting "+this);
     this.alive = false;
     this.lastY = null;
     this.lastX = null;
