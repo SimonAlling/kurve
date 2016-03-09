@@ -365,6 +365,7 @@ Player.prototype.setKeybind = function(dir, key) {
 };
 
 Player.prototype.reset = function() {
+    logWarning("Resetting "+this);
     this.alive = false;
     this.lastY = null;
     this.lastX = null;
@@ -573,26 +574,28 @@ Player.prototype.draw = function() {
  *   The amount of time since the last time the player was updated, in seconds.
  */
 Player.prototype.update = function(delta) {
-    if (Keyboard.isDown(this.keyL)) {
-        this.direction += computeAngleChange();
-    }
-    if (Keyboard.isDown(this.keyR)) {
-        this.direction -= computeAngleChange();
-    }
-    // We want the direction to stay in the interval -pi < angle <= pi:
-    this.direction = normalizeAngle(this.direction);
     // Debugging:
     var debugFieldID = "debug_" + this.getName().toLowerCase();
     var debugField = document.getElementById(debugFieldID);
     debugField.textContent = "x ~ "+Math.round(this.x)+", y ~ "+Math.round(this.y)+", dir = "+round(radToDeg(this.direction), 3);
 
-    this.lastX = this.x;
-    this.lastY = this.y;
-    var theta = this.velocity * delta / 1000;
-    this.x = this.x + theta * Math.cos(this.direction);
-    this.y = this.y - theta * Math.sin(this.direction);
-    if (this.isAlive() && totalNumberOfTicks % maxTicksBeforeDraw === 0) {
-        this.queuedDraws.enqueue({"x": this.x, "y": this.y });
+    if (this.isAlive()) {
+        if (Keyboard.isDown(this.keyL)) {
+            this.direction += computeAngleChange();
+        }
+        if (Keyboard.isDown(this.keyR)) {
+            this.direction -= computeAngleChange();
+        }
+        // We want the direction to stay in the interval -pi < angle <= pi:
+        this.direction = normalizeAngle(this.direction);
+        this.lastX = this.x;
+        this.lastY = this.y;
+        var theta = this.velocity * delta / 1000;
+        this.x = this.x + theta * Math.cos(this.direction);
+        this.y = this.y - theta * Math.sin(this.direction);
+        if (totalNumberOfTicks % maxTicksBeforeDraw === 0) {
+            this.queuedDraws.enqueue({"x": this.x, "y": this.y });
+        }
     }
 };
 
@@ -797,7 +800,6 @@ Game.prototype.stopPlayers = function() {
     var self = this;
     for (var i = 0, len = this.activePlayers.length; i < len; i++) {
         self.activePlayers[i].stop();
-        self.activePlayers[i].reset();
     }
 };
 
