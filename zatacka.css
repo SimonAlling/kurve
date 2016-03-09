@@ -41,8 +41,11 @@ body {
 #debug_blue { color: #00A2CB; }
 
 #wrapper {
-	display: flex;
 	align-items: center;
+	display: flex;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
 }
 
 .border {
