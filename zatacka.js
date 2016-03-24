@@ -1,1014 +1,137 @@
-// IIFE start
-var Zatacka = (function(window, document) {
 "use strict";
 
-var canvas = document.getElementById("canvas");
-var context = canvas.getContext("2d");
-var heads = document.getElementById("heads");
-var headsContext = heads.getContext("2d");
-var canvasWidth = canvas.width;
-var canvasHeight = canvas.height;
-var pixels = new Array(canvasWidth*canvasHeight).fill(0);
+const Zatacka = (function(window, document) {
 
-var KEY = Object.freeze({ BACKSPACE: 8, TAB: 9, ENTER: 13, SHIFT: 16, CTRL: 17, ALT: 18, PAUSE: 19, CAPS_LOCK: 20, ESCAPE: 27, SPACE: 32, PAGE_UP: 33, PAGE_DOWN: 34, END: 35, HOME: 36, LEFT_ARROW: 37, UP_ARROW: 38, RIGHT_ARROW: 39, DOWN_ARROW: 40, INSERT: 45, DELETE: 46, "0": 48, "1": 49, "2": 50, "3": 51, "4": 52, "5": 53, "6": 54, "7": 55, "8": 56, "9": 57, A: 65, B: 66, C: 67, D: 68, E: 69, F: 70, G: 71, H: 72, I: 73, J: 74, K: 75, L: 76, M: 77, N: 78, O: 79, P: 80, Q: 81, R: 82, S: 83, T: 84, U: 85, V: 86, W: 87, X: 88, Y: 89, Z: 90, LEFT_META: 91, RIGHT_META: 92, SELECT: 93, NUMPAD_0: 96, NUMPAD_1: 97, NUMPAD_2: 98, NUMPAD_3: 99, NUMPAD_4: 100, NUMPAD_5: 101, NUMPAD_6: 102, NUMPAD_7: 103, NUMPAD_8: 104, NUMPAD_9: 105, MULTIPLY: 106, ADD: 107, SUBTRACT: 109, DECIMAL: 110, DIVIDE: 111, F1: 112, F2: 113, F3: 114, F4: 115, F5: 116, F6: 117, F7: 118, F8: 119, F9: 120, F10: 121, F11: 122, F12: 123, NUM_LOCK: 144, SCROLL_LOCK: 145, SEMICOLON: 186, EQUALS: 187, COMMA: 188, DASH: 189, PERIOD: 190, FORWARD_SLASH: 191, GRAVE_ACCENT: 192, OPEN_BRACKET: 219, BACK_SLASH: 220, CLOSE_BRACKET: 221, SINGLE_QUOTE: 222 });
+const canvas = byID("canvas");
 
 const config = Object.freeze({
-    tickrate: 600, // Hz (absolute minimum: 30)
-    kurveThickness: 3,
-    minSpawnAngle: -Math.PI/2,
-    maxSpawnAngle:  Math.PI/2,
-    spawnMargin: 100,
-    maxPlayers: 6,
-    speed: 64, // Kuxels per second
+    tickrate: 600, // Hz
+    maxFramerate: 60, // Hz
+    width: 559, // Kuxels
+    height: 480, // Kuxels
+    thickness: 3, // Kuxels
+    speed: 60, // Kuxels per second
     turningRadius: 27, // Kuxels (NB: _radius_)
+    minSpawnAngle: -Math.PI/2, // radians
+    maxSpawnAngle:  Math.PI/2, // radians
+    spawnMargin: 100, // Kuxels
+    maxPlayers: 6,
     flickerFrequency: 20, // Hz, when spawning
     flickerDuration: 830, // ms, when spawning
     minHoleDistance: 90, // Kuxels
     maxHoleDistance: 300, // Kuxels
     minHoleLength: 8, // Kuxels
-    maxHoleLength: 12 // Kuxels
+    maxHoleLength: 12, // Kuxels
+    keys: {
+        "proceed": [KEY.SPACE, KEY.ENTER],
+        "quit":    [KEY.ESCAPE]
+    },
+    defaultPlayers: Object.freeze([
+	    { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]      , keyR: KEY.Q          },
+	    { id: 2, name: "Yellow", color: "#C3C300", keyL: KEY.CTRL      , keyR: KEY.ALT        },
+	    { id: 3, name: "Orange", color: "#FF7900", keyL: KEY.M         , keyR: KEY.COMMA      },
+	    { id: 4, name: "Green" , color: "#00CB00", keyL: KEY.LEFT_ARROW, keyR: KEY.DOWN_ARROW },
+	    { id: 5, name: "Pink"  , color: "#DF51B6", keyL: KEY.DIVIDE    , keyR: KEY.MULTIPLY   },
+	    { id: 6, name: "Blue"  , color: "#00A2CB", keyL: KEY.C         , keyR: KEY.V          }
+	])
 });
 
-var defaultPlayers = [
-    null, // => very neat logic since Red = P1, Yellow = P2 etc
-    { name: "Red"   , color: "#FF2800", keyL: KEY["1"]      , keyR: KEY.Q          },
-    { name: "Yellow", color: "#C3C300", keyL: KEY.CTRL      , keyR: KEY.ALT        },
-    { name: "Orange", color: "#FF7900", keyL: KEY.M         , keyR: KEY.COMMA      },
-    { name: "Green" , color: "#00CB00", keyL: KEY.LEFT_ARROW, keyR: KEY.DOWN_ARROW },
-    { name: "Pink"  , color: "#DF51B6", keyL: KEY.DIVIDE    , keyR: KEY.MULTIPLY   },
-    { name: "Blue"  , color: "#00A2CB", keyL: null          , keyR: null           }
-];
-
-var totalNumberOfTicks = 0;
-var maxTicksBeforeDraw = Math.max(Math.floor(config.tickrate/config.speed), 1);
-
-// maxTicksBeforeDraw exists because we do not want to queue a large number of unnecessary draws.
-// It is calculated like so:
-// We cannot allow a Kurve to travel more than 1 Kuxel without a draw, since that gives us the bug
-// where it looks like you die before actually hitting an obstacle.
-// s = vt (where s is 1 Kuxel and v is known)
-// t = s / v = 1 / v
-// t is the number of seconds we can wait before we have to draw.
-// t equals some number of ticks, n, times the time of one tick, 1 / f:
-// t = n / f (where f is the tickrate and n is the sought maxTicksBeforeDraw)
-// 1 / v = n / f
-// n = f / v
-// We then Math.floor() it so we can do modulo calculations with it and because integers are nice.
-
-
-function init() {
-
+function isProceedKey(k) {
+    return config.keys.proceed.indexOf(k) !== -1;
 }
 
+function isQuitKey(k) {
+    return config.keys.quit.indexOf(k) !== -1;
+}
 
-var Keyboard = {
-    pressed: {},
-    isDown: function(keyCode) {
-        return this.pressed[keyCode];
-    },
-    onKeydown: function(event) {
-        this.pressed[event.keyCode] = true;
-    },
-    onKeyup: function(event) {
-        delete this.pressed[event.keyCode];
-    }
-};
-
-function isPlayerKey(keyCode) {
-    if (game.isStarted()) {
-        for (var i = 0; i < game.players.length; i++) {
-            if (game.players[i] instanceof Player && (keyCode === game.players[i].keyL || keyCode === game.players[i].keyR)) {
-                return true;
-            }
+function defaultPlayer(id) {
+    var dp;
+    for (var i = 0; i < config.defaultPlayers.length; i++) {
+        dp = config.defaultPlayers[i];
+        if (dp.id === id) {
+            return new Player(dp.id, dp.name, dp.color, dp.keyL, dp.keyR);
         }
+    }
+}
+
+function proceedKeyPressedInLobby() {
+    var numberOfReadyPlayers = game.getNumberOfActivePlayers();
+    if (numberOfReadyPlayers > 0) {
+        removeLobbyEventListeners();
+        addGameEventListeners();
+        game.setMode(numberOfReadyPlayers === 1 ? Game.PRACTICE : Game.COMPETITIVE);
+        game.start();
+    }
+}
+
+function keyPressedInLobby(pressedKey) {
+    for (var i = 0; i < config.defaultPlayers.length; i++) {
+        let player = config.defaultPlayers[i];
+        if (pressedKey === player.keyL) {
+            game.addPlayer(defaultPlayer(player.id));
+        } else if (pressedKey === player.keyR) {
+            game.removePlayer(player.id);
+        }
+    }
+}
+
+function lobbyKeyHandler() {
+    let pressedKey = window.event.keyCode;
+    if (isProceedKey(pressedKey)) {
+        proceedKeyPressedInLobby();
     } else {
-        for (var i = 0; i < defaultPlayers.length; i++) {
-            if (defaultPlayers[i] !== null && (keyCode === defaultPlayers[i].keyL || keyCode === defaultPlayers[i].keyR)) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-function isReservedKey(keyCode) {
-    // Explicitly disable Tab to prevent accidental unfocus:
-    return (keyCode === KEY.TAB || keyCode === KEY.SPACE || keyCode === KEY.ESCAPE || isPlayerKey(keyCode));
-}
-
-function keyDownHandler(event) {
-    Keyboard.onKeydown(event);
-    if (isReservedKey(event.keyCode)) {
-        event.preventDefault();
-    }
-    if (game.isStarted()) {
-        game.inGameKeyHandler(event);
-    } else {
-        game.lobbyKeyHandler(event);
+        keyPressedInLobby(pressedKey);
     }
 }
 
-function keyUpHandler(event) {
-    Keyboard.onKeyup(event);
+function lobbyMouseHandler() {
+
 }
 
-function isOnField(x, y) {
-    return x >= 0
-        && y >= 0
-        && x+config.kurveThickness <= canvasWidth
-        && y+config.kurveThickness <= canvasHeight;
+function gameKeyHandler() {
+    game.keyHandler(window.event.keyCode);
 }
 
-function isOccupiedPixel(x, y) {
-    return isOccupiedPixelAddress(pixelAddress(x, y));
+function gameMouseHandler() {
+
 }
 
-function isOccupiedPixelAddress(addr) {
-    return pixels[addr] > 0;
+function addLobbyEventListeners() {
+    log("Adding lobby event listeners ...");
+    document.addEventListener("keydown", lobbyKeyHandler);
+    document.addEventListener("mousedown", lobbyMouseHandler);
+    log("Done.");
 }
 
-function randomHoleDistance() {
-    return Math.round(randomFloat(config.minHoleDistance, config.maxHoleDistance));
+function removeLobbyEventListeners() {
+    log("Removing lobby event listeners ...");
+    document.removeEventListener("keydown", lobbyKeyHandler);
+    document.removeEventListener("mousedown", lobbyMouseHandler);
+    log("Done.");
 }
 
-function randomHoleLength() {
-    return randomFloat(config.minHoleLength, config.maxHoleLength);
+function addGameEventListeners() {
+    log("Adding game event listeners ...");
+    document.addEventListener("keydown", Keyboard.onKeydown.bind(Keyboard));
+    document.addEventListener("keyup", Keyboard.onKeyup.bind(Keyboard));
+    document.addEventListener("keydown", gameKeyHandler);
+    document.addEventListener("mousedown", gameMouseHandler);
+    log("Done.");
 }
 
-
-
-/**
- * Computes the available spawn area.
- *
- * @param {Number} margin
- *   Minimum distance to edge of game field.
- */
-function computeSpawnArea(margin) {
-    return {
-        x_min: margin,
-        y_min: margin,
-        x_max: canvasWidth - margin,
-        y_max: canvasHeight - margin
-    };
+function removeGameEventListeners() {
+    log("Removing game event listeners ...");
+    document.removeEventListener("keydown", gameKeyHandler);
+    document.removeEventListener("mousedown", gameMouseHandler);
+    log("Done.");
 }
 
-// Computes the angle change for one tick when turning, in radians:
-function computeAngleChange() {
-    return config.speed / (config.tickrate * config.turningRadius);
-}
+addLobbyEventListeners();
 
-/**
- * Generates a random float between min (inclusive) and max (exclusive).
- *
- * @param {Number} min
- *   Minimum value (inclusive).
- * @param {Number} max
- *   Maximum value (exclusive).
- */
-function randomFloat(min, max) {
-    return Math.random() * (max - min) + min;
-}
-
-// Translates a pair of coordinates (x, y) into a single pixel address:
-function pixelAddress(x, y) {
-    return y*canvasWidth + x;
-}
-
-function pixelAddressToCoordinates(addr) {
-    var x = addr % canvasWidth;
-    var y = (addr - x) / canvasWidth;
-    return "("+x+", "+y+")";
-}
-
-// Returns true iff the two specified rectangles overlap each other:
-function isOverlap(left1, top1, left2, top2, thickness) {
-    return left2 > (left1 - thickness)
-        && left2 < (left1 + thickness)
-        && top2  > (top1  - thickness)
-        && top2  < (top1  + thickness);
-}
-
-// Returns an array with the pixel addresses to the pixels comprising the square at (left, top):
-function getPixels(left, top) {
-    var pixels = [];
-    var right = left + config.kurveThickness;
-    var bottom = top + config.kurveThickness;
-    for (var y = top; y < bottom; y++) {
-        for (var x = left; x < right; x++) {
-            pixels.push(pixelAddress(x, y));
-        }
-    }
-    return pixels;
-}
-
-function generateSpawnPosition() {
-    var spawnArea = computeSpawnArea(config.spawnMargin);
-    return {
-        x: randomFloat(spawnArea.x_min, spawnArea.x_max),
-        y: randomFloat(spawnArea.y_min, spawnArea.y_max)
-    };
-}
-
-function generateSpawnDirection() {
-    return randomFloat(config.minSpawnAngle, config.maxSpawnAngle);
-}
-
-function drawKurveSquare(x, y, color) {
-    context.fillStyle = color;
-    context.fillRect(x, y, config.kurveThickness, config.kurveThickness);
-}
-
-function clearKurveSquare(x, y) {
-    context.clearRect(x, y, config.kurveThickness, config.kurveThickness);
-}
-
-function clearHeads() {
-    headsContext.clearRect(0, 0, canvasWidth, canvasHeight);
-}
-
-
-/**
- * Draws all players.
- *
- * @param {Number} interpolationPercentage
- *   How much to interpolate between frames.
- */
-function draw(interpolationPercentage) {
-    var livePlayers = game.livePlayers;
-    // We cannot cache the length here since it is changed if some player dies:
-    for (var i = 0; i < livePlayers.length; i++) {
-        livePlayers[i].draw();
-    }
-}
-
-/**
- * Updates everything.
- *
- * @param {Number} delta
- *   The amount of time since the last update, in seconds.
- */
-function update(delta) {
-    clearHeads();
-    for (var i = 0, len = game.livePlayers.length; i < len; i++) {
-        game.livePlayers[i].update(delta);
-    }
-    totalNumberOfTicks++;
-}
-
-/**
- * Updates the FPS counter etc.
- *
- * @param {Number} framerate
- *   The smoothed frames per second.
- * @param {Boolean} panic
- *   Whether the main loop panicked because the simulation fell too far behind real time.
- */
-function end(framerate, panic) {
-    if (panic) {
-        var discardedTime = Math.round(MainLoop.resetFrameDelta());
-        console.warn("Main loop panicked. Discarding " + discardedTime + "ms.");
-    }
-}
-
-
-
-
-
-
-/**
- * Player constructor
- *
- * @param {String} color
- *   The color of the player.
- */
-function Player(id, name, color, keyL, keyR) {
-    if (isInt(id) && id > 0 && id <= config.maxPlayers) {
-        this.id    = id;
-        this.name  = name  || defaultPlayers[id].name  || "Player "+id;
-        this.color = color || defaultPlayers[id].color || "white";
-        this.keyL  = keyL  || defaultPlayers[id].keyL  || null;
-        this.keyR  = keyR  || defaultPlayers[id].keyR  || null;
-        this.queuedDraws  = new Queue();
-        this.lastDraw     = { "x": null, "y": null };
-        this.secondLastDraw = { "x": null, "y": null };
-        this.thirdLastDraw = { "x": null, "y": null };
-    } else {
-        throw new Error("Cannot create a player with ID "+id+".");
-    }
-}
-
-Player.DIR_L = "left";
-Player.DIR_R = "right";
-
-Player.prototype.score = 0;
-Player.prototype.alive = false;
-Player.prototype.x = null;
-Player.prototype.y = null;
-Player.prototype.lastX = null;
-Player.prototype.lastY = null;
-Player.prototype.direction = 0;
-Player.prototype.velocity = 0;
-Player.prototype.keyL = null;
-Player.prototype.keyR = null;
-Player.prototype.flickerTicker = null;
-Player.prototype.hole = false;
-Player.prototype.holeTimer = null;
-
-Player.prototype.getID = function() {
-    return this.id;
-};
-
-Player.prototype.getName = function() {
-    return this.name;
-};
-
-Player.prototype.getScore = function() {
-    return this.score;
-};
-
-Player.prototype.toString = function() {
-    return this.name;
-};
-
-Player.prototype.isAlive = function() {
-    return this.alive;
-};
-
-Player.prototype.isHoly = function() {
-    return this.hole;
-};
-
-Player.prototype.occupies = function(left, top) {
-    var x, y;
-    var right = left + config.kurveThickness;
-    var bottom = top + config.kurveThickness;
-    for (y = top; y < bottom; y++) {
-        for (x = left; x < right; x++) {
-            if (pixels[pixelAddress(x, y)] > 0 && pixels[pixelAddress(x, y)] === this.id) {
-                return true;
-            }
-        }
-    }
-    return false;
-};
-
-Player.prototype.setKeybind = function(dir, key) {
-    if (dir === this.constructor.DIR_L) {
-        this.keyL = key;
-        log("Set LEFT key of "+this.toString()+" to "+key+".");
-    } else if (dir === this.constructor.DIR_R) {
-        this.keyR = key;
-        log("Set RIGHT key of "+this.toString()+" to "+key+".");
-    } else {
-        logWarning("Could not bind "+key+" to "+dir+" because it is not a valid direction.");
-    }
-};
-
-Player.prototype.reset = function() {
-    this.alive = false;
-    this.lastY = null;
-    this.lastX = null;
-    this.x = null;
-    this.y = null;
-    this.direction = 0;
-    this.queuedDraws  = new Queue();
-    this.lastDraw     = { "x": null, "y": null };
-    this.secondLastDraw = { "x": null, "y": null };
-    this.thirdLastDraw = { "x": null, "y": null };
-    this.hole = false;
-    clearTimeout(this.holeTimer);
-    this.holeTimer = null;
-};
-
-Player.prototype.flicker = function() {
-    var isVisible = false;
-    var x = Math.round(this.x - config.kurveThickness/2);
-    var y = Math.round(this.y - config.kurveThickness/2);
-    var color = this.color;
-    this.flickerTicker = setInterval(function() {
-        if (isVisible) {
-            clearKurveSquare(x, y);
-            isVisible = false;
-        } else {
-            drawKurveSquare(x, y, color);
-            isVisible = true;
-        }
-    }, 1000/config.flickerFrequency);
-};
-
-Player.prototype.stopFlickering = function() {
-    clearInterval(this.flickerTicker);
-    var x = Math.round(this.x - config.kurveThickness/2);
-    var y = Math.round(this.y - config.kurveThickness/2);
-    drawKurveSquare(x, y, this.color);
-};
-
-Player.prototype.spawn = function() {
-    var spawnPosition = generateSpawnPosition();
-    this.x = spawnPosition.x;
-    this.y = spawnPosition.y;
-    var spawnDirection = generateSpawnDirection();
-    this.direction = spawnDirection;
-    // Player should flicker when it spawns:
-    this.flicker();
-    var self = this;
-    setTimeout(function() { self.stopFlickering(); }, config.flickerDuration);
-    log(this+" spawning at ("+Math.round(spawnPosition.x)+", "+Math.round(spawnPosition.y)+") with direction "+Math.round(spawnDirection*180/Math.PI)+" deg.");
-};
-
-// Even if the player should be going faster, the average
-// *distance* between the holes will always be the same:
-Player.prototype.randomHoleInterval = function() {
-    return randomHoleDistance() / this.velocity;
-};
-
-// So will the average hole size:
-Player.prototype.randomHoleDuration = function() {
-    return randomHoleLength() / this.velocity;
-};
-
-Player.prototype.beginHole = function(self) {
-    if (self.isAlive()) {
-        self.hole = true;
-        var t = self.randomHoleDuration();
-        self.holeTimer = setTimeout(self.endHole, t*1000, self);
-    }
-};
-
-Player.prototype.endHole = function(self) {
-    self.hole = false;
-    if (self.isAlive()) {
-        self.startHoleTimer();
-    }
-};
-
-Player.prototype.startHoleTimer = function() {
-    var self = this;
-    var t = this.randomHoleInterval();
-    log(new Date().getTime() % 100000+" | "+t+" seconds until "+this+"'s next hole."); // for debugging
-    self.holeTimer = setTimeout(self.beginHole, t*1000, self);
-};
-
-Player.prototype.start = function() {
-    this.alive = true;
-    this.velocity = config.speed;
-    this.startHoleTimer();
-};
-
-Player.prototype.stop = function() {
-    this.alive = false;
-    this.velocity = 0;
-};
-
-Player.prototype.drawHead = function(left, top) {
-    headsContext.fillStyle = this.color;
-    headsContext.fillRect(left, top, config.kurveThickness, config.kurveThickness);
-};
-
-Player.prototype.occupy = function(left, top) {
-    // TODO thickness
-    var id = this.id;
-    var right = left + config.kurveThickness;
-    var bottom = top + config.kurveThickness;
-    var thickness = config.kurveThickness;
-    for (var y = top; y < bottom; y++) {
-        for (var x = left; x < right; x++) {
-            pixels[pixelAddress(x, y)] = id;
-        }
-    }
-    this.thirdLastDraw = { "x": this.secondLastDraw.x, "y": this.secondLastDraw.y };
-    this.secondLastDraw = { "x": this.lastDraw.x, "y": this.lastDraw.y };
-    this.lastDraw = { "x": left, "y": top };
-    context.fillStyle = this.color;
-    context.fillRect(left, top, thickness, thickness);
-};
-
-Player.prototype.die = function(cause) {
-    log(this+" "+(cause || "died")+" at ("+Math.round(this.x)+", "+Math.round(this.y)+").");
-    game.deathOf(this);
-    this.alive = false;
-};
-
-Player.prototype.incrementScore = function() {
-    this.score++;
-};
-
-Player.prototype.justDrewAt = function(left, top) {
-    return this.lastDraw.x === left && this.lastDraw.y === top;
-};
-
-Player.prototype.overlapsOwnNeck = function(left, top) {
-    return isOverlap(left, top, this.lastDraw.x, this.lastDraw.y, config.kurveThickness)
-        || isOverlap(left, top, this.secondLastDraw.x, this.secondLastDraw.y, config.kurveThickness)
-        || isOverlap(left, top, this.thirdLastDraw.x, this.thirdLastDraw.y, config.kurveThickness);
-};
-
-Player.prototype.getNewPixels = function(left, top) {
-    var right = left + config.kurveThickness;
-    var bottom = top + config.kurveThickness;
-    var newPixels = [];
-    var oldPixels = getPixels(this.lastDraw.x, this.lastDraw.y).concat(getPixels(this.secondLastDraw.x, this.secondLastDraw.y)).concat(getPixels(this.thirdLastDraw.x, this.thirdLastDraw.y));
-    var maybeNewPixels = getPixels(left, top);
-    for (var i = 0, len = maybeNewPixels.length; i < len; i++) {
-        if (oldPixels.indexOf(maybeNewPixels[i]) === -1) {
-            newPixels.push(maybeNewPixels[i]);
-        }
-    }
-    return newPixels;
-};
-
-Player.prototype.isCrashing = function(left, top) {
-    var newPixels = this.getNewPixels(left, top);
-    var id = this.getID();
-    for (var i = 0, len = newPixels.length; i < len; i++) {
-        if (isOccupiedPixelAddress(newPixels[i])) {
-            return true;
-        }
-    }
-    return false;
-};
-
-/**
- * Draws the player.
- *
- * @param {Number} interpolationPercentage
- *   How much to interpolate between frames.
- */
-Player.prototype.draw = function() {
-    var id = this.id;
-    var thickness = config.kurveThickness;
-    var currentDraw;
-    var left, top, right, bottom, x, y, pixelAddress;
-    while (this.isAlive() && !this.queuedDraws.isEmpty()) {
-        // Player is alive and there are queued draw operations to handle.
-        currentDraw =  this.queuedDraws.dequeue();
-        left = Math.round(currentDraw.x - thickness/2);
-        top  = Math.round(currentDraw.y - thickness/2);
-        if (!this.justDrewAt(left, top)) {
-            // The new draw position is not identical to the last one.
-            if (!isOnField(left, top)) {
-                // The player wants to draw outside the playing field.
-                this.die("crashed into the wall");
-            } else if (this.isCrashing(left, top)) {
-                // The player wants to draw on a spot occupied by itself or an opponent.
-                this.die("crashed");
-            } else {
-                // Only draw body if not holy:
-                if (!this.isHoly()) {
-                    this.occupy(left, top);
-                }
-            }
-        }
-    }
-    if (this.isAlive()) {
-        // Always draw the head of the Kurve, but only once per draw() call:
-        this.drawHead(left, top);
-    }
-};
-
-/**
- * Updates the player's position.
- *
- * @param {Number} delta
- *   The amount of time since the last time the player was updated, in seconds.
- */
-Player.prototype.update = function(delta) {
-    // Debugging:
-    var debugFieldID = "debug_" + this.getName().toLowerCase();
-    var debugField = document.getElementById(debugFieldID);
-    debugField.textContent = "x ~ "+Math.round(this.x)+", y ~ "+Math.round(this.y)+", dir = "+round(radToDeg(this.direction), 3);
-
-    if (this.isAlive()) {
-        if (Keyboard.isDown(this.keyL)) {
-            this.direction += computeAngleChange();
-        }
-        if (Keyboard.isDown(this.keyR)) {
-            this.direction -= computeAngleChange();
-        }
-        // We want the direction to stay in the interval -pi < angle <= pi:
-        this.direction = normalizeAngle(this.direction);
-        this.lastX = this.x;
-        this.lastY = this.y;
-        var theta = this.velocity * delta / 1000;
-        this.x = this.x + theta * Math.cos(this.direction);
-        this.y = this.y - theta * Math.sin(this.direction);
-        if (totalNumberOfTicks % maxTicksBeforeDraw === 0) {
-            this.queuedDraws.enqueue({"x": this.x, "y": this.y });
-        }
-    }
-};
-
-
-
-
-
-
-/**
- * Round constructor. A Round object holds information about a round.
- */
-function Round(maxPlayers) {
-    this.scoreboard = (new Array(maxPlayers+1)).fill(0);
-}
-
-Round.prototype.finished = false;
-Round.prototype.length = null;
-
-Round.prototype.isFinished = function() {
-    return this.finished;
-};
-
-Round.prototype.getLength = function() {
-    return this.length;
-};
-
-
-
-
-
-/**
- * Game constructor. A Game object holds information about a running game.
- */
-function Game(maxPlayers) {
-    // Length not dependent on number of ACTIVE players; empty player slots are null:
-    this.players = new Array(maxPlayers+1).fill(null);
-    this.livePlayers = [];
-    this.activePlayers = [];
-    this.rounds = Game.emptyRoundsArray(maxPlayers);
-    this.scoreboard = (new Array(maxPlayers+1)).fill(null);
-    this.mode = undefined;
-    this.started = false;
-    this.waitingForNextRound = false;
-    this.waitingForKonecHry = false;
-    var self = this;
-    this.inGameKeyHandler = function(event) {
-        if (self.waitingForNextRound) {
-            if (event.keyCode === KEY.SPACE) {
-                self.nextRound();
-            } else if (event.keyCode === KEY.ESCAPE) {
-                GUIController.escapePressedInGame();
-            }
-        } else if (self.waitingForKonecHry) {
-            if (event.keyCode === KEY.SPACE) {
-                self.konecHry();
-            }
-        }
-    };
-}
-
-Game.PRACTICE    = "practice";
-Game.COMPETITIVE = "competitive";
-
-Game.calculateTargetScore = function(numberOfActivePlayers) {
-    return (numberOfActivePlayers - 1) * 10;
-};
-
-Game.emptyRoundsArray = function(maxPlayers) {
-    var rounds = new Array(maxPlayers + 1);
-};
-
-Game.prototype.targetScore = null;
-
-Game.prototype.setMode = function(m) {
-    log("Setting game mode to "+m+".");
-    this.mode = m;
-};
-
-Game.prototype.setTargetScore = function(s) {
-    log("Setting target score to "+s+".");
-    this.targetScore = s;
-};
-
-Game.prototype.getMode = function() {
-    return this.mode;
-};
-
-Game.prototype.getTargetScore = function() {
-    return this.targetScore;
-};
-
-// Works in lobby:
-Game.prototype.getNumberOfReadyPlayers = function() {
-    var n = 0;
-    for (var i = 0, len = this.players.length; i < len; i++) {
-        if (this.players[i] instanceof Player) {
-            n++;
-        }
-    }
-    return n;
-};
-
-// Works after game.start() only:
-Game.prototype.getNumberOfActivePlayers = function() {
-    return this.activePlayers.length;
-};
-
-Game.prototype.isStarted = function() {
-    return this.started;
-};
-
-Game.prototype.lobbyKeyHandler = function(event) {
-    for (var i = 1; i < defaultPlayers.length; i++) {
-        if (event.keyCode === defaultPlayers[i].keyL) {
-            this.addPlayer(new Player(i));
-            GUIController.playerReady(i);
-        } else if (event.keyCode === defaultPlayers[i].keyR) {
-            this.removePlayer(i);
-            GUIController.playerUnready(i);
-        }
-    }
-    if (event.keyCode === KEY.SPACE) {
-        var numberOfReadyPlayers = game.getNumberOfReadyPlayers();
-        if (numberOfReadyPlayers > 0) {
-            game.setMode(numberOfReadyPlayers === 1 ? Game.PRACTICE : Game.COMPETITIVE);
-            GUIController.gameStarted();
-            game.start();
-        }
-    }
-};
-
-
-/**
- * Adds a player to the game.
- *
- * @param {Player} player
- *   The Player object representing the player.
- */
-Game.prototype.addPlayer = function(player) {
-    var id = player.getID();
-    if (this.players[id] === null) {
-        this.players[id] = player;
-        log("Player "+id+" ("+player+") ready!");
-    }
-};
-
-/**
- * Adds a player to the game.
- *
- * @param {Number} id
- *   The ID of the player to be removed.
- */
-Game.prototype.removePlayer = function(id) {
-    if (this.players[id] instanceof Player) {
-        log("Player "+id+" ("+this.players[id]+") not ready.");
-        this.players[id] = null;
-    }
-};
-
-Game.prototype.start = function() {
-    this.started = true;
-    // Grab all ready players and put them in activePlayers:
-    for (var i = 0, len = this.players.length; i < len; i++) {
-        if (this.players[i] instanceof Player) {
-            // Tell GUI controller to show scores if in competitive:
-            if (this.mode === Game.COMPETITIVE) {
-                GUIController.updateScoreOfPlayer(i, 0);
-                GUIController.showScoreOfPlayer(i);
-            }
-            this.activePlayers.push(this.players[i]);
-            log("Added "+this.players[i]+" to activePlayers.");
-        }
-    }
-    var self = this;
-    this.setTargetScore(Game.calculateTargetScore(this.getNumberOfActivePlayers()));
-    this.nextRound();
-};
-
-Game.prototype.spawnPlayers = function() {
-    var activePlayers = this.activePlayers;
-    var self = this;
-    function spawnNextPlayer(next) {
-        if (activePlayers[next] instanceof Player) {
-            activePlayers[next].spawn();
-            setTimeout(spawnNextPlayer, config.flickerDuration, next+1);
-        } else {
-            self.startPlayers();
-        }
-    }
-    spawnNextPlayer(0);
-};
-
-Game.prototype.startPlayers = function() {
-    var self = this;
-    for (var i = 0, len = this.activePlayers.length; i < len; i++) {
-        self.activePlayers[i].start();
-    }
-    MainLoop.start();
-};
-
-Game.prototype.stopPlayers = function() {
-    var self = this;
-    for (var i = 0, len = this.activePlayers.length; i < len; i++) {
-        self.activePlayers[i].stop();
-    }
-};
-
-Game.prototype.clearField = function() {
-    context.clearRect(0, 0, canvasWidth, canvasHeight);
-    pixels.fill(0);
-};
-
-Game.prototype.nextRound = function() {
-    this.waitingForNextRound = false;
-    this.clearField();
-    for (var i = 0; i < this.activePlayers.length; i++) {
-        this.livePlayers[i] = this.activePlayers[i];
-    }
-    this.spawnPlayers();
-};
-
-Game.prototype.endRound = function(winner) {
-    this.stopPlayers();
-    log("Round over." + (winner instanceof Player ? " "+winner+" won." : ""));
-    var someoneWonTheGame = false;
-    for (var i = 0; i < this.activePlayers.length; i++) {
-        if (this.getMode() === Game.COMPETITIVE && this.activePlayers[i].getScore() >= this.getTargetScore()) {
-            someoneWonTheGame = true;
-        }
-        this.activePlayers[i].reset();
-    }
-    if (someoneWonTheGame) {        
-        this.waitingForKonecHry = true;
-    } else {
-        this.waitingForNextRound = true;
-    }
-};
-
-Game.prototype.quit = function() {
-    // TODO not perfect, but works for now:
-    window.location.reload();
-};
-
-// Game over:
-Game.prototype.konecHry = function() {
-    GUIController.showKonecHry();
-};
-
-Game.prototype.deathOf = function(player) {
-    for (var i = 0; i < this.livePlayers.length; i++) {
-        if (this.livePlayers[i] === player) {
-            // Remove dead player from livePlayers:
-            this.livePlayers.splice(i, 1);
-            break;
-        }
-    }
-    for (var i = 0, len = this.livePlayers.length; i < len; i++) {
-        this.livePlayers[i].incrementScore();
-        GUIController.updateScoreOfPlayer(this.livePlayers[i].getID(), this.livePlayers[i].getScore());
-    }
-    if (this.livePlayers.length === 1 && this.getMode() === Game.COMPETITIVE) {
-        // livePlayers[0] won the round:
-        this.endRound(this.livePlayers[0]);
-    } else if (this.livePlayers.length === 0) {
-        // The round is over since everyone is dead:
-        this.endRound();
-    }
-};
-
-
-
-var GUIController = {};
-
-GUIController.lobby = document.getElementById("lobby");
-GUIController.controlsList = document.getElementById("controls");
-GUIController.scoreboard = document.getElementById("scoreboard");
-GUIController.results = document.getElementById("results");
-GUIController.konecHry = document.getElementById("KONEC_HRY");
-
-GUIController.initLobby = function() {
-    log("======== Zatacka Lobby ========");
-};
-
-GUIController.gameStarted = function() {
-    log("Hiding lobby.");
-    // Hide lobby:
-    this.lobby.classList.add("hidden");
-};
-
-GUIController.showScoreOfPlayer = function(id) {
-    var index = id - 1;
-    var scoreboard = this.scoreboard;
-    if (scoreboard instanceof HTMLElement) {
-        var scoreboardEntry = scoreboard.children[index];
-        if (scoreboardEntry instanceof HTMLElement) {
-            scoreboardEntry.classList.add("active");
-        }
-    }
-    if (results instanceof HTMLElement) {
-        var resultsEntry = results.children[index];
-        if (resultsEntry instanceof HTMLElement) {
-            resultsEntry.classList.add("active");
-        }
-    }
-};
-
-GUIController.playerReady = function(id) {
-    var index = id - 1;
-    this.controlsList.children[index].children[1].classList.add("active");
-};
-
-GUIController.playerUnready = function(id) {
-    var index = id - 1;
-    this.controlsList.children[index].children[1].classList.remove("active");
-};
-
-/**
- * Updates the displayed score of the specified player to the specified value.
- *
- * @param {Number} id
- *   The id of the player whose score is to be updated.
- * @param {Number} newScore
- *   The new score to display.
- */
-GUIController.updateScoreOfPlayer = function(id, newScore) {
-    if (!(this.scoreboard instanceof HTMLElement)) {
-        logError("Scoreboard HTML element could not be found.");
-    } else {
-        var scoreboardItem = this.scoreboard.children[id-1]; // minus 1 necessary since players are 1-indexed
-        var resultsItem = this.results.children[id-1]; // minus 1 necessary since players are 1-indexed
-        var onesDigit = newScore % 10;                       // digit at the ones position (4 in 14)
-        var tensDigit = (newScore - (newScore % 10)) / 10;   // digit at the tens position (1 in 14)
-        
-        // Scoreboard:
-        if (scoreboardItem instanceof HTMLElement && scoreboardItem.children[0] instanceof HTMLElement && scoreboardItem.children[1] instanceof HTMLElement) {
-            // The digit elements are ordered such that children[0] is ones, children[1] is tens, and so on.
-            // First, we have to remove all digit classes:
-            scoreboardItem.children[0].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
-            scoreboardItem.children[1].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
-            // Add appropriate classes to tens and ones position, respectively:
-            scoreboardItem.children[0].classList.add("d"+tensDigit);
-            scoreboardItem.children[1].classList.add("d"+onesDigit);
-        } else {
-            logError("Could not find HTML scoreboard entry for player "+id+".");
-        }
-
-        // Results:
-        if (resultsItem instanceof HTMLElement && resultsItem.children[0] instanceof HTMLElement && resultsItem.children[1] instanceof HTMLElement) {
-            // The digit elements are ordered such that children[0] is ones, children[1] is tens, and so on.
-            // First, we have to remove all digit classes:
-            resultsItem.children[0].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
-            resultsItem.children[1].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
-            // Add appropriate classes to tens and ones position, respectively:
-            resultsItem.children[0].classList.add("d"+tensDigit);
-            resultsItem.children[1].classList.add("d"+onesDigit);
-        } else {
-            logError("Could not find HTML results entry for player "+id+".");
-        }
-    }
-};
-
-GUIController.resetScoreboard = function() {
-    if (!(this.scoreboard instanceof HTMLElement)) {
-        logError("Scoreboard HTML element could not be found.");
-    } else {
-        for (var i = 0; i < this.scoreboard.children.length; i++) {
-            scoreboard.children[i].classList.remove("active");
-        }
-    }
-};
-
-GUIController.showKonecHry = function() {
-    this.konecHry.classList.remove("hidden");
-    this.resetScoreboard();
-};
-
-GUIController.escapePressedInGame = function() {
-    // TODO can be made better, but works for now:
-    if (confirm("Do you really wish to quit?")) {
-        game.quit();
-    }
-};
-
-window.addEventListener("keydown", keyDownHandler, false);
-window.addEventListener("keyup"  , keyUpHandler  , false);
-
-var game = new Game(config.maxPlayers);
-
-GUIController.initLobby();
-
-// Debugging:
-// game.players[1].direction = 0;
-// game.players[1].x = 500;
-// game.players[1].y = 50;
-// game.players[2].direction = 180/Math.PI;
-// game.players[2].x = 500;
-// game.players[2].y = 100;
-
-function drawManually(x, y, color) {
-    context.fillStyle = color;
-    context.fillRect(x, y, config.kurveThickness, config.kurveThickness);
-}
-
-MainLoop
-    .setUpdate(update)
-    .setDraw(draw)
-    .setEnd(end)
-    .setSimulationTimestep(1000/config.tickrate)
-    .setMaxAllowedFPS(60);
+const game = new Game(config, Renderer(config, canvas), GUIController(config));
 
 return {
-   "isOccupiedPixel": isOccupiedPixel,
-   "drawManually": drawManually
+	getConfig: function() { return config; }
 };
 
-// IIFE end
 })(window, document);
