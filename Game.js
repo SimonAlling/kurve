@@ -290,7 +290,7 @@ class Game {
             this.setTargetScore(this.constructor.calculateTargetScore(this.getNumberOfActivePlayers()));
             for (let i = 0; i < this.players.length; i++) {
                 let player = this.players[i];
-                this.GUI_initScoreOfPlayer(player.getID());
+                this.GUI_updateScoreOfPlayer(player.getID(), player.getScore());
             }
         }
         log("Starting game!");
@@ -428,9 +428,6 @@ class Game {
     }
     GUI_playerUnready(id) {
         this.guiController.playerUnready(id);
-    }
-    GUI_initScoreOfPlayer(id) {
-        this.guiController.initScoreOfPlayer(id);
     }
     GUI_updateScoreOfPlayer(id, newScore) {
         this.guiController.updateScoreOfPlayer(id, newScore);

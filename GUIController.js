@@ -21,22 +21,6 @@ function GUIController(cfg) {
         lobby.classList.add(CLASS_HIDDEN);
     }
 
-    function showScoreOfPlayer(id) {
-        var index = id - 1;
-        if (isHTMLElement(scoreboard)) {
-            var scoreboardEntry = scoreboard.children[index];
-            if (isHTMLElement(scoreboardEntry)) {
-                scoreboardEntry.classList.add("active");
-            }
-        }
-        if (isHTMLElement(results)) {
-            var resultsEntry = results.children[index];
-            if (isHTMLElement(resultsEntry)) {
-                resultsEntry.classList.add("active");
-            }
-        }
-    }
-
 
     // PUBLIC API
 
@@ -62,11 +46,6 @@ function GUIController(cfg) {
         hideLobby();
     }
 
-    function initScoreOfPlayer(id) {
-        updateScoreOfPlayer(id, 0);
-        showScoreOfPlayer(id);
-    }
-
     function updateBoard(board, id, newScore) {
         if (!isHTMLElement(board)) {
             logWarning(`Cannot update any entry in ${board} because it is not an HTML element.`);
@@ -82,6 +61,7 @@ function GUIController(cfg) {
                 const newScoreDigitClasses = newScore.toString().split("").map(digitClassFactory);
                 // Remove everything from the entry element before we insert new digits:
                 flush(entry);
+                entry.classList.add("active");
                 newScoreDigitClasses.forEach((digitClass, index) => {
                     let digitElement = createDigit(); // A completely clean element ...
                     digitElement.classList.add(newScoreDigitClasses[index]); // ... that now has a digit class.
@@ -100,7 +80,6 @@ function GUIController(cfg) {
         playerReady,
         playerUnready,
         gameStarted,
-        initScoreOfPlayer,
         updateScoreOfPlayer
     };
 
