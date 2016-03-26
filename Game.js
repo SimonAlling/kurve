@@ -37,7 +37,6 @@ class Game {
         this.waitingForKonecHry = false; // TODO?
         this.totalNumberOfTicks = 0;
         this.targetScore = null;
-        this.angleChangePerTick = this.computeAngleChange();
         this.initMainLoop();
         this.colors = ["red", "green", "white"];
         this.currentColor = 0;
