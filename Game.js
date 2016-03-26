@@ -128,8 +128,7 @@ class Game {
     }
 
     randomSpawnAngle() {
-        // TODO
-        return Math.PI/4;
+        return randomFloat(this.config.minSpawnAngle, this.config.maxSpawnAngle);
     }
 
     pixelAddress(x, y) {
