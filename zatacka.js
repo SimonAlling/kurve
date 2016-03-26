@@ -26,13 +26,13 @@ const Zatacka = (function(window, document) {
             "quit":    [KEY.ESCAPE]
         },
         defaultPlayers: Object.freeze([
-    	    { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]      , keyR: KEY.Q          },
-    	    { id: 2, name: "Yellow", color: "#C3C300", keyL: KEY.CTRL      , keyR: KEY.ALT        },
-    	    { id: 3, name: "Orange", color: "#FF7900", keyL: KEY.M         , keyR: KEY.COMMA      },
-    	    { id: 4, name: "Green" , color: "#00CB00", keyL: KEY.LEFT_ARROW, keyR: KEY.DOWN_ARROW },
-    	    { id: 5, name: "Pink"  , color: "#DF51B6", keyL: KEY.DIVIDE    , keyR: KEY.MULTIPLY   },
-    	    { id: 6, name: "Blue"  , color: "#00A2CB", keyL: KEY.C         , keyR: KEY.V          }
-    	])
+            { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]      , keyR: KEY.Q          },
+            { id: 2, name: "Yellow", color: "#C3C300", keyL: KEY.CTRL      , keyR: KEY.ALT        },
+            { id: 3, name: "Orange", color: "#FF7900", keyL: KEY.M         , keyR: KEY.COMMA      },
+            { id: 4, name: "Green" , color: "#00CB00", keyL: KEY.LEFT_ARROW, keyR: KEY.DOWN_ARROW },
+            { id: 5, name: "Pink"  , color: "#DF51B6", keyL: KEY.DIVIDE    , keyR: KEY.MULTIPLY   },
+            { id: 6, name: "Blue"  , color: "#00A2CB", keyL: KEY.C         , keyR: KEY.V          }
+        ])
     });
 
     function isProceedKey(key) {
@@ -130,7 +130,7 @@ const Zatacka = (function(window, document) {
     const game = new Game(config, Renderer(config, canvas), GUIController(config));
 
     return {
-    	getConfig: function() { return config; }
+        getConfig: function() { return config; }
     };
 
 })(window, document);

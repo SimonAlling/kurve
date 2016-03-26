@@ -41,30 +41,30 @@ function GUIController(cfg) {
     // PUBLIC API
 
     function playerReady(id) {
-    	var index = id - 1;
-    	try {
-    		controls.children[index].children[1].classList.add(CLASS_ACTIVE);
-    	} catch (error) {
-    		console.error(error);
-    	}
+        var index = id - 1;
+        try {
+            controls.children[index].children[1].classList.add(CLASS_ACTIVE);
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     function playerUnready(id) {
-    	var index = id - 1;
-    	try {
-    		controls.children[index].children[1].classList.remove(CLASS_ACTIVE);
-    	} catch (error) {
-    		console.error(error);
-    	}
+        var index = id - 1;
+        try {
+            controls.children[index].children[1].classList.remove(CLASS_ACTIVE);
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     function gameStarted() {
-    	hideLobby();
+        hideLobby();
     }
 
     function initScoreOfPlayer(id) {
-    	updateScoreOfPlayer(id, 0);
-    	showScoreOfPlayer(id);
+        updateScoreOfPlayer(id, 0);
+        showScoreOfPlayer(id);
     }
 
     function updateBoard(board, id, newScore) {
@@ -97,11 +97,11 @@ function GUIController(cfg) {
     }
 
     return {
-    	playerReady: playerReady,
-    	playerUnready: playerUnready,
-    	gameStarted: gameStarted,
-    	initScoreOfPlayer: initScoreOfPlayer,
-    	updateScoreOfPlayer: updateScoreOfPlayer
+        playerReady: playerReady,
+        playerUnready: playerUnready,
+        gameStarted: gameStarted,
+        initScoreOfPlayer: initScoreOfPlayer,
+        updateScoreOfPlayer: updateScoreOfPlayer
     };
 
 }
