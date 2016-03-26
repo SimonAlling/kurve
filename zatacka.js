@@ -35,12 +35,12 @@ const config = Object.freeze({
 	])
 });
 
-function isProceedKey(k) {
-    return config.keys.proceed.indexOf(k) !== -1;
+function isProceedKey(key) {
+    return config.keys.proceed.indexOf(key) !== -1;
 }
 
-function isQuitKey(k) {
-    return config.keys.quit.indexOf(k) !== -1;
+function isQuitKey(key) {
+    return config.keys.quit.indexOf(key) !== -1;
 }
 
 function defaultPlayer(id) {

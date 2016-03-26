@@ -44,8 +44,8 @@ function playerReady(id) {
 	var index = id - 1;
 	try {
 		controls.children[index].children[1].classList.add(CLASS_ACTIVE);
-	} catch (e) {
-		console.error(e);
+	} catch (error) {
+		console.error(error);
 	}
 }
 
@@ -53,8 +53,8 @@ function playerUnready(id) {
 	var index = id - 1;
 	try {
 		controls.children[index].children[1].classList.remove(CLASS_ACTIVE);
-	} catch (e) {
-		console.error(e);
+	} catch (error) {
+		console.error(error);
 	}
 }
 

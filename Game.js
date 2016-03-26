@@ -161,32 +161,32 @@ class Game {
 
     // SETTERS
 
-    setMode(m) {
-        if (m === this.constructor.COMPETITIVE || m === this.constructor.PRACTICE) {
-            log(`Setting game mode to ${m}.`);
-            this.mode = m;
+    setMode(mode) {
+        if (mode === this.constructor.COMPETITIVE || mode === this.constructor.PRACTICE) {
+            log(`Setting game mode to ${mode}.`);
+            this.mode = mode;
         } else {
-            logError(`${m} is not a valid game mode. Keeping ${this.getMode()}.`);
+            logError(`${mode} is not a valid game mode. Keeping ${this.getMode()}.`);
         }
     }
 
-    setTargetScore(s) {
+    setTargetScore(score) {
         let ts = this.constructor.DEFAULT_TARGET_SCORE;
         let mts = this.constructor.MAX_TARGET_SCORE;
         // Neither floats nor negative numbers are allowed:
-        if (isInt(s) && s > 0) {
+        if (isInt(score) && score > 0) {
             // Check if the desired target score is allowed:
-            if (s > mts) {
+            if (score > mts) {
                 // It is too high. Fall back to max value:
-                logWarning(`${s} is larger than the maximum allowed target score of ${mts}. Falling back to ${mts}.`);
+                logWarning(`${score} is larger than the maximum allowed target score of ${mts}. Falling back to ${mts}.`);
                 ts = mts;
             } else {
                 // The desired target score is OK!
-                log(`Setting target score to ${s}.`);
-                ts = s;
+                log(`Setting target score to ${score}.`);
+                ts = score;
             }
         } else {
-            logWarning(`${s} is not a valid target score. Defaulting to ${ts}.`);
+            logWarning(`${score} is not a valid target score. Defaulting to ${ts}.`);
         }
         this.targetScore = ts;
     }

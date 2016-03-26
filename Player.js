@@ -31,8 +31,8 @@ class Player {
 		}
 	}
 
-	static isPlayer(p) {
-		return (p instanceof Player);
+	static isPlayer(player) {
+		return (player instanceof Player);
 	}
 
 
