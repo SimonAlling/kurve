@@ -44,9 +44,8 @@ const Zatacka = (function(window, document) {
     }
 
     function defaultPlayer(id) {
-        var dp;
-        for (var i = 0; i < config.defaultPlayers.length; i++) {
-            dp = config.defaultPlayers[i];
+        for (let i = 0; i < config.defaultPlayers.length; i++) {
+            let dp = config.defaultPlayers[i];
             if (dp.id === id) {
                 return new Player(dp.id, dp.name, dp.color, dp.keyL, dp.keyR);
             }
@@ -54,7 +53,7 @@ const Zatacka = (function(window, document) {
     }
 
     function proceedKeyPressedInLobby() {
-        var numberOfReadyPlayers = game.getNumberOfActivePlayers();
+        const numberOfReadyPlayers = game.getNumberOfActivePlayers();
         if (numberOfReadyPlayers > 0) {
             removeLobbyEventListeners();
             addGameEventListeners();
@@ -64,7 +63,7 @@ const Zatacka = (function(window, document) {
     }
 
     function keyPressedInLobby(pressedKey) {
-        for (var i = 0; i < config.defaultPlayers.length; i++) {
+        for (let i = 0; i < config.defaultPlayers.length; i++) {
             let player = config.defaultPlayers[i];
             if (pressedKey === player.keyL) {
                 game.addPlayer(defaultPlayer(player.id));

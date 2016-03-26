@@ -25,7 +25,7 @@ function GUIController(cfg) {
     // PUBLIC API
 
     function playerReady(id) {
-        var index = id - 1;
+        const index = id - 1;
         try {
             controls.children[index].children[1].classList.add(CLASS_ACTIVE);
         } catch (error) {
@@ -34,7 +34,7 @@ function GUIController(cfg) {
     }
 
     function playerUnready(id) {
-        var index = id - 1;
+        const index = id - 1;
         try {
             controls.children[index].children[1].classList.remove(CLASS_ACTIVE);
         } catch (error) {
