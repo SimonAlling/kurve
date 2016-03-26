@@ -23,15 +23,15 @@ function hideLobby() {
 
 function showScoreOfPlayer(id) {
     var index = id - 1;
-    if (scoreboard instanceof HTMLElement) {
+    if (isHTMLElement(scoreboard)) {
         var scoreboardEntry = scoreboard.children[index];
-        if (scoreboardEntry instanceof HTMLElement) {
+        if (isHTMLElement(scoreboardEntry)) {
             scoreboardEntry.classList.add("active");
         }
     }
-    if (results instanceof HTMLElement) {
+    if (isHTMLElement(results)) {
         var resultsEntry = results.children[index];
-        if (resultsEntry instanceof HTMLElement) {
+        if (isHTMLElement(resultsEntry)) {
             resultsEntry.classList.add("active");
         }
     }
@@ -68,9 +68,9 @@ function initScoreOfPlayer(id) {
 }
 
 function updateScoreOfPlayer(id, newScore) {
-    if (!(scoreboard instanceof HTMLElement)) {
+    if (!isHTMLElement(scoreboard)) {
         logError("Scoreboard HTML element could not be found.");
-    } else if (!(results instanceof HTMLElement)) {
+    } else if (!isHTMLElement(results)) {
         logError("Results HTML element could not be found.");
     } else {
         let scoreboardItem = scoreboard.children[id-1];      // minus 1 necessary since player IDs are 1-indexed
@@ -79,7 +79,7 @@ function updateScoreOfPlayer(id, newScore) {
         let tensDigit = (newScore - (newScore % 10)) / 10;   // digit at the tens position (1 in 14)
 
         // Scoreboard:
-        if (scoreboardItem instanceof HTMLElement && scoreboardItem.children[0] instanceof HTMLElement && scoreboardItem.children[1] instanceof HTMLElement) {
+        if (isHTMLElement(scoreboardItem) && isHTMLElement(scoreboardItem.children[0]) && isHTMLElement(scoreboardItem.children[1])) {
             // The digit elements are ordered such that children[0] is ones, children[1] is tens, and so on.
             // First, we have to remove all digit classes:
             scoreboardItem.children[0].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
@@ -92,7 +92,7 @@ function updateScoreOfPlayer(id, newScore) {
         }
 
         // Results:
-        if (resultsItem instanceof HTMLElement && resultsItem.children[0] instanceof HTMLElement && resultsItem.children[1] instanceof HTMLElement) {
+        if (isHTMLElement(resultsItem) && isHTMLElement(resultsItem.children[0]) && isHTMLElement(resultsItem.children[1])) {
             resultsItem.children[0].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
             resultsItem.children[1].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
             resultsItem.children[0].classList.add("d"+tensDigit);
