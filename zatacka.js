@@ -43,13 +43,16 @@ const Zatacka = (function(window, document) {
         return config.keys.quit.indexOf(key) !== -1;
     }
 
+    function defaultPlayerData(id) {
+        return config.defaultPlayers.find(defaultPlayer => defaultPlayer.id === id);
+    }
+
     function defaultPlayer(id) {
-        for (let i = 0; i < config.defaultPlayers.length; i++) {
-            let dp = config.defaultPlayers[i];
-            if (dp.id === id) {
-                return new Player(dp.id, dp.name, dp.color, dp.keyL, dp.keyR);
-            }
+        const playerData = defaultPlayerData(id);
+        if (playerData === undefined) {
+            throw new TypeError(`There is no default player with ID ${id}.`);
         }
+        return new Player(playerData.id, playerData.name, playerData.color, playerData.keyL, playerData.keyR);
     }
 
     function proceedKeyPressedInLobby() {
