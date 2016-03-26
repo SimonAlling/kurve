@@ -179,11 +179,6 @@ body {
 	float: left;
 }
 
-/* Don't display 0, except for at the ones position: */
-.digits .d0:not(:last-child) {
-	display: none;
-}
-
 .red.digits    div { background-image: url("resources/kurve-digits-red.png");    }
 .yellow.digits div { background-image: url("resources/kurve-digits-yellow.png"); }
 .orange.digits div { background-image: url("resources/kurve-digits-orange.png"); }

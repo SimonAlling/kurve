@@ -67,40 +67,33 @@ function GUIController(cfg) {
     	showScoreOfPlayer(id);
     }
 
-    function updateScoreOfPlayer(id, newScore) {
-        if (!isHTMLElement(scoreboard)) {
-            logError("Scoreboard HTML element could not be found.");
-        } else if (!isHTMLElement(results)) {
-            logError("Results HTML element could not be found.");
+    function updateBoard(board, id, newScore) {
+        if (!isHTMLElement(board)) {
+            logWarning(`Cannot update any entry in ${board} because it is not an HTML element.`);
         } else {
-            let scoreboardItem = scoreboard.children[id-1];      // minus 1 necessary since player IDs are 1-indexed
-            let resultsItem = results.children[id-1];            // minus 1 necessary since player IDs are 1-indexed
-            let onesDigit = newScore % 10;                       // digit at the ones position (4 in 14)
-            let tensDigit = (newScore - (newScore % 10)) / 10;   // digit at the tens position (1 in 14)
-
-            // Scoreboard:
-            if (isHTMLElement(scoreboardItem) && isHTMLElement(scoreboardItem.children[0]) && isHTMLElement(scoreboardItem.children[1])) {
-                // The digit elements are ordered such that children[0] is ones, children[1] is tens, and so on.
-                // First, we have to remove all digit classes:
-                scoreboardItem.children[0].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
-                scoreboardItem.children[1].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
-                // Add appropriate classes to tens and ones position, respectively:
-                scoreboardItem.children[0].classList.add("d"+tensDigit);
-                scoreboardItem.children[1].classList.add("d"+onesDigit);
+            const entry = board.children[id-1];
+            if (!isHTMLElement(entry)) {
+                logWarning(`Cannot update score of player ${id} because ${entry} is not an HTML element.`);
             } else {
-                logError("Could not find HTML scoreboard entry for player "+id+".");
-            }
-
-            // Results:
-            if (isHTMLElement(resultsItem) && isHTMLElement(resultsItem.children[0]) && isHTMLElement(resultsItem.children[1])) {
-                resultsItem.children[0].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
-                resultsItem.children[1].classList.remove("d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9");
-                resultsItem.children[0].classList.add("d"+tensDigit);
-                resultsItem.children[1].classList.add("d"+onesDigit);
-            } else {
-                logError("Could not find HTML results entry for player "+id+".");
+                // The entry is an HTML element; let's update it!
+                const digitClassFactory = digit => "d"+digit;
+                const createDigit = () => document.createElement("div");
+                // Turn 528 into ["d5", "d2", "d8"]:
+                const newScoreDigitClasses = newScore.toString().split("").map(digitClassFactory);
+                // Remove everything from the entry element before we insert new digits:
+                flush(entry);
+                newScoreDigitClasses.forEach((digitClass, index) => {
+                    let digitElement = createDigit(); // A completely clean element ...
+                    digitElement.classList.add(newScoreDigitClasses[index]); // ... that now has a digit class.
+                    entry.appendChild(digitElement);
+                });
             }
         }
+    }
+
+    function updateScoreOfPlayer(id, newScore) {
+        updateBoard(scoreboard, id, newScore);
+        updateBoard(results, id, newScore);
     }
 
     return {

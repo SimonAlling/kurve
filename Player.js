@@ -16,6 +16,7 @@ class Player {
         this.direction = 0;
         this.velocity = 0;
         this.game = undefined;
+        this.score = 0;
         this.config = undefined;
         this.angleChange = undefined;
         this.maxTicksBeforeDraw = undefined;
@@ -73,6 +74,10 @@ class Player {
         return this.lastDraw;
     }
 
+    getScore() {
+        return this.score;
+    }
+
 
     // SETTERS
 
@@ -128,6 +133,10 @@ class Player {
         log(`${this} starting.`);
         this.alive = true;
         this.velocity = this.config.speed;
+    }
+
+    incrementScore() {
+        this.score++;
     }
 
     /**

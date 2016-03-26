@@ -29,7 +29,6 @@ class Game {
         this.rounds = [];
         this.renderer = renderer;
         this.guiController = guiController;
-        //this.scoreboard = [];
         this.mode = this.constructor.DEFAULT_MODE;
         this.started = false;
         this.live = false;
@@ -392,10 +391,20 @@ class Game {
         }
     }
 
+    updateScores() {
+        const isAlive = player => player.isAlive();
+        const updateScore = (player) => {
+            player.incrementScore();
+            this.GUI_updateScoreOfPlayer(player.getID(), player.getScore());
+        }
+        this.players.filter(isAlive).forEach(updateScore);
+    }
+
     death(player, cause) {
         // Increment score and update it TODO
         // Check if round end
         player.die(cause);
+        this.updateScores();
     }
 
     keyHandler(pressedKey) {
@@ -423,6 +432,9 @@ class Game {
     }
     GUI_initScoreOfPlayer(id) {
         this.guiController.initScoreOfPlayer(id);
+    }
+    GUI_updateScoreOfPlayer(id, newScore) {
+        this.guiController.updateScoreOfPlayer(id, newScore);
     }
     GUI_gameStarted() {
         this.guiController.gameStarted();
