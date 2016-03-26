@@ -147,11 +147,15 @@ body {
     box-sizing: border-box;
     min-height: 100%;
     height: 480px;
-    width: 77px;
 }
 
 #scoreboard {
+    width: 77px;
     padding: 20px 12px 0 9px;
+}
+
+#left {
+	width: 76px; /* 1 less than #scoreboard so width of #wrapper is an even number */
 }
 
 #KONEC_HRY {
@@ -241,29 +245,31 @@ body {
 640 = Kurve total width
 480 = Kurve total height
 559 = Kurve canvas width (excluding border)
-81  = Scoreboard width (including border)
-721 = 559 + 2*81 = total width including borders, #left and scoreboard
+77  = #scoreboard width (excluding border)
+76  = #left width (excluding border)
+720 = 76 + 4 + 559 + 4 + 77 = total width including borders, #left, and #scoreboard
 */
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 639px) {
     #left { display: none; }
     body { justify-content: flex-start; }
     .border { border-left-width: 0; }
 }
+
 
 /* ======== 1x ======== */
 @media screen and (min-width: 640px) and (min-height: 480px) {
     body { justify-content: flex-end; }
     #wrapper {
         transform: scale(1);
-        transform-origin: right;
+        transform-origin: right; /* so the game stays properly in the viewport when not centered */
     }
 }
 
-@media screen and (min-width: 721px) and (min-height: 480px) {
+@media screen and (min-width: 720px) and (min-height: 480px) {
     body { justify-content: center; }
     #wrapper {
-        transform-origin: center;
+        transform-origin: center; /* so the game is centered when possible */
     }
 }
 
@@ -277,7 +283,7 @@ body {
     }
 }
 
-@media screen and (min-width: 1442px) and (min-height: 960px) {
+@media screen and (min-width: 1440px) and (min-height: 960px) {
     body { justify-content: center; }
     #wrapper {
         transform-origin: center;
@@ -294,7 +300,7 @@ body {
     }
 }
 
-@media screen and (min-width: 2163px) and (min-height: 1440px) {
+@media screen and (min-width: 2160px) and (min-height: 1440px) {
     body { justify-content: center; }
     #wrapper {
         transform-origin: center;
@@ -311,109 +317,7 @@ body {
     }
 }
 
-@media screen and (min-width: 2884px) and (min-height: 1920px) {
-    body { justify-content: center; }
-    #wrapper {
-        transform-origin: center;
-    }
-}
-
-
-/* ======== 5x ======== */
-@media screen and (min-width: 3200px) and (min-height: 2400px) {
-    body { justify-content: flex-end; }
-    #wrapper {
-        transform: scale(5);
-        transform-origin: right;
-    }
-}
-
-@media screen and (min-width: 3605px) and (min-height: 2400px) {
-    body { justify-content: center; }
-    #wrapper {
-        transform-origin: center;
-    }
-}
-
-
-/* ======== 6x ======== */
-@media screen and (min-width: 3840px) and (min-height: 2880px) {
-    body { justify-content: flex-end; }
-    #wrapper {
-        transform: scale(6);
-        transform-origin: right;
-    }
-}
-
-@media screen and (min-width: 4326px) and (min-height: 2880px) {
-    body { justify-content: center; }
-    #wrapper {
-        transform-origin: center;
-    }
-}
-
-
-/* ======== 7x ======== */
-@media screen and (min-width: 4480px) and (min-height: 3360px) {
-    body { justify-content: flex-end; }
-    #wrapper {
-        transform: scale(7);
-        transform-origin: right;
-    }
-}
-
-@media screen and (min-width: 5047px) and (min-height: 3360px) {
-    body { justify-content: center; }
-    #wrapper {
-        transform-origin: center;
-    }
-}
-
-
-/* ======== 8x ======== */
-@media screen and (min-width: 5120px) and (min-height: 3840px) {
-    body { justify-content: flex-end; }
-    #wrapper {
-        transform: scale(8);
-        transform-origin: right;
-    }
-}
-
-@media screen and (min-width: 5768px) and (min-height: 3840px) {
-    body { justify-content: center; }
-    #wrapper {
-        transform-origin: center;
-    }
-}
-
-
-/* ======== 9x ======== */
-@media screen and (min-width: 5760px) and (min-height: 4320px) {
-    body { justify-content: flex-end; }
-    #wrapper {
-        transform: scale(9);
-        transform-origin: right;
-    }
-}
-
-@media screen and (min-width: 6489px) and (min-height: 4320px) {
-    body { justify-content: center; }
-    #wrapper {
-        transform-origin: center;
-    }
-}
-
-
-/* ======== 10x ======== */
-@media screen and (min-width: 6400px) and (min-height: 4800px) {
-    body { justify-content: flex-end; }
-    #wrapper {
-        transform: scale(10);
-        transform-origin: right;
-    }
-}
-
-@media screen and (min-width: 7210px) and (min-height: 4800px) {
+@media screen and (min-width: 2880px) and (min-height: 1920px) {
     body { justify-content: center; }
     #wrapper {
         transform-origin: center;
