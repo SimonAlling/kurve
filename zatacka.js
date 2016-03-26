@@ -74,8 +74,8 @@ const Zatacka = (function(window, document) {
         }
     }
 
-    function lobbyKeyHandler() {
-        let pressedKey = window.event.keyCode;
+    function lobbyKeyHandler(event) {
+        let pressedKey = event.keyCode;
         if (isProceedKey(pressedKey)) {
             proceedKeyPressedInLobby();
         } else {
@@ -87,8 +87,8 @@ const Zatacka = (function(window, document) {
 
     }
 
-    function gameKeyHandler() {
-        game.keyHandler(window.event.keyCode);
+    function gameKeyHandler(event) {
+        game.keyHandler(event.keyCode);
     }
 
     function gameMouseHandler() {
