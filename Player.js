@@ -2,33 +2,32 @@
 
 class Player {
 	constructor(id, name = "Player", color = "white", keyL = undefined, keyR = undefined) {
-		if (isPositiveInt(id)) {
-			this.id = id;
-			this.name = name;
-			this.color = color;
-			this.queuedDraws = new Queue();
-			this.alive = false;
-			this.x = null;
-			this.y = null;
-			this.lastDraw = null;
-			this.direction = 0;
-			this.velocity = 0;
-			this.game = undefined;
-			this.config = undefined;
-			this.angleChange = undefined;
-			this.maxTicksBeforeDraw = undefined;
-			if (isPositiveInt(keyL)) {
-				this.keyL = keyL;
-			} else {
-				logWarning(`Creating player "${this.name}" without a LEFT key.`);
-			}
-			if (isPositiveInt(keyR)) {
-				this.keyR = keyR;
-			} else {
-				logWarning(`Creating player "${this.name}" without a RIGHT key.`);
-			}
+		if (!isPositiveInt(id)) {
+			throw new TypeError(`Cannot create a player with ID ${id}.`);
+		}
+		this.id = id;
+		this.name = name;
+		this.color = color;
+		this.queuedDraws = new Queue();
+		this.alive = false;
+		this.x = null;
+		this.y = null;
+		this.lastDraw = null;
+		this.direction = 0;
+		this.velocity = 0;
+		this.game = undefined;
+		this.config = undefined;
+		this.angleChange = undefined;
+		this.maxTicksBeforeDraw = undefined;
+		if (isPositiveInt(keyL)) {
+			this.keyL = keyL;
 		} else {
-			throw new Error("Cannot create a player with ID "+id+".");
+			logWarning(`Creating player "${this.name}" without a LEFT key.`);
+		}
+		if (isPositiveInt(keyR)) {
+			this.keyR = keyR;
+		} else {
+			logWarning(`Creating player "${this.name}" without a RIGHT key.`);
 		}
 	}
 
