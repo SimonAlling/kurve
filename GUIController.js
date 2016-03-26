@@ -97,11 +97,11 @@ function GUIController(cfg) {
     }
 
     return {
-        playerReady: playerReady,
-        playerUnready: playerUnready,
-        gameStarted: gameStarted,
-        initScoreOfPlayer: initScoreOfPlayer,
-        updateScoreOfPlayer: updateScoreOfPlayer
+        playerReady,
+        playerUnready,
+        gameStarted,
+        initScoreOfPlayer,
+        updateScoreOfPlayer
     };
 
 }
