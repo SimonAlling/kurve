@@ -7,8 +7,8 @@ const Zatacka = (function(window, document) {
     const config = Object.freeze({
         tickrate: 600, // Hz
         maxFramerate: 60, // Hz
-        width: 559, // Kuxels
-        height: 480, // Kuxels
+        width: canvas.width, // Kuxels
+        height: canvas.height, // Kuxels
         thickness: 3, // Kuxels
         speed: 60, // Kuxels per second
         turningRadius: 27, // Kuxels (NB: _radius_)
