@@ -15,8 +15,8 @@ function Renderer(cfg, canvas) {
     }
 
     return {
-        drawSquare: drawSquare,
-        clearSquare: clearSquare
+        drawSquare,
+        clearSquare
     };
 
 }
