@@ -265,13 +265,16 @@ body {
 @media screen and (min-width: 640px) and (min-height: 480px) {
 	body { justify-content: flex-end; }
 	#wrapper {
-		zoom: 1;
-		-moz-transform: scale(1);
+		transform: scale(1);
+		transform-origin: right;
 	}
 }
 
 @media screen and (min-width: 721px) and (min-height: 480px) {
 	body { justify-content: center; }
+	#wrapper {
+		transform-origin: center;
+	}
 }
 
 
@@ -279,13 +282,16 @@ body {
 @media screen and (min-width: 1280px) and (min-height: 960px) {
 	body { justify-content: flex-end; }
 	#wrapper {
-		zoom: 2;
-		-moz-transform: scale(2);
+		transform: scale(2);
+		transform-origin: right;
 	}
 }
 
 @media screen and (min-width: 1442px) and (min-height: 960px) {
 	body { justify-content: center; }
+	#wrapper {
+		transform-origin: center;
+	}
 }
 
 
@@ -293,13 +299,16 @@ body {
 @media screen and (min-width: 1920px) and (min-height: 1440px) {
 	body { justify-content: flex-end; }
 	#wrapper {
-		zoom: 3;
-		-moz-transform: scale(3);
+		transform: scale(3);
+		transform-origin: right;
 	}
 }
 
 @media screen and (min-width: 2163px) and (min-height: 1440px) {
 	body { justify-content: center; }
+	#wrapper {
+		transform-origin: center;
+	}
 }
 
 
@@ -307,13 +316,16 @@ body {
 @media screen and (min-width: 2560px) and (min-height: 1920px) {
 	body { justify-content: flex-end; }
 	#wrapper {
-		zoom: 4;
-		-moz-transform: scale(4);
+		transform: scale(4);
+		transform-origin: right;
 	}
 }
 
 @media screen and (min-width: 2884px) and (min-height: 1920px) {
 	body { justify-content: center; }
+	#wrapper {
+		transform-origin: center;
+	}
 }
 
 
@@ -321,13 +333,16 @@ body {
 @media screen and (min-width: 3200px) and (min-height: 2400px) {
 	body { justify-content: flex-end; }
 	#wrapper {
-		zoom: 5;
-		-moz-transform: scale(5);
+		transform: scale(5);
+		transform-origin: right;
 	}
 }
 
 @media screen and (min-width: 3605px) and (min-height: 2400px) {
 	body { justify-content: center; }
+	#wrapper {
+		transform-origin: center;
+	}
 }
 
 
@@ -335,13 +350,16 @@ body {
 @media screen and (min-width: 3840px) and (min-height: 2880px) {
 	body { justify-content: flex-end; }
 	#wrapper {
-		zoom: 6;
-		-moz-transform: scale(6);
+		transform: scale(6);
+		transform-origin: right;
 	}
 }
 
 @media screen and (min-width: 4326px) and (min-height: 2880px) {
 	body { justify-content: center; }
+	#wrapper {
+		transform-origin: center;
+	}
 }
 
 
@@ -349,13 +367,16 @@ body {
 @media screen and (min-width: 4480px) and (min-height: 3360px) {
 	body { justify-content: flex-end; }
 	#wrapper {
-		zoom: 7;
-		-moz-transform: scale(7);
+		transform: scale(7);
+		transform-origin: right;
 	}
 }
 
 @media screen and (min-width: 5047px) and (min-height: 3360px) {
 	body { justify-content: center; }
+	#wrapper {
+		transform-origin: center;
+	}
 }
 
 
@@ -363,13 +384,16 @@ body {
 @media screen and (min-width: 5120px) and (min-height: 3840px) {
 	body { justify-content: flex-end; }
 	#wrapper {
-		zoom: 8;
-		-moz-transform: scale(8);
+		transform: scale(8);
+		transform-origin: right;
 	}
 }
 
 @media screen and (min-width: 5768px) and (min-height: 3840px) {
 	body { justify-content: center; }
+	#wrapper {
+		transform-origin: center;
+	}
 }
 
 
@@ -377,13 +401,16 @@ body {
 @media screen and (min-width: 5760px) and (min-height: 4320px) {
 	body { justify-content: flex-end; }
 	#wrapper {
-		zoom: 9;
-		-moz-transform: scale(9);
+		transform: scale(9);
+		transform-origin: right;
 	}
 }
 
 @media screen and (min-width: 6489px) and (min-height: 4320px) {
 	body { justify-content: center; }
+	#wrapper {
+		transform-origin: center;
+	}
 }
 
 
@@ -391,11 +418,14 @@ body {
 @media screen and (min-width: 6400px) and (min-height: 4800px) {
 	body { justify-content: flex-end; }
 	#wrapper {
-		zoom: 10;
-		-moz-transform: scale(10);
+		transform: scale(10);
+		transform-origin: right;
 	}
 }
 
 @media screen and (min-width: 7210px) and (min-height: 4800px) {
 	body { justify-content: center; }
+	#wrapper {
+		transform-origin: center;
+	}
 }
