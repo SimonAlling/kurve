@@ -15,7 +15,6 @@ const config = Object.freeze({
     minSpawnAngle: -Math.PI/2, // radians
     maxSpawnAngle:  Math.PI/2, // radians
     spawnMargin: 100, // Kuxels
-    maxPlayers: 6,
     flickerFrequency: 20, // Hz, when spawning
     flickerDuration: 830, // ms, when spawning
     minHoleDistance: 90, // Kuxels
