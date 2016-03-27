@@ -26,20 +26,12 @@ function GUIController(cfg) {
 
     function playerReady(id) {
         const index = id - 1;
-        try {
-            controls.children[index].children[1].classList.add(CLASS_ACTIVE);
-        } catch (error) {
-            console.error(error);
-        }
+        controls.children[index].children[1].classList.add(CLASS_ACTIVE);
     }
 
     function playerUnready(id) {
         const index = id - 1;
-        try {
-            controls.children[index].children[1].classList.remove(CLASS_ACTIVE);
-        } catch (error) {
-            console.error(error);
-        }
+        controls.children[index].children[1].classList.remove(CLASS_ACTIVE);
     }
 
     function gameStarted() {
