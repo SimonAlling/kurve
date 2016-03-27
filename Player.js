@@ -1,24 +1,24 @@
 "use strict";
 
 class Player {
-    constructor(id, name = "Player", color = "white", keyL = undefined, keyR = undefined) {
+    constructor(id, name = `Player ${id}`, color = "white", keyL = undefined, keyR = undefined) {
         if (!isPositiveInt(id)) {
             throw new TypeError(`Cannot create a player with ID ${id}.`);
         }
         this.id = id;
         this.name = name;
         this.color = color;
-        this.queuedDraws = new Queue();
         this.alive = false;
+        this.score = 0;
         this.x = null;
         this.y = null;
-        this.lastDraw = null;
         this.direction = 0;
         this.velocity = 0;
+        this.lastDraw = null;
+        this.queuedDraws = new Queue();
         this.game = undefined;
-        this.score = 0;
         this.config = undefined;
-        this.angleChange = undefined;
+        this.angleChangePerTick = undefined;
         this.maxTicksBeforeDraw = undefined;
         if (isPositiveInt(keyL)) {
             this.L_keys = [keyL];
@@ -90,9 +90,12 @@ class Player {
     // SETTERS
 
     setGame(game) {
+        if (!(game instanceof Game)) {
+            throw new TypeError(`Cannot connect ${this} to ${game} because it is not a Game.`);
+        }
         this.game = game;
         this.config = game.config;
-        this.angleChange = game.computeAngleChange();
+        this.angleChangePerTick = game.computeAngleChange();
         this.maxTicksBeforeDraw = Math.max(Math.floor(this.config.tickrate/this.config.speed), 1);
     }
 
@@ -170,10 +173,10 @@ class Player {
         debugField.textContent = "x ~ "+Math.round(this.x)+", y ~ "+Math.round(this.y)+", dir = "+round(radToDeg(this.direction), 2);
         if (this.isAlive()) {
             if (this.isPressingLeft()) {
-                this.direction += this.angleChange;
+                this.direction += this.angleChangePerTick;
             }
             if (this.isPressingRight()) {
-                this.direction -= this.angleChange;
+                this.direction -= this.angleChangePerTick;
             }
             // We want the direction to stay in the interval -pi < dir <= pi:
             this.direction = normalizeAngle(this.direction);
