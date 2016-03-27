@@ -3,7 +3,7 @@
 class Player {
     constructor(id, name = `Player ${id}`, color = "white", keyL = undefined, keyR = undefined) {
         if (!isPositiveInt(id)) {
-            throw new TypeError(`Cannot create a player with ID ${id}.`);
+            throw new TypeError(`Cannot create a player with ID ${id}. Only positive integers are accepted.`);
         }
         this.id = id;
         this.name = name;

@@ -24,7 +24,7 @@ class Game {
 
         // Instance variables:
         this.config = config;
-        this.pixels = (new Array(this.config.width * this.config.height)).fill(-1);
+        this.pixels = new Uint8Array(this.config.width * this.config.height); // Limits the number of players to 255, which should be enough.
         this.players = [];
         this.rounds = [];
         this.renderer = renderer;
@@ -67,6 +67,10 @@ class Game {
 
     edgeOfSquare(coordinate) {
         return Math.round(coordinate - this.config.thickness/2);
+    }
+
+    maxPlayers() {
+        return numberOfBytesToMaxValue(this.pixels.BYTES_PER_ELEMENT);
     }
 
     computeMaxTicksBeforeDraw() {
@@ -213,7 +217,6 @@ class Game {
     }
 
     isOccupiedPixelAddress(addr) {
-        // TODO ?????
         return this.pixels[addr] > 0;
     }
 
@@ -259,17 +262,18 @@ class Game {
      * @param {Player} player The player to add.
      */
     addPlayer(player) {
-        if (Player.isPlayer(player)) {
-            if (!this.hasPlayer(player.getID())) {
-                log(`${player} ready!`);
-                this.players.push(player);
-                player.setMaxSpeed(this.config.speed);
-                this.GUI_playerReady(player.getID());
-            } else {
-                logWarning(`Not adding ${player} to the game because there is already a player with ID ${player.getID()}.`);
-            }
-        } else {
+        const maxPlayers = this.maxPlayers();
+        if (!Player.isPlayer(player)) {
             throw new TypeError(`Cannot add ${player} to the game because it is not a player.`);
+        } else if (player.getID() > maxPlayers) {
+            throw new RangeError(`Cannot add ${player} to the game because player IDs larger than ${maxPlayers} are not supported.`);
+        } else if (this.hasPlayer(player.getID())) {
+            logWarning(`Not adding ${player} to the game because there is already a player with ID ${player.getID()}.`);
+        } else {
+            log(`${player} ready!`);
+            this.players.push(player);
+            player.setMaxSpeed(this.config.speed);
+            this.GUI_playerReady(player.getID());
         }
     }
 
