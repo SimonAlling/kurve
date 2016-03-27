@@ -21,12 +21,12 @@ class Player {
         this.angleChange = undefined;
         this.maxTicksBeforeDraw = undefined;
         if (isPositiveInt(keyL)) {
-            this.keyL = keyL;
+            this.L_keys = [keyL];
         } else {
             logWarning(`Creating player "${this.name}" without a LEFT key.`);
         }
         if (isPositiveInt(keyR)) {
-            this.keyR = keyR;
+            this.R_keys = [keyR];
         } else {
             logWarning(`Creating player "${this.name}" without a RIGHT key.`);
         }
@@ -49,6 +49,14 @@ class Player {
 
     isHoly() {
         return false; // TODO 
+    }
+
+    isPressingLeft() {
+        return anyKeyBeingPressed(this.L_keys);
+    }
+
+    isPressingRight() {
+        return anyKeyBeingPressed(this.R_keys);
     }
 
 
@@ -161,10 +169,10 @@ class Player {
         let debugField = document.getElementById(debugFieldID);
         debugField.textContent = "x ~ "+Math.round(this.x)+", y ~ "+Math.round(this.y)+", dir = "+round(radToDeg(this.direction), 2);
         if (this.isAlive()) {
-            if (Keyboard.isDown(this.keyL)) {
+            if (this.isPressingLeft()) {
                 this.direction += this.angleChange;
             }
-            if (Keyboard.isDown(this.keyR)) {
+            if (this.isPressingRight()) {
                 this.direction -= this.angleChange;
             }
             // We want the direction to stay in the interval -pi < dir <= pi:
