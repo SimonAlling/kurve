@@ -16,10 +16,6 @@ class Player {
         this.velocity = 0;
         this.lastDraw = null;
         this.queuedDraws = new Queue();
-        this.game = undefined;
-        this.config = undefined;
-        this.angleChangePerTick = undefined;
-        this.maxTicksBeforeDraw = undefined;
         if (isPositiveInt(keyL)) {
             this.L_keys = [keyL];
         } else {
@@ -86,64 +82,32 @@ class Player {
         return this.score;
     }
 
+    getVelocity() {
+        return this.velocity;
+    }
+
+    getDirection() {
+        return this.direction;
+    }
+
 
     // SETTERS
 
-    setGame(game) {
-        if (!(game instanceof Game)) {
-            throw new TypeError(`Cannot connect ${this} to ${game} because it is not a Game.`);
-        }
-        this.game = game;
-        this.config = game.config;
-        this.angleChangePerTick = game.computeAngleChange();
-        this.maxTicksBeforeDraw = Math.max(Math.floor(this.config.tickrate/this.config.speed), 1);
+    setMaxSpeed(speed) {
+        this.maxSpeed = speed;
+    }
+
+    setDirection(direction) {
+        this.direction = direction;
     }
 
 
     // DOERS
 
-    flicker() {
-        let isVisible = false;
-        let left = this.game.edgeOfSquare(this.x);
-        let top  = this.game.edgeOfSquare(this.y);
-        let color = this.getColor();
-        this.flickerTicker = setInterval(() => {
-            if (isVisible) {
-                this.game.Render_clearSquare(left, top);
-                isVisible = false;
-            } else {
-                this.game.Render_drawSquare(left, top, color);
-                isVisible = true;
-            }
-        }, 1000/this.config.flickerFrequency);
-    }
-
-    stopFlickering() {
-        clearInterval(this.flickerTicker);
-        let left = this.game.edgeOfSquare(this.x);
-        let top  = this.game.edgeOfSquare(this.y);
-        this.game.Render_drawSquare(left, top, this.color);
-    }
-
-    spawn(position, direction) {
-        if (!(this.game instanceof Game)) {
-            throw new TypeError(`${this} is not attached to any game.`);
-        } else {
-            log(`${this} spawning at (${round(position.x, 2)}, ${round(position.y, 2)}).`);
-            this.x = position.x;
-            this.y = position.y;
-            this.direction = direction;
-            this.flicker();
-            let self = this;
-            setTimeout(() => { self.stopFlickering(); }, self.config.flickerDuration);
-            this.occupy(this.game.edgeOfSquare(this.x), this.game.edgeOfSquare(this.y));
-        }
-    }
-
     start() {
         log(`${this} starting.`);
         this.alive = true;
-        this.velocity = this.config.speed;
+        this.velocity = this.maxSpeed;
     }
 
     incrementScore() {
@@ -166,26 +130,7 @@ class Player {
         };
     }
 
-    update(delta, totalNumberOfTicks) {
-        // Debugging:
-        let debugFieldID = "debug_" + this.getName().toLowerCase();
-        let debugField = document.getElementById(debugFieldID);
-        debugField.textContent = "x ~ "+Math.round(this.x)+", y ~ "+Math.round(this.y)+", dir = "+round(radToDeg(this.direction), 2);
-        if (this.isAlive()) {
-            if (this.isPressingLeft()) {
-                this.direction += this.angleChangePerTick;
-            }
-            if (this.isPressingRight()) {
-                this.direction -= this.angleChangePerTick;
-            }
-            // We want the direction to stay in the interval -pi < dir <= pi:
-            this.direction = normalizeAngle(this.direction);
-            let theta = this.velocity * delta / 1000;
-            this.x = this.x + theta * Math.cos(this.direction);
-            this.y = this.y - theta * Math.sin(this.direction);
-            if (totalNumberOfTicks % this.maxTicksBeforeDraw === 0) { // TODO
-                this.queuedDraws.enqueue({"x": this.x, "y": this.y });
-            }
-        }
+    enqueueDraw() {
+        this.queuedDraws.enqueue({ "x": this.x, "y": this.y });
     }
 }

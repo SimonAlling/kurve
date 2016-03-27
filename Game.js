@@ -69,6 +69,10 @@ class Game {
         return Math.round(coordinate - this.config.thickness/2);
     }
 
+    computeMaxTicksBeforeDraw() {
+        return Math.max(Math.floor(this.config.tickrate/this.config.speed), 1);
+    }
+
     // Computes the angle change for one tick when turning, in radians:
     computeAngleChange() {
         return this.config.speed / (this.config.tickrate * this.config.turningRadius);
@@ -259,7 +263,7 @@ class Game {
             if (!this.hasPlayer(player.getID())) {
                 log(`${player} ready!`);
                 this.players.push(player);
-                player.setGame(this);
+                player.setMaxSpeed(this.config.speed);
                 this.GUI_playerReady(player.getID());
             } else {
                 logWarning(`Not adding ${player} to the game because there is already a player with ID ${player.getID()}.`);
@@ -347,14 +351,46 @@ class Game {
         this.Render_drawSquare(left, top, player.getColor());
     }
 
+    flicker(player) {
+        const stopFlickering = () => {
+            clearInterval(flickerTicker);
+            let left = this.edgeOfSquare(player.x);
+            let top  = this.edgeOfSquare(player.y);
+            this.Render_drawSquare(left, top, player.getColor());
+        }
+        const self = this;
+        const left = this.edgeOfSquare(player.x);
+        const top  = this.edgeOfSquare(player.y);
+        const color = player.getColor();
+        let isVisible = false;
+        let flickerTicker = setInterval(() => {
+            if (isVisible) {
+                this.Render_clearSquare(left, top);
+            } else {
+                this.Render_drawSquare(left, top, color);
+            }
+            isVisible = !isVisible;
+        }, 1000/this.config.flickerFrequency);
+        setTimeout(stopFlickering, self.config.flickerDuration);
+    }
+
+    spawn(player, position, direction) {
+        log(`${player} spawning at (${round(position.x, 2)}, ${round(position.y, 2)}).`);
+        player.x = position.x;
+        player.y = position.y;
+        player.direction = direction;
+        player.occupy(this.edgeOfSquare(player.x), this.edgeOfSquare(player.y));
+        this.flicker(player);
+    }
+
     /** Spawns and then starts all players. */
     spawnAndStartPlayers() {
         const self = this;
         // Spawn each player, then wait for it to finish flickering before spawning the next one:
         (function spawnPlayer(i) {
             if (i < self.players.length) {
-                self.players[i].spawn(self.randomSpawnPosition(), self.randomSpawnAngle());
-                setTimeout(() => { spawnPlayer(++i); }, self.config.flickerDuration);
+                self.spawn(self.players[i], self.randomSpawnPosition(), self.randomSpawnAngle());
+                setTimeout(() => spawnPlayer(++i), self.config.flickerDuration);
             } else {
                 // All players have spawned. Start them!
                 self.startPlayers();
@@ -449,6 +485,32 @@ class Game {
 
     // MAIN LOOP
 
+
+
+    updatePlayer(player, delta) {
+        if (player.isAlive()) {
+            // Debugging:
+            const debugFieldID = "debug_" + player.getName().toLowerCase();
+            const debugField = document.getElementById(debugFieldID);
+            let direction = player.getDirection();
+            debugField.textContent = "x ~ "+Math.round(player.x)+", y ~ "+Math.round(player.y)+", dir = "+round(radToDeg(player.direction), 2);
+            if (player.isPressingLeft()) {
+                direction += this.computeAngleChange();
+            }
+            if (player.isPressingRight()) {
+                direction -= this.computeAngleChange();
+            }
+            // We use normalizeAngle so the angle stays in the interval -pi < dir <= pi:
+            player.setDirection(normalizeAngle(direction));
+            const theta = player.getVelocity() * delta / 1000;
+            player.x += theta * Math.cos(player.direction);
+            player.y -= theta * Math.sin(player.direction);
+            if (this.totalNumberOfTicks % this.computeMaxTicksBeforeDraw() === 0) {
+                player.enqueueDraw();
+            }
+        }
+    }
+
     /**
      * Updates everything on each tick.
      * @param {Number} delta
@@ -456,11 +518,7 @@ class Game {
      */
     update(delta) {
         this.Render_clearHeads();
-        for (let i = 0; i < this.players.length; i++) {
-            if (this.players[i].isAlive()) {
-                this.players[i].update(delta, this.totalNumberOfTicks);
-            }
-        }
+        this.players.forEach((player) => { this.updatePlayer(player, delta); });
         this.totalNumberOfTicks++;
         // Cycle players so the players take turns being prioritized:
         if (this.isLive()) {
