@@ -1,6 +1,6 @@
 "use strict";
 
-const Zatacka = (function(window, document) {
+const Zatacka = ((window, document) => {
 
     const canvas = byID("canvas");
 
@@ -132,7 +132,7 @@ const Zatacka = (function(window, document) {
     const game = new Game(config, Renderer(config, canvas), GUIController(config));
 
     return {
-        getConfig: function() { return config; }
+        getConfig: () => config
     };
 
 })(window, document);
