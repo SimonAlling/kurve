@@ -21,17 +21,31 @@ function GUIController(cfg) {
         lobby.classList.add(CLASS_HIDDEN);
     }
 
+    function isLobbyEntry(element) {
+        return isHTMLElement(element) && element.children.length >= 2;
+    }
+
 
     // PUBLIC API
 
     function playerReady(id) {
         const index = id - 1;
-        controls.children[index].children[1].classList.add(CLASS_ACTIVE);
+        const entry = controls.children[index];
+        if (!isLobbyEntry(entry)) {
+            logWarning(`Cannot mark player ${id} as ready because controls.children[${index}] (${controls.children[index]}) is not a valid lobby entry.`);
+        } else {
+            entry.children[1].classList.add(CLASS_ACTIVE);
+        }
     }
 
     function playerUnready(id) {
         const index = id - 1;
-        controls.children[index].children[1].classList.remove(CLASS_ACTIVE);
+        const entry = controls.children[index];
+        if (!isLobbyEntry(entry)) {
+            logWarning(`Cannot mark player ${id} as unready because controls.children[${index}] (${controls.children[index]}) is not a valid lobby entry.`);
+        } else {
+            entry.children[1].classList.remove(CLASS_ACTIVE);
+        }
     }
 
     function gameStarted() {
