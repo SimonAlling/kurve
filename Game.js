@@ -242,11 +242,7 @@ class Game {
      * @param {Number} id The ID to check for.
      */
     hasPlayer(id) {
-        for (let i = 0; i < this.players.length; i++) {
-            if (this.players[i].getID() === id) {
-                return true;
-            }
-        }
+        return this.players.some((player) => player.getID() === id);
     }
 
 
