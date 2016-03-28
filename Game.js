@@ -288,10 +288,9 @@ class Game {
     start() {
         if (this.isCompetitive()) {
             this.setTargetScore(this.constructor.calculateTargetScore(this.getNumberOfActivePlayers()));
-            for (let i = 0; i < this.players.length; i++) {
-                let player = this.players[i];
+            this.players.forEach((player) => {
                 this.GUI_updateScoreOfPlayer(player.getID(), player.getScore());
-            }
+            });
         }
         log("Starting game!");
         this.started = true;
