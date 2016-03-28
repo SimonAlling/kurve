@@ -496,13 +496,14 @@ class Game {
             // Debugging:
             const debugFieldID = "debug_" + player.getName().toLowerCase();
             const debugField = document.getElementById(debugFieldID);
+            const angleChange = this.computeAngleChange();
             let direction = player.getDirection();
             debugField.textContent = "x ~ "+Math.round(player.x)+", y ~ "+Math.round(player.y)+", dir = "+round(radToDeg(player.direction), 2);
             if (player.isPressingLeft()) {
-                direction += this.computeAngleChange();
+                direction = direction + angleChange; // let compound assignment not optimizable in V8
             }
             if (player.isPressingRight()) {
-                direction -= this.computeAngleChange();
+                direction = direction - angleChange; // let compound assignment not optimizable in V8
             }
             // We use normalizeAngle so the angle stays in the interval -pi < dir <= pi:
             player.setDirection(normalizeAngle(direction));
