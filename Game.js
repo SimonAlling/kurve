@@ -325,11 +325,13 @@ class Game {
         this.players.sort((a, b) => (a.getID() - b.getID()));
     }
 
+    startPlayer(player) {
+        player.start();
+    }
+
     /** Starts all players. */
     startPlayers() {
-        for (let i = 0; i < this.players.length; i++) {
-            this.players[i].start();
-        }
+        this.players.forEach(this.startPlayer);
         this.live = true;
     }
 
