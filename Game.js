@@ -535,9 +535,7 @@ class Game {
      * Draws all players.
      */
     draw() {
-        for (let i = 0; i < this.players.length; i++) {
-            this.drawPlayer(this.players[i]);
-        }
+        this.players.forEach(this.drawPlayer, this);
     }
 
     /**
