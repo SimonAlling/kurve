@@ -135,7 +135,12 @@ const Zatacka = ((window, document) => {
     const game = new Game(config, Renderer(config, canvas), GUIController(config));
 
     return {
-        getConfig: () => config
+        getConfig: () => config,
+        getGame: () => game,
+        addPlayer: (playerOrID) => {
+            const player = Player.isPlayer(playerOrID) ? playerOrID : new Player(playerOrID);
+            game.addPlayer(player);
+        }
     };
 
 })(window, document);
