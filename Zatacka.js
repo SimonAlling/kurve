@@ -65,15 +65,18 @@ const Zatacka = ((window, document) => {
         }
     }
 
-    function keyPressedInLobby(pressedKey) {
-        for (let i = 0; i < config.defaultPlayers.length; i++) {
-            let player = config.defaultPlayers[i];
-            if (pressedKey === player.keyL) {
-                game.addPlayer(defaultPlayer(player.id));
-            } else if (pressedKey === player.keyR) {
-                game.removePlayer(player.id);
-            }
+    function addOrRemovePlayer(playerData, pressedKey) {
+        if (pressedKey === playerData.keyL) {
+            game.addPlayer(defaultPlayer(playerData.id));
+        } else if (pressedKey === playerData.keyR) {
+            game.removePlayer(playerData.id);
         }
+    }
+
+    function keyPressedInLobby(pressedKey) {
+        config.defaultPlayers.forEach((playerData) => {
+            addOrRemovePlayer(playerData, pressedKey);
+        });
     }
 
     function lobbyKeyHandler(event) {
