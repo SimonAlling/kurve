@@ -20,4 +20,6 @@ The main JS file is `Zatacka.js`. It is responsible for creating a `Game` and su
 
 `GUIController.js` controls the scoreboard and additional GUI features, such as hiding the lobby and showing the results when the game ends. When a player's score is changed, the `Game` will tell its `GUIController` to update the scoreboard entry of that player.
 
-`lib/Utilities.js` contains more general help functions.
+`lib/` contains **general libraries** and help functions.
+
+`dev/` may only contain **development tools** that are not needed at runtime, such as test suites or code generators.
