@@ -221,13 +221,8 @@ class Game {
     }
 
     isCrashing(player, left, top) {
-        let hitboxPixels = this.computeHitbox(player, left, top);
-        for (let i = 0; i < hitboxPixels.length; i++) {
-            if (this.isOccupiedPixelAddress(hitboxPixels[i])) {
-                return true;
-            }
-        }
-        return false;
+        const hitboxPixels = this.computeHitbox(player, left, top);
+        return hitboxPixels.some(this.isOccupiedPixelAddress, this);
     }
 
     /**
