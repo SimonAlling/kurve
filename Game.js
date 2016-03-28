@@ -335,16 +335,16 @@ class Game {
         this.live = true;
     }
 
+    occupyPixel(x, y, id) {
+        this.pixels[this.pixelAddress(x, y)] = id;
+    }
+
     occupy(player, left, top) {
         player.occupy(left, top);
         let right = left + this.config.thickness;
         let bottom = top + this.config.thickness;
         let id = player.getID();
-        for (let y = top; y < bottom; y++) {
-            for (let x = left; x < right; x++) {
-                this.pixels[this.pixelAddress(x, y)] = id;
-            }
-        }
+        forfor(top, bottom, left, right, this.occupyPixel.bind(this), id);
         this.Render_drawSquare(left, top, player.getColor());
     }
 
