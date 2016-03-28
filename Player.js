@@ -55,6 +55,10 @@ class Player {
         return anyKeyBeingPressed(this.R_keys);
     }
 
+    hasID(id) {
+        return this.id === id;
+    }
+
 
     // GETTERS
 

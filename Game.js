@@ -242,7 +242,7 @@ class Game {
      * @param {Number} id The ID to check for.
      */
     hasPlayer(id) {
-        return this.players.some((player) => player.getID() === id);
+        return this.players.some((player) => player.hasID(id));
     }
 
 
