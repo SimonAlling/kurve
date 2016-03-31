@@ -31,8 +31,7 @@ class Game {
         this.guiController = guiController;
         this.mode = this.constructor.DEFAULT_MODE;
         this.started = false;
-        this.waitingForNextRound = false; // TODO?
-        this.waitingForKonecHry = false; // TODO?
+        this.betweenRounds = false; // true when everyone is dead AFTER a round; not during the spawn procedure
         this.totalNumberOfTicks = 0;
         this.targetScore = null;
         this.initMainLoop();
@@ -163,6 +162,11 @@ class Game {
         return this.players.length;
     }
 
+    getNumberOfLivePlayers() {
+        const isAlive = player => player.isAlive();
+        return this.players.filter(isAlive).length;
+    }
+
 
     // SETTERS
 
@@ -203,8 +207,26 @@ class Game {
         return this.started;
     }
 
-    isLive() {
+    isBetweenRounds() {
+        return this.betweenRounds;
+    }
 
+    isLive() {
+        if (this.isCompetitive()) {
+            return this.getNumberOfLivePlayers() > 1;
+        } else {
+            return this.getNumberOfLivePlayers() > 0;
+        }
+    }
+
+    // Caution: Returns true if called during the spawn procedure, since it only checks whether the game is live or not.
+    isRoundOver() {
+        return !this.isLive();
+    }
+
+    isGameOver() {
+        const hasReachedTargetScore = player => player.getScore() >= this.getTargetScore();
+        return this.isCompetitive() && this.players.some(hasReachedTargetScore);
     }
 
     isCompetitive() {
@@ -291,12 +313,12 @@ class Game {
         this.started = true;
         this.GUI_gameStarted();
         MainLoop.start();
-        this.nextRound();
+        this.proceed();
     }
 
     /** Quits the game. */
     quit() {
-        window.reload();
+        document.location.reload();
     }
 
     /** Announce KONEC HRY, show results etc. */
@@ -304,12 +326,28 @@ class Game {
         log(this.constructor.KONEC_HRY);
     }
 
-    /** Proceeds to the next round */
-    nextRound() {
-        // TODO
-        // Sort the players by their IDs so they spawn in the correct order:
-        this.sortPlayers();
-        this.spawnAndStartPlayers();
+    clearField() {
+        this.pixels.fill(0);
+        this.Render_clearField();
+    }
+
+    /** Proceeds to the next round (or KONEC HRY). */
+    proceed() {
+        this.betweenRounds = false;
+        this.resetPlayers();
+        if (this.isGameOver()) {
+            this.konecHry();
+        } else {
+            this.clearField();
+            // Sort the players by their IDs so they spawn in the correct order:
+            this.sortPlayers();
+            this.spawnAndStartPlayers();
+        }
+    }
+
+    endRound() {
+        this.stopPlayers();
+        this.betweenRounds = true;
     }
 
     sortPlayers() {
@@ -320,9 +358,25 @@ class Game {
         player.start();
     }
 
+    stopPlayer(player) {
+        player.stop();
+    }
+
+    resetPlayer(player) {
+        player.reset();
+    }
+
     /** Starts all players. */
     startPlayers() {
         this.players.forEach(this.startPlayer);
+    }
+
+    stopPlayers() {
+        this.players.forEach(this.stopPlayer);
+    }
+
+    resetPlayers() {
+        this.players.forEach(this.resetPlayer);
     }
 
     occupyPixel(x, y, id) {
@@ -427,19 +481,20 @@ class Game {
         // Check if round end
         player.die(cause);
         this.updateScores();
+        if (this.isRoundOver()) {
+            this.endRound();
+        }
     }
 
-    keyHandler(pressedKey) {
-        if (this.waitingForNextRound) {
-            if (this.isProceedKey(pressedKey)) {
-                this.nextRound();
-            } else if (this.isQuitKey(pressedKey)) {
-                this.quit();
-            }
-        } else if (this.waitingForKonecHry) {
-            if (this.isProceedKey(pressedKey)) {
-                this.konecHry();
-            }
+    proceedKeyPressed() {
+        if (this.isBetweenRounds()) {
+            this.proceed();
+        }
+    }
+
+    quitKeyPressed() {
+        if (this.isBetweenRounds() && !this.isGameOver()) {
+            this.quit();
         }
     }
 
@@ -467,6 +522,9 @@ class Game {
     }
     Render_clearSquare(left, top) {
         this.renderer.clearSquare(left, top, this.config.thickness);
+    }
+    Render_clearField() {
+        this.renderer.clearRect(0, 0, this.config.width, this.config.height);
     }
 
 

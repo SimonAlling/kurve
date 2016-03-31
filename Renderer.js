@@ -14,9 +14,14 @@ function Renderer(cfg, canvas) {
         context.clearRect(left, top, size, size);
     }
 
+    function clearRect(left, top, width, height) {
+        context.clearRect(left, top, width, height);
+    }
+
     return {
         drawSquare,
-        clearSquare
+        clearSquare,
+        clearRect
     };
 
 }

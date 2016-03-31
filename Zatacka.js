@@ -93,7 +93,12 @@ const Zatacka = ((window, document) => {
     }
 
     function gameKeyHandler(event) {
-        game.keyHandler(event.keyCode);
+        let pressedKey = event.keyCode;
+        if (isProceedKey(pressedKey)) {
+            game.proceedKeyPressed();
+        } else if (isQuitKey(pressedKey)) {
+            game.quitKeyPressed();
+        }
     }
 
     function gameMouseHandler() {

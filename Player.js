@@ -114,6 +114,15 @@ class Player {
         this.velocity = this.maxSpeed;
     }
 
+    stop() {
+        this.alive = false;
+        this.velocity = 0;
+    }
+
+    reset() {
+        this.queuedDraws = new Queue();
+    }
+
     incrementScore() {
         this.score++;
     }
