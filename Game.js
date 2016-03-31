@@ -31,7 +31,6 @@ class Game {
         this.guiController = guiController;
         this.mode = this.constructor.DEFAULT_MODE;
         this.started = false;
-        this.live = false;
         this.waitingForNextRound = false; // TODO?
         this.waitingForKonecHry = false; // TODO?
         this.totalNumberOfTicks = 0;
@@ -205,11 +204,7 @@ class Game {
     }
 
     isLive() {
-        return this.live;
-    }
 
-    isOver() {
-        return this.gameOver;
     }
 
     isCompetitive() {
@@ -317,10 +312,6 @@ class Game {
         this.spawnAndStartPlayers();
     }
 
-    endRound() {
-        this.live = false;
-    }
-
     sortPlayers() {
         this.players.sort((a, b) => (a.getID() - b.getID()));
     }
@@ -332,7 +323,6 @@ class Game {
     /** Starts all players. */
     startPlayers() {
         this.players.forEach(this.startPlayer);
-        this.live = true;
     }
 
     occupyPixel(x, y, id) {
