@@ -33,6 +33,7 @@ class Game {
         this.started = false;
         this.betweenRounds = false; // true when everyone is dead AFTER a round; not during the spawn procedure
         this.totalNumberOfTicks = 0;
+        this.currentRound = 0;
         this.targetScore = null;
         this.initMainLoop();
     }
@@ -323,10 +324,12 @@ class Game {
     /** Proceeds to the next round (or KONEC HRY). */
     proceed() {
         this.betweenRounds = false;
+        this.currentRound++;
         this.resetPlayers();
         if (this.isGameOver()) {
             this.konecHry();
         } else {
+            log(`======== ROUND ${this.currentRound} ========`);
             this.clearField();
             // Sort the players by their IDs so they spawn in the correct order:
             this.sortPlayers();
