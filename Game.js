@@ -35,17 +35,6 @@ class Game {
         this.totalNumberOfTicks = 0;
         this.targetScore = null;
         this.initMainLoop();
-        this.colors = ["red", "green", "white"];
-        this.currentColor = 0;
-    }
-
-    nextColor() {
-        let c = this.colors[this.currentColor];
-        this.currentColor++;
-        if (this.currentColor >= this.colors.length) {
-            this.currentColor = 0;
-        }
-        return c;
     }
 
     static isRenderer(obj) {
