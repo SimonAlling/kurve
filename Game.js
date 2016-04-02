@@ -31,9 +31,8 @@ class Game {
         this.guiController = guiController;
         this.mode = this.constructor.DEFAULT_MODE;
         this.started = false;
-        this.betweenRounds = false; // true when everyone is dead AFTER a round; not during the spawn procedure
+        this.postRound = false; // true when everyone is dead AFTER a round; not during the spawn procedure
         this.totalNumberOfTicks = 0;
-        this.currentRound = 0;
         this.targetScore = null;
         this.initMainLoop();
     }
@@ -157,6 +156,15 @@ class Game {
         return this.players.filter(isAlive).length;
     }
 
+    getScoreOfPlayer(id) {
+        const accumulateScore = (sum, round) => sum + round.getSuccessOfPlayer(id);
+        return this.rounds.reduce(accumulateScore, 0);
+    }
+
+    getCurrentRound() {
+        return this.rounds[this.rounds.length - 1];
+    }
+
 
     // SETTERS
 
@@ -197,8 +205,8 @@ class Game {
         return this.started;
     }
 
-    isBetweenRounds() {
-        return this.betweenRounds;
+    isPostRound() {
+        return this.postRound;
     }
 
     isLive() {
@@ -215,7 +223,7 @@ class Game {
     }
 
     isGameOver() {
-        const hasReachedTargetScore = player => player.getScore() >= this.getTargetScore();
+        const hasReachedTargetScore = player => this.getScoreOfPlayer(player.getID()) >= this.getTargetScore();
         return this.isCompetitive() && this.players.some(hasReachedTargetScore);
     }
 
@@ -296,7 +304,7 @@ class Game {
         if (this.isCompetitive()) {
             this.setTargetScore(this.constructor.calculateTargetScore(this.getNumberOfActivePlayers()));
             this.players.forEach((player) => {
-                this.GUI_updateScoreOfPlayer(player.getID(), player.getScore());
+                this.GUI_updateScoreOfPlayer(player.getID(), 0);
             });
         }
         log("Starting game!");
@@ -323,23 +331,27 @@ class Game {
 
     /** Proceeds to the next round (or KONEC HRY). */
     proceed() {
-        this.betweenRounds = false;
-        this.currentRound++;
-        this.resetPlayers();
+        this.postRound = false;
+        this.rounds.push(new Round());
         if (this.isGameOver()) {
             this.konecHry();
         } else {
-            log(`======== ROUND ${this.currentRound} ========`);
-            this.clearField();
-            // Sort the players by their IDs so they spawn in the correct order:
-            this.sortPlayers();
-            this.spawnAndStartPlayers();
+            this.beginNewRound();
         }
+    }
+
+    beginNewRound() {
+        log(`======== ROUND ${this.rounds.length} ========`);
+        this.resetPlayers();
+        this.clearField();
+        // Sort the players by their IDs so they spawn in the correct order:
+        this.sortPlayers();
+        this.spawnAndStartPlayers();
     }
 
     endRound() {
         this.stopPlayers();
-        this.betweenRounds = true;
+        this.postRound = true;
     }
 
     sortPlayers() {
@@ -459,33 +471,42 @@ class Game {
         }
     }
 
-    updateScores() {
+    updateGUIScoreboard() {
         const isAlive = player => player.isAlive();
         const updateScore = (player) => {
-            player.incrementScore();
-            this.GUI_updateScoreOfPlayer(player.getID(), player.getScore());
+            const id = player.getID();
+            this.GUI_updateScoreOfPlayer(id, this.getScoreOfPlayer(id));
         }
         this.players.filter(isAlive).forEach(updateScore);
     }
 
     death(player, cause) {
-        // Increment score and update it TODO
-        // Check if round end
         player.die(cause);
-        this.updateScores();
+        this.getCurrentRound().add(player);
+        this.updateGUIScoreboard();
         if (this.isRoundOver()) {
+            if (this.isCompetitive()) {
+                const isAlive = player => player.isAlive();
+                const winner = this.players.find(isAlive);
+                this.win(winner);
+            }
             this.endRound();
         }
     }
 
+    win(player) {
+        log(`${player} won the round.`);
+        this.getCurrentRound().add(player);
+    }
+
     proceedKeyPressed() {
-        if (this.isBetweenRounds()) {
+        if (this.isPostRound()) {
             this.proceed();
         }
     }
 
     quitKeyPressed() {
-        if (this.isBetweenRounds() && !this.isGameOver()) {
+        if (this.isPostRound() && !this.isGameOver()) {
             this.quit();
         }
     }
