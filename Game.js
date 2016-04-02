@@ -30,7 +30,6 @@ class Game {
         this.renderer = renderer;
         this.guiController = guiController;
         this.mode = this.constructor.DEFAULT_MODE;
-        this.postRound = false; // true when everyone is dead AFTER a round; not during the spawn procedure
         this.totalNumberOfTicks = 0;
         this.targetScore = null;
         this.initMainLoop();
@@ -205,7 +204,7 @@ class Game {
     // CHECKERS
 
     isPostRound() {
-        return this.postRound;
+        return this.getCurrentRound().getResults().length === this.getNumberOfActivePlayers();
     }
 
     isLive() {
@@ -329,7 +328,6 @@ class Game {
 
     /** Proceeds to the next round (or KONEC HRY). */
     proceed() {
-        this.postRound = false;
         this.rounds.push(new Round());
         if (this.isGameOver()) {
             this.konecHry();
@@ -349,7 +347,6 @@ class Game {
 
     endRound() {
         this.stopPlayers();
-        this.postRound = true;
     }
 
     sortPlayers() {
