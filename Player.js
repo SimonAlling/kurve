@@ -1,7 +1,7 @@
 "use strict";
 
 class Player {
-    constructor(id, name = `Player ${id}`, color = "white", keyL = undefined, keyR = undefined) {
+    constructor(id, name = `Player ${id}`, color = "white", L_keys, R_keys) {
         if (!isPositiveInt(id)) {
             throw new TypeError(`Cannot create a player with ID ${id}. Only positive integers are accepted.`);
         }
@@ -15,15 +15,21 @@ class Player {
         this.velocity = 0;
         this.lastDraw = null;
         this.queuedDraws = new Queue();
-        if (isPositiveInt(keyL)) {
-            this.L_keys = [keyL];
+        
+        if (isPositiveInt(L_keys)) {
+            this.L_keys = [L_keys];
+        } else if (isKeyList(L_keys)) {
+            this.L_keys = L_keys;
         } else {
-            logWarning(`Creating player "${this.name}" without a LEFT key.`);
+            logWarning(`Creating player "${this.name}" without any LEFT key(s).`);
         }
-        if (isPositiveInt(keyR)) {
-            this.R_keys = [keyR];
+
+        if (isPositiveInt(R_keys)) {
+            this.R_keys = [R_keys];
+        } else if (isKeyList(R_keys)) {
+            this.R_keys = R_keys;
         } else {
-            logWarning(`Creating player "${this.name}" without a RIGHT key.`);
+            logWarning(`Creating player "${this.name}" without any RIGHT key(s).`);
         }
     }
 
