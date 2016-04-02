@@ -30,7 +30,6 @@ class Game {
         this.renderer = renderer;
         this.guiController = guiController;
         this.mode = this.constructor.DEFAULT_MODE;
-        this.started = false;
         this.postRound = false; // true when everyone is dead AFTER a round; not during the spawn procedure
         this.totalNumberOfTicks = 0;
         this.targetScore = null;
@@ -205,10 +204,6 @@ class Game {
 
     // CHECKERS
 
-    isStarted() {
-        return this.started;
-    }
-
     isPostRound() {
         return this.postRound;
     }
@@ -312,7 +307,6 @@ class Game {
             });
         }
         log("Starting game!");
-        this.started = true;
         this.GUI_gameStarted();
         MainLoop.start();
         this.proceed();
