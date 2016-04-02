@@ -47,6 +47,10 @@ class Game {
         return obj !== undefined;
     }
 
+    static isAlive(player) {
+        return player.isAlive();
+    }
+
     static calculateTargetScore(numberOfPlayers) {
         // Default target score is (n-1) * 10 for n players:
         return (numberOfPlayers - 1) * 10;
@@ -152,7 +156,7 @@ class Game {
     }
 
     getNumberOfLivePlayers() {
-        const isAlive = player => player.isAlive();
+        const isAlive = this.constructor.isAlive;
         return this.players.filter(isAlive).length;
     }
 
@@ -472,7 +476,7 @@ class Game {
     }
 
     updateGUIScoreboard() {
-        const isAlive = player => player.isAlive();
+        const isAlive = this.constructor.isAlive;
         const updateScore = (player) => {
             const id = player.getID();
             this.GUI_updateScoreOfPlayer(id, this.getScoreOfPlayer(id));
@@ -486,7 +490,7 @@ class Game {
         this.updateGUIScoreboard();
         if (this.isRoundOver()) {
             if (this.isCompetitive()) {
-                const isAlive = player => player.isAlive();
+                const isAlive = this.constructor.isAlive;
                 const winner = this.players.find(isAlive);
                 this.win(winner);
             }
