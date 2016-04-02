@@ -149,7 +149,7 @@ class Game {
         return this.targetScore;
     }
 
-    getNumberOfActivePlayers() {
+    getNumberOfPlayers() {
         return this.players.length;
     }
 
@@ -204,7 +204,7 @@ class Game {
     // CHECKERS
 
     isPostRound() {
-        return this.getCurrentRound().getResults().length === this.getNumberOfActivePlayers();
+        return this.getCurrentRound().getResults().length === this.getNumberOfPlayers();
     }
 
     isLive() {
@@ -300,7 +300,7 @@ class Game {
     /** Starts the game. */
     start() {
         if (this.isCompetitive()) {
-            this.setTargetScore(this.constructor.calculateTargetScore(this.getNumberOfActivePlayers()));
+            this.setTargetScore(this.constructor.calculateTargetScore(this.getNumberOfPlayers()));
             this.players.forEach((player) => {
                 this.GUI_updateScoreOfPlayer(player.getID(), 0);
             });

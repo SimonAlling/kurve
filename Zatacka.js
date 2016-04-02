@@ -61,7 +61,7 @@ const Zatacka = ((window, document) => {
     }
 
     function proceedKeyPressedInLobby() {
-        const numberOfReadyPlayers = game.getNumberOfActivePlayers();
+        const numberOfReadyPlayers = game.getNumberOfPlayers();
         if (numberOfReadyPlayers > 0) {
             removeLobbyEventListeners();
             addGameEventListeners();
