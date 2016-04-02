@@ -9,7 +9,6 @@ class Player {
         this.name = name;
         this.color = color;
         this.alive = false;
-        this.score = 0;
         this.x = null;
         this.y = null;
         this.direction = 0;
@@ -82,10 +81,6 @@ class Player {
         return this.lastDraw;
     }
 
-    getScore() {
-        return this.score;
-    }
-
     getVelocity() {
         return this.velocity;
     }
@@ -121,10 +116,6 @@ class Player {
 
     reset() {
         this.queuedDraws = new Queue();
-    }
-
-    incrementScore() {
-        this.score++;
     }
 
     /**
