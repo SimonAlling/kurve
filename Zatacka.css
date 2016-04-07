@@ -3,6 +3,7 @@
     padding: 0;
     image-rendering: -moz-crisp-edges;
     image-rendering: pixelated;
+    font-family: monospace;
 }
 
 html, body {
@@ -82,6 +83,7 @@ body {
 
 #lobby, #KONEC_HRY, #canvas {
     background-color: black;
+    overflow: hidden;
 }
 
 #lobby {
@@ -133,6 +135,28 @@ body {
 #lobby #controls .pink.ready      { background-image: url("resources/kurve-lobby-ready-pink.png");      }
 #lobby #controls .blue.controls   { background-image: url("resources/kurve-lobby-controls-blue.png");   }
 #lobby #controls .blue.ready      { background-image: url("resources/kurve-lobby-ready-blue.png");      }
+
+#lobby footer {
+    padding: 0 80px;
+}
+
+.message {
+    font-size: 10px;
+    min-height: 24px;
+    padding: 4px 0 4px 32px;
+    background-repeat: no-repeat;
+    background-position: left center;
+}
+
+.info.message {
+    color: white;
+    background-image: url("resources/kurve-icon-info.png");
+}
+
+.warning.message {
+    color: #C3C300;
+    background-image: url("resources/kurve-icon-warning.png");
+}
 
 #canvas {
     z-index: 10;
