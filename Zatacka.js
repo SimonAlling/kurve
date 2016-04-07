@@ -19,8 +19,8 @@ const Zatacka = ((window, document) => {
         flickerDuration: 830, // ms, when spawning
         minHoleDistance: 90, // Kuxels
         maxHoleDistance: 300, // Kuxels
-        minHoleLength: 8, // Kuxels
-        maxHoleLength: 12, // Kuxels
+        minHoleSize: 8, // Kuxels
+        maxHoleSize: 12, // Kuxels
         hintDelay: 3000, // ms
         keys: {
             "proceed": [KEY.SPACE, KEY.ENTER],
