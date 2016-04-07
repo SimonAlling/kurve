@@ -11,6 +11,7 @@ function GUIController(cfg) {
     const scoreboard = byID("scoreboard");
     const results = byID("results");
     const konecHry = byID("KONEC_HRY");
+    const footer = lobby.querySelector("footer");
 
 
 
@@ -52,6 +53,21 @@ function GUIController(cfg) {
         hideLobby();
     }
 
+    function updateMessages(messages) {
+        if (!isHTMLElement(footer)) {
+            logWarning(`Cannot update messages because ${footer} is not an HTML element.`);
+        } else {
+            flush(footer);
+            messages.forEach((message) => {
+                footer.insertBefore(message.toHTMLElement(), null);
+            });
+        }
+    }
+
+    function clearMessages() {
+        updateMessages([]);
+    }
+
     function updateBoard(board, id, newScore) {
         if (!isHTMLElement(board)) {
             logWarning(`Cannot update any entry in ${board} because it is not an HTML element.`);
@@ -86,7 +102,9 @@ function GUIController(cfg) {
         playerReady,
         playerUnready,
         gameStarted,
-        updateScoreOfPlayer
+        updateScoreOfPlayer,
+        updateMessages,
+        clearMessages
     };
 
 }

@@ -21,10 +21,15 @@ const Zatacka = ((window, document) => {
         maxHoleDistance: 300, // Kuxels
         minHoleLength: 8, // Kuxels
         maxHoleLength: 12, // Kuxels
+        hintDelay: 3000, // ms
         keys: {
             "proceed": [KEY.SPACE, KEY.ENTER],
             "quit":    [KEY.ESCAPE]
         },
+        messages: Object.freeze({
+            pick:    new InfoMessage(`Pick your desired color by pressing the corresponding LEFT key (e.g. M for Orange).`),
+            proceed: new InfoMessage(`Press Space or Enter to start!`)
+        }),
         defaultPlayers: Object.freeze([
             { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]      , keyR: KEY.Q          },
             { id: 2, name: "Yellow", color: "#C3C300", keyL: KEY.CTRL      , keyR: KEY.ALT        },
@@ -34,6 +39,8 @@ const Zatacka = ((window, document) => {
             { id: 6, name: "Blue"  , color: "#00A2CB", keyL: KEY.C         , keyR: KEY.V          }
         ])
     });
+
+    let currentMessages = [];
 
     function isProceedKey(key) {
         return config.keys.proceed.indexOf(key) !== -1;
@@ -45,6 +52,23 @@ const Zatacka = ((window, document) => {
 
     function shouldPreventDefault(key) {
         return !isFKey(key);
+    }
+
+    function showMessage(message) {
+        if (currentMessages.indexOf(message) === -1) {
+            currentMessages.push(message);
+        }
+        guiController.updateMessages(currentMessages);
+    }
+
+    function hideMessage(message) {
+        currentMessages = currentMessages.filter(msg => msg !== message);
+        guiController.updateMessages(currentMessages);
+    }
+
+    function clearMessages() {
+        currentMessages = [];
+        guiController.clearMessages();
     }
 
     function defaultPlayerData(id) {
@@ -62,6 +86,7 @@ const Zatacka = ((window, document) => {
     function proceedKeyPressedInLobby() {
         const numberOfReadyPlayers = game.getNumberOfPlayers();
         if (numberOfReadyPlayers > 0) {
+            clearMessages();
             removeLobbyEventListeners();
             addGameEventListeners();
             game.setMode(numberOfReadyPlayers === 1 ? Game.PRACTICE : Game.COMPETITIVE);
@@ -69,11 +94,33 @@ const Zatacka = ((window, document) => {
         }
     }
 
+    function addPlayer(id) {
+        game.addPlayer(defaultPlayer(id));
+        clearTimeout(hintPickTimer);
+        hideMessage(config.messages.pick);
+        clearTimeout(hintProceedTimer);
+        hintProceedTimer = setTimeout(() => {
+            showMessage(config.messages.proceed);
+        }, config.hintDelay);
+    }
+
+    function removePlayer(id) {
+        game.removePlayer(id);
+        clearTimeout(hintProceedTimer);
+        if (game.getNumberOfPlayers() === 0) {
+            hideMessage(config.messages.proceed);
+        } else {
+            hintProceedTimer = setTimeout(() => {
+                showMessage(config.messages.proceed);
+            }, config.hintDelay);
+        }
+    }
+
     function addOrRemovePlayer(playerData, pressedKey) {
         if (pressedKey === playerData.keyL) {
-            game.addPlayer(defaultPlayer(playerData.id));
+            addPlayer(playerData.id);
         } else if (pressedKey === playerData.keyR) {
-            game.removePlayer(playerData.id);
+            removePlayer(playerData.id);
         }
     }
 
@@ -147,7 +194,13 @@ const Zatacka = ((window, document) => {
 
     addLobbyEventListeners();
 
-    const game = new Game(config, Renderer(config, canvas), GUIController(config));
+    const guiController = GUIController(config);
+    const game = new Game(config, Renderer(config, canvas), guiController);
+
+    let hintProceedTimer;
+    let hintPickTimer = setTimeout(() => {
+        showMessage(config.messages.pick);
+    }, config.hintDelay);
 
     return {
         getConfig: () => config,
