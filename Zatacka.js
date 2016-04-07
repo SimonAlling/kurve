@@ -23,8 +23,7 @@ const Zatacka = ((window, document) => {
         maxHoleLength: 12, // Kuxels
         keys: {
             "proceed": [KEY.SPACE, KEY.ENTER],
-            "quit":    [KEY.ESCAPE],
-            "special": [KEY.ALT]
+            "quit":    [KEY.ESCAPE]
         },
         defaultPlayers: Object.freeze([
             { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]      , keyR: KEY.Q          },
@@ -42,10 +41,6 @@ const Zatacka = ((window, document) => {
 
     function isQuitKey(key) {
         return config.keys.quit.indexOf(key) !== -1;
-    }
-
-    function isSpecialKey(key) {
-        return config.keys.special.indexOf(key) !== -1;
     }
 
     function defaultPlayerData(id) {
@@ -85,10 +80,8 @@ const Zatacka = ((window, document) => {
     }
 
     function lobbyKeyHandler(event) {
+        event.preventDefault();
         let pressedKey = event.keyCode;
-        if (isSpecialKey(pressedKey)) {
-            event.preventDefault();
-        }
         if (isProceedKey(pressedKey)) {
             proceedKeyPressedInLobby();
         } else {
@@ -101,10 +94,8 @@ const Zatacka = ((window, document) => {
     }
 
     function gameKeyHandler(event) {
+        event.preventDefault();
         let pressedKey = event.keyCode;
-        if (isSpecialKey(pressedKey)) {
-            event.preventDefault();
-        }
         if (isProceedKey(pressedKey)) {
             game.proceedKeyPressed();
         } else if (isQuitKey(pressedKey)) {
