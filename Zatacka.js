@@ -43,6 +43,10 @@ const Zatacka = ((window, document) => {
         return config.keys.quit.indexOf(key) !== -1;
     }
 
+    function shouldPreventDefault(key) {
+        return !isFKey(key);
+    }
+
     function defaultPlayerData(id) {
         return config.defaultPlayers.find(defaultPlayer => defaultPlayer.id === id);
     }
@@ -80,8 +84,10 @@ const Zatacka = ((window, document) => {
     }
 
     function lobbyKeyHandler(event) {
-        event.preventDefault();
-        let pressedKey = event.keyCode;
+        const pressedKey = event.keyCode;
+        if (shouldPreventDefault(pressedKey)) {
+            event.preventDefault();
+        }
         if (isProceedKey(pressedKey)) {
             proceedKeyPressedInLobby();
         } else {
@@ -94,8 +100,10 @@ const Zatacka = ((window, document) => {
     }
 
     function gameKeyHandler(event) {
-        event.preventDefault();
-        let pressedKey = event.keyCode;
+        const pressedKey = event.keyCode;
+        if (shouldPreventDefault(pressedKey)) {
+            event.preventDefault();
+        }
         if (isProceedKey(pressedKey)) {
             game.proceedKeyPressed();
         } else if (isQuitKey(pressedKey)) {
