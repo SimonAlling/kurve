@@ -93,13 +93,9 @@ class Game {
 
     computeHitbox(player, left, top) {
         let hitboxPixels = [];
-        let lastDraw = player.getLastDraw();
-        let dir_horizontal = left - lastDraw.left; // positive => going right; negative => going left
-        let dir_vertical   = top  - lastDraw.top;  // positive => going down;  negative => going up
-        // console.log(`left, top = ${left}, ${top}`);
-        // console.log(`lastDraw.left, lastDraw.top = ${lastDraw.left}, ${lastDraw.top}`);
-        // console.log(`dir_horizontal = ${dir_horizontal}`);
-        // console.log(`dir_vertical = ${dir_vertical}`);
+        let lastPosition = player.getLastPosition();
+        let dir_horizontal = left - lastPosition.left; // positive => going right; negative => going left
+        let dir_vertical   = top  - lastPosition.top;  // positive => going down;  negative => going up
         if (sameAbs(dir_horizontal, dir_vertical)) {
             // "45 degree" draw
             let frontPixel_left = this.computeFrontCornerPixel(left, dir_horizontal);
@@ -387,7 +383,6 @@ class Game {
     }
 
     occupy(player, left, top) {
-        player.occupy(left, top);
         let right = left + this.config.thickness;
         let bottom = top + this.config.thickness;
         let id = player.getID();
@@ -423,7 +418,7 @@ class Game {
         player.x = position.x;
         player.y = position.y;
         player.direction = direction;
-        player.occupy(this.edgeOfSquare(player.x), this.edgeOfSquare(player.y));
+        player.beAt(this.edgeOfSquare(player.x), this.edgeOfSquare(player.y));
         this.flicker(player);
     }
 
@@ -451,20 +446,23 @@ class Game {
             let currentDraw = player.queuedDraws.dequeue();
             let left = this.edgeOfSquare(currentDraw.x);
             let top  = this.edgeOfSquare(currentDraw.y);
-            if (!player.justDrewAt(left, top)) {
-                // The new draw position is not identical to the last one.
-                // TODO
-                let diff_left = left - player.getLastDraw().left;
-                let diff_top  = top  - player.getLastDraw().top;
+            if (!player.justWasAt(left, top)) {
+                // The new position is not identical to the last one.
+                let diff_left = left - player.getLastPosition().left;
+                let diff_top  = top  - player.getLastPosition().top;
                 if (!this.isOnField(left, top)) {
                     // The player wants to draw outside the playing field => DIE.
                     this.death(player, "crashed into the wall");
                 } else if (this.isCrashing(player, left, top)) {
                     // The player wants to draw on a spot occupied by a Kurve => DIE.
                     this.death(player, "crashed");
-                } else if (!player.isHoly()) {
-                    // The player is allowed to draw and is not holy.
-                    this.occupy(player, left, top);
+                } else {
+                    // The player is not dying.
+                    player.beAt(left, top);
+                    if (!player.isHoly()) {
+                        // The player is not holy, so it should draw.
+                        this.occupy(player, left, top);
+                    }
                 }
             }
         }

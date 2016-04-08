@@ -17,8 +17,8 @@ const Zatacka = ((window, document) => {
         spawnMargin: 100, // Kuxels
         flickerFrequency: 20, // Hz, when spawning
         flickerDuration: 830, // ms, when spawning
-        minHoleDistance: 90, // Kuxels
-        maxHoleDistance: 300, // Kuxels
+        minHoleInterval: 90, // Kuxels
+        maxHoleInterval: 300, // Kuxels
         minHoleSize: 8, // Kuxels
         maxHoleSize: 12, // Kuxels
         hintDelay: 3000, // ms
@@ -73,6 +73,15 @@ const Zatacka = ((window, document) => {
         guiController.clearMessages();
     }
 
+    function getHoleConfig() {
+        return {
+            minHoleSize: config.minHoleSize,
+            maxHoleSize: config.maxHoleSize,
+            minHoleInterval: config.minHoleInterval,
+            maxHoleInterval: config.maxHoleInterval
+        };
+    }
+
     function defaultPlayerData(id) {
         return config.defaultPlayers.find(defaultPlayer => defaultPlayer.id === id);
     }
@@ -82,7 +91,12 @@ const Zatacka = ((window, document) => {
         if (playerData === undefined) {
             throw new TypeError(`There is no default player with ID ${id}.`);
         }
-        return new Player(playerData.id, playerData.name, playerData.color, playerData.keyL, playerData.keyR);
+        return new Player(playerData.id,
+                          playerData.name,
+                          playerData.color,
+                          playerData.keyL,
+                          playerData.keyR,
+                          getHoleConfig());
     }
 
     function proceedKeyPressedInLobby() {

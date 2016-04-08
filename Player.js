@@ -1,7 +1,7 @@
 "use strict";
 
 class Player {
-    constructor(id, name = `Player ${id}`, color = "white", L_keys, R_keys) {
+    constructor(id, name = `Player ${id}`, color = "white", L_keys, R_keys, holeConfig) {
         if (!isPositiveInt(id)) {
             throw new TypeError(`Cannot create a player with ID ${id}. Only positive integers are accepted.`);
         }
@@ -9,13 +9,23 @@ class Player {
         this.name = name;
         this.color = color;
         this.alive = false;
+        this.holy = false;
         this.x = null;
         this.y = null;
         this.direction = 0;
         this.velocity = 0;
-        this.lastDraw = null;
+        this.maxSpeed = undefined;
+        this.lastPosition = null;
         this.queuedDraws = new Queue();
-        
+        this.holeTimer = null;
+        this.holeConfig = null;
+
+        if (!this.constructor.isHoleConfig(holeConfig)) {
+            logWarning(`Creating player ${this.name} with no hole configuration because ${holeConfig} is not a valid hole configuration.`);
+        } else {
+            this.holeConfig = holeConfig;
+        }
+
         if (isPositiveInt(L_keys)) {
             this.L_keys = [L_keys];
         } else if (isKeyList(L_keys)) {
@@ -37,6 +47,16 @@ class Player {
         return (player instanceof Player);
     }
 
+    static isHoleConfig(holeConfig) {
+        return isObject(holeConfig)
+            && arePositiveNumbers([
+                                   holeConfig.minHoleSize,
+                                   holeConfig.maxHoleSize,
+                                   holeConfig.minHoleInterval,
+                                   holeConfig.maxHoleInterval
+                                  ]);
+    }
+
 
     // CHECKERS
 
@@ -44,12 +64,12 @@ class Player {
         return this.alive;
     }
 
-    justDrewAt(left, top) {
-        return this.lastDraw.left === left && this.lastDraw.top === top;
+    justWasAt(left, top) {
+        return this.lastPosition.left === left && this.lastPosition.top === top;
     }
 
     isHoly() {
-        return false; // TODO 
+        return this.holy; 
     }
 
     isPressingLeft() {
@@ -88,8 +108,8 @@ class Player {
         return this.name;
     }
 
-    getLastDraw() {
-        return this.lastDraw;
+    getLastPosition() {
+        return this.lastPosition;
     }
 
     getVelocity() {
@@ -98,6 +118,18 @@ class Player {
 
     getDirection() {
         return this.direction;
+    }
+
+    randomHoleSize() {
+        return randomFloat(this.holeConfig.minHoleSize, this.holeConfig.maxHoleSize);
+    }
+
+    randomHoleInterval() {
+        return randomFloat(this.holeConfig.minHoleInterval, this.holeConfig.maxHoleInterval);
+    }
+
+    firstHoleDelay() {
+        return distanceToDuration(this.randomHoleInterval() - this.holeConfig.minHoleInterval, this.velocity);
     }
 
 
@@ -118,11 +150,15 @@ class Player {
         log(`${this} starting.`);
         this.alive = true;
         this.velocity = this.maxSpeed;
+        if (this.constructor.isHoleConfig(this.holeConfig)) {
+            this.holeTimer = setTimeout(this.startCreatingHoles.bind(this), this.firstHoleDelay());
+        }
     }
 
     stop() {
         this.alive = false;
         this.velocity = 0;
+        clearTimeout(this.holeTimer);
     }
 
     reset() {
@@ -135,14 +171,33 @@ class Player {
      */
     die(cause) {
         this.alive = false;
+        clearTimeout(this.holeTimer);
         log(`${this} ${(cause || "died")} at (${round(this.x, 2)}, ${round(this.y, 2)}).` );
     }
 
-    occupy(left, top) {
-        this.lastDraw = {
+    beAt(left, top) {
+        this.lastPosition = {
             "left": left,
             "top" : top
         };
+    }
+
+    beginHole() {
+        this.holy = true;
+        const holeSize = this.randomHoleSize();
+        const holeDuration = distanceToDuration(holeSize, this.velocity);
+        this.holeTimer = setTimeout(this.endHole.bind(this), holeDuration);
+    }
+
+    endHole() {
+        this.holy = false;
+        const holeInterval = this.randomHoleInterval();
+        const holeIntervalDuration = distanceToDuration(holeInterval, this.velocity);
+        this.holeTimer = setTimeout(this.beginHole.bind(this), holeIntervalDuration);
+    }
+
+    startCreatingHoles() {
+        this.beginHole();
     }
 
     enqueueDraw() {
