@@ -2,13 +2,14 @@
 
 const Zatacka = ((window, document) => {
 
-    const canvas = byID("canvas");
+    const canvas_main = byID("canvas_main");
+    const canvas_overlay = byID("canvas_overlay");
 
     const config = Object.freeze({
         tickrate: 600, // Hz
         maxFramerate: 60, // Hz
-        width: canvas.width, // Kuxels
-        height: canvas.height, // Kuxels
+        width: canvas_main.width, // Kuxels
+        height: canvas_main.height, // Kuxels
         thickness: 3, // Kuxels
         speed: 60, // Kuxels per second
         turningRadius: 27, // Kuxels (NB: _radius_)
@@ -227,7 +228,7 @@ const Zatacka = ((window, document) => {
     addLobbyEventListeners();
 
     const guiController = GUIController(config);
-    const game = new Game(config, Renderer(config, canvas), guiController);
+    const game = new Game(config, Renderer(canvas_main, canvas_overlay), guiController);
 
     let hintProceedTimer;
     let hintPickTimer = setTimeout(() => {

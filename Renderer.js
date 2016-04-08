@@ -1,27 +1,60 @@
 "use strict";
 
-function Renderer(cfg, canvas) {
+function Renderer(mainCanvas, overlayCanvas) {
 
-    const config = cfg;
-    const context = canvas.getContext("2d");
+    const context_main = mainCanvas.getContext("2d");
+    const context_overlay = overlayCanvas.getContext("2d");
 
-    function drawSquare(left, top, color, size) {
+
+    // PRIVATE FUNCTIONS:
+
+    function _drawRectangle(context, left, top, width, height, color) {
         context.fillStyle = color;
-        context.fillRect(left, top, size, size);
+        context.fillRect(left, top, width, height);
+    }
+
+    function _clearRectangle(context, left, top, width, height) {
+        context.clearRect(left, top, width, height);
+    }
+
+
+    // PUBLIC API:
+
+    // Main canvas:
+
+    function drawSquare(left, top, size, color) {
+        _drawRectangle(context_main, left, top, size, size, color);
     }
 
     function clearSquare(left, top, size) {
-        context.clearRect(left, top, size, size);
+        _clearRectangle(context_main, left, top, size, size);
     }
 
-    function clearRect(left, top, width, height) {
-        context.clearRect(left, top, width, height);
+    function clearRectangle(left, top, width, height) {
+        _clearRectangle(context_main, left, top, width, height);
+    }
+
+    // Overlay canvas:
+
+    function drawSquare_overlay(left, top, size, color) {
+        _drawRectangle(context_overlay, left, top, size, size, color);
+    }
+
+    function clearSquare_overlay(left, top, size) {
+        _clearRectangle(context_overlay, left, top, size, size);
+    }
+
+    function clearRectangle_overlay(left, top, width, height) {
+        _clearRectangle(context_overlay, left, top, width, height);
     }
 
     return {
         drawSquare,
         clearSquare,
-        clearRect
+        clearRectangle,
+        drawSquare_overlay,
+        clearSquare_overlay,
+        clearRectangle_overlay
     };
 
 }

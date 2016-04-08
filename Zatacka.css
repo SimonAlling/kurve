@@ -81,7 +81,7 @@ body {
     width: 100%;
 }
 
-#lobby, #KONEC_HRY, #canvas {
+#lobby, #KONEC_HRY, #canvas_main {
     background-color: black;
     overflow: hidden;
 }
@@ -160,11 +160,11 @@ body {
     background-image: url("resources/kurve-icon-warning.png");
 }
 
-#canvas {
+#canvas_main {
     z-index: 10;
 }
 
-#heads {
+#canvas_overlay {
     z-index: 12;
 }
 

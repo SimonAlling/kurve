@@ -462,6 +462,7 @@ class Game {
                 } else {
                     // The player is not dying.
                     player.beAt(left, top);
+                    this.Render_drawHead(left, top, player.getColor());
                     if (!player.isHoly()) {
                         // The player is not holy, so it should draw.
                         this.occupy(player, left, top);
@@ -527,17 +528,21 @@ class Game {
         this.guiController.gameStarted();
     }
 
-    Render_clearHeads() {
-        // TODO
-    }
     Render_drawSquare(left, top, color) {
-        this.renderer.drawSquare(left, top, color, this.config.thickness);
+        this.renderer.drawSquare(left, top, this.config.thickness, color);
+    }
+    Render_drawHead(left, top, color) {
+        this.renderer.drawSquare_overlay(left, top, this.config.thickness, color);
     }
     Render_clearSquare(left, top) {
         this.renderer.clearSquare(left, top, this.config.thickness);
     }
+    Render_clearHeads() {
+        this.renderer.clearRectangle_overlay(0, 0, this.config.width, this.config.height);
+    }
     Render_clearField() {
-        this.renderer.clearRect(0, 0, this.config.width, this.config.height);
+        this.renderer.clearRectangle(0, 0, this.config.width, this.config.height);
+        this.renderer.clearRectangle_overlay(0, 0, this.config.width, this.config.height);
     }
 
 
