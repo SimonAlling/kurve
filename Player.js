@@ -65,8 +65,8 @@ class Player {
     }
 
     hasKey(key) {
-        return this.L_keys.indexOf(key) > -1
-            || this.R_keys.indexOf(key) > -1;
+        return this.L_keys.includes(key)
+            || this.R_keys.includes(key);
     }
 
 

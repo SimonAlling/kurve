@@ -45,11 +45,11 @@ const Zatacka = ((window, document) => {
     let currentMessages = [];
 
     function isProceedKey(key) {
-        return config.keys.proceed.indexOf(key) !== -1;
+        return config.keys.proceed.includes(key);
     }
 
     function isQuitKey(key) {
-        return config.keys.quit.indexOf(key) !== -1;
+        return config.keys.quit.includes(key);
     }
 
     function shouldPreventDefault(key) {
@@ -57,7 +57,7 @@ const Zatacka = ((window, document) => {
     }
 
     function showMessage(message) {
-        if (currentMessages.indexOf(message) === -1) {
+        if (!currentMessages.includes(message)) {
             currentMessages.push(message);
         }
         guiController.updateMessages(currentMessages);
