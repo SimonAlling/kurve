@@ -64,6 +64,11 @@ class Player {
         return this.id === id;
     }
 
+    hasKey(key) {
+        return this.L_keys.indexOf(key) > -1
+            || this.R_keys.indexOf(key) > -1;
+    }
+
 
     // GETTERS
 
