@@ -418,7 +418,10 @@ class Game {
         player.x = position.x;
         player.y = position.y;
         player.direction = direction;
-        player.beAt(this.edgeOfSquare(player.x), this.edgeOfSquare(player.y));
+        const left = this.edgeOfSquare(player.x);
+        const top  = this.edgeOfSquare(player.y);
+        player.beAt(left, top);
+        this.occupy(player, left, top);
         this.flicker(player);
     }
 
