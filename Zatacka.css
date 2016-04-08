@@ -146,6 +146,8 @@ body {
     padding: 4px 0 4px 32px;
     background-repeat: no-repeat;
     background-position: left center;
+    display: flex;
+    align-items: center;
 }
 
 .info.message {
