@@ -28,7 +28,9 @@ const Zatacka = ((window, document) => {
         },
         messages: Object.freeze({
             pick:    new InfoMessage(`Pick your desired color by pressing the corresponding LEFT key (e.g. M for Orange).`),
-            proceed: new InfoMessage(`Press Space or Enter to start!`)
+            proceed: new InfoMessage(`Press Space or Enter to start!`),
+            alt:     new WarningMessage(`Alt combined with some other keys (such as Tab) may cause undesired behavior (such as switching windows).`),
+            ctrl:    new WarningMessage(`Ctrl combined with some other keys (such as W or T) may cause undesired behavior (such as closing the tab or opening a new one).`)
         }),
         defaultPlayers: Object.freeze([
             { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]      , keyR: KEY.Q          },
@@ -94,8 +96,23 @@ const Zatacka = ((window, document) => {
         }
     }
 
+    function checkForDangerousKeys() {
+        if (game.getPlayers().some((player) => player.hasKey(KEY.CTRL))) {
+            showMessage(config.messages.ctrl);
+        } else {
+            hideMessage(config.messages.ctrl);
+        }
+
+        if (game.getPlayers().some((player) => player.hasKey(KEY.ALT))) {
+            showMessage(config.messages.alt);
+        } else {
+            hideMessage(config.messages.alt);
+        }
+    }
+
     function addPlayer(id) {
         game.addPlayer(defaultPlayer(id));
+        checkForDangerousKeys();
         clearTimeout(hintPickTimer);
         hideMessage(config.messages.pick);
         clearTimeout(hintProceedTimer);
@@ -106,6 +123,7 @@ const Zatacka = ((window, document) => {
 
     function removePlayer(id) {
         game.removePlayer(id);
+        checkForDangerousKeys();
         clearTimeout(hintProceedTimer);
         if (game.getNumberOfPlayers() === 0) {
             hideMessage(config.messages.proceed);
