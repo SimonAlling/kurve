@@ -149,6 +149,10 @@ class Game {
         return this.targetScore;
     }
 
+    getPlayers() {
+        return this.players;
+    }
+
     getNumberOfPlayers() {
         return this.players.length;
     }
