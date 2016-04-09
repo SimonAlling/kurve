@@ -446,6 +446,8 @@ class Game {
     drawPlayer(player) {
         const thickness = this.config.thickness;
         while (player.isAlive() && !player.queuedDraws.isEmpty()) {
+            let color = player.getColor();
+            let lastPosition = player.getLastPosition();
             let currentDraw = player.queuedDraws.dequeue();
             let left = this.edgeOfSquare(currentDraw.x);
             let top  = this.edgeOfSquare(currentDraw.y);
@@ -456,13 +458,15 @@ class Game {
                 if (!this.isOnField(left, top)) {
                     // The player wants to draw outside the playing field => DIE.
                     this.death(player, "crashed into the wall");
+                    this.occupy(player, lastPosition.left, lastPosition.top);
                 } else if (this.isCrashing(player, left, top)) {
                     // The player wants to draw on a spot occupied by a Kurve => DIE.
                     this.death(player, "crashed");
+                    this.occupy(player, lastPosition.left, lastPosition.top);
                 } else {
                     // The player is not dying.
                     player.beAt(left, top);
-                    this.Render_drawHead(left, top, player.getColor());
+                    this.Render_drawHead(left, top, color);
                     if (!player.isHoly()) {
                         // The player is not holy, so it should draw.
                         this.occupy(player, left, top);
