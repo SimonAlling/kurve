@@ -84,6 +84,12 @@ class Player {
         return this.id === id;
     }
 
+    hasMouseButton(button) {
+        return isMouseButton(button)
+            && (this.L_keys.includes(button)
+             || this.R_keys.includes(button));
+    }
+
     hasKey(key) {
         return this.L_keys.includes(key)
             || this.R_keys.includes(key);

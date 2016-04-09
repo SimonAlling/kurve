@@ -31,7 +31,8 @@ const Zatacka = ((window, document) => {
             pick:    new InfoMessage(`Pick your desired color by pressing the corresponding LEFT key (e.g. M for Orange).`),
             proceed: new InfoMessage(`Press Space or Enter to start!`),
             alt:     new WarningMessage(`Alt combined with some other keys (such as Tab) may cause undesired behavior (such as switching windows).`),
-            ctrl:    new WarningMessage(`Ctrl combined with some other keys (such as W or T) may cause undesired behavior (such as closing the tab or opening a new one).`)
+            ctrl:    new WarningMessage(`Ctrl combined with some other keys (such as W or T) may cause undesired behavior (such as closing the tab or opening a new one).`),
+            mouse:   new WarningMessage(`Make sure to keep the mouse cursor inside the browser window; otherwise the game may lose focus and everyone may lose control.`)
         }),
         defaultPlayers: Object.freeze([
             { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]      , keyR: KEY.Q          },
@@ -111,6 +112,10 @@ const Zatacka = ((window, document) => {
         }
     }
 
+    function hasMouseButton(player) {
+        return Object.keys(MOUSE).some((buttonName) => player.hasMouseButton(MOUSE[buttonName]));
+    }
+
     function checkForDangerousKeys() {
         if (game.getPlayers().some((player) => player.hasKey(KEY.CTRL))) {
             showMessage(config.messages.ctrl);
@@ -122,6 +127,12 @@ const Zatacka = ((window, document) => {
             showMessage(config.messages.alt);
         } else {
             hideMessage(config.messages.alt);
+        }
+
+        if (game.getPlayers().some(hasMouseButton)) {
+            showMessage(config.messages.mouse);
+        } else {
+            hideMessage(config.messages.mouse);
         }
     }
 
