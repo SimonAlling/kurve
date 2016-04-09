@@ -39,7 +39,7 @@ const Zatacka = ((window, document) => {
             { id: 3, name: "Orange", color: "#FF7900", keyL: KEY.M         , keyR: KEY.COMMA      },
             { id: 4, name: "Green" , color: "#00CB00", keyL: KEY.LEFT_ARROW, keyR: KEY.DOWN_ARROW },
             { id: 5, name: "Pink"  , color: "#DF51B6", keyL: KEY.DIVIDE    , keyR: KEY.MULTIPLY   },
-            { id: 6, name: "Blue"  , color: "#00A2CB", keyL: KEY.C         , keyR: KEY.V          }
+            { id: 6, name: "Blue"  , color: "#00A2CB", keyL: MOUSE.LEFT    , keyR: MOUSE.RIGHT    }
         ])
     });
 
@@ -163,6 +163,12 @@ const Zatacka = ((window, document) => {
         });
     }
 
+    function mouseClickedInLobby(button) {
+        config.defaultPlayers.forEach((playerData) => {
+            addOrRemovePlayer(playerData, MOUSE.pack(button));
+        });
+    }
+
     function lobbyKeyHandler(event) {
         const pressedKey = event.keyCode;
         if (shouldPreventDefault(pressedKey)) {
@@ -175,8 +181,9 @@ const Zatacka = ((window, document) => {
         }
     }
 
-    function lobbyMouseHandler() {
-
+    function lobbyMouseHandler(event) {
+        event.preventDefault();
+        mouseClickedInLobby(event.button);
     }
 
     function gameKeyHandler(event) {
@@ -191,14 +198,15 @@ const Zatacka = ((window, document) => {
         }
     }
 
-    function gameMouseHandler() {
-
+    function gameMouseHandler(event) {
+        event.preventDefault();
     }
 
     function addLobbyEventListeners() {
         log("Adding lobby event listeners ...");
         document.addEventListener("keydown", lobbyKeyHandler);
         document.addEventListener("mousedown", lobbyMouseHandler);
+        document.addEventListener("contextmenu", lobbyMouseHandler);
         log("Done.");
     }
 
@@ -206,6 +214,7 @@ const Zatacka = ((window, document) => {
         log("Removing lobby event listeners ...");
         document.removeEventListener("keydown", lobbyKeyHandler);
         document.removeEventListener("mousedown", lobbyMouseHandler);
+        document.removeEventListener("contextmenu", lobbyMouseHandler);
         log("Done.");
     }
 
@@ -213,8 +222,11 @@ const Zatacka = ((window, document) => {
         log("Adding game event listeners ...");
         document.addEventListener("keydown", Keyboard.onKeydown.bind(Keyboard));
         document.addEventListener("keyup", Keyboard.onKeyup.bind(Keyboard));
+        document.addEventListener("mousedown", Mouse.onMousedown.bind(Mouse));
+        document.addEventListener("mouseup", Mouse.onMouseup.bind(Mouse));
         document.addEventListener("keydown", gameKeyHandler);
         document.addEventListener("mousedown", gameMouseHandler);
+        document.addEventListener("contextmenu", gameMouseHandler);
         log("Done.");
     }
 

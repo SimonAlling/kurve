@@ -73,11 +73,11 @@ class Player {
     }
 
     isPressingLeft() {
-        return anyKeyBeingPressed(this.L_keys);
+        return anyInputBeingPressed(this.L_keys);
     }
 
     isPressingRight() {
-        return anyKeyBeingPressed(this.R_keys);
+        return anyInputBeingPressed(this.R_keys);
     }
 
     hasID(id) {
