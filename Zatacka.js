@@ -116,7 +116,7 @@ const Zatacka = ((window, document) => {
         return Object.keys(MOUSE).some((buttonName) => player.hasMouseButton(MOUSE[buttonName]));
     }
 
-    function checkForDangerousKeys() {
+    function checkForDangerousInput() {
         if (game.getPlayers().some((player) => player.hasKey(KEY.CTRL))) {
             showMessage(config.messages.ctrl);
         } else {
@@ -138,7 +138,7 @@ const Zatacka = ((window, document) => {
 
     function addPlayer(id) {
         game.addPlayer(defaultPlayer(id));
-        checkForDangerousKeys();
+        checkForDangerousInput();
         clearTimeout(hintPickTimer);
         hideMessage(config.messages.pick);
         clearTimeout(hintProceedTimer);
@@ -149,7 +149,7 @@ const Zatacka = ((window, document) => {
 
     function removePlayer(id) {
         game.removePlayer(id);
-        checkForDangerousKeys();
+        checkForDangerousInput();
         clearTimeout(hintProceedTimer);
         if (game.getNumberOfPlayers() === 0) {
             hideMessage(config.messages.proceed);
