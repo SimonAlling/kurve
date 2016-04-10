@@ -14,7 +14,7 @@ All JavaScript files can be found in `js/`.
 
 The main JS file is `Zatacka.js`. It is responsible for creating a `Game` and supplying a config, a `Renderer` and a `GUIController` to it. It also adds `Player`s to the `Game` and forwards key events to it.
 
-`Game.js` controls the game logic. It knows which `Player`s are in the game and handles their interaction with eachother and the playing field, and it controls progress throughout the individual rounds. The `Game` constructor must be passed a config object, a `Renderer`, and a `GUIController`, respectively.
+`Game.js` controls the game logic. It knows which `Player`s are in the game and handles their interaction with eachother and the playing field, and it controls progress throughout the individual rounds. The `Game` constructor must be passed a config object, a `Renderer`, and a `GUIController`.
 
 `Player.js` describes a single player. It knows whether it is alive, where it is, where and how fast it is going, its score, and what `Game` it is attached to.
 
