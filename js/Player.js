@@ -168,6 +168,8 @@ class Player {
     }
 
     reset() {
+        this.holy = false;
+        this.lastPosition = null;
         this.queuedDraws = new Queue();
     }
 
