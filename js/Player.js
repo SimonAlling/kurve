@@ -50,10 +50,10 @@ class Player {
     static isHoleConfig(holeConfig) {
         return isObject(holeConfig)
             && arePositiveNumbers([
-                                   holeConfig.minHoleSize,
-                                   holeConfig.maxHoleSize,
-                                   holeConfig.minHoleInterval,
-                                   holeConfig.maxHoleInterval
+                                   holeConfig.minPaddedHoleSize,
+                                   holeConfig.maxPaddedHoleSize,
+                                   holeConfig.minPaddedHoleInterval,
+                                   holeConfig.maxPaddedHoleInterval
                                   ]);
     }
 
@@ -126,16 +126,16 @@ class Player {
         return this.direction;
     }
 
-    randomHoleSize() {
-        return randomFloat(this.holeConfig.minHoleSize, this.holeConfig.maxHoleSize);
+    randomPaddedHoleSize() {
+        return randomFloat(this.holeConfig.minPaddedHoleSize, this.holeConfig.maxPaddedHoleSize);
     }
 
-    randomHoleInterval() {
-        return randomFloat(this.holeConfig.minHoleInterval, this.holeConfig.maxHoleInterval);
+    randomPaddedHoleInterval() {
+        return randomFloat(this.holeConfig.minPaddedHoleInterval, this.holeConfig.maxPaddedHoleInterval);
     }
 
     firstHoleDelay() {
-        return distanceToDuration(this.randomHoleInterval() - this.holeConfig.minHoleInterval, this.velocity);
+        return distanceToDuration(this.randomPaddedHoleInterval() - this.holeConfig.minPaddedHoleInterval, this.velocity);
     }
 
 
@@ -192,16 +192,16 @@ class Player {
 
     beginHole() {
         this.holy = true;
-        const holeSize = this.randomHoleSize();
-        const holeDuration = distanceToDuration(holeSize, this.velocity);
-        this.holeTimer = setTimeout(this.endHole.bind(this), holeDuration);
+        const paddedHoleSize = this.randomPaddedHoleSize();
+        const paddedHoleDuration = distanceToDuration(paddedHoleSize, this.velocity);
+        this.holeTimer = setTimeout(this.endHole.bind(this), paddedHoleDuration);
     }
 
     endHole() {
         this.holy = false;
-        const holeInterval = this.randomHoleInterval();
-        const holeIntervalDuration = distanceToDuration(holeInterval, this.velocity);
-        this.holeTimer = setTimeout(this.beginHole.bind(this), holeIntervalDuration);
+        const paddedHoleInterval = this.randomPaddedHoleInterval();
+        const paddedHoleIntervalDuration = distanceToDuration(paddedHoleInterval, this.velocity);
+        this.holeTimer = setTimeout(this.beginHole.bind(this), paddedHoleIntervalDuration);
     }
 
     startCreatingHoles() {

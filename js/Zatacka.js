@@ -20,8 +20,8 @@ const Zatacka = ((window, document) => {
         flickerDuration: 830, // ms, when spawning
         minHoleInterval: 90, // Kuxels
         maxHoleInterval: 300, // Kuxels
-        minHoleSize: 8, // Kuxels
-        maxHoleSize: 12, // Kuxels
+        minHoleSize: 5, // Kuxels
+        maxHoleSize: 9, // Kuxels
         hintDelay: 3000, // ms
         keys: {
             "proceed": [KEY.SPACE, KEY.ENTER],
@@ -84,6 +84,17 @@ const Zatacka = ((window, document) => {
         };
     }
 
+    function getPaddedHoleConfig() {
+        const thickness = config.thickness;
+        const holeConfig = getHoleConfig();
+        const paddedHoleConfig = {};
+        paddedHoleConfig.minPaddedHoleSize = holeConfig.minHoleSize + thickness;
+        paddedHoleConfig.maxPaddedHoleSize = holeConfig.maxHoleSize + thickness;
+        paddedHoleConfig.minPaddedHoleInterval = Math.max(0, holeConfig.minHoleInterval - thickness);
+        paddedHoleConfig.maxPaddedHoleInterval = Math.max(0, holeConfig.maxHoleInterval - thickness);
+        return paddedHoleConfig;
+    }
+
     function defaultPlayerData(id) {
         return config.defaultPlayers.find(defaultPlayer => defaultPlayer.id === id);
     }
@@ -98,7 +109,7 @@ const Zatacka = ((window, document) => {
                           playerData.color,
                           playerData.keyL,
                           playerData.keyR,
-                          getHoleConfig());
+                          getPaddedHoleConfig());
     }
 
     function proceedKeyPressedInLobby() {
