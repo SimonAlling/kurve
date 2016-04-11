@@ -466,13 +466,22 @@ class Game {
                 } else {
                     // The player is not dying.
                     player.beAt(left, top);
-                    this.Render_drawHead(left, top, color);
                     if (!player.isHoly()) {
                         // The player is not holy, so it should draw.
                         this.occupy(player, left, top);
                     }
                 }
             }
+        }
+    }
+
+    drawHead(player) {
+        if (player.isAlive()) {
+            const lastPosition = player.getLastPosition();
+            const left = lastPosition.left;
+            const top  = lastPosition.top;
+            const color = player.getColor();
+            this.Render_drawHead(left, top, color);
         }
     }
 
@@ -587,7 +596,6 @@ class Game {
      *   The amount of time since the last update, in seconds.
      */
     update(delta) {
-        this.Render_clearHeads();
         this.players.forEach((player) => { this.updatePlayer(player, delta); });
         this.totalNumberOfTicks++;
         // Cycle players so the players take turns being prioritized:
@@ -600,7 +608,9 @@ class Game {
      * Draws all players.
      */
     draw() {
+        this.Render_clearHeads();
         this.players.forEach(this.drawPlayer, this);
+        this.players.forEach(this.drawHead, this);
     }
 
     /**
