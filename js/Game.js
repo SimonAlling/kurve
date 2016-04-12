@@ -149,13 +149,17 @@ class Game {
         return this.players;
     }
 
+    getLivePlayers() {
+        const isAlive = this.constructor.isAlive;
+        return this.players.filter(isAlive);
+    }
+
     getNumberOfPlayers() {
         return this.players.length;
     }
 
     getNumberOfLivePlayers() {
-        const isAlive = this.constructor.isAlive;
-        return this.players.filter(isAlive).length;
+        return this.getLivePlayers().length;
     }
 
     getScoreOfPlayer(id) {
@@ -486,12 +490,11 @@ class Game {
     }
 
     updateGUIScoreboard() {
-        const isAlive = this.constructor.isAlive;
         const updateScore = (player) => {
             const id = player.getID();
             this.GUI_updateScoreOfPlayer(id, this.getScoreOfPlayer(id));
         }
-        this.players.filter(isAlive).forEach(updateScore);
+        this.getLivePlayers().forEach(updateScore);
     }
 
     death(player, cause) {
