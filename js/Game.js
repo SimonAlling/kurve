@@ -62,7 +62,7 @@ class Game {
         return numberOfBytesToMaxValue(this.pixels.BYTES_PER_ELEMENT);
     }
 
-    computeMaxTicksBeforeDraw() {
+    maxTicksBetweenDraws() {
         return Math.max(Math.floor(this.config.tickrate/this.config.speed), 1);
     }
 
@@ -587,9 +587,6 @@ class Game {
             const theta = player.getVelocity() * delta / 1000;
             player.x += theta * Math.cos(player.direction);
             player.y -= theta * Math.sin(player.direction);
-            if (this.totalNumberOfTicks % this.computeMaxTicksBeforeDraw() === 0) {
-                player.enqueueDraw();
-            }
         }
     }
 
@@ -600,6 +597,11 @@ class Game {
      */
     update(delta) {
         this.players.forEach((player) => { this.updatePlayer(player, delta); });
+        if (this.totalNumberOfTicks % this.maxTicksBetweenDraws() === 0) {
+            this.getLivePlayers().forEach((player) => {
+                player.enqueueDraw();
+            });
+        }
         this.totalNumberOfTicks++;
         // Cycle players so the players take turns being prioritized:
         if (this.isLive()) {
