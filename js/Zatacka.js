@@ -277,8 +277,6 @@ const Zatacka = ((window, document) => {
     const guiController = GUIController(config);
     const game = new Game(config, Renderer(canvas_main, canvas_overlay), guiController);
 
-    setEdgeMode("full");
-
     let hintProceedTimer;
     let hintPickTimer = setTimeout(() => {
         guiController.showMessage(config.messages.pick);

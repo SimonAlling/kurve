@@ -87,10 +87,6 @@ body {
     overflow: hidden;
 }
 
-#lobby {
-    z-index: 20;
-}
-
 #lobby.hidden, #KONEC_HRY.hidden {
     display: none;
 }
@@ -142,7 +138,6 @@ body {
 }
 
 #messages {
-    z-index: 30;
     padding: 350px 80px 0 80px; /* 350 = 7 * 50, where 50 is the total height of each player's controls and 7 is 6 players plus 1 for margin */
 }
 
@@ -166,20 +161,11 @@ body {
     background-image: url("resources/kurve-icon-warning.png");
 }
 
-#canvas_main {
-    z-index: 10;
-}
-
-#canvas_overlay {
-    z-index: 12;
-}
-
 .canvasHeight {
     height: 480px;
 }
 
 #left, #scoreboard {
-    z-index: 5;
     box-sizing: border-box;
 }
 
@@ -193,7 +179,6 @@ body {
 }
 
 #KONEC_HRY {
-    z-index: 30;
     background-image: url("resources/kurve-konec-hry.png");
 }
 
