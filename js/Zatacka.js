@@ -34,7 +34,8 @@ const Zatacka = ((window, document) => {
             proceed: new InfoMessage(`Press Space or Enter to start!`),
             alt:     new WarningMessage(`Alt combined with some other keys (such as Tab) may cause undesired behavior (such as switching windows).`),
             ctrl:    new WarningMessage(`Ctrl combined with some other keys (such as W or T) may cause undesired behavior (such as closing the tab or opening a new one).`),
-            mouse:   new WarningMessage(`Make sure to keep the mouse cursor inside the browser window; otherwise the game may lose focus and everyone may lose control.`)
+            mouse:   new WarningMessage(`Make sure to keep the mouse cursor inside the browser window; otherwise the game may lose focus and everyone may lose control.`),
+            next:    new InfoMessage(`Press Space or Enter to proceed, or Esc to quit.`)
         }),
         defaultPlayers: Object.freeze([
             { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]      , keyR: KEY.Q          },
@@ -46,8 +47,6 @@ const Zatacka = ((window, document) => {
         ])
     });
 
-    let currentMessages = [];
-
     function isProceedKey(key) {
         return config.keys.proceed.includes(key);
     }
@@ -58,23 +57,6 @@ const Zatacka = ((window, document) => {
 
     function shouldPreventDefault(key) {
         return !isFKey(key);
-    }
-
-    function showMessage(message) {
-        if (!currentMessages.includes(message)) {
-            currentMessages.push(message);
-        }
-        guiController.updateMessages(currentMessages);
-    }
-
-    function hideMessage(message) {
-        currentMessages = currentMessages.filter(msg => msg !== message);
-        guiController.updateMessages(currentMessages);
-    }
-
-    function clearMessages() {
-        currentMessages = [];
-        guiController.clearMessages();
     }
 
     function setEdgePadding(padding) {
@@ -103,7 +85,7 @@ const Zatacka = ((window, document) => {
             logError(e);
         }
     }
-
+    
     function getHoleConfig() {
         return {
             minHoleSize: config.minHoleSize,
@@ -144,7 +126,9 @@ const Zatacka = ((window, document) => {
     function proceedKeyPressedInLobby() {
         const numberOfReadyPlayers = game.getNumberOfPlayers();
         if (numberOfReadyPlayers > 0) {
-            clearMessages();
+            clearTimeout(hintPickTimer);
+            clearTimeout(hintProceedTimer);
+            guiController.clearMessages();
             removeLobbyEventListeners();
             addGameEventListeners();
             game.setMode(numberOfReadyPlayers === 1 ? Game.PRACTICE : Game.COMPETITIVE);
@@ -158,21 +142,21 @@ const Zatacka = ((window, document) => {
 
     function checkForDangerousInput() {
         if (game.getPlayers().some((player) => player.hasKey(KEY.CTRL))) {
-            showMessage(config.messages.ctrl);
+            guiController.showMessage(config.messages.ctrl);
         } else {
-            hideMessage(config.messages.ctrl);
+            guiController.hideMessage(config.messages.ctrl);
         }
 
         if (game.getPlayers().some((player) => player.hasKey(KEY.ALT))) {
-            showMessage(config.messages.alt);
+            guiController.showMessage(config.messages.alt);
         } else {
-            hideMessage(config.messages.alt);
+            guiController.hideMessage(config.messages.alt);
         }
 
         if (game.getPlayers().some(hasMouseButton)) {
-            showMessage(config.messages.mouse);
+            guiController.showMessage(config.messages.mouse);
         } else {
-            hideMessage(config.messages.mouse);
+            guiController.hideMessage(config.messages.mouse);
         }
     }
 
@@ -180,10 +164,10 @@ const Zatacka = ((window, document) => {
         game.addPlayer(defaultPlayer(id));
         checkForDangerousInput();
         clearTimeout(hintPickTimer);
-        hideMessage(config.messages.pick);
+        guiController.hideMessage(config.messages.pick);
         clearTimeout(hintProceedTimer);
         hintProceedTimer = setTimeout(() => {
-            showMessage(config.messages.proceed);
+            guiController.showMessage(config.messages.proceed);
         }, config.hintDelay);
     }
 
@@ -192,10 +176,10 @@ const Zatacka = ((window, document) => {
         checkForDangerousInput();
         clearTimeout(hintProceedTimer);
         if (game.getNumberOfPlayers() === 0) {
-            hideMessage(config.messages.proceed);
+            guiController.hideMessage(config.messages.proceed);
         } else {
             hintProceedTimer = setTimeout(() => {
-                showMessage(config.messages.proceed);
+                guiController.showMessage(config.messages.proceed);
             }, config.hintDelay);
         }
     }
@@ -293,9 +277,11 @@ const Zatacka = ((window, document) => {
     const guiController = GUIController(config);
     const game = new Game(config, Renderer(canvas_main, canvas_overlay), guiController);
 
+    setEdgeMode("full");
+
     let hintProceedTimer;
     let hintPickTimer = setTimeout(() => {
-        showMessage(config.messages.pick);
+        guiController.showMessage(config.messages.pick);
     }, config.hintDelay);
 
     return {

@@ -14,9 +14,11 @@ function GUIController(cfg) {
     const scoreboard = byID("scoreboard");
     const results = byID("results");
     const konecHry = byID("KONEC_HRY");
-    const footer = lobby.querySelector("footer");
+    const messagesContainer = byID("messages");
 
     const ORIGINAL_LEFT_WIDTH = left.offsetWidth;
+
+    let currentMessages = [];
 
 
     // PRIVATE FUNCTIONS
@@ -61,19 +63,32 @@ function GUIController(cfg) {
         hideLobby();
     }
 
+    function showMessage(message) {
+        if (!currentMessages.includes(message)) {
+            currentMessages.push(message);
+        }
+        updateMessages(currentMessages);
+    }
+
+    function hideMessage(message) {
+        currentMessages = currentMessages.filter(msg => msg !== message);
+        updateMessages(currentMessages);
+    }
+
     function updateMessages(messages) {
-        if (!isHTMLElement(footer)) {
-            logWarning(`Cannot update messages because ${footer} is not an HTML element.`);
+        if (!isHTMLElement(messagesContainer)) {
+            logWarning(`Cannot update messages because ${messagesContainer} is not an HTML element.`);
         } else {
-            flush(footer);
+            flush(messagesContainer);
             messages.forEach((message) => {
-                footer.insertBefore(message.toHTMLElement(), null);
+                messagesContainer.insertBefore(message.toHTMLElement(), null);
             });
         }
     }
 
     function clearMessages() {
-        updateMessages([]);
+        currentMessages = [];
+        updateMessages(currentMessages);
     }
 
     function updateBoard(board, id, newScore) {
@@ -112,6 +127,8 @@ function GUIController(cfg) {
         gameStarted,
         updateScoreOfPlayer,
         updateMessages,
+        showMessage,
+        hideMessage,
         clearMessages,
         setEdgePadding
     };

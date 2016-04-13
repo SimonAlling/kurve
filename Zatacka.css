@@ -79,6 +79,7 @@ body {
     position: absolute;
     top: 0;
     width: 100%;
+    box-sizing: border-box;
 }
 
 #lobby, #KONEC_HRY, #canvas_main {
@@ -138,6 +139,11 @@ body {
 
 #lobby footer {
     padding: 0 80px;
+}
+
+#messages {
+    z-index: 30;
+    padding: 350px 80px 0 80px; /* 350 = 7 * 50, where 50 is the total height of each player's controls and 7 is 6 players plus 1 for margin */
 }
 
 .message {
