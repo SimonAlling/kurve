@@ -12,7 +12,7 @@ const Zatacka = ((window, document) => {
         height: canvas_main.height, // Kuxels
         thickness: 3, // Kuxels
         speed: 60, // Kuxels per second
-        turningRadius: 27, // Kuxels (NB: _radius_)
+        turningRadius: 28.5, // Kuxels (NB: _radius_)
         minSpawnAngle: -Math.PI/2, // radians
         maxSpawnAngle:  Math.PI/2, // radians
         spawnMargin: 100, // Kuxels
