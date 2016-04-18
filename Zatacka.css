@@ -168,11 +168,13 @@ body {
     z-index: 12;
 }
 
+.canvasHeight {
+    height: 480px;
+}
+
 #left, #scoreboard {
     z-index: 5;
     box-sizing: border-box;
-    min-height: 100%;
-    height: 480px;
 }
 
 #scoreboard {
