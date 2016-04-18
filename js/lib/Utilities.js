@@ -130,10 +130,6 @@ function forfor(y_start, y_end, x_start, x_end, func, arg) {
     }
 }
 
-function numberOfBytesToMaxValue(bytes) {
-    return Math.pow(2, bytes * 8) - 1;
-}
-
 const Keyboard = {
     pressed: {},
     isDown: function(keyCode) {

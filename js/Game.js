@@ -8,6 +8,7 @@ class Game {
         this.constructor.DEFAULT_MODE = this.constructor.PRACTICE;
         this.constructor.DEFAULT_TARGET_SCORE = 10;
         this.constructor.MAX_TARGET_SCORE = 1000;
+        this.constructor.MAX_PLAYERS = 255; // since we use a Uint8Array
         this.constructor.KONEC_HRY = "KONEC HRY!";
 
         if (renderer === undefined) {
@@ -24,7 +25,9 @@ class Game {
 
         // Instance variables:
         this.config = config;
-        this.pixels = new Uint8Array(this.config.width * this.config.height); // Limits the number of players to 255, which should be enough.
+        this.width = config.canvas.width;
+        this.height = config.canvas.height;
+        this.pixels = null; // The actual array is created in start(), because the canvas width and height may have changed by then.
         this.players = [];
         this.rounds = [];
         this.renderer = renderer;
@@ -33,6 +36,7 @@ class Game {
         this.totalNumberOfTicks = 0;
         this.targetScore = null;
         this.initMainLoop();
+        this.started = false;
     }
 
     static isRenderer(obj) {
@@ -59,7 +63,7 @@ class Game {
     }
 
     maxPlayers() {
-        return numberOfBytesToMaxValue(this.pixels.BYTES_PER_ELEMENT);
+        return this.constructor.MAX_PLAYERS;
     }
 
     maxTicksBetweenDraws() {
@@ -75,8 +79,8 @@ class Game {
         return {
             x_min: this.config.spawnMargin,
             y_min: this.config.spawnMargin,
-            x_max: this.config.width - this.config.spawnMargin,
-            y_max: this.config.height - this.config.spawnMargin
+            x_max: this.width - this.config.spawnMargin,
+            y_max: this.height - this.config.spawnMargin
         };
     }
 
@@ -125,12 +129,12 @@ class Game {
     }
 
     pixelAddress(x, y) {
-        return y*this.config.width + x;
+        return y*this.width + x;
     }
 
     pixelAddressToCoordinates(addr) {
-        let x = addr % this.config.width;
-        let y = (addr - x) / this.config.width;
+        let x = addr % this.width;
+        let y = (addr - x) / this.width;
         return "("+x+", "+y+")";
     }
 
@@ -204,8 +208,18 @@ class Game {
         this.targetScore = ts;
     }
 
+    setSize(width, height) {
+        this.width = width;
+        this.height = height;
+        this.renderer.setSize(width, height);
+    }
+
 
     // CHECKERS
+
+    isStarted() {
+        return this.started;
+    }
 
     isPostRound() {
         return this.getCurrentRound().getResults().length === this.getNumberOfPlayers();
@@ -250,8 +264,8 @@ class Game {
     isOnField(left, top) {
         return left >= 0
             && top  >= 0
-            && left+this.config.thickness <= this.config.width
-            && top +this.config.thickness <= this.config.height;
+            && left+this.config.thickness <= this.width
+            && top +this.config.thickness <= this.height;
     }
 
     /** 
@@ -312,6 +326,8 @@ class Game {
         log("Starting game!");
         this.GUI_gameStarted();
         MainLoop.start();
+        this.started = true;
+        this.pixels = new Uint8Array(this.width * this.height);
         this.proceed();
     }
 
@@ -554,11 +570,11 @@ class Game {
         this.renderer.clearSquare(left, top, this.config.thickness);
     }
     Render_clearHeads() {
-        this.renderer.clearRectangle_overlay(0, 0, this.config.width, this.config.height);
+        this.renderer.clearRectangle_overlay(0, 0, this.width, this.height);
     }
     Render_clearField() {
-        this.renderer.clearRectangle(0, 0, this.config.width, this.config.height);
-        this.renderer.clearRectangle_overlay(0, 0, this.config.width, this.config.height);
+        this.renderer.clearRectangle(0, 0, this.width, this.height);
+        this.renderer.clearRectangle_overlay(0, 0, this.width, this.height);
     }
 
 

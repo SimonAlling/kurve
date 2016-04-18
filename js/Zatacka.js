@@ -4,12 +4,14 @@ const Zatacka = ((window, document) => {
 
     const canvas_main = byID("canvas_main");
     const canvas_overlay = byID("canvas_overlay");
+    const ORIGINAL_WIDTH = canvas_main.width;
+    const ORIGINAL_HEIGHT = canvas_main.height;
+    const TOTAL_BORDER_THICKNESS = 4;
 
     const config = Object.freeze({
         tickrate: 600, // Hz
         maxFramerate: 60, // Hz
-        width: canvas_main.width, // Kuxels
-        height: canvas_main.height, // Kuxels
+        canvas: canvas_main,
         thickness: 3, // Kuxels
         speed: 60, // Kuxels per second
         turningRadius: 28.5, // Kuxels (NB: _radius_)
@@ -73,6 +75,33 @@ const Zatacka = ((window, document) => {
     function clearMessages() {
         currentMessages = [];
         guiController.clearMessages();
+    }
+
+    function setEdgePadding(padding) {
+        if (game.isStarted()) {
+            throw new Error("Cannot change edge padding when the game is running.");
+        } else {
+            const newCanvasWidth = ORIGINAL_WIDTH - padding;
+            const newCanvasHeight = ORIGINAL_HEIGHT - 2*padding;
+                            // console.log(newCanvasWidth);
+                            // console.log(newCanvasHeight);
+            game.setSize(newCanvasWidth, newCanvasHeight);
+            guiController.setEdgePadding(padding);
+        }
+    }
+
+    function setEdgeMode(mode) {
+        let padding = 0;
+        if (mode === "minimal") {
+            padding = 1;
+        } else if (mode === "full") {
+            padding = 10*TOTAL_BORDER_THICKNESS;
+        }
+        try {
+            setEdgePadding(padding);
+        } catch(e) {
+            logError(e);
+        }
     }
 
     function getHoleConfig() {

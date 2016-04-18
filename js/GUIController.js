@@ -8,11 +8,15 @@ function GUIController(cfg) {
     const config = cfg;
     const lobby = byID("lobby");
     const controls = byID("controls");
+    const canvas_main = byID("canvas_main");
+    const canvas_overlay = byID("canvas_overlay");
+    const left = byID("left");
     const scoreboard = byID("scoreboard");
     const results = byID("results");
     const konecHry = byID("KONEC_HRY");
     const footer = lobby.querySelector("footer");
 
+    const ORIGINAL_LEFT_WIDTH = left.offsetWidth;
 
 
     // PRIVATE FUNCTIONS
@@ -28,6 +32,10 @@ function GUIController(cfg) {
 
 
     // PUBLIC API
+
+    function setEdgePadding(padding) {
+        left.style.width = `${ORIGINAL_LEFT_WIDTH + padding}px`;
+    }
 
     function playerReady(id) {
         const index = id - 1;
@@ -104,7 +112,8 @@ function GUIController(cfg) {
         gameStarted,
         updateScoreOfPlayer,
         updateMessages,
-        clearMessages
+        clearMessages,
+        setEdgePadding
     };
 
 }
