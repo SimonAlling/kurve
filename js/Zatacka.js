@@ -65,8 +65,6 @@ const Zatacka = ((window, document) => {
         } else {
             const newCanvasWidth = ORIGINAL_WIDTH - padding;
             const newCanvasHeight = ORIGINAL_HEIGHT - 2*padding;
-                            // console.log(newCanvasWidth);
-                            // console.log(newCanvasHeight);
             game.setSize(newCanvasWidth, newCanvasHeight);
             guiController.setEdgePadding(padding);
         }
@@ -77,7 +75,7 @@ const Zatacka = ((window, document) => {
         if (mode === "minimal") {
             padding = 1;
         } else if (mode === "full") {
-            padding = 10*TOTAL_BORDER_THICKNESS;
+            padding = TOTAL_BORDER_THICKNESS;
         }
         try {
             setEdgePadding(padding);
@@ -85,7 +83,7 @@ const Zatacka = ((window, document) => {
             logError(e);
         }
     }
-    
+
     function getHoleConfig() {
         return {
             minHoleSize: config.minHoleSize,
