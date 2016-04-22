@@ -309,15 +309,14 @@ class Game {
      * @param {Number} id The ID of the player to remove.
      */
     removePlayer(id) {
-        this.players.forEach((player, index) => {
-            if (player.getID() === id) {
-                log(`${player} unready!`);
-                this.players[index] = null;
-                this.GUI_playerUnready(id);
-            }
-        }, this);
-        // this.players may now contain a null value that we do not want to keep:
-        this.players = this.players.filter(Player.isPlayer);
+        const playerToRemove = this.getPlayerByID(id);
+        // Notify GUI iff the player exists:
+        if (Player.isPlayer(playerToRemove)) {
+            log(`${playerToRemove} unready!`);
+            this.GUI_playerUnready(id);
+        }
+        // Update this.players:
+        this.players = this.players.filter((player) => player !== playerToRemove);
     }
 
     /** Starts the game. */
