@@ -153,6 +153,11 @@ class Game {
         return this.players;
     }
 
+    // Returns the player with the specified ID, or undefined if no such player exists:
+    getPlayerByID(id) {
+        return this.players.find((player) => player.hasID(id));
+    }
+
     getLivePlayers() {
         const isAlive = this.constructor.isAlive;
         return this.players.filter(isAlive);
@@ -273,7 +278,7 @@ class Game {
      * @param {Number} id The ID to check for.
      */
     hasPlayer(id) {
-        return this.players.some((player) => player.hasID(id));
+        return Player.isPlayer(this.getPlayerByID(id));
     }
 
 
