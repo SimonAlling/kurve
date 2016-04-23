@@ -138,15 +138,16 @@ body {
 }
 
 #messages {
-    padding: 350px 80px 0 80px; /* 350 = 7 * 50, where 50 is the total height of each player's controls and 7 is 6 players plus 1 for margin */
+    padding-top: 350px; /* 350 = 7 * 50, where 50 is the total height of each player's controls and 7 is 6 players plus 1 for margin */
 }
 
 .message {
     font-size: 10px;
     min-height: 24px;
-    padding: 4px 0 4px 32px;
+    padding: 4px 80px 4px 112px; /* 112 = 80 + 32, where 80 is the left margin and 32 is for the icon */
     background-repeat: no-repeat;
-    background-position: left center;
+    background-position: 80px center;
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
 }
