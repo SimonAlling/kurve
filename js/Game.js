@@ -37,7 +37,9 @@ class Game {
         this.targetScore = null;
         this.initMainLoop();
         this.started = false;
+        this.ended = false;
         this.proceedHintTimer = null;
+        this.quitHintTimer = null;
     }
 
     static isRenderer(obj) {
@@ -227,6 +229,11 @@ class Game {
         return this.started;
     }
 
+    isEnded() {
+        return this.ended;
+    }
+
+    /** Returns true if a round is over (including when KONEC HRY is being shown). */
     isPostRound() {
         return this.getCurrentRound().getResults().length === this.getNumberOfPlayers();
     }
@@ -246,7 +253,7 @@ class Game {
 
     isGameOver() {
         const hasReachedTargetScore = player => this.getScoreOfPlayer(player.getID()) >= this.getTargetScore();
-        return this.isCompetitive() && this.players.some(hasReachedTargetScore);
+        return !this.isLive() && this.isCompetitive() && this.players.some(hasReachedTargetScore);
     }
 
     isCompetitive() {
@@ -333,7 +340,7 @@ class Game {
         MainLoop.start();
         this.started = true;
         this.pixels = new Uint8Array(this.width * this.height);
-        this.proceed();
+        this.beginNewRound();
     }
 
     /** Quits the game. */
@@ -344,6 +351,9 @@ class Game {
     /** Announce KONEC HRY, show results etc. */
     konecHry() {
         log(this.constructor.KONEC_HRY);
+        this.ended = true;
+        this.GUI_konecHry();
+        this.quitHintTimer = setTimeout(this.showQuitHint.bind(this), this.config.hintDelay);
     }
 
     clearField() {
@@ -360,18 +370,17 @@ class Game {
         this.GUI_hideMessage(this.config.messages.next);
     }
 
-    /** Proceeds to the next round (or KONEC HRY). */
-    proceed() {
-        this.hideProceedHint();
-        this.rounds.push(new Round());
-        if (this.isGameOver()) {
-            this.konecHry();
-        } else {
-            this.beginNewRound();
-        }
+    showQuitHint() {
+        this.GUI_showMessage(this.config.messages.quit);
+    }
+
+    hideQuitHint() {
+        clearTimeout(this.quitHintTimer);
+        this.GUI_hideMessage(this.config.messages.quit);
     }
 
     beginNewRound() {
+        this.rounds.push(new Round());
         log(`======== ROUND ${this.rounds.length} ========`);
         this.resetPlayers();
         this.clearField();
@@ -549,8 +558,17 @@ class Game {
     }
 
     proceedKeyPressed() {
-        if (this.isPostRound()) {
-            this.proceed();
+        this.hideProceedHint();
+        this.hideQuitHint();
+        if (this.isEnded()) {
+            // The game is ended, so a proceed key press should quit:
+            this.quit();
+        } else if (this.isGameOver()) {
+            // The game is over, so we should show KONEC HRY:
+            this.konecHry();
+        } else if (this.isPostRound()) {
+            // We are post round and the game is not over, so we should proceed to the next round:
+            this.beginNewRound();
         }
     }
 
@@ -574,6 +592,9 @@ class Game {
     }
     GUI_gameStarted() {
         this.guiController.gameStarted();
+    }
+    GUI_konecHry() {
+        this.guiController.konecHry();
     }
     GUI_showMessage(message) {
         this.guiController.showMessage(message);

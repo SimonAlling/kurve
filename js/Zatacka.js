@@ -33,6 +33,7 @@ const Zatacka = ((window, document) => {
             pick:    new InfoMessage(text.hint_pick),
             proceed: new InfoMessage(text.hint_proceed),
             next:    new InfoMessage(text.hint_next),
+            quit:    new InfoMessage(text.hint_quit),
             alt:     new InfoMessage(text.hint_alt),
             ctrl:    new InfoMessage(text.hint_ctrl),
             mouse:   new InfoMessage(text.hint_mouse),
