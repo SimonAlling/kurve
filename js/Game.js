@@ -537,13 +537,13 @@ class Game {
             if (this.isCompetitive()) {
                 const isAlive = this.constructor.isAlive;
                 const winner = this.players.find(isAlive);
-                this.win(winner);
+                this.winRound(winner);
             }
             this.endRound();
         }
     }
 
-    win(player) {
+    winRound(player) {
         log(`${player} won the round.`);
         this.getCurrentRound().add(player);
     }
