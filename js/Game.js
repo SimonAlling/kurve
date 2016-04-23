@@ -554,6 +554,8 @@ class Game {
 
     winRound(player) {
         log(`${player} won the round.`);
+        // Ugly fix for the bug where the winner's head disappears when the round ends:
+        this.occupy(player, this.edgeOfSquare(player.x), this.edgeOfSquare(player.y));
         this.getCurrentRound().add(player);
     }
 
