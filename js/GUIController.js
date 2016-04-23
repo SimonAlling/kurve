@@ -13,7 +13,7 @@ function GUIController(cfg) {
     const left = byID("left");
     const scoreboard = byID("scoreboard");
     const results = byID("results");
-    const konecHry = byID("KONEC_HRY");
+    const KONEC_HRY = byID("KONEC_HRY");
     const messagesContainer = byID("messages");
 
     const ORIGINAL_LEFT_WIDTH = left.offsetWidth;
@@ -61,6 +61,10 @@ function GUIController(cfg) {
 
     function gameStarted() {
         hideLobby();
+    }
+
+    function konecHry() {
+        KONEC_HRY.classList.remove("hidden");
     }
 
     function showMessage(message) {
@@ -125,6 +129,7 @@ function GUIController(cfg) {
         playerReady,
         playerUnready,
         gameStarted,
+        konecHry,
         updateScoreOfPlayer,
         updateMessages,
         showMessage,
