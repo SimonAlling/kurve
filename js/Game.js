@@ -37,6 +37,7 @@ class Game {
         this.targetScore = null;
         this.initMainLoop();
         this.started = false;
+        this.proceedHintTimer = null;
     }
 
     static isRenderer(obj) {
@@ -350,8 +351,18 @@ class Game {
         this.Render_clearField();
     }
 
+    showProceedHint() {
+        this.GUI_showMessage(this.config.messages.next);
+    }
+
+    hideProceedHint() {
+        clearTimeout(this.proceedHintTimer);
+        this.GUI_hideMessage(this.config.messages.next);
+    }
+
     /** Proceeds to the next round (or KONEC HRY). */
     proceed() {
+        this.hideProceedHint();
         this.rounds.push(new Round());
         if (this.isGameOver()) {
             this.konecHry();
@@ -371,6 +382,7 @@ class Game {
 
     endRound() {
         this.stopPlayers();
+        this.proceedHintTimer = setTimeout(this.showProceedHint.bind(this), this.config.hintDelay);
     }
 
     sortPlayers() {
@@ -562,6 +574,12 @@ class Game {
     }
     GUI_gameStarted() {
         this.guiController.gameStarted();
+    }
+    GUI_showMessage(message) {
+        this.guiController.showMessage(message);
+    }
+    GUI_hideMessage(message) {
+        this.guiController.hideMessage(message);
     }
 
     Render_drawSquare(left, top, color) {
