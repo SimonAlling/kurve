@@ -135,10 +135,17 @@ input[type="checkbox"]:checked + label::before {
     display: none;
 }
 
+#lobby {
+    padding-left: 81px;
+    padding-top: 50px;
+    padding-bottom: 130px; /* 130 = 480 - 7 * 50, where 50 is the total height of each player's controls and 7 is 6 players plus 1 for margin */
+    display: flex; /* to prevent HTML whitespace from being displayed */
+}
+
 #lobby #controls {
+    display: inline-block;
     list-style-type: none;
-    margin-left: 81px;
-    margin-top: 50px;
+    width: 288px;
 }
 
 #lobby #controls li {
@@ -156,12 +163,12 @@ input[type="checkbox"]:checked + label::before {
 }
 
 #lobby #controls .ready {
-    display: none;
+    visibility: hidden;
     width: 80px;
 }
 
 #lobby #controls .ready.active {
-    display: block;
+    visibility: visible;
 }
 
 #lobby #controls .red.controls    { background-image: url("resources/kurve-lobby-controls-red.png");    }
@@ -177,8 +184,14 @@ input[type="checkbox"]:checked + label::before {
 #lobby #controls .blue.controls   { background-image: url("resources/kurve-lobby-controls-blue.png");   }
 #lobby #controls .blue.ready      { background-image: url("resources/kurve-lobby-ready-blue.png");      }
 
-#lobby footer {
-    padding: 0 80px;
+#lobby #settings {
+    display: inline-block;
+    padding-left: 8px;
+    vertical-align: top;
+}
+
+#lobby #settings > p {
+    margin-bottom: 4px;
 }
 
 #messages {
