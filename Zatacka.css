@@ -17,6 +17,46 @@ body {
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    color: white;
+    font-size: 12px;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+/* Checkbox and label: */
+input[type="checkbox"] + label {
+    cursor: pointer;
+    opacity: 0.75;
+    padding-left: 18px;
+    position: relative;
+}
+
+/* Checkbox and label on hover: */
+input[type="checkbox"] + label:hover,
+input[type="checkbox"] + label:focus,
+input[type="checkbox"] + label:active {
+    opacity: 1;
+}
+
+/* Actual checkbox: */
+input[type="checkbox"] + label::before {
+    border: 1px white solid;
+    box-sizing: border-box;
+    content: "";
+    display: inline-block;
+    height: 12px;
+    left: 0;
+    position: absolute;
+    top: 1px;
+    width: 12px;
+}
+
+/* Actual checkbox when checked: */
+input[type="checkbox"]:checked + label::before {
+    background-image: url("resources/kurve-checkbox-tickmark.png");
+    background-position: center center;
 }
 
 #debug {
@@ -80,6 +120,10 @@ body {
     top: 0;
     width: 100%;
     box-sizing: border-box;
+}
+
+.unobtrusive {
+    pointer-events: none;
 }
 
 #lobby, #KONEC_HRY, #canvas_main {
