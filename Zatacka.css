@@ -57,6 +57,7 @@ input[type="checkbox"] + label::before {
 input[type="checkbox"]:checked + label::before {
     background-image: url("resources/kurve-checkbox-tickmark.png");
     background-position: center center;
+    background-repeat: no-repeat;
 }
 
 #debug {
