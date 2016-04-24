@@ -186,24 +186,17 @@ input[type="checkbox"]:checked + label::before {
 }
 
 .message {
-    font-size: 10px;
-    min-height: 24px;
-    padding: 4px 80px 4px 112px; /* 112 = 80 + 32, where 80 is the left margin and 32 is for the icon */
-    background-repeat: no-repeat;
-    background-position: 80px center;
+    font-size: 8px;
+    padding: 2px 80px;
     background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
 }
 
 .info.message {
     color: white;
-    background-image: url("resources/kurve-icon-info.png");
 }
 
 .warning.message {
     color: #C3C300;
-    background-image: url("resources/kurve-icon-warning.png");
 }
 
 .canvasHeight {
