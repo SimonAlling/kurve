@@ -34,9 +34,9 @@ const Zatacka = ((window, document) => {
             proceed: new InfoMessage(text.hint_proceed),
             next:    new InfoMessage(text.hint_next),
             quit:    new InfoMessage(text.hint_quit),
-            alt:     new InfoMessage(text.hint_alt),
-            ctrl:    new InfoMessage(text.hint_ctrl),
-            mouse:   new InfoMessage(text.hint_mouse),
+            alt:     new WarningMessage(text.hint_alt),
+            ctrl:    new WarningMessage(text.hint_ctrl),
+            mouse:   new WarningMessage(text.hint_mouse),
         }),
         defaultPlayers: Object.freeze([
             { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]      , keyR: KEY.Q          },
