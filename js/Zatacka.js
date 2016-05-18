@@ -10,7 +10,7 @@ const Zatacka = ((window, document) => {
 
     const config = Object.freeze({
         tickrate: 600, // Hz
-        maxFramerate: 60, // Hz
+        maxFramerate: 300, // Hz
         canvas: canvas_main,
         thickness: 3, // Kuxels
         speed: 60, // Kuxels per second
