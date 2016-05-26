@@ -319,7 +319,8 @@ input[type="checkbox"]:checked + label::before {
 @media screen and (min-width: 640px) and (min-height: 480px) {
     body { justify-content: flex-end; }
     #wrapper {
-        transform: scale(1);
+        zoom: 1; /* because everything gets blurred with transform: scale in Chrome */
+        -moz-transform: scale(1); /* for Firefox, which does not support transform: scale */
         transform-origin: right; /* so the game stays properly in the viewport when not centered */
     }
 }
@@ -336,7 +337,8 @@ input[type="checkbox"]:checked + label::before {
 @media screen and (min-width: 1280px) and (min-height: 960px) {
     body { justify-content: flex-end; }
     #wrapper {
-        transform: scale(2);
+        zoom: 2;
+        -moz-transform: scale(2);
         transform-origin: right;
     }
 }
@@ -353,7 +355,8 @@ input[type="checkbox"]:checked + label::before {
 @media screen and (min-width: 1920px) and (min-height: 1440px) {
     body { justify-content: flex-end; }
     #wrapper {
-        transform: scale(3);
+        zoom: 3;
+        -moz-transform: scale(3);
         transform-origin: right;
     }
 }
@@ -370,7 +373,8 @@ input[type="checkbox"]:checked + label::before {
 @media screen and (min-width: 2560px) and (min-height: 1920px) {
     body { justify-content: flex-end; }
     #wrapper {
-        transform: scale(4);
+        zoom: 4;
+        -moz-transform: scale(4);
         transform-origin: right;
     }
 }
@@ -381,3 +385,76 @@ input[type="checkbox"]:checked + label::before {
         transform-origin: center;
     }
 }
+
+
+/* ======== 5x ======== */
+@media screen and (min-width: 3200px) and (min-height: 2400px) {
+    body { justify-content: flex-end; }
+    #wrapper {
+        zoom: 5;
+        -moz-transform: scale(5);
+        transform-origin: right;
+    }
+}
+
+@media screen and (min-width: 3600px) and (min-height: 2400px) {
+    body { justify-content: center; }
+    #wrapper {
+        transform-origin: center;
+    }
+}
+
+
+/* ======== 6x ======== */
+@media screen and (min-width: 3840px) and (min-height: 2880px) {
+    body { justify-content: flex-end; }
+    #wrapper {
+        zoom: 6;
+        -moz-transform: scale(6);
+        transform-origin: right;
+    }
+}
+
+@media screen and (min-width: 4320px) and (min-height: 2880px) {
+    body { justify-content: center; }
+    #wrapper {
+        transform-origin: center;
+    }
+}
+
+
+/* ======== 7x ======== */
+@media screen and (min-width: 4480px) and (min-height: 3360px) {
+    body { justify-content: flex-end; }
+    #wrapper {
+        zoom: 7;
+        -moz-transform: scale(7);
+        transform-origin: right;
+    }
+}
+
+@media screen and (min-width: 5040px) and (min-height: 3360px) {
+    body { justify-content: center; }
+    #wrapper {
+        transform-origin: center;
+    }
+}
+
+
+/* ======== 8x ======== */
+@media screen and (min-width: 5120px) and (min-height: 3840px) {
+    body { justify-content: flex-end; }
+    #wrapper {
+        zoom: 8;
+        -moz-transform: scale(8);
+        transform-origin: right;
+    }
+}
+
+@media screen and (min-width: 5760px) and (min-height: 3840px) {
+    body { justify-content: center; }
+    #wrapper {
+        transform-origin: center;
+    }
+}
+
