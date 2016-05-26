@@ -320,7 +320,7 @@ input[type="checkbox"]:checked + label::before {
     body { justify-content: flex-end; }
     #wrapper {
         zoom: 1; /* because everything gets blurred with transform: scale in Chrome */
-        -moz-transform: scale(1); /* for Firefox, which does not support transform: scale */
+        -moz-transform: scale(1); /* for Firefox, which does not support zoom */
         transform-origin: right; /* so the game stays properly in the viewport when not centered */
     }
 }
