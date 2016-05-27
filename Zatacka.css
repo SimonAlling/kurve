@@ -63,6 +63,7 @@ input[type="checkbox"]:checked + label::before {
 #debug {
     background-color: black;
     border: 1px white solid;
+    display: none;
     left: 0;
     position: fixed;
     top: 0;
