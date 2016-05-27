@@ -1,0 +1,460 @@
+* {
+    margin: 0;
+    padding: 0;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: pixelated;
+    font-family: monospace;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    background-color: #3C3C3C;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    color: white;
+    font-size: 12px;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+/* Checkbox and label: */
+input[type="checkbox"] + label {
+    cursor: pointer;
+    opacity: 0.75;
+    padding-left: 18px;
+    position: relative;
+}
+
+/* Checkbox and label on hover: */
+input[type="checkbox"] + label:hover,
+input[type="checkbox"] + label:focus,
+input[type="checkbox"] + label:active {
+    opacity: 1;
+}
+
+/* Actual checkbox: */
+input[type="checkbox"] + label::before {
+    border: 1px white solid;
+    box-sizing: border-box;
+    content: "";
+    display: inline-block;
+    height: 12px;
+    left: 0;
+    position: absolute;
+    top: 1px;
+    width: 12px;
+}
+
+/* Actual checkbox when checked: */
+input[type="checkbox"]:checked + label::before {
+    background-image: url("resources/kurve-checkbox-tickmark.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+#debug {
+    background-color: black;
+    border: 1px white solid;
+    left: 0;
+    position: fixed;
+    top: 0;
+    z-index: 50;
+}
+
+#debug span {
+    font-family: monospace;
+    font-size: 16px;
+    display: block;
+}
+
+#debug_red { color: #FF2800; }
+#debug_yellow { color: #C3C300; }
+#debug_orange { color: #FF7900; }
+#debug_green { color: #00CB00; }
+#debug_pink { color: #DF51B6; }
+#debug_blue { color: #00A2CB; }
+
+#wrapper {
+    align-items: center;
+    display: flex;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.border {
+    border-style: solid;
+    border-width: 1px;
+    display: flex; /* to prevent weird extra space at the bottom */
+}
+
+#border1 {
+    border-color: #828282;
+    position: relative; /* to allow absolute positioning of descendants*/
+}
+
+#border2 {
+    border-color: #717171;
+}
+
+#border3 {
+    border-color: #616161;
+}
+
+#border4 {
+    border-color: #515151;
+}
+
+.overlay {
+    display: block;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.unobtrusive {
+    pointer-events: none;
+}
+
+#lobby, #KONEC_HRY, #canvas_main {
+    background-color: black;
+    overflow: hidden;
+}
+
+#lobby.hidden, #KONEC_HRY.hidden {
+    display: none;
+}
+
+#lobby #controls {
+    list-style-type: none;
+    margin-left: 81px;
+    margin-top: 50px;
+}
+
+#lobby #controls li {
+    height: 50px;
+}
+
+#lobby #controls li div {
+    float: left;
+    height: 100%;
+    background-repeat: no-repeat;
+}
+
+#lobby #controls .controls {
+    width: 159px;
+}
+
+#lobby #controls .ready {
+    display: none;
+    width: 80px;
+}
+
+#lobby #controls .ready.active {
+    display: block;
+}
+
+#lobby #controls .red.controls    { background-image: url("resources/kurve-lobby-controls-red.png");    }
+#lobby #controls .red.ready       { background-image: url("resources/kurve-lobby-ready-red.png");       }
+#lobby #controls .yellow.controls { background-image: url("resources/kurve-lobby-controls-yellow.png"); }
+#lobby #controls .yellow.ready    { background-image: url("resources/kurve-lobby-ready-yellow.png");    }
+#lobby #controls .orange.controls { background-image: url("resources/kurve-lobby-controls-orange.png"); }
+#lobby #controls .orange.ready    { background-image: url("resources/kurve-lobby-ready-orange.png");    }
+#lobby #controls .green.controls  { background-image: url("resources/kurve-lobby-controls-green.png");  }
+#lobby #controls .green.ready     { background-image: url("resources/kurve-lobby-ready-green.png");     }
+#lobby #controls .pink.controls   { background-image: url("resources/kurve-lobby-controls-pink.png");   }
+#lobby #controls .pink.ready      { background-image: url("resources/kurve-lobby-ready-pink.png");      }
+#lobby #controls .blue.controls   { background-image: url("resources/kurve-lobby-controls-blue.png");   }
+#lobby #controls .blue.ready      { background-image: url("resources/kurve-lobby-ready-blue.png");      }
+
+#lobby footer {
+    padding: 0 80px;
+}
+
+#messages {
+    padding-top: 350px; /* 350 = 7 * 50, where 50 is the total height of each player's controls and 7 is 6 players plus 1 for margin */
+}
+
+.message {
+    font-size: 8px;
+    padding: 2px 80px;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.info.message {
+    color: white;
+}
+
+.warning.message {
+    color: #C3C300;
+}
+
+.canvasHeight {
+    height: 480px;
+}
+
+#left, #scoreboard {
+    box-sizing: border-box;
+}
+
+#scoreboard {
+    width: 77px;
+    padding: 20px 12px 0 9px;
+}
+
+#left {
+	width: 76px; /* 1 less than #scoreboard so width of #wrapper is an even number */
+}
+
+#KONEC_HRY {
+    background-image: url("resources/kurve-konec-hry.png");
+}
+
+#KONEC_HRY #results {
+    list-style-type: none;
+    margin-top: 80px;
+    margin-left: 250px;
+}
+
+/* General rules for digits: */
+.digits {
+    visibility: hidden;
+}
+
+.active.digits {
+    visibility: visible;
+}
+
+.digits > div {
+    display: inline-block;
+    float: left;
+}
+
+.red.digits    div { background-image: url("resources/kurve-digits-red.png");    }
+.yellow.digits div { background-image: url("resources/kurve-digits-yellow.png"); }
+.orange.digits div { background-image: url("resources/kurve-digits-orange.png"); }
+.green.digits  div { background-image: url("resources/kurve-digits-green.png");  }
+.pink.digits   div { background-image: url("resources/kurve-digits-pink.png");   }
+.blue.digits   div { background-image: url("resources/kurve-digits-blue.png");   }
+
+/* Scoreboard digits: */
+#scoreboard .digits {
+    height: 43px;
+    margin-bottom: 37px;
+}
+
+#scoreboard .digits > div {
+    height: 43px;
+    width: 28px;
+}
+
+#scoreboard .digits .d0 { background-position:    0px 0; }
+#scoreboard .digits .d1 { background-position:  -28px 0; }
+#scoreboard .digits .d2 { background-position:  -56px 0; }
+#scoreboard .digits .d3 { background-position:  -84px 0; }
+#scoreboard .digits .d4 { background-position: -112px 0; }
+#scoreboard .digits .d5 { background-position: -140px 0; }
+#scoreboard .digits .d6 { background-position: -168px 0; }
+#scoreboard .digits .d7 { background-position: -196px 0; }
+#scoreboard .digits .d8 { background-position: -224px 0; }
+#scoreboard .digits .d9 { background-position: -252px 0; }
+
+/* KONEC HRY digits: */
+#KONEC_HRY .digits {
+    height: 14px;
+    margin-bottom: 26px;
+}
+
+#KONEC_HRY .digits > div {
+    height: 14px;
+    width: 16px;
+}
+
+#KONEC_HRY .digits .d0 { background-position:    0px -43px; }
+#KONEC_HRY .digits .d1 { background-position:  -28px -43px; }
+#KONEC_HRY .digits .d2 { background-position:  -56px -43px; }
+#KONEC_HRY .digits .d3 { background-position:  -84px -43px; }
+#KONEC_HRY .digits .d4 { background-position: -112px -43px; }
+#KONEC_HRY .digits .d5 { background-position: -140px -43px; }
+#KONEC_HRY .digits .d6 { background-position: -168px -43px; }
+#KONEC_HRY .digits .d7 { background-position: -196px -43px; }
+#KONEC_HRY .digits .d8 { background-position: -224px -43px; }
+#KONEC_HRY .digits .d9 { background-position: -252px -43px; }
+
+
+
+
+/*************************/
+/******** SCALING ********/
+/*************************/
+
+/*
+640 = Kurve total width
+480 = Kurve total height
+559 = Kurve canvas width (excluding border)
+77  = #scoreboard width (excluding border)
+76  = #left width (excluding border)
+720 = 76 + 4 + 559 + 4 + 77 = total width including borders, #left, and #scoreboard
+*/
+
+@media screen and (max-width: 639px) {
+    #left { display: none; }
+    body { justify-content: flex-start; }
+    .border { border-left-width: 0; }
+}
+
+
+/* ======== 1x ======== */
+@media screen and (min-width: 640px) and (min-height: 480px) {
+    body { justify-content: flex-end; }
+    #wrapper {
+        zoom: 1; /* because everything gets blurred with transform: scale in Chrome */
+        -moz-transform: scale(1); /* for Firefox, which does not support zoom */
+        transform-origin: right; /* so the game stays properly in the viewport when not centered */
+    }
+}
+
+@media screen and (min-width: 720px) and (min-height: 480px) {
+    body { justify-content: center; }
+    #wrapper {
+        transform-origin: center; /* so the game is centered when possible */
+    }
+}
+
+
+/* ======== 2x ======== */
+@media screen and (min-width: 1280px) and (min-height: 960px) {
+    body { justify-content: flex-end; }
+    #wrapper {
+        zoom: 2;
+        -moz-transform: scale(2);
+        transform-origin: right;
+    }
+}
+
+@media screen and (min-width: 1440px) and (min-height: 960px) {
+    body { justify-content: center; }
+    #wrapper {
+        transform-origin: center;
+    }
+}
+
+
+/* ======== 3x ======== */
+@media screen and (min-width: 1920px) and (min-height: 1440px) {
+    body { justify-content: flex-end; }
+    #wrapper {
+        zoom: 3;
+        -moz-transform: scale(3);
+        transform-origin: right;
+    }
+}
+
+@media screen and (min-width: 2160px) and (min-height: 1440px) {
+    body { justify-content: center; }
+    #wrapper {
+        transform-origin: center;
+    }
+}
+
+
+/* ======== 4x ======== */
+@media screen and (min-width: 2560px) and (min-height: 1920px) {
+    body { justify-content: flex-end; }
+    #wrapper {
+        zoom: 4;
+        -moz-transform: scale(4);
+        transform-origin: right;
+    }
+}
+
+@media screen and (min-width: 2880px) and (min-height: 1920px) {
+    body { justify-content: center; }
+    #wrapper {
+        transform-origin: center;
+    }
+}
+
+
+/* ======== 5x ======== */
+@media screen and (min-width: 3200px) and (min-height: 2400px) {
+    body { justify-content: flex-end; }
+    #wrapper {
+        zoom: 5;
+        -moz-transform: scale(5);
+        transform-origin: right;
+    }
+}
+
+@media screen and (min-width: 3600px) and (min-height: 2400px) {
+    body { justify-content: center; }
+    #wrapper {
+        transform-origin: center;
+    }
+}
+
+
+/* ======== 6x ======== */
+@media screen and (min-width: 3840px) and (min-height: 2880px) {
+    body { justify-content: flex-end; }
+    #wrapper {
+        zoom: 6;
+        -moz-transform: scale(6);
+        transform-origin: right;
+    }
+}
+
+@media screen and (min-width: 4320px) and (min-height: 2880px) {
+    body { justify-content: center; }
+    #wrapper {
+        transform-origin: center;
+    }
+}
+
+
+/* ======== 7x ======== */
+@media screen and (min-width: 4480px) and (min-height: 3360px) {
+    body { justify-content: flex-end; }
+    #wrapper {
+        zoom: 7;
+        -moz-transform: scale(7);
+        transform-origin: right;
+    }
+}
+
+@media screen and (min-width: 5040px) and (min-height: 3360px) {
+    body { justify-content: center; }
+    #wrapper {
+        transform-origin: center;
+    }
+}
+
+
+/* ======== 8x ======== */
+@media screen and (min-width: 5120px) and (min-height: 3840px) {
+    body { justify-content: flex-end; }
+    #wrapper {
+        zoom: 8;
+        -moz-transform: scale(8);
+        transform-origin: right;
+    }
+}
+
+@media screen and (min-width: 5760px) and (min-height: 3840px) {
+    body { justify-content: center; }
+    #wrapper {
+        transform-origin: center;
+    }
+}
+
