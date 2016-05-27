@@ -9,7 +9,7 @@ function generateCSS(maxScaling) {
 	for (let i = 1; i <= safeMaxScaling; i++) {
 		css += `/* ======== ${i}x ======== */
 @media screen and (min-width: ${i*defaultWidth}px) and (min-height: ${i*defaultHeight}px) {
-    body { justify-content: flex-end; }
+    body#ZATACKA { justify-content: flex-end; }
     #wrapper {
         zoom: ${i};
         -moz-transform: scale(${i});
@@ -18,7 +18,7 @@ function generateCSS(maxScaling) {
 }
 
 @media screen and (min-width: ${i*(defaultWidth+leftWidth)}px) and (min-height: ${i*defaultHeight}px) {
-    body { justify-content: center; }
+    body#ZATACKA { justify-content: center; }
     #wrapper {
         transform-origin: center;
     }
