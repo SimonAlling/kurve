@@ -32,6 +32,14 @@ function GUIController(cfg) {
         return isHTMLElement(element) && element.children.length >= 2;
     }
 
+    function resetScoreboardEntry(entry) {
+        entry.classList.remove("active");
+    }
+
+    function resetScoreboard() {
+        Array.from(scoreboard.children).forEach(resetScoreboardEntry);
+    }
+
 
     // PUBLIC API
 
@@ -65,6 +73,7 @@ function GUIController(cfg) {
 
     function konecHry() {
         KONEC_HRY.classList.remove("hidden");
+        resetScoreboard();
     }
 
     function showMessage(message) {
