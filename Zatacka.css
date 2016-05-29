@@ -150,14 +150,15 @@ input[type="checkbox"]:checked + label::before {
 #lobby #controls li div {
     float: left;
     height: 100%;
-    background-repeat: no-repeat;
 }
 
 #lobby #controls .controls {
+    background-image: url("resources/kurve-lobby-controls-ready.png");
     width: 159px;
 }
 
 #lobby #controls .ready {
+    background-image: url("resources/kurve-lobby-controls-ready.png");
     display: none;
     width: 80px;
 }
@@ -166,18 +167,18 @@ input[type="checkbox"]:checked + label::before {
     display: block;
 }
 
-#lobby #controls .red.controls    { background-image: url("resources/kurve-lobby-controls-red.png");    }
-#lobby #controls .red.ready       { background-image: url("resources/kurve-lobby-ready-red.png");       }
-#lobby #controls .yellow.controls { background-image: url("resources/kurve-lobby-controls-yellow.png"); }
-#lobby #controls .yellow.ready    { background-image: url("resources/kurve-lobby-ready-yellow.png");    }
-#lobby #controls .orange.controls { background-image: url("resources/kurve-lobby-controls-orange.png"); }
-#lobby #controls .orange.ready    { background-image: url("resources/kurve-lobby-ready-orange.png");    }
-#lobby #controls .green.controls  { background-image: url("resources/kurve-lobby-controls-green.png");  }
-#lobby #controls .green.ready     { background-image: url("resources/kurve-lobby-ready-green.png");     }
-#lobby #controls .pink.controls   { background-image: url("resources/kurve-lobby-controls-pink.png");   }
-#lobby #controls .pink.ready      { background-image: url("resources/kurve-lobby-ready-pink.png");      }
-#lobby #controls .blue.controls   { background-image: url("resources/kurve-lobby-controls-blue.png");   }
-#lobby #controls .blue.ready      { background-image: url("resources/kurve-lobby-ready-blue.png");      }
+#lobby #controls .red.controls    { background-position:    0px    0px; }
+#lobby #controls .red.ready       { background-position: -159px    0px; }
+#lobby #controls .yellow.controls { background-position:    0px  -50px; }
+#lobby #controls .yellow.ready    { background-position: -159px  -50px; }
+#lobby #controls .orange.controls { background-position:    0px -100px; }
+#lobby #controls .orange.ready    { background-position: -159px -100px; }
+#lobby #controls .green.controls  { background-position:    0px -150px; }
+#lobby #controls .green.ready     { background-position: -159px -150px; }
+#lobby #controls .pink.controls   { background-position:    0px -200px; }
+#lobby #controls .pink.ready      { background-position: -159px -200px; }
+#lobby #controls .blue.controls   { background-position:    0px -250px; }
+#lobby #controls .blue.ready      { background-position: -159px -250px; }
 
 #lobby footer {
     padding: 0 80px;
