@@ -139,7 +139,7 @@ input[type="checkbox"]:checked + label::before {
 
 #lobby #controls {
     list-style-type: none;
-    margin-left: 81px;
+    margin-left: 80px;
     margin-top: 50px;
 }
 
@@ -154,7 +154,7 @@ input[type="checkbox"]:checked + label::before {
 
 #lobby #controls .controls {
     background-image: url("resources/kurve-lobby-controls-ready.png");
-    width: 159px;
+    width: 160px;
 }
 
 #lobby #controls .ready {
@@ -168,17 +168,17 @@ input[type="checkbox"]:checked + label::before {
 }
 
 #lobby #controls .red.controls    { background-position:    0px    0px; }
-#lobby #controls .red.ready       { background-position: -159px    0px; }
+#lobby #controls .red.ready       { background-position: -160px    0px; }
 #lobby #controls .yellow.controls { background-position:    0px  -50px; }
-#lobby #controls .yellow.ready    { background-position: -159px  -50px; }
+#lobby #controls .yellow.ready    { background-position: -160px  -50px; }
 #lobby #controls .orange.controls { background-position:    0px -100px; }
-#lobby #controls .orange.ready    { background-position: -159px -100px; }
+#lobby #controls .orange.ready    { background-position: -160px -100px; }
 #lobby #controls .green.controls  { background-position:    0px -150px; }
-#lobby #controls .green.ready     { background-position: -159px -150px; }
+#lobby #controls .green.ready     { background-position: -160px -150px; }
 #lobby #controls .pink.controls   { background-position:    0px -200px; }
-#lobby #controls .pink.ready      { background-position: -159px -200px; }
+#lobby #controls .pink.ready      { background-position: -160px -200px; }
 #lobby #controls .blue.controls   { background-position:    0px -250px; }
-#lobby #controls .blue.ready      { background-position: -159px -250px; }
+#lobby #controls .blue.ready      { background-position: -160px -250px; }
 
 #lobby footer {
     padding: 0 80px;
