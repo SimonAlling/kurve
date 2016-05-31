@@ -183,10 +183,18 @@ const Zatacka = ((window, document) => {
         }
     }
 
+    function defaultPlayerHasLeftKey(playerData, pressedKey) {
+        return pressedKey === playerData.keyL || (playerData.keyL instanceof Array && playerData.keyL.includes(pressedKey));
+    }
+
+    function defaultPlayerHasRightKey(playerData, pressedKey) {
+        return pressedKey === playerData.keyR || (playerData.keyR instanceof Array && playerData.keyR.includes(pressedKey));
+    }
+
     function addOrRemovePlayer(playerData, pressedKey) {
-        if (pressedKey === playerData.keyL) {
+        if (defaultPlayerHasLeftKey(playerData, pressedKey)) {
             addPlayer(playerData.id);
-        } else if (pressedKey === playerData.keyR) {
+        } else if (defaultPlayerHasRightKey(playerData, pressedKey)) {
             removePlayer(playerData.id);
         }
     }
