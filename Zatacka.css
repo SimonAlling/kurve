@@ -191,7 +191,8 @@ input[type="checkbox"]:checked + label::before {
 .message {
     font-size: 8px;
     padding: 2px 80px;
-    background-color: rgba(0, 0, 0, 0.5);
+    text-align: center;
+    text-shadow: 0 0 2px black, 0 0 2px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 8px black, 0 0 8px black, 0 0 8px black, 0 0 8px black;
 }
 
 .info.message {
