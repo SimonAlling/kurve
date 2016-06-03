@@ -228,15 +228,27 @@ const Zatacka = ((window, document) => {
         mouseClickedInLobby(event.button);
     }
 
+    function quitGame() {
+        removeGameEventListeners();
+        addLobbyEventListeners();
+        game.quit();
+        guiController.gameQuit();
+        game = newGame();
+    }
+
     function gameKeyHandler(event) {
         const pressedKey = event.keyCode;
         if (shouldPreventDefault(pressedKey)) {
             event.preventDefault();
         }
         if (isProceedKey(pressedKey)) {
-            game.proceedKeyPressed();
-        } else if (isQuitKey(pressedKey)) {
-            game.quitKeyPressed();
+            if (game.shouldQuitOnProceedKey()) {
+                quitGame();
+            } else {
+                game.proceedKeyPressed();
+            }
+        } else if (isQuitKey(pressedKey) && game.shouldQuitOnQuitKey()) {
+            quitGame();
         }
     }
 
@@ -281,8 +293,12 @@ const Zatacka = ((window, document) => {
 
     addLobbyEventListeners();
 
+    function newGame() {
+        return new Game(config, Renderer(canvas_main, canvas_overlay), guiController);
+    }
+
     const guiController = GUIController(config);
-    const game = new Game(config, Renderer(canvas_main, canvas_overlay), guiController);
+    let game = newGame();
 
     let hintProceedTimer;
     let hintPickTimer = setTimeout(() => {

@@ -28,6 +28,11 @@ function GUIController(cfg) {
         lobby.classList.add(CLASS_HIDDEN);
     }
 
+    function showLobby() {
+        log("Showing lobby.");
+        lobby.classList.remove(CLASS_HIDDEN);
+    }
+
     function isLobbyEntry(element) {
         return isHTMLElement(element) && element.children.length >= 2;
     }
@@ -38,6 +43,10 @@ function GUIController(cfg) {
 
     function resetScoreboard() {
         Array.from(scoreboard.children).forEach(resetScoreboardEntry);
+    }
+
+    function resetResults() {
+        Array.from(results.children).forEach(resetScoreboardEntry);
     }
 
 
@@ -67,13 +76,36 @@ function GUIController(cfg) {
         }
     }
 
+    function allPlayersUnready() {
+        for (let id = 1; id <= controls.children.length; id++) {
+            playerUnready(id);
+        }
+    }
+
     function gameStarted() {
         hideLobby();
     }
 
-    function konecHry() {
-        KONEC_HRY.classList.remove("hidden");
+    function gameQuit() {
+        hideKonecHry();
+        showLobby();
+        clearMessages();
         resetScoreboard();
+        resetResults();
+        allPlayersUnready();
+    }
+
+    function konecHry() {
+        showKonecHry();
+        resetScoreboard();
+    }
+
+    function showKonecHry() {
+        KONEC_HRY.classList.remove(CLASS_HIDDEN);
+    }
+
+    function hideKonecHry() {
+        KONEC_HRY.classList.add(CLASS_HIDDEN);
     }
 
     function showMessage(message) {
@@ -138,6 +170,7 @@ function GUIController(cfg) {
         playerReady,
         playerUnready,
         gameStarted,
+        gameQuit,
         konecHry,
         updateScoreOfPlayer,
         updateMessages,
