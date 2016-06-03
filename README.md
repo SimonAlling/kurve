@@ -5,7 +5,10 @@ The aim of this project is to create an HTML5/JS remake of the original *Achtung
 
 ## Play
 
-Open `ZATACKA.html` in a browser to run the game. It will automatically scale itself up as much as possible; fullscreen is recommended for the best experience.
+* **Online:**  Go to [kurve.se](http://kurve.se).
+* **Locally:** [Download the game](/SimonAlling/kurve/archive/master.zip) and open `ZATACKA.html` in your browser.
+
+The game will automatically scale itself up as much as possible; fullscreen is recommended for the best experience.
 
 
 ## Contribute
