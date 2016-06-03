@@ -40,7 +40,7 @@ const Zatacka = ((window, document) => {
         }),
         defaultPlayers: Object.freeze([
             { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]                              , keyR: KEY.Q                         },
-            { id: 2, name: "Yellow", color: "#C3C300", keyL: KEY.CTRL                              , keyR: KEY.ALT                       },
+            { id: 2, name: "Yellow", color: "#C3C300", keyL: [ KEY.CTRL, KEY.Z ]                   , keyR: [ KEY.ALT, KEY.X ]            },
             { id: 3, name: "Orange", color: "#FF7900", keyL: KEY.M                                 , keyR: KEY.COMMA                     },
             { id: 4, name: "Green" , color: "#00CB00", keyL: KEY.LEFT_ARROW                        , keyR: KEY.DOWN_ARROW                },
             { id: 5, name: "Pink"  , color: "#DF51B6", keyL: [ KEY.DIVIDE, KEY.END, KEY.PAGE_DOWN ], keyR: [ KEY.MULTIPLY, KEY.PAGE_UP ] },
