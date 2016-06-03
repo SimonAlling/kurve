@@ -60,6 +60,10 @@ input[type="checkbox"]:checked + label::before {
     background-repeat: no-repeat;
 }
 
+.nocursor {
+    cursor: none;
+}
+
 #debug {
     background-color: black;
     border: 1px white solid;

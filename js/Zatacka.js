@@ -48,6 +48,31 @@ const Zatacka = ((window, document) => {
         ])
     });
 
+    const PREFERENCES = Object.freeze([
+        {
+            type: MultichoicePreference,
+            key: STRINGS.pref_key_cursor,
+            values: [
+                STRINGS.pref_value_cursor_always_visible,
+                STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player,
+                STRINGS.pref_value_cursor_always_hidden
+            ],
+            default: STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player
+        },
+        {
+            type: MultichoicePreference,
+            key: STRINGS.pref_key_hints,
+            values: [
+                STRINGS.pref_value_hints_all,
+                STRINGS.pref_value_hints_warnings_only,
+                STRINGS.pref_value_hints_none
+            ],
+            default: STRINGS.pref_value_hints_all
+        }
+    ]);
+
+    const preferenceManager = new PreferenceManager(PREFERENCES);
+
     function isProceedKey(key) {
         return config.keys.proceed.includes(key);
     }
@@ -122,6 +147,23 @@ const Zatacka = ((window, document) => {
                           getPaddedHoleConfig());
     }
 
+    function applyCursorBehavior() {
+        const mouseIsBeingUsed = game.getPlayers().some(hasMouseButton);
+        let behavior;
+        switch (preferenceManager.get(STRINGS.pref_key_cursor)) {
+            case STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player:
+                behavior = mouseIsBeingUsed ? guiController.CURSOR_HIDDEN : guiController.CURSOR_VISIBLE;
+                break;
+            case STRINGS.pref_value_cursor_always_hidden:
+                behavior = guiController.CURSOR_HIDDEN;
+                break;
+            default:
+                behavior = guiController.CURSOR_VISIBLE;
+        }
+        log(`Setting cursor behavior to ${behavior}.`);
+        guiController.setCursorBehavior(behavior);
+    }
+
     function proceedKeyPressedInLobby() {
         const numberOfReadyPlayers = game.getNumberOfPlayers();
         if (numberOfReadyPlayers > 0) {
@@ -130,13 +172,14 @@ const Zatacka = ((window, document) => {
             guiController.clearMessages();
             removeLobbyEventListeners();
             addGameEventListeners();
+            applyCursorBehavior();
             game.setMode(numberOfReadyPlayers === 1 ? Game.PRACTICE : Game.COMPETITIVE);
             game.start();
         }
     }
 
     function hasMouseButton(player) {
-        return Object.keys(MOUSE).some((buttonName) => player.hasMouseButton(MOUSE[buttonName]));
+        return player.usesAnyMouseButton();
     }
 
     function checkForDangerousInput() {

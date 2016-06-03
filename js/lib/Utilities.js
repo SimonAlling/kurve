@@ -28,6 +28,10 @@ const F_KEYS = Object.freeze([
     KEY.F1, KEY.F2, KEY.F3, KEY.F4, KEY.F5, KEY.F6, KEY.F7, KEY.F8, KEY.F9, KEY.F10, KEY.F11, KEY.F12
 ]);
 
+const MOUSE_BUTTONS = Object.freeze([
+    MOUSE.LEFT, MOUSE.RIGHT, MOUSE.MIDDLE, MOUSE.MOUSE4, MOUSE.MOUSE5
+]);
+
 function isObject(obj) {
     return typeOf(obj) === "object";
 }
