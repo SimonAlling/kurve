@@ -25,10 +25,24 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/resources/icon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <script src="js/SupportCheck_JS.js"></script>
+    <script src="js/SupportCheck_ES6.js"></script>
 </head>
 
 <body id="ZATACKA">
 
+<div id="fatalError_JS" class="fatalError">
+    <div>
+        <p>JavaScript is not enabled.</p>
+        <p class="fatalErrorExtraInfo">Please enable JavaScript.</p>
+    </div>
+</div>
+<div id="fatalError_ES6" class="fatalError">
+    <div>
+        <p>Your browser does not support modern JavaScript.</p>
+        <p class="fatalErrorExtraInfo">Please use <a href="https://google.com/chrome/" title="Google Chrome">Chrome</a>, <a href="https://getfirefox.com" title="Mozilla Firefox">Firefox</a>, or another modern browser.</p>
+    </div>
+</div>
 <div id="wrapper">
     <aside id="left" class="canvasHeight"></aside>
     <div id="border4" class="border">

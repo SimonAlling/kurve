@@ -3,7 +3,7 @@
     padding: 0;
     image-rendering: -moz-crisp-edges;
     image-rendering: pixelated;
-    font-family: monospace;
+    font-family: "Consolas", monospace;
 }
 
 html, body {
@@ -58,6 +58,43 @@ input[type="checkbox"]:checked + label::before {
     background-image: url("resources/kurve-checkbox-tickmark.png");
     background-position: center center;
     background-repeat: no-repeat;
+}
+
+.fatalError {
+    background-color: black;
+    color: rgb(160, 144, 0);
+    display: table; /* for vertical centering */
+    font-size: 32px;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 10000;
+}
+
+.fatalError div {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.fatalError .fatalErrorExtraInfo {
+    color: rgb(144, 144, 144);
+    font-size: 0.7em;
+    margin-top: 0.5em;
+}
+
+.fatalError a:link, .fatalError a:visited {
+    color: rgb(20, 50, 180);
+}
+
+.fatalError a:hover, .fatalError a:focus, .fatalError a:active {
+    color: rgb(40, 70, 230);
+}
+
+#fatalError_ES6 {
+    display: none;
 }
 
 .nocursor {
