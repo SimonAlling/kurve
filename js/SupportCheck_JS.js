@@ -1,3 +1,5 @@
+"use strict";
+
 // Hide the JavaScript error message:
 (function() {
     var css = "#fatalError_JS { display: none; }";

@@ -1,3 +1,5 @@
+"use strict";
+
 // This needs to be in its own file; otherwise, browsers without ES6 support may
 // fail to hide the JS enabled error message.
 
