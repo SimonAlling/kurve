@@ -2,15 +2,20 @@
 
 body {
 	background-color: black;
+	color: rgba(255, 255, 255, 0.5);
 }
 
 a:link, a:visited {
-	color: rgba(255, 255, 255, 0.5);
+	color: inherit;
 	text-decoration: none;
 }
 
 a:hover, a:focus, a:active {
 	color: rgba(255, 255, 255, 1.0);
+}
+
+p {
+	margin: 0 0 1em 0;
 }
 
 .button {
@@ -40,20 +45,12 @@ main {
 	width: 640px;
 }
 
-#PLAY {
-	/* rgb(0, 203, 0) = #00CB00 (Kurve green) */
-	background-color: rgba(0, 203, 0, 0.16);
-	border-color: rgba(0, 203, 0, 0.64);
-	color: rgba(0, 203, 0, 0.64);
-	font-size: 24px;
-	height: 48px;
-	width: 256px;
+#startHint {
+	font-size: 1.2em;
 }
 
-#PLAY:hover, #PLAY:focus, #PLAY:active {
-	background-color: rgba(0, 203, 0, 0.24);
-	border-color: rgba(0, 203, 0, 1.0);
-	color: rgba(0, 203, 0, 1.0);
+#fullscreenHint {
+	font-size: 0.9em;
 }
 
 main footer {

@@ -1,6 +1,8 @@
 "use strict";
 
 const STRINGS = Object.freeze({
+	game_url: "ZATACKA.html",
+
 	class_hidden: "hidden",
 	class_active: "active",
 	class_nocursor: "nocursor",
