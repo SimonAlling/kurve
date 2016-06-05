@@ -4,13 +4,14 @@
 
 <head>
 
-<title>Achtung, die Kurve!</title>
-<meta charset="UTF-8" />
-<meta name="author" content="Simon Alling" />
-<meta name="description" content="A clone of the classic DOS game from 1995 that runs in the browser." />
-<meta name="keywords" content="Achtung, Kurve, Zatacka, KONEC, HRY, HTML, JavaScript, DOS" />
-<link rel="stylesheet" href="Zatacka.css" />
+    <title>Achtung, die Kurve!</title>
 
+    <meta charset="UTF-8" />
+    <meta name="author" content="Simon Alling" />
+    <meta name="description" content="A clone of the classic DOS game from 1995 that runs in the browser." />
+    <meta name="keywords" content="Achtung, Kurve, Zatacka, KONEC, HRY, HTML, JavaScript, DOS" />
+
+    <link rel="stylesheet" href="Zatacka.css" />
     <link rel="apple-touch-icon" sizes="57x57" href="/resources/icon/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="/resources/icon/apple-icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72" href="/resources/icon/apple-icon-72x72.png">
@@ -28,116 +29,118 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/resources/icon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+
     <script src="js/SupportCheck_JS.js"></script>
     <script src="js/SupportCheck_ES6.js"></script>
+
 </head>
 
 <body id="ZATACKA">
-<h1>Achtung, die Kurve!</h1>
 
-<div id="fatalError_JS" class="fatalError">
-    <div>
-        <p>JavaScript is not enabled.</p>
-        <p class="fatalErrorExtraInfo">Please enable JavaScript.</p>
-    </div>
-</div>
-<div id="fatalError_ES6" class="fatalError">
-    <div>
-        <p>Your browser does not support modern JavaScript.</p>
-        <p class="fatalErrorExtraInfo">Please use <a href="https://google.com/chrome/" title="Google Chrome">Chrome</a>, <a href="https://getfirefox.com" title="Mozilla Firefox">Firefox</a>, or another modern browser.</p>
-    </div>
-</div>
-<div id="wrapper">
-    <aside id="left" class="canvasHeight"></aside>
-    <div id="border4" class="border">
-    <div id="border3" class="border">
-    <div id="border2" class="border">
-    <div id="border1" class="border">
-        <canvas id="canvas_main" width="559" height="480"></canvas>
-        <canvas id="canvas_overlay"  width="559" height="480" class="overlay"></canvas>
-        <div id="lobby" class="overlay">
-            <ul id="controls">
-                <li>
-                    <div class="red controls"></div>
-                    <div class="red ready"></div>
-                </li>
-                <li>
-                    <div class="yellow controls"></div>
-                    <div class="yellow ready"></div>
-                </li>
-                <li>
-                    <div class="orange controls"></div>
-                    <div class="orange ready"></div>
-                </li>
-                <li>
-                    <div class="green controls"></div>
-                    <div class="green ready"></div>
-                </li>
-                <li>
-                    <div class="pink controls"></div>
-                    <div class="pink ready"></div>
-                </li>
-                <li>
-                    <div class="blue controls"></div>
-                    <div class="blue ready"></div>
-                </li>
-            </ul>
+    <h1>Achtung, die Kurve!</h1>
+    <div id="fatalError_JS" class="fatalError">
+        <div>
+            <p>JavaScript is not enabled.</p>
+            <p class="fatalErrorExtraInfo">Please enable JavaScript.</p>
         </div>
-        <div id="KONEC_HRY" class="hidden overlay">
-            <ul id="results">
-                <li class="red digits"></li>
-                <li class="yellow digits"></li>
-                <li class="orange digits"></li>
-                <li class="green digits"></li>
-                <li class="pink digits"></li>
-                <li class="blue digits"></li>
-            </ul>
+    </div>
+    <div id="fatalError_ES6" class="fatalError">
+        <div>
+            <p>Your browser does not support modern JavaScript.</p>
+            <p class="fatalErrorExtraInfo">Please use <a href="https://google.com/chrome/" title="Google Chrome">Chrome</a>, <a href="https://getfirefox.com" title="Mozilla Firefox">Firefox</a>, or another modern browser.</p>
         </div>
-        <div id="messages" class="unobtrusive overlay"></div>
     </div>
+    <div id="wrapper">
+        <aside id="left" class="canvasHeight"></aside>
+        <div id="border4" class="border">
+        <div id="border3" class="border">
+        <div id="border2" class="border">
+        <div id="border1" class="border">
+            <canvas id="canvas_main" width="559" height="480"></canvas>
+            <canvas id="canvas_overlay"  width="559" height="480" class="overlay"></canvas>
+            <div id="lobby" class="overlay">
+                <ul id="controls">
+                    <li>
+                        <div class="red controls"></div>
+                        <div class="red ready"></div>
+                    </li>
+                    <li>
+                        <div class="yellow controls"></div>
+                        <div class="yellow ready"></div>
+                    </li>
+                    <li>
+                        <div class="orange controls"></div>
+                        <div class="orange ready"></div>
+                    </li>
+                    <li>
+                        <div class="green controls"></div>
+                        <div class="green ready"></div>
+                    </li>
+                    <li>
+                        <div class="pink controls"></div>
+                        <div class="pink ready"></div>
+                    </li>
+                    <li>
+                        <div class="blue controls"></div>
+                        <div class="blue ready"></div>
+                    </li>
+                </ul>
+            </div>
+            <div id="KONEC_HRY" class="hidden overlay">
+                <ul id="results">
+                    <li class="red digits"></li>
+                    <li class="yellow digits"></li>
+                    <li class="orange digits"></li>
+                    <li class="green digits"></li>
+                    <li class="pink digits"></li>
+                    <li class="blue digits"></li>
+                </ul>
+            </div>
+            <div id="messages" class="unobtrusive overlay"></div>
+        </div>
+        </div>
+        </div>
+        </div>
+        <aside id="scoreboard" class="canvasHeight">
+            <!-- The empty divs ensure preloading of the digits images. -->
+            <div class="red digits"><div></div></div>
+            <div class="yellow digits"><div></div></div>
+            <div class="orange digits"><div></div></div>
+            <div class="green digits"><div></div></div>
+            <div class="pink digits"><div></div></div>
+            <div class="blue digits"><div></div></div>
+        </aside>
     </div>
-    </div>
-    </div>
-    <aside id="scoreboard" class="canvasHeight">
-        <!-- The empty divs ensure preloading of the digits images. -->
-        <div class="red digits"><div></div></div>
-        <div class="yellow digits"><div></div></div>
-        <div class="orange digits"><div></div></div>
-        <div class="green digits"><div></div></div>
-        <div class="pink digits"><div></div></div>
-        <div class="blue digits"><div></div></div>
-    </aside>
-</div>
 
-<div id="debug">
-    <span id="debug_red"></span>
-    <span id="debug_yellow"></span>
-    <span id="debug_orange"></span>
-    <span id="debug_green"></span>
-    <span id="debug_pink"></span>
-    <span id="debug_blue"></span>
-</div>
+    <div id="debug">
+        <span id="debug_red"></span>
+        <span id="debug_yellow"></span>
+        <span id="debug_orange"></span>
+        <span id="debug_green"></span>
+        <span id="debug_pink"></span>
+        <span id="debug_blue"></span>
+    </div>
 
-<script src="js/strings.js"></script>
-<script src="js/lib/Queue.js"></script>
-<script src="js/lib/mainloop.min.js"></script>
-<script src="js/lib/Utilities.js"></script>
-<script src="js/lib/Message.js"></script>
-<script src="js/lib/InfoMessage.js"></script>
-<script src="js/lib/WarningMessage.js"></script>
-<script src="js/locales/Zatacka.en_US.properties"></script>
-<script src="js/lib/preferences/Preference.js"></script>
-<script src="js/lib/preferences/MultichoicePreference.js"></script>
-<script src="js/lib/preferences/BooleanPreference.js"></script>
-<script src="js/lib/preferences/RangePreference.js"></script>
-<script src="js/lib/preferences/IntegerRangePreference.js"></script>
-<script src="js/lib/preferences/PreferenceManager.js"></script>
-<script src="js/Player.js"></script>
-<script src="js/Round.js"></script>
-<script src="js/Renderer.js"></script>
-<script src="js/GUIController.js"></script>
-<script src="js/Game.js"></script>
-<script src="js/Zatacka.js"></script>
+    <script src="js/strings.js"></script>
+    <script src="js/lib/Queue.js"></script>
+    <script src="js/lib/mainloop.min.js"></script>
+    <script src="js/lib/Utilities.js"></script>
+    <script src="js/lib/Message.js"></script>
+    <script src="js/lib/InfoMessage.js"></script>
+    <script src="js/lib/WarningMessage.js"></script>
+    <script src="js/locales/Zatacka.en_US.properties"></script>
+    <script src="js/lib/preferences/Preference.js"></script>
+    <script src="js/lib/preferences/MultichoicePreference.js"></script>
+    <script src="js/lib/preferences/BooleanPreference.js"></script>
+    <script src="js/lib/preferences/RangePreference.js"></script>
+    <script src="js/lib/preferences/IntegerRangePreference.js"></script>
+    <script src="js/lib/preferences/PreferenceManager.js"></script>
+    <script src="js/Player.js"></script>
+    <script src="js/Round.js"></script>
+    <script src="js/Renderer.js"></script>
+    <script src="js/GUIController.js"></script>
+    <script src="js/Game.js"></script>
+    <script src="js/Zatacka.js"></script>
 
 </body>
 
