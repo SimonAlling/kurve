@@ -21,6 +21,10 @@ body {
     font-size: 12px;
 }
 
+h1 {
+    display: none;
+}
+
 input[type="checkbox"] {
     display: none;
 }
