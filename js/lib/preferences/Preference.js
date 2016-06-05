@@ -1,33 +1,33 @@
 "use strict";
 
 class Preference {
-	constructor(data) {
-		if (!isString(data.key)) {
-			throw new TypeError(`key must be a string (found ${data.key}). More info: ${data}`);
-		} else if (data.default === undefined) {
-			throw new TypeError(`Preference '${data.key}' must have a default value.`);
-		}
-		this.key = data.key;
-		this.default = data.default;
-	}
+    constructor(data) {
+        if (!isString(data.key)) {
+            throw new TypeError(`key must be a string (found ${data.key}). More info: ${data}`);
+        } else if (data.default === undefined) {
+            throw new TypeError(`Preference '${data.key}' must have a default value.`);
+        }
+        this.key = data.key;
+        this.default = data.default;
+    }
 
-	isValidValue(value) {
-		return isString(value);
-	}
+    isValidValue(value) {
+        return isString(value);
+    }
 
-	invalidValue(value) {
-		throw new TypeError(`${value} is not a valid value for preference '${this.key}'.`);
-	}
+    invalidValue(value) {
+        throw new TypeError(`${value} is not a valid value for preference '${this.key}'.`);
+    }
 
-	static stringify(value) {
-		return value.toString();
-	}
+    static stringify(value) {
+        return value.toString();
+    }
 
-	static parse(stringifiedValue) {
-		return stringifiedValue;
-	}
+    static parse(stringifiedValue) {
+        return stringifiedValue;
+    }
 
-	getDefaultValue() {
-		return this.default;
-	}
+    getDefaultValue() {
+        return this.default;
+    }
 }

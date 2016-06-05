@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
+
 <head>
-    <title>Achtung, die Kurve! in JavaScript</title>
+
+    <title>Achtung, die Kurve!</title>
+
     <meta charset="UTF-8" />
+    <meta name="author" content="Simon Alling" />
+    <meta name="description" content="A clone of the classic DOS game from 1995 that runs in the browser." />
+    <meta name="keywords" content="Achtung, Kurve, Zatacka, KONEC, HRY, HTML, JavaScript, DOS" />
+
     <link rel="stylesheet" href="Zatacka.css" />
     <link rel="stylesheet" href="kurve.se.css" />
-
     <link rel="apple-touch-icon" sizes="57x57" href="/resources/icon/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="/resources/icon/apple-icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72" href="/resources/icon/apple-icon-72x72.png">
@@ -24,15 +30,44 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/resources/icon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+
+    <script src="js/SupportCheck_JS.js"></script>
+    <script src="js/SupportCheck_ES6.js"></script>
+    <script src="js/strings.js"></script>
+    <script src="js/lib/Utilities.js"></script>
+    <script src="js/SplashScreen.js"></script>
+
 </head>
+
 <body>
+
+    <h1>Achtung, die Kurve!</h1>
+    <div id="fatalError_JS" class="fatalError">
+        <div>
+            <p>JavaScript is not enabled.</p>
+            <p class="fatalErrorExtraInfo">Please enable JavaScript.</p>
+        </div>
+    </div>
+    <div id="fatalError_ES6" class="fatalError">
+        <div>
+            <p>Your browser does not support modern JavaScript.</p>
+            <p class="fatalErrorExtraInfo">Please use <a href="https://google.com/chrome/" title="Google Chrome">Chrome</a>, <a href="https://getfirefox.com" title="Mozilla Firefox">Firefox</a>, or another modern browser.</p>
+        </div>
+    </div>
     <div id="wrapper">
         <main>
-            <a href="ZATACKA.html" id="PLAY" class="button">PLAY</a>
+            <p id="startHint">
+                Press Space to start
+            </p>
+            <p id="fullscreenHint">
+                Press F11 to toggle fullscreen
+            </p>
             <footer>
                 <a href="http://github.com/SimonAlling/kurve">Source Code</a>
             </footer>
         </main>
     </div>
+
 </body>
+
 </html>

@@ -3,7 +3,7 @@
     padding: 0;
     image-rendering: -moz-crisp-edges;
     image-rendering: pixelated;
-    font-family: monospace;
+    font-family: "Consolas", monospace;
 }
 
 html, body {
@@ -19,6 +19,10 @@ body {
     overflow: hidden;
     color: white;
     font-size: 12px;
+}
+
+h1 {
+    display: none;
 }
 
 input[type="checkbox"] {
@@ -58,6 +62,60 @@ input[type="checkbox"]:checked + label::before {
     background-image: url("resources/kurve-checkbox-tickmark.png");
     background-position: center center;
     background-repeat: no-repeat;
+}
+
+.button {
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.64);
+    box-sizing: border-box;
+    color: rgba(255, 255, 255, 0.64);
+    display: inline-flex;
+    justify-content: center;
+    padding: 4px;
+}
+
+.button:hover, .button:focus, .button:active {
+    background-color: rgba(255, 255, 255, 0.24);
+    border-color: rgba(255, 255, 255, 1.0);
+    color: rgba(255, 255, 255, 1.0);
+}
+
+.fatalError {
+    background-color: black;
+    color: rgb(160, 144, 0);
+    display: table; /* for vertical centering */
+    font-size: 32px;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 10000;
+}
+
+.fatalError div {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.fatalError .fatalErrorExtraInfo {
+    color: rgb(144, 144, 144);
+    font-size: 0.7em;
+    margin-top: 0.5em;
+}
+
+.fatalError a:link, .fatalError a:visited {
+    color: rgb(20, 50, 180);
+}
+
+.fatalError a:hover, .fatalError a:focus, .fatalError a:active {
+    color: rgb(40, 70, 230);
+}
+
+#fatalError_ES6 {
+    display: none;
 }
 
 .nocursor {

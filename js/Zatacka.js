@@ -30,13 +30,13 @@ const Zatacka = ((window, document) => {
             "quit":    [KEY.ESCAPE]
         },
         messages: Object.freeze({
-            pick:    new InfoMessage(text.hint_pick),
-            proceed: new InfoMessage(text.hint_proceed),
-            next:    new InfoMessage(text.hint_next),
-            quit:    new InfoMessage(text.hint_quit),
-            alt:     new WarningMessage(text.hint_alt),
-            ctrl:    new WarningMessage(text.hint_ctrl),
-            mouse:   new WarningMessage(text.hint_mouse),
+            pick:    new InfoMessage(TEXT.hint_pick),
+            proceed: new InfoMessage(TEXT.hint_proceed),
+            next:    new InfoMessage(TEXT.hint_next),
+            quit:    new InfoMessage(TEXT.hint_quit),
+            alt:     new WarningMessage(TEXT.hint_alt),
+            ctrl:    new WarningMessage(TEXT.hint_ctrl),
+            mouse:   new WarningMessage(TEXT.hint_mouse),
         }),
         defaultPlayers: Object.freeze([
             { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]                              , keyR: KEY.Q                         },
