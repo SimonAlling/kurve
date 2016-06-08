@@ -42,3 +42,7 @@ main footer {
     position: absolute;
     width: 100%;
 }
+
+#preload {
+    display: none;
+}
