@@ -59,6 +59,24 @@ input[type="checkbox"]:checked + label::before {
     background-position: center center;
 }
 
+.icon-button {
+    background-image: url("resources/kurve-icons.png");
+    cursor: pointer;
+    height: 16px;
+    opacity: 0.75;
+    width: 16px;
+}
+
+.icon-button:hover, .icon-button:focus, .icon-button:active {
+    opacity: 1;
+}
+
+.corner {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+}
+
 #debug {
     background-color: black;
     border: 1px white solid;
@@ -122,6 +140,10 @@ input[type="checkbox"]:checked + label::before {
     box-sizing: border-box;
 }
 
+.hidden {
+    display: none;
+}
+
 .unobtrusive {
     pointer-events: none;
 }
@@ -129,10 +151,6 @@ input[type="checkbox"]:checked + label::before {
 #lobby, #KONEC_HRY, #canvas_main {
     background-color: black;
     overflow: hidden;
-}
-
-#lobby.hidden, #KONEC_HRY.hidden {
-    display: none;
 }
 
 #lobby {
@@ -184,13 +202,20 @@ input[type="checkbox"]:checked + label::before {
 #lobby #controls .blue.controls   { background-image: url("resources/kurve-lobby-controls-blue.png");   }
 #lobby #controls .blue.ready      { background-image: url("resources/kurve-lobby-ready-blue.png");      }
 
-#lobby #settings {
-    display: inline-block;
-    padding-left: 8px;
-    vertical-align: top;
+#button-show-settings {
+    background-position: 0 -16px;
 }
 
-#lobby #settings > p {
+#button-hide-settings {
+    background-position: 0 0;
+}
+
+#settings {
+    padding: 50px 80px 50px 80px;
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+#settings > p {
     margin-bottom: 4px;
 }
 

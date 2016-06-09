@@ -4,6 +4,7 @@ const Zatacka = ((window, document) => {
 
     const canvas_main = byID("canvas_main");
     const canvas_overlay = byID("canvas_overlay");
+    const element_settings = byID("settings");
     const ORIGINAL_WIDTH = canvas_main.width;
     const ORIGINAL_HEIGHT = canvas_main.height;
     const TOTAL_BORDER_THICKNESS = 4;
@@ -191,6 +192,10 @@ const Zatacka = ((window, document) => {
         }
     }
 
+    function eventConsumer(event) {
+        event.stopPropagation();
+    }
+
     function keyPressedInLobby(pressedKey) {
         config.defaultPlayers.forEach((playerData) => {
             addOrRemovePlayer(playerData, pressedKey);
@@ -236,8 +241,55 @@ const Zatacka = ((window, document) => {
         event.preventDefault();
     }
 
+    function settingsKeyHandler(event) {
+        const pressedKey = event.keyCode;
+        if (isQuitKey(pressedKey)) {
+            hideSettings();
+        }
+    }
+
+    function showSettings() {
+        clearTimeout(hintPickTimer);
+        clearTimeout(hintProceedTimer);
+        removeLobbyEventListeners();
+        addHideSettingsButtonEventListener();
+        document.addEventListener("keydown", settingsKeyHandler);
+        element_settings.classList.remove("hidden");
+    }
+
+    function hideSettings() {
+        document.removeEventListener("keydown", settingsKeyHandler);
+        addLobbyEventListeners();
+        element_settings.classList.add("hidden");
+    }
+
+    function addShowSettingsButtonEventListener() {
+        const showSettingsButton = byID("button-show-settings");
+        if (showSettingsButton instanceof HTMLElement) {
+            showSettingsButton.addEventListener("mousedown", eventConsumer);
+            showSettingsButton.addEventListener("click", showSettings);
+        }
+    }
+
+    function addHideSettingsButtonEventListener() {
+        const hideSettingsButton = byID("button-hide-settings");
+        if (hideSettingsButton instanceof HTMLElement) {
+            hideSettingsButton.addEventListener("mousedown", eventConsumer);
+            hideSettingsButton.addEventListener("click", hideSettings);
+        }
+    }
+
+    function removeShowSettingsButtonEventListener() {
+        const showSettingsButton = byID("button-show-settings");
+        if (showSettingsButton instanceof HTMLElement) {
+            showSettingsButton.removeEventListener("mousedown", eventConsumer);
+            showSettingsButton.removeEventListener("click", showSettings);
+        }
+    }
+
     function addLobbyEventListeners() {
         log("Adding lobby event listeners ...");
+        addShowSettingsButtonEventListener();
         document.addEventListener("keydown", lobbyKeyHandler);
         document.addEventListener("mousedown", lobbyMouseHandler);
         document.addEventListener("contextmenu", lobbyMouseHandler);
@@ -246,6 +298,7 @@ const Zatacka = ((window, document) => {
 
     function removeLobbyEventListeners() {
         log("Removing lobby event listeners ...");
+        removeShowSettingsButtonEventListener();
         document.removeEventListener("keydown", lobbyKeyHandler);
         document.removeEventListener("mousedown", lobbyMouseHandler);
         document.removeEventListener("contextmenu", lobbyMouseHandler);

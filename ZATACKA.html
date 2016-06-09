@@ -47,16 +47,7 @@
                     <div class="blue ready"></div>
                 </li>
             </ul>
-            <form id="settings">
-                <p>
-                    <input type="checkbox" id="settings_hints" checked />
-                    <label for="settings_hints">Show hints (dummy)</label>
-                </p>
-                <p>
-                    <input type="checkbox" id="settings_warnings" checked />
-                    <label for="settings_warnings">Show warnings (dummy)</label>
-                </p>
-            </form>
+            <a id="button-show-settings" class="corner icon-button"></a>
         </div>
         <div id="KONEC_HRY" class="hidden overlay">
             <ul id="results">
@@ -69,6 +60,19 @@
             </ul>
         </div>
         <div id="messages" class="unobtrusive overlay"></div>
+        <div id="settings" class="hidden overlay">
+            <form>
+                <p>
+                    <input type="checkbox" id="settings_hints" checked />
+                    <label for="settings_hints">Show hints (dummy)</label>
+                </p>
+                <p>
+                    <input type="checkbox" id="settings_warnings" checked />
+                    <label for="settings_warnings">Show warnings (dummy)</label>
+                </p>
+                <a id="button-hide-settings" class="corner icon-button"></a>
+            </form>
+        </div>
     </div>
     </div>
     </div>
