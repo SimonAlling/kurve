@@ -90,6 +90,10 @@ class Player {
              || this.R_keys.includes(button));
     }
 
+    usesAnyMouseButton() {
+        return MOUSE_BUTTONS.some((button) => this.hasMouseButton(button));
+    }
+
     hasKey(key) {
         return this.L_keys.includes(key)
             || this.R_keys.includes(key);

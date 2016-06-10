@@ -1,0 +1,48 @@
+/* STYLESHEET FOR KURVE.SE */
+
+body {
+    background-color: black;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+a:link, a:visited {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:hover, a:focus, a:active {
+    color: rgba(255, 255, 255, 1.0);
+}
+
+p {
+    margin: 0 0 1em 0;
+}
+
+main {
+    background: black url("resources/kurve-splash.png");
+    box-sizing: border-box;
+    height: 480px;
+    padding-top: 288px;
+    position: relative; /* so we can position footer absolutely */
+    text-align: center;
+    width: 640px;
+}
+
+#startHint {
+    font-size: 1.2em;
+}
+
+#fullscreenHint {
+    font-size: 0.9em;
+}
+
+main footer {
+    bottom: 0;
+    height: 80px;
+    position: absolute;
+    width: 100%;
+}
+
+#preload {
+    display: none;
+}

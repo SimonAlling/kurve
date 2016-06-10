@@ -11,7 +11,7 @@ const Zatacka = ((window, document) => {
 
     const config = Object.freeze({
         tickrate: 600, // Hz
-        maxFramerate: 60, // Hz
+        maxFramerate: 300, // Hz
         canvas: canvas_main,
         thickness: 3, // Kuxels
         speed: 60, // Kuxels per second
@@ -31,23 +31,48 @@ const Zatacka = ((window, document) => {
             "quit":    [KEY.ESCAPE]
         },
         messages: Object.freeze({
-            pick:    new InfoMessage(text.hint_pick),
-            proceed: new InfoMessage(text.hint_proceed),
-            next:    new InfoMessage(text.hint_next),
-            quit:    new InfoMessage(text.hint_quit),
-            alt:     new WarningMessage(text.hint_alt),
-            ctrl:    new WarningMessage(text.hint_ctrl),
-            mouse:   new WarningMessage(text.hint_mouse),
+            pick:    new InfoMessage(TEXT.hint_pick),
+            proceed: new InfoMessage(TEXT.hint_proceed),
+            next:    new InfoMessage(TEXT.hint_next),
+            quit:    new InfoMessage(TEXT.hint_quit),
+            alt:     new WarningMessage(TEXT.hint_alt),
+            ctrl:    new WarningMessage(TEXT.hint_ctrl),
+            mouse:   new WarningMessage(TEXT.hint_mouse),
         }),
         defaultPlayers: Object.freeze([
-            { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]      , keyR: KEY.Q          },
-            { id: 2, name: "Yellow", color: "#C3C300", keyL: KEY.CTRL      , keyR: KEY.ALT        },
-            { id: 3, name: "Orange", color: "#FF7900", keyL: KEY.M         , keyR: KEY.COMMA      },
-            { id: 4, name: "Green" , color: "#00CB00", keyL: KEY.LEFT_ARROW, keyR: KEY.DOWN_ARROW },
-            { id: 5, name: "Pink"  , color: "#DF51B6", keyL: KEY.DIVIDE    , keyR: KEY.MULTIPLY   },
-            { id: 6, name: "Blue"  , color: "#00A2CB", keyL: MOUSE.LEFT    , keyR: MOUSE.RIGHT    }
+            { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]                              , keyR: KEY.Q                         },
+            { id: 2, name: "Yellow", color: "#C3C300", keyL: [ KEY.CTRL, KEY.Z ]                   , keyR: [ KEY.ALT, KEY.X ]            },
+            { id: 3, name: "Orange", color: "#FF7900", keyL: KEY.M                                 , keyR: KEY.COMMA                     },
+            { id: 4, name: "Green" , color: "#00CB00", keyL: KEY.LEFT_ARROW                        , keyR: KEY.DOWN_ARROW                },
+            { id: 5, name: "Pink"  , color: "#DF51B6", keyL: [ KEY.DIVIDE, KEY.END, KEY.PAGE_DOWN ], keyR: [ KEY.MULTIPLY, KEY.PAGE_UP ] },
+            { id: 6, name: "Blue"  , color: "#00A2CB", keyL: MOUSE.LEFT                            , keyR: MOUSE.RIGHT                   }
         ])
     });
+
+    const PREFERENCES = Object.freeze([
+        {
+            type: MultichoicePreference,
+            key: STRINGS.pref_key_cursor,
+            values: [
+                STRINGS.pref_value_cursor_always_visible,
+                STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player,
+                STRINGS.pref_value_cursor_always_hidden
+            ],
+            default: STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player
+        },
+        {
+            type: MultichoicePreference,
+            key: STRINGS.pref_key_hints,
+            values: [
+                STRINGS.pref_value_hints_all,
+                STRINGS.pref_value_hints_warnings_only,
+                STRINGS.pref_value_hints_none
+            ],
+            default: STRINGS.pref_value_hints_all
+        }
+    ]);
+
+    const preferenceManager = new PreferenceManager(PREFERENCES);
 
     function isProceedKey(key) {
         return config.keys.proceed.includes(key);
@@ -123,6 +148,23 @@ const Zatacka = ((window, document) => {
                           getPaddedHoleConfig());
     }
 
+    function applyCursorBehavior() {
+        const mouseIsBeingUsed = game.getPlayers().some(hasMouseButton);
+        let behavior;
+        switch (preferenceManager.get(STRINGS.pref_key_cursor)) {
+            case STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player:
+                behavior = mouseIsBeingUsed ? guiController.CURSOR_HIDDEN : guiController.CURSOR_VISIBLE;
+                break;
+            case STRINGS.pref_value_cursor_always_hidden:
+                behavior = guiController.CURSOR_HIDDEN;
+                break;
+            default:
+                behavior = guiController.CURSOR_VISIBLE;
+        }
+        log(`Setting cursor behavior to ${behavior}.`);
+        guiController.setCursorBehavior(behavior);
+    }
+
     function proceedKeyPressedInLobby() {
         const numberOfReadyPlayers = game.getNumberOfPlayers();
         if (numberOfReadyPlayers > 0) {
@@ -131,13 +173,14 @@ const Zatacka = ((window, document) => {
             guiController.clearMessages();
             removeLobbyEventListeners();
             addGameEventListeners();
+            applyCursorBehavior();
             game.setMode(numberOfReadyPlayers === 1 ? Game.PRACTICE : Game.COMPETITIVE);
             game.start();
         }
     }
 
     function hasMouseButton(player) {
-        return Object.keys(MOUSE).some((buttonName) => player.hasMouseButton(MOUSE[buttonName]));
+        return player.usesAnyMouseButton();
     }
 
     function checkForDangerousInput() {
@@ -184,10 +227,18 @@ const Zatacka = ((window, document) => {
         }
     }
 
+    function defaultPlayerHasLeftKey(playerData, pressedKey) {
+        return pressedKey === playerData.keyL || (playerData.keyL instanceof Array && playerData.keyL.includes(pressedKey));
+    }
+
+    function defaultPlayerHasRightKey(playerData, pressedKey) {
+        return pressedKey === playerData.keyR || (playerData.keyR instanceof Array && playerData.keyR.includes(pressedKey));
+    }
+
     function addOrRemovePlayer(playerData, pressedKey) {
-        if (pressedKey === playerData.keyL) {
+        if (defaultPlayerHasLeftKey(playerData, pressedKey)) {
             addPlayer(playerData.id);
-        } else if (pressedKey === playerData.keyR) {
+        } else if (defaultPlayerHasRightKey(playerData, pressedKey)) {
             removePlayer(playerData.id);
         }
     }
@@ -225,15 +276,27 @@ const Zatacka = ((window, document) => {
         mouseClickedInLobby(event.button);
     }
 
+    function quitGame() {
+        removeGameEventListeners();
+        addLobbyEventListeners();
+        game.quit();
+        guiController.gameQuit();
+        game = newGame();
+    }
+
     function gameKeyHandler(event) {
         const pressedKey = event.keyCode;
         if (shouldPreventDefault(pressedKey)) {
             event.preventDefault();
         }
         if (isProceedKey(pressedKey)) {
-            game.proceedKeyPressed();
-        } else if (isQuitKey(pressedKey)) {
-            game.quitKeyPressed();
+            if (game.shouldQuitOnProceedKey()) {
+                quitGame();
+            } else {
+                game.proceedKeyPressed();
+            }
+        } else if (isQuitKey(pressedKey) && game.shouldQuitOnQuitKey()) {
+            quitGame();
         }
     }
 
@@ -326,8 +389,12 @@ const Zatacka = ((window, document) => {
 
     addLobbyEventListeners();
 
+    function newGame() {
+        return new Game(config, Renderer(canvas_main, canvas_overlay), guiController);
+    }
+
     const guiController = GUIController(config);
-    const game = new Game(config, Renderer(canvas_main, canvas_overlay), guiController);
+    let game = newGame();
 
     let hintProceedTimer;
     let hintPickTimer = setTimeout(() => {

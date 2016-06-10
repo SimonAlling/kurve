@@ -343,17 +343,17 @@ class Game {
         this.beginNewRound();
     }
 
-    /** Quits the game. */
-    quit() {
-        document.location.reload();
-    }
-
     /** Announce KONEC HRY, show results etc. */
     konecHry() {
         log(this.constructor.KONEC_HRY);
         this.ended = true;
         this.GUI_konecHry();
         this.quitHintTimer = setTimeout(this.showQuitHint.bind(this), this.config.hintDelay);
+    }
+
+    quit() {
+        clearTimeout(this.quitHintTimer);
+        clearTimeout(this.proceedHintTimer);
     }
 
     clearField() {
@@ -562,10 +562,7 @@ class Game {
     proceedKeyPressed() {
         this.hideProceedHint();
         this.hideQuitHint();
-        if (this.isEnded()) {
-            // The game is ended, so a proceed key press should quit:
-            this.quit();
-        } else if (this.isGameOver()) {
+        if (this.isGameOver()) {
             // The game is over, so we should show KONEC HRY:
             this.konecHry();
         } else if (this.isPostRound()) {
@@ -574,10 +571,12 @@ class Game {
         }
     }
 
-    quitKeyPressed() {
-        if (this.isPostRound() && !this.isGameOver()) {
-            this.quit();
-        }
+    shouldQuitOnQuitKey() {
+        return this.isPostRound() && !this.isGameOver();
+    }
+
+    shouldQuitOnProceedKey() {
+        return this.isEnded();
     }
 
 
