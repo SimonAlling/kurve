@@ -28,11 +28,11 @@ main {
     width: 640px;
 }
 
-#startHint {
+#start-hint {
     font-size: 1.2em;
 }
 
-#fullscreenHint {
+#fullscreen-hint {
     font-size: 0.9em;
 }
 

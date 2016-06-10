@@ -56,6 +56,10 @@ function isString(s) {
     return typeOf(s) === "string";
 }
 
+function isNonEmptyString(s) {
+    return isString(s) && s.length > 0;
+}
+
 function arePositiveNumbers(numbers) {
     return numbers.every(isPositiveNumber);
 }
@@ -185,3 +189,40 @@ function isKeyList(keys) {
 function isFKey(key) {
     return F_KEYS.includes(key);
 }
+
+const PLATFORM = (() => {
+    const strings = {
+        os_id_windows: "Win",
+        os_id_mac: "Mac",
+        os_id_linux: "Linux",
+        os_id_unix: "X11",
+
+        os_name_windows: "Windows",
+        os_name_mac: "Mac",
+        os_name_linux: "Linux",
+        os_name_unix: "UNIX",
+        os_name_unknown: "Unknown",
+    };
+
+    return {
+        getOS: () => {
+            const ua = window.navigator.userAgent || window.navigator.appVersion;
+            if (isNonEmptyString(ua)) {
+                if (ua.indexOf(strings.os_id_windows) > -1) { return strings.os_name_windows; }
+                if (ua.indexOf(strings.os_id_mac)     > -1) { return strings.os_name_mac;     }
+                if (ua.indexOf(strings.os_id_linux)   > -1) { return strings.os_name_linux;   }
+                if (ua.indexOf(strings.os_id_unix)    > -1) { return strings.os_name_unix;    }
+            }
+            return strings.os_name_unknown;
+        },
+        getFullscreenShortcut: () => {
+            switch (PLATFORM.getOS()) {
+                case strings.os_name_mac:
+                    return TEXT.keyboard_fullscreen_mac;
+                    break;
+                default:
+                    return TEXT.keyboard_fullscreen_standard;
+            }
+        },
+    };
+})();
