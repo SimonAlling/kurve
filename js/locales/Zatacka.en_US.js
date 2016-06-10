@@ -10,8 +10,8 @@ const TEXT = (() => {
         hint_proceed: `Press Space or Enter to start!`,
         hint_next: `Press Space or Enter to proceed, or Esc to quit.`,
         hint_quit: `Press Space or Enter to start over.`,
-        hint_alt: `Alt plus some other keys (e.g. Tab) may cause undesired behavior (e.g. switching windows).`,
-        hint_ctrl: `Ctrl plus some other keys (e.g. W) may cause undesired behavior (e.g. closing the tab).`,
+        hint_alt: `Alt plus some other keys may cause undesired behavior (e.g. switching windows).`,
+        hint_ctrl: `Ctrl plus some other keys may cause undesired behavior (e.g. closing the tab).`,
         hint_mouse: `Make sure to keep the mouse cursor inside the browser window.`,
 
         keyboard_fullscreen_mac: `${KEY_CMD} + ${KEY_SHIFT} + F`,
