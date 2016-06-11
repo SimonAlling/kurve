@@ -194,6 +194,10 @@ input[type="checkbox"]:checked + label::before {
     border-color: #515151;
 }
 
+.flex {
+    display: flex;
+}
+
 .overlay {
     display: block;
     height: 100%;
@@ -221,7 +225,6 @@ input[type="checkbox"]:checked + label::before {
     padding-left: 81px;
     padding-top: 50px;
     padding-bottom: 130px; /* 130 = 480 - 7 * 50, where 50 is the total height of each player's controls and 7 is 6 players plus 1 for margin */
-    display: flex; /* to prevent HTML whitespace from being displayed */
 }
 
 #lobby #controls {
