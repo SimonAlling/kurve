@@ -4,6 +4,7 @@
 // fail to hide the JS enabled error message.
 
 // Hide ES6 error message if browser passes ES6 support check:
+class DummyClassForES6SupportCheck {}
 ((x = `x`, y = `${x}`) => {
     let a = "a";
     const b = "b";

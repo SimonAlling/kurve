@@ -18,28 +18,29 @@
 
     <link rel="stylesheet" href="Zatacka.css" />
     <link rel="stylesheet" href="kurve.se.css" />
-    <link rel="apple-touch-icon" sizes="57x57" href="/resources/icon/apple-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="/resources/icon/apple-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="/resources/icon/apple-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="/resources/icon/apple-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="/resources/icon/apple-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/resources/icon/apple-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/resources/icon/apple-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/resources/icon/apple-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/resources/icon/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/resources/icon/android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/resources/icon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="/resources/icon/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/resources/icon/favicon-16x16.png">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="/resources/icon/ms-icon-144x144.png">
-    <meta name="theme-color" content="#ffffff">
+    <link rel="apple-touch-icon" sizes="57x57" href="/resources/icon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="/resources/icon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/resources/icon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="/resources/icon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/resources/icon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/resources/icon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/resources/icon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/resources/icon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/resources/icon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192"  href="/resources/icon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/resources/icon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/resources/icon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/resources/icon/favicon-16x16.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="/resources/icon/ms-icon-144x144.png" />
+    <meta name="theme-color" content="#ffffff" />
 
     <script src="js/SupportCheck_JS.js"></script>
     <script src="js/SupportCheck_ES6.js"></script>
     <script src="js/strings.js"></script>
     <script src="js/lib/Utilities.js"></script>
+    <script src="js/locales/Zatacka.en_US.js"></script>
     <script src="js/SplashScreen.js"></script>
 
 </head>
@@ -56,21 +57,29 @@
     <div id="fatalError_ES6" class="fatalError">
         <div>
             <p>Your browser does not support modern JavaScript.</p>
-            <p class="fatalErrorExtraInfo">Please use <a href="https://google.com/chrome/" title="Google Chrome">Chrome</a>, <a href="https://getfirefox.com" title="Mozilla Firefox">Firefox</a>, or another modern browser.</p>
+            <p class="fatalErrorExtraInfo">Please use <a href="https://google.com/chrome/" title="Google Chrome">Chrome&nbsp;49+</a>, <a href="https://getfirefox.com" title="Mozilla Firefox">Firefox&nbsp;45+</a>, or another modern browser.</p>
         </div>
     </div>
     <div id="wrapper">
         <main>
-            <p id="startHint">
-                Press Space to start
-            </p>
-            <p id="fullscreenHint">
-                Press F11 to toggle fullscreen
-            </p>
+            <p id="start-hint"></p>
+            <p id="fullscreen-hint"></p>
             <footer>
                 <a href="http://github.com/SimonAlling/kurve">Source Code</a>
             </footer>
         </main>
+    </div>
+    <!-- For preloading of images: -->
+    <div id="preload">
+        <img src="resources/kurve-lobby-controls-ready.png" />
+        <img src="resources/kurve-digits-red.png" />
+        <img src="resources/kurve-digits-yellow.png" />
+        <img src="resources/kurve-digits-orange.png" />
+        <img src="resources/kurve-digits-green.png" />
+        <img src="resources/kurve-digits-pink.png" />
+        <img src="resources/kurve-digits-blue.png" />
+        <img src="resources/kurve-konec-hry.png" />
+        <img src="resources/kurve-checkbox-tickmark.png" />
     </div>
 
 </body>
