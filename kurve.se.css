@@ -5,17 +5,8 @@ body {
     color: rgba(255, 255, 255, 0.5);
 }
 
-a:link, a:visited {
-    color: inherit;
-    text-decoration: none;
-}
-
 a:hover, a:focus, a:active {
     color: rgba(255, 255, 255, 1.0);
-}
-
-p {
-    margin: 0 0 1em 0;
 }
 
 main {
@@ -26,6 +17,10 @@ main {
     position: relative; /* so we can position footer absolutely */
     text-align: center;
     width: 640px;
+}
+
+#wrapper p {
+    margin: 0 0 1em 0;
 }
 
 #startHint {
