@@ -8,6 +8,7 @@ class Preference {
             throw new TypeError(`Preference '${data.key}' must have a default value.`);
         }
         this.key = data.key;
+        this.label = data.label;
         this.default = data.default;
     }
 

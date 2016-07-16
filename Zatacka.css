@@ -279,11 +279,29 @@ input[type="checkbox"]:checked + label::before {
 
 #settings {
     padding: 50px 80px 50px 80px;
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: rgba(0, 0, 0, 0.95);
 }
 
-#settings > p {
-    margin-bottom: 4px;
+#settings-form p {
+    min-height: 25px;
+}
+
+#settings-form label {
+    display: inline-block;
+    text-align: right;
+    width: 190px;
+}
+
+#settings-form label::after {
+    content: ":";
+}
+
+#settings-form select {
+    background: black;
+    border: 1px solid white;
+    color: white;
+    margin-left: 20px;
+    width: 189px;
 }
 
 #messages {

@@ -6,6 +6,7 @@ const STRINGS = Object.freeze({
     class_hidden: "hidden",
     class_active: "active",
     class_nocursor: "nocursor",
+    html_name_preference_prefix: "preference-",
 
     pref_key_cursor: "cursor",
     pref_value_cursor_always_visible: "always_visible",

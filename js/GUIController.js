@@ -16,6 +16,8 @@ function GUIController(cfg) {
     const results = byID("results");
     const KONEC_HRY = byID("KONEC_HRY");
     const messagesContainer = byID("messages");
+    const settingsContainer = byID("settings");
+    const settingsForm = byID("settings-form");
 
     const ORIGINAL_LEFT_WIDTH = left.offsetWidth;
 
@@ -69,6 +71,56 @@ function GUIController(cfg) {
 
     function resetCursorBehavior() {
         setCursorBehavior(CURSOR_VISIBLE);
+    }
+
+    function settingsEntryHTMLElement(preference, preferenceValue) {
+        if (!preference instanceof Preference) {
+            throw new TypeError(`${preference} is not a preference.`);
+        }
+
+        // Common
+        const p = document.createElement("p");
+        const label = document.createElement("label");
+        label.textContent = preference.label;
+        label.for = `${STRINGS.html_name_preference_prefix}${preference.key}`;
+
+        // Boolean
+        if (preference instanceof BooleanPreference) {
+            const input = document.createElement("input");
+            input.type = "checkbox";
+            input.name = STRINGS.html_name_preference_prefix + preference.key;
+            input.checked = preferenceValue === true;
+            p.appendChild(input);
+            p.appendChild(label);
+        }
+
+        // Multichoice
+        else if (preference instanceof MultichoicePreference) {
+            p.appendChild(label);
+            const select = document.createElement("select");
+            select.name = STRINGS.html_name_preference_prefix + preference.key;
+            preference.values.forEach((value, index) => {
+                const option = document.createElement("option");
+                option.value = value;
+                option.textContent = preference.labels[index];
+                if (preference.constructor.stringify(preferenceValue) === value) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+            p.appendChild(select);
+        }
+
+        // Range
+        else if (preference instanceof RangePreference) {
+            p.appendChild(label);
+            const input = document.createElement("input");
+            input.type = "number";
+            input.name = STRINGS.html_name_preference_prefix + preference.key;
+            p.appendChild(input);
+        }
+
+        return p;
     }
 
 
@@ -138,6 +190,21 @@ function GUIController(cfg) {
         updateMessages(currentMessages);
     }
 
+    function showSettings() {
+        settings.classList.remove(STRINGS.class_hidden);
+    }
+
+    function hideSettings() {
+        settings.classList.add(STRINGS.class_hidden);
+    }
+
+    function updateSettingsForm(preferencesWithData) {
+        flush(settingsForm);
+        preferencesWithData.forEach((preferenceWithData) => {
+            settingsForm.appendChild(settingsEntryHTMLElement(preferenceWithData.preference, preferenceWithData.value));
+        });
+    }
+
     function hideMessage(message) {
         currentMessages = currentMessages.filter(msg => msg !== message);
         updateMessages(currentMessages);
@@ -198,6 +265,9 @@ function GUIController(cfg) {
         gameStarted,
         gameQuit,
         konecHry,
+        showSettings,
+        hideSettings,
+        updateSettingsForm,
         updateScoreOfPlayer,
         updateMessages,
         showMessage,

@@ -5,6 +5,7 @@ class BooleanPreference extends MultichoicePreference {
         super({
             key: data.key,
             values: ["true", "false"],
+            label: data.label,
             default: data.default
         });
     }

@@ -104,17 +104,8 @@
             </div>
             <div id="messages" class="unobtrusive overlay"></div>
             <div id="settings" class="hidden overlay">
-                <form>
-                    <p>
-                        <input type="checkbox" id="settings_hints" checked />
-                        <label for="settings_hints">Show hints (dummy)</label>
-                    </p>
-                    <p>
-                        <input type="checkbox" id="settings_warnings" checked />
-                        <label for="settings_warnings">Show warnings (dummy)</label>
-                    </p>
-                    <a id="button-hide-settings" class="corner icon-button"></a>
-                </form>
+                <a id="button-hide-settings" class="corner icon-button"></a>
+                <form id="settings-form"></form>
             </div>
         </div>
         </div>
@@ -149,6 +140,7 @@
     <script src="js/lib/WarningMessage.js"></script>
     <script src="js/locales/Zatacka.en_US.properties"></script>
     <script src="js/lib/preferences/Preference.js"></script>
+    <script src="js/lib/preferences/PreferenceWithValue.js"></script>
     <script src="js/lib/preferences/MultichoicePreference.js"></script>
     <script src="js/lib/preferences/BooleanPreference.js"></script>
     <script src="js/lib/preferences/RangePreference.js"></script>

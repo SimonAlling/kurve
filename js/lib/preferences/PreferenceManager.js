@@ -31,6 +31,10 @@ function PreferenceManager(preferencesData) {
         return PREFERENCES.find((pref) => pref.key === key);
     }
 
+    function getAllPreferencesWithValues() {
+        return PREFERENCES.map((preference) => new PreferenceWithValue(preference, get(preference.key)));
+    }
+
     function getKey(pref) {
         return pref.key;
     }
@@ -88,6 +92,7 @@ function PreferenceManager(preferencesData) {
         get,
         setToDefaultValue,
         getDefaultValue,
+        getAllPreferencesWithValues,
         setAllToDefault
     }
 }

@@ -4,7 +4,6 @@ const Zatacka = ((window, document) => {
 
     const canvas_main = byID("canvas_main");
     const canvas_overlay = byID("canvas_overlay");
-    const element_settings = byID("settings");
     const ORIGINAL_WIDTH = canvas_main.width;
     const ORIGINAL_HEIGHT = canvas_main.height;
     const TOTAL_BORDER_THICKNESS = 4;
@@ -53,20 +52,32 @@ const Zatacka = ((window, document) => {
         {
             type: MultichoicePreference,
             key: STRINGS.pref_key_cursor,
+            label: TEXT.pref_label_cursor,
             values: [
                 STRINGS.pref_value_cursor_always_visible,
                 STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player,
                 STRINGS.pref_value_cursor_always_hidden
+            ],
+            labels: [
+                TEXT.pref_label_cursor_always_visible,
+                TEXT.pref_label_cursor_hidden_when_mouse_used_by_player,
+                TEXT.pref_label_cursor_always_hidden
             ],
             default: STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player
         },
         {
             type: MultichoicePreference,
             key: STRINGS.pref_key_hints,
+            label: TEXT.pref_label_hints,
             values: [
                 STRINGS.pref_value_hints_all,
                 STRINGS.pref_value_hints_warnings_only,
                 STRINGS.pref_value_hints_none
+            ],
+            labels: [
+                TEXT.pref_label_hints_all,
+                TEXT.pref_label_hints_warnings_only,
+                TEXT.pref_label_hints_none
             ],
             default: STRINGS.pref_value_hints_all
         }
@@ -314,16 +325,17 @@ const Zatacka = ((window, document) => {
     function showSettings() {
         clearTimeout(hintPickTimer);
         clearTimeout(hintProceedTimer);
+        guiController.updateSettingsForm(preferenceManager.getAllPreferencesWithValues());
         removeLobbyEventListeners();
         addHideSettingsButtonEventListener();
         document.addEventListener("keydown", settingsKeyHandler);
-        element_settings.classList.remove("hidden");
+        guiController.showSettings();
     }
 
     function hideSettings() {
         document.removeEventListener("keydown", settingsKeyHandler);
         addLobbyEventListeners();
-        element_settings.classList.add("hidden");
+        guiController.hideSettings();
     }
 
     function addShowSettingsButtonEventListener() {
