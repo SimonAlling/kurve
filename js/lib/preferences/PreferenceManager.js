@@ -31,6 +31,10 @@ function PreferenceManager(preferencesData) {
         return PREFERENCES.find((pref) => pref.key === key);
     }
 
+    function getAllPreferencesWithValues() {
+        return PREFERENCES.map((preference) => new PreferenceWithValue(preference, get(preference.key)));
+    }
+
     function getKey(pref) {
         return pref.key;
     }
@@ -63,7 +67,7 @@ function PreferenceManager(preferencesData) {
             pref.invalidValue(value);
         } else {
             log(`Setting preference ${key} to ${value}.`);
-            localStorage.setItem(LS_prefix(key), pref.stringify(value));
+            localStorage.setItem(LS_prefix(key), pref.constructor.stringify(value));
         }
     }
 
@@ -73,7 +77,7 @@ function PreferenceManager(preferencesData) {
         }
         const pref = getPreference(key);
         const savedValue = localStorage.getItem(LS_prefix(key));
-        return isValidPreferenceValue(key, savedValue) ? pref.parse(savedValue) : getDefaultValue(key);
+        return isValidPreferenceValue(key, pref.constructor.parse(savedValue)) ? pref.constructor.parse(savedValue) : getDefaultValue(key);
     }
 
     function setAllToDefault() {
@@ -88,6 +92,7 @@ function PreferenceManager(preferencesData) {
         get,
         setToDefaultValue,
         getDefaultValue,
+        getAllPreferencesWithValues,
         setAllToDefault
     }
 }

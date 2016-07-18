@@ -34,43 +34,61 @@ a:hover, a:focus, a:active {
     text-decoration: none;
 }
 
-input[type="checkbox"] {
+input[type="checkbox"],
+input[type="radio"] {
     display: none;
 }
 
 /* Checkbox and label: */
-input[type="checkbox"] + label {
-    cursor: pointer;
-    opacity: 0.75;
+input[type="checkbox"] + label,
+input[type="radio"] + label {
     padding-left: 18px;
     position: relative;
 }
 
-/* Checkbox and label on hover: */
-input[type="checkbox"] + label:hover,
-input[type="checkbox"] + label:focus,
-input[type="checkbox"] + label:active {
-    opacity: 1;
-}
-
 /* Actual checkbox: */
-input[type="checkbox"] + label::before {
-    border: 1px white solid;
+input[type="checkbox"] + label::before,
+input[type="radio"] + label::before {
+    background-position: center center;
+    background-repeat: no-repeat;
     box-sizing: border-box;
     content: "";
     display: inline-block;
     height: 12px;
     left: 0;
     position: absolute;
-    top: 1px;
+    top: 2px;
     width: 12px;
+}
+
+input[type="checkbox"] + label::before {
+    border: 1px white solid;
+}
+
+input[type="radio"] + label::before {
+    background-image: url("resources/kurve-radio-button.png");
 }
 
 /* Actual checkbox when checked: */
 input[type="checkbox"]:checked + label::before {
     background-image: url("resources/kurve-checkbox-tickmark.png");
-    background-position: center center;
-    background-repeat: no-repeat;
+}
+
+input[type="radio"]:checked + label::before {
+    background-image: url("resources/kurve-radio-button-checked.png");
+}
+
+input[type="checkbox"] + label,
+input[type="radio"] + label {
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+/* Checkbox and label on hover: */
+input[type="checkbox"] + label,
+input[type="radio"] + label,
+select {
+    cursor: pointer;
 }
 
 .button {
@@ -131,6 +149,24 @@ input[type="checkbox"]:checked + label::before {
     cursor: none;
 }
 
+.icon-button {
+    background-image: url("resources/kurve-icons.png");
+    cursor: pointer;
+    height: 16px;
+    opacity: 0.75;
+    width: 16px;
+}
+
+.icon-button:hover, .icon-button:focus, .icon-button:active {
+    opacity: 1;
+}
+
+.corner {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+}
+
 #debug {
     background-color: black;
     border: 1px white solid;
@@ -185,6 +221,10 @@ input[type="checkbox"]:checked + label::before {
     border-color: #515151;
 }
 
+.flex {
+    display: flex;
+}
+
 .overlay {
     display: block;
     height: 100%;
@@ -193,6 +233,10 @@ input[type="checkbox"]:checked + label::before {
     top: 0;
     width: 100%;
     box-sizing: border-box;
+}
+
+.hidden {
+    display: none;
 }
 
 .unobtrusive {
@@ -204,14 +248,15 @@ input[type="checkbox"]:checked + label::before {
     overflow: hidden;
 }
 
-#lobby.hidden, #KONEC_HRY.hidden {
-    display: none;
+#lobby {
+    padding-left: 81px;
+    padding-top: 50px;
+    padding-bottom: 130px; /* 130 = 480 - 7 * 50, where 50 is the total height of each player's controls and 7 is 6 players plus 1 for margin */
 }
 
 #lobby #controls {
+    display: inline-block;
     list-style-type: none;
-    margin-left: 80px;
-    margin-top: 50px;
 }
 
 #lobby #controls li {
@@ -229,13 +274,13 @@ input[type="checkbox"]:checked + label::before {
 }
 
 #lobby #controls .ready {
+    visibility: hidden;
     background-image: url("resources/kurve-lobby-controls-ready.png");
-    display: none;
     width: 80px;
 }
 
 #lobby #controls .ready.active {
-    display: block;
+    visibility: visible;
 }
 
 #lobby #controls .red.controls    { background-position:    0px    0px; }
@@ -251,8 +296,77 @@ input[type="checkbox"]:checked + label::before {
 #lobby #controls .blue.controls   { background-position:    0px -250px; }
 #lobby #controls .blue.ready      { background-position: -160px -250px; }
 
-#lobby footer {
+#button-show-settings {
+    background-position: 0 -16px;
+}
+
+#button-hide-settings {
+    background-position: 0 0;
+}
+
+#settings {
+    background-color: rgba(0, 0, 0, 0.95);
+    padding: 50px 80px 50px 80px;
+}
+
+#settings-form > div {
+    box-sizing: border-box;
+    margin: 12px 0;
+    opacity: 0.6;
+}
+
+#settings-form > div:hover {
+    opacity: 1;
+}
+
+#settings-form > div:hover .description {
+    visibility: visible;
+}
+
+#settings-form fieldset {
+    border: 1px solid white;
+    padding: 2px 8px 6px 8px;
+}
+
+#settings-form fieldset legend {
+    padding: 0 4px;
+}
+
+#settings-form input[type="checkbox"] + label {
+    margin-left: 13px; /* to align with fieldset content */
+}
+
+#settings-form fieldset input[type="radio"] + label {
+    margin-left: 4px; /* to align with legend */
+}
+
+#settings-form label {
+    display: inline-block;
+}
+
+#settings-form .description {
+    box-sizing: border-box;
+    bottom: 0;
+    font-size: 0.75em;
+    height: 50px;
+    left: 0;
+    opacity: 0.8;
     padding: 0 80px;
+    position: absolute;
+    visibility: hidden;
+    width: 100%;
+}
+
+#settings-form select {
+    background: black;
+    border: 1px solid white;
+    color: white;
+    margin-top: 2px;
+    width: 219px;
+}
+
+#settings-form input[type="radio"] + label {
+    display: block;
 }
 
 #messages {
@@ -272,6 +386,15 @@ input[type="checkbox"]:checked + label::before {
 
 .warning.message {
     color: #C3C300;
+}
+
+#messages.hints-none .message,
+#messages.hints-warnings-only .message {
+    display: none;
+}
+
+#messages.hints-warnings-only .message.warning {
+    display: block;
 }
 
 .canvasHeight {

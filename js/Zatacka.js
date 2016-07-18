@@ -49,25 +49,63 @@ const Zatacka = ((window, document) => {
     });
 
     const PREFERENCES = Object.freeze([
+        // {
+        //     type: BooleanPreference,
+        //     key: STRINGS.pref_key_prevent_spawnkill,
+        //     label: TEXT.pref_label_prevent_spawnkill,
+        //     description: TEXT.pref_label_description_prevent_spawnkill,
+        //     default: true,
+        // },
         {
             type: MultichoicePreference,
             key: STRINGS.pref_key_cursor,
+            label: TEXT.pref_label_cursor,
+            description: TEXT.pref_label_description_cursor,
             values: [
                 STRINGS.pref_value_cursor_always_visible,
                 STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player,
-                STRINGS.pref_value_cursor_always_hidden
+                STRINGS.pref_value_cursor_always_hidden,
             ],
-            default: STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player
+            labels: [
+                TEXT.pref_label_cursor_always_visible,
+                TEXT.pref_label_cursor_hidden_when_mouse_used_by_player,
+                TEXT.pref_label_cursor_always_hidden,
+            ],
+            default: STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player,
+        },
+        {
+            type: MultichoicePreference,
+            key: STRINGS.pref_key_edge_fix,
+            label: TEXT.pref_label_edge_fix,
+            description: TEXT.pref_label_description_edge_fix,
+            values: [
+                STRINGS.pref_value_edge_fix_full,
+                STRINGS.pref_value_edge_fix_minimal,
+                STRINGS.pref_value_edge_fix_off,
+            ],
+            labels: [
+                TEXT.pref_label_edge_fix_full,
+                TEXT.pref_label_edge_fix_minimal,
+                TEXT.pref_label_edge_fix_off,
+            ],
+            default: STRINGS.pref_value_edge_fix_off,
         },
         {
             type: MultichoicePreference,
             key: STRINGS.pref_key_hints,
+            label: TEXT.pref_label_hints,
+            description: TEXT.pref_label_description_hints,
             values: [
                 STRINGS.pref_value_hints_all,
                 STRINGS.pref_value_hints_warnings_only,
-                STRINGS.pref_value_hints_none
+                STRINGS.pref_value_hints_none,
             ],
-            default: STRINGS.pref_value_hints_all
+            labels: [
+                TEXT.pref_label_hints_all,
+                TEXT.pref_label_hints_warnings_only,
+                TEXT.pref_label_hints_none,
+            ],
+            default: STRINGS.pref_value_hints_all,
         }
     ]);
 
@@ -152,13 +190,13 @@ const Zatacka = ((window, document) => {
         let behavior;
         switch (preferenceManager.get(STRINGS.pref_key_cursor)) {
             case STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player:
-                behavior = mouseIsBeingUsed ? guiController.CURSOR_HIDDEN : guiController.CURSOR_VISIBLE;
+                behavior = mouseIsBeingUsed ? STRINGS.cursor_hidden : STRINGS.cursor_visible;
                 break;
             case STRINGS.pref_value_cursor_always_hidden:
-                behavior = guiController.CURSOR_HIDDEN;
+                behavior = STRINGS.cursor_hidden;
                 break;
             default:
-                behavior = guiController.CURSOR_VISIBLE;
+                behavior = STRINGS.cursor_visible;
         }
         log(`Setting cursor behavior to ${behavior}.`);
         guiController.setCursorBehavior(behavior);
@@ -167,9 +205,7 @@ const Zatacka = ((window, document) => {
     function proceedKeyPressedInLobby() {
         const numberOfReadyPlayers = game.getNumberOfPlayers();
         if (numberOfReadyPlayers > 0) {
-            clearTimeout(hintPickTimer);
-            clearTimeout(hintProceedTimer);
-            guiController.clearMessages();
+            clearMessages();
             removeLobbyEventListeners();
             addGameEventListeners();
             applyCursorBehavior();
@@ -242,6 +278,10 @@ const Zatacka = ((window, document) => {
         }
     }
 
+    function eventConsumer(event) {
+        event.stopPropagation();
+    }
+
     function keyPressedInLobby(pressedKey) {
         config.defaultPlayers.forEach((playerData) => {
             addOrRemovePlayer(playerData, pressedKey);
@@ -299,8 +339,76 @@ const Zatacka = ((window, document) => {
         event.preventDefault();
     }
 
+    function settingsKeyHandler(event) {
+        const pressedKey = event.keyCode;
+        if (isQuitKey(pressedKey)) {
+            hideSettings();
+        }
+    }
+
+    function showSettings() {
+        clearTimeout(hintPickTimer);
+        clearTimeout(hintProceedTimer);
+        guiController.updateSettingsForm(preferenceManager.getAllPreferencesWithValues());
+        removeLobbyEventListeners();
+        addHideSettingsButtonEventListener();
+        document.addEventListener("keydown", settingsKeyHandler);
+        guiController.showSettings();
+    }
+
+    function hideSettings() {
+        document.removeEventListener("keydown", settingsKeyHandler);
+        addLobbyEventListeners();
+        guiController.parseSettingsForm().forEach((newSetting) => {
+            if (preferenceManager.get(newSetting.key) !== newSetting.value) {
+                // Setting has changed, so it must be updated.
+                preferenceManager.set(newSetting.key, newSetting.value);
+            }
+        });
+        applySettings();
+        guiController.hideSettings();
+    }
+
+    function applySettings() {
+        // Edge fix:
+        setEdgeMode(preferenceManager.get(STRINGS.pref_key_edge_fix));
+        // Hints:
+        guiController.setMessageMode(preferenceManager.get(STRINGS.pref_key_hints));
+    }
+
+    function clearMessages() {
+        clearTimeout(hintPickTimer);
+        clearTimeout(hintProceedTimer);
+        guiController.clearMessages();
+    }
+
+    function addShowSettingsButtonEventListener() {
+        const showSettingsButton = byID("button-show-settings");
+        if (showSettingsButton instanceof HTMLElement) {
+            showSettingsButton.addEventListener("mousedown", eventConsumer);
+            showSettingsButton.addEventListener("click", showSettings);
+        }
+    }
+
+    function addHideSettingsButtonEventListener() {
+        const hideSettingsButton = byID("button-hide-settings");
+        if (hideSettingsButton instanceof HTMLElement) {
+            hideSettingsButton.addEventListener("mousedown", eventConsumer);
+            hideSettingsButton.addEventListener("click", hideSettings);
+        }
+    }
+
+    function removeShowSettingsButtonEventListener() {
+        const showSettingsButton = byID("button-show-settings");
+        if (showSettingsButton instanceof HTMLElement) {
+            showSettingsButton.removeEventListener("mousedown", eventConsumer);
+            showSettingsButton.removeEventListener("click", showSettings);
+        }
+    }
+
     function addLobbyEventListeners() {
         log("Adding lobby event listeners ...");
+        addShowSettingsButtonEventListener();
         document.addEventListener("keydown", lobbyKeyHandler);
         document.addEventListener("mousedown", lobbyMouseHandler);
         document.addEventListener("contextmenu", lobbyMouseHandler);
@@ -309,6 +417,7 @@ const Zatacka = ((window, document) => {
 
     function removeLobbyEventListeners() {
         log("Removing lobby event listeners ...");
+        removeShowSettingsButtonEventListener();
         document.removeEventListener("keydown", lobbyKeyHandler);
         document.removeEventListener("mousedown", lobbyMouseHandler);
         document.removeEventListener("contextmenu", lobbyMouseHandler);
@@ -347,6 +456,8 @@ const Zatacka = ((window, document) => {
     let hintPickTimer = setTimeout(() => {
         guiController.showMessage(config.messages.pick);
     }, config.hintDelay);
+
+    applySettings();
 
     return {
         getConfig: () => config,

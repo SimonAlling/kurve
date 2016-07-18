@@ -63,7 +63,7 @@
         <div id="border1" class="border">
             <canvas id="canvas_main" width="559" height="480"></canvas>
             <canvas id="canvas_overlay"  width="559" height="480" class="overlay"></canvas>
-            <div id="lobby" class="overlay">
+            <div id="lobby" class="flex overlay">
                 <ul id="controls">
                     <li>
                         <div class="red controls"></div>
@@ -90,6 +90,7 @@
                         <div class="blue ready"></div>
                     </li>
                 </ul>
+                <a id="button-show-settings" class="corner icon-button"></a>
             </div>
             <div id="KONEC_HRY" class="hidden overlay">
                 <ul id="results">
@@ -102,6 +103,10 @@
                 </ul>
             </div>
             <div id="messages" class="unobtrusive overlay"></div>
+            <div id="settings" class="hidden overlay">
+                <a id="button-hide-settings" class="corner icon-button"></a>
+                <form id="settings-form"></form>
+            </div>
         </div>
         </div>
         </div>
@@ -135,6 +140,7 @@
     <script src="js/lib/WarningMessage.js"></script>
     <script src="js/locales/Zatacka.en_US.js"></script>
     <script src="js/lib/preferences/Preference.js"></script>
+    <script src="js/lib/preferences/PreferenceWithValue.js"></script>
     <script src="js/lib/preferences/MultichoicePreference.js"></script>
     <script src="js/lib/preferences/BooleanPreference.js"></script>
     <script src="js/lib/preferences/RangePreference.js"></script>

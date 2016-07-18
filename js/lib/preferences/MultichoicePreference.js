@@ -7,6 +7,7 @@ class MultichoicePreference extends Preference {
         }
         super(data);
         this.values = data.values;
+        this.labels = data.labels;
         if (!this.isValidValue(data.default)) {
             super.invalidValue(data.default);
         }
