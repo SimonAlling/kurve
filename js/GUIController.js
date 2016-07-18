@@ -88,21 +88,6 @@ function GUIController(cfg) {
 
         // Multichoice
         else if (preference instanceof MultichoicePreference) {
-            // div.appendChild(label);
-            // const select = document.createElement("select");
-            // select.id = STRINGS.html_name_preference_prefix + preference.key;
-            // select.dataset.key = preference.key;
-            // preference.values.forEach((value, index) => {
-            //     const option = document.createElement("option");
-            //     option.value = value;
-            //     option.textContent = preference.labels[index];
-            //     if (preference.constructor.stringify(preferenceValue) === value) {
-            //         option.selected = true;
-            //     }
-            //     select.appendChild(option);
-            // });
-            // div.appendChild(select);
-
             const fieldset = document.createElement("fieldset");
             const legend = document.createElement("legend");
             legend.textContent = preference.label;
