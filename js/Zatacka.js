@@ -49,13 +49,13 @@ const Zatacka = ((window, document) => {
     });
 
     const PREFERENCES = Object.freeze([
-        {
-            type: BooleanPreference,
-            key: STRINGS.pref_key_prevent_spawnkill,
-            label: TEXT.pref_label_prevent_spawnkill,
-            description: TEXT.pref_label_description_prevent_spawnkill,
-            default: true,
-        },
+        // {
+        //     type: BooleanPreference,
+        //     key: STRINGS.pref_key_prevent_spawnkill,
+        //     label: TEXT.pref_label_prevent_spawnkill,
+        //     description: TEXT.pref_label_description_prevent_spawnkill,
+        //     default: true,
+        // },
         {
             type: MultichoicePreference,
             key: STRINGS.pref_key_cursor,
