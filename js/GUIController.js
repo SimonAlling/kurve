@@ -2,10 +2,6 @@
 
 function GUIController(cfg) {
 
-    const CURSOR_VISIBLE = "visible";
-    const CURSOR_HIDDEN_ON_CANVAS = "hidden_on_canvas";
-    const CURSOR_HIDDEN = "hidden";
-
     const config = cfg;
     const lobby = byID("lobby");
     const controls = byID("controls");
@@ -54,23 +50,15 @@ function GUIController(cfg) {
 
     function setCursorBehavior(behavior) {
         switch (behavior) {
-            case CURSOR_VISIBLE:
+            case STRINGS.cursor_visible:
                 document.body.classList.remove(STRINGS.class_nocursor);
                 break;
-            case CURSOR_HIDDEN_ON_CANVAS:
-                canvas_main.classList.add(STRINGS.class_nocursor);
-                canvas_overlay.classList.add(STRINGS.class_nocursor);
-                break;
-            case CURSOR_HIDDEN:
+            case STRINGS.cursor_hidden:
                 document.body.classList.add(STRINGS.class_nocursor);
                 break;
             default:
                 logError(`Cannot set cursor behavior to '${behavior}'.`);
         }
-    }
-
-    function resetCursorBehavior() {
-        setCursorBehavior(CURSOR_VISIBLE);
     }
 
     function settingsEntryHTMLElement(preference, preferenceValue) {
@@ -79,48 +67,75 @@ function GUIController(cfg) {
         }
 
         // Common
-        const p = document.createElement("p");
+        const div = document.createElement("div");
         const label = document.createElement("label");
         label.textContent = preference.label;
-        label.for = `${STRINGS.html_name_preference_prefix}${preference.key}`;
+        label.setAttribute("for", `${STRINGS.html_name_preference_prefix}${preference.key}`);
+        const description = document.createElement("aside");
+        description.textContent = preference.description;
+        description.classList.add(STRINGS.class_description);
 
         // Boolean
         if (preference instanceof BooleanPreference) {
             const input = document.createElement("input");
             input.type = "checkbox";
-            input.name = STRINGS.html_name_preference_prefix + preference.key;
+            input.dataset.key = preference.key;
+            input.id = STRINGS.html_name_preference_prefix + preference.key;
             input.checked = preferenceValue === true;
-            p.appendChild(input);
-            p.appendChild(label);
+            div.appendChild(input);
+            div.appendChild(label);
         }
 
         // Multichoice
         else if (preference instanceof MultichoicePreference) {
-            p.appendChild(label);
-            const select = document.createElement("select");
-            select.name = STRINGS.html_name_preference_prefix + preference.key;
+            // div.appendChild(label);
+            // const select = document.createElement("select");
+            // select.id = STRINGS.html_name_preference_prefix + preference.key;
+            // select.dataset.key = preference.key;
+            // preference.values.forEach((value, index) => {
+            //     const option = document.createElement("option");
+            //     option.value = value;
+            //     option.textContent = preference.labels[index];
+            //     if (preference.constructor.stringify(preferenceValue) === value) {
+            //         option.selected = true;
+            //     }
+            //     select.appendChild(option);
+            // });
+            // div.appendChild(select);
+
+            const fieldset = document.createElement("fieldset");
+            const legend = document.createElement("legend");
+            legend.textContent = preference.label;
+            fieldset.appendChild(legend);
             preference.values.forEach((value, index) => {
-                const option = document.createElement("option");
-                option.value = value;
-                option.textContent = preference.labels[index];
-                if (preference.constructor.stringify(preferenceValue) === value) {
-                    option.selected = true;
-                }
-                select.appendChild(option);
+                const id = STRINGS.html_name_preference_prefix + preference.key + "-" + preference.values[index];
+                const radioButton = document.createElement("input");
+                radioButton.type = "radio";
+                radioButton.id = id;
+                radioButton.name = STRINGS.html_name_preference_prefix + preference.key;
+                radioButton.value = value;
+                radioButton.dataset.key = preference.key;
+                radioButton.checked = preferenceValue === value;
+                const radioButtonLabel = document.createElement("label");
+                radioButtonLabel.textContent = preference.labels[index];
+                radioButtonLabel.setAttribute("for", id);
+                fieldset.appendChild(radioButton);
+                fieldset.appendChild(radioButtonLabel);
             });
-            p.appendChild(select);
+            div.appendChild(fieldset);
         }
 
         // Range
         else if (preference instanceof RangePreference) {
-            p.appendChild(label);
+            div.appendChild(label);
             const input = document.createElement("input");
             input.type = "number";
             input.name = STRINGS.html_name_preference_prefix + preference.key;
-            p.appendChild(input);
+            div.appendChild(input);
         }
 
-        return p;
+        div.appendChild(description);
+        return div;
     }
 
 
@@ -167,7 +182,7 @@ function GUIController(cfg) {
         resetScoreboard();
         resetResults();
         allPlayersUnready();
-        resetCursorBehavior();
+        setCursorBehavior(STRINGS.cursor_visible);
     }
 
     function konecHry() {
@@ -205,6 +220,32 @@ function GUIController(cfg) {
         });
     }
 
+    function parseSettingsForm() {
+        const newSettings = [];
+        // <input> elements:
+        const inputs = settingsForm.querySelectorAll("input");
+        inputs.forEach((input) => {
+            if (input.type === "checkbox") {
+                // checkbox
+                newSettings.push({ key: input.dataset.key, value: input.checked });
+            } else if (input.type === "radio") {
+                // radio
+                if (input.checked === true) {
+                    newSettings.push({ key: input.dataset.key, value: input.value });
+                }
+            } else {
+                // text, number etc
+                newSettings.push({ key: input.dataset.key, value: input.value.toString() });
+            }
+        });
+        // <select> elements:
+        const selects = settingsForm.querySelectorAll("select");
+        selects.forEach((select) => {
+            newSettings.push({ key: select.dataset.key, value: select.options[select.selectedIndex].value });
+        });
+        return newSettings;
+    }
+
     function hideMessage(message) {
         currentMessages = currentMessages.filter(msg => msg !== message);
         updateMessages(currentMessages);
@@ -224,6 +265,23 @@ function GUIController(cfg) {
     function clearMessages() {
         currentMessages = [];
         updateMessages(currentMessages);
+    }
+
+    function setMessageMode(mode) {
+        log(`Setting message mode to ${mode}.`);
+        switch (mode) {
+            case STRINGS.pref_value_hints_warnings_only:
+                messagesContainer.classList.remove(STRINGS.class_hints_none);
+                messagesContainer.classList.add(STRINGS.class_hints_warnings_only);
+                break;
+            case STRINGS.pref_value_hints_none:
+                messagesContainer.classList.remove(STRINGS.class_hints_warnings_only);
+                messagesContainer.classList.add(STRINGS.class_hints_none);
+                break;
+            default:
+                messagesContainer.classList.remove(STRINGS.class_hints_warnings_only);
+                messagesContainer.classList.remove(STRINGS.class_hints_none);
+        }
     }
 
     function updateBoard(board, id, newScore) {
@@ -257,9 +315,6 @@ function GUIController(cfg) {
     }
 
     return {
-        CURSOR_VISIBLE,
-        CURSOR_HIDDEN_ON_CANVAS,
-        CURSOR_HIDDEN,
         playerReady,
         playerUnready,
         gameStarted,
@@ -268,11 +323,13 @@ function GUIController(cfg) {
         showSettings,
         hideSettings,
         updateSettingsForm,
+        parseSettingsForm,
         updateScoreOfPlayer,
         updateMessages,
         showMessage,
         hideMessage,
         clearMessages,
+        setMessageMode,
         setCursorBehavior,
         setEdgePadding
     };

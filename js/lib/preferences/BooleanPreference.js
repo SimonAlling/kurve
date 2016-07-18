@@ -1,13 +1,15 @@
 "use strict";
 
-class BooleanPreference extends MultichoicePreference {
+class BooleanPreference extends Preference {
     constructor(data) {
-        super({
-            key: data.key,
-            values: ["true", "false"],
-            label: data.label,
-            default: data.default
-        });
+        super(data);
+        if (!(data.default === true || data.default === false)) {
+            super.invalidValue(data.default);
+        }
+    }
+
+    isValidValue(value) {
+        return value === true || value === false;
     }
 
     static stringify(value) {

@@ -10,6 +10,7 @@ class Preference {
         this.key = data.key;
         this.label = data.label;
         this.default = data.default;
+        this.description = data.description;
     }
 
     isValidValue(value) {
