@@ -5,6 +5,7 @@ const TEXT = (() => {
     const KEY_CMD   = "⌘";
 
     return Object.freeze({
+        hint_unload: `Are you sure you want to unload the page?`,
         hint_start: `Press Space to start`,
         hint_pick: `Pick your desired color by pressing the corresponding LEFT key (e.g. M for Orange).`,
         hint_proceed: `Press Space or Enter to start!`,

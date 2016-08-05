@@ -339,6 +339,13 @@ const Zatacka = ((window, document) => {
         event.preventDefault();
     }
 
+    function gameUnloadHandler(event) {
+        // A simple trick to prevent accidental unloading of the entire game.
+        const message = TEXT.hint_unload;
+        event.returnValue = message; // Gecko, Trident, Chrome 34+
+        return TEXT.hint_unload;     // Gecko, Webkit, Chrome <34
+    }
+
     function settingsKeyHandler(event) {
         const pressedKey = event.keyCode;
         if (isQuitKey(pressedKey)) {
@@ -433,6 +440,7 @@ const Zatacka = ((window, document) => {
         document.addEventListener("keydown", gameKeyHandler);
         document.addEventListener("mousedown", gameMouseHandler);
         document.addEventListener("contextmenu", gameMouseHandler);
+        window.addEventListener("beforeunload", gameUnloadHandler);
         log("Done.");
     }
 
@@ -440,6 +448,7 @@ const Zatacka = ((window, document) => {
         log("Removing game event listeners ...");
         document.removeEventListener("keydown", gameKeyHandler);
         document.removeEventListener("mousedown", gameMouseHandler);
+        window.removeEventListener("beforeunload", gameUnloadHandler);
         log("Done.");
     }
 
