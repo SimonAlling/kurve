@@ -345,7 +345,7 @@ const Zatacka = ((window, document) => {
         // A simple trick to prevent accidental unloading of the entire game.
         const message = TEXT.hint_unload;
         event.returnValue = message; // Gecko, Trident, Chrome 34+
-        return TEXT.hint_unload;     // Gecko, Webkit, Chrome <34
+        return message;              // Gecko, Webkit, Chrome <34
     }
 
     function settingsKeyHandler(event) {
