@@ -374,14 +374,14 @@ const Zatacka = ((window, document) => {
     function hideSettings() {
         document.removeEventListener("keydown", settingsKeyHandler);
         addLobbyEventListeners();
-        try {
-            guiController.parseSettingsForm().forEach((newSetting) => {
+        guiController.parseSettingsForm().forEach((newSetting) => {
+            try {
                 preferenceManager.set(newSetting.key, newSetting.value);
-            });
-        } catch(e) {
-            logWarning("Could not save settings to localStorage.");
-            handleSettingsAccessError(e);
-        }
+            } catch(e) {
+                logWarning(`Could not save setting '${newSetting.key}' to localStorage.`);
+                handleSettingsAccessError(e);
+            }
+        });
         applySettings();
         guiController.hideSettings();
     }
