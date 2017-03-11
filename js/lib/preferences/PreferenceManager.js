@@ -2,11 +2,36 @@
 
 function PreferenceManager(preferencesData) {
     const LOCALSTORAGE_PREFIX = "pref_key_";
+    const CONSOLE_PREFIX = "[PreferenceManager] ";
+    const ERROR_NAME_SECURITY = "SecurityError";
 
     // Parse and validate preferences:
     log("Validating preferences ...");
     const PREFERENCES = parsePreferences(preferencesData);
     log("Done.");
+
+    // Initialize cached preference database:
+    let CACHED_PREFERENCES_WITH_VALUES = getAllPreferencesWithDefaultValues();
+    CACHED_PREFERENCES_WITH_VALUES.forEach((preferenceWithValue) => {
+        const key = preferenceWithValue.preference.key;
+        try {
+            preferenceWithValue.value = get(key);
+        } catch(e) {
+            logWarning(`Using default value '${preferenceWithValue.preference.getDefaultValue()}' for preference '${key}' since no saved value could be loaded from localStorage.`);
+        }
+    });
+
+    function log(string) {
+        console.log(CONSOLE_PREFIX + string);
+    }
+
+    function logWarning(string) {
+        console.warn(CONSOLE_PREFIX + string);
+    }
+
+    function logError(string) {
+        console.error(CONSOLE_PREFIX + string);
+    }
 
     function parsePreferences(preferencesData) {
         return preferencesData.map(parsePreference);
@@ -31,8 +56,16 @@ function PreferenceManager(preferencesData) {
         return PREFERENCES.find((pref) => pref.key === key);
     }
 
-    function getAllPreferencesWithValues() {
-        return PREFERENCES.map((preference) => new PreferenceWithValue(preference, get(preference.key)));
+    function getCachedPreference(key) {
+        return CACHED_PREFERENCES_WITH_VALUES.find((preferenceWithValue) => preferenceWithValue.preference.key === key);
+    }
+
+    function getAllPreferencesWithValues() { // throws SecurityError
+        return PREFERENCES.map((preference) => new PreferenceWithValue(preference, getCached(preference.key)));
+    }
+
+    function getAllPreferencesWithDefaultValues() {
+        return PREFERENCES.map((preference) => new PreferenceWithValue(preference, preference.getDefaultValue()));
     }
 
     function getKey(pref) {
@@ -43,13 +76,13 @@ function PreferenceManager(preferencesData) {
         return getPreference(key).isValidValue(value);
     }
 
-    function setToDefaultValue(key) {
+    function setToDefaultValue(key) { // throws SecurityError
         set(key, getDefaultValue(key));
     }
 
     function getDefaultValue(key) {
         if (!preferenceExists(key)) {
-            throw new Error(`Preference ${key} does not exist.`);
+            throw new Error(`Preference '${key}' does not exist.`);
         }
         return getPreference(key).getDefaultValue();
     }
@@ -58,7 +91,7 @@ function PreferenceManager(preferencesData) {
         return LOCALSTORAGE_PREFIX + key;
     }
 
-    function set(key, value) {
+    function set(key, value) { // throws SecurityError
         if (!preferenceExists(key)) {
             throw new Error(`There is no preference with key '${key}'.`);
         }
@@ -66,18 +99,42 @@ function PreferenceManager(preferencesData) {
         if (!isValidPreferenceValue(key, value)) {
             pref.invalidValue(value);
         } else {
-            log(`Setting preference ${key} to ${value}.`);
-            localStorage.setItem(LS_prefix(key), pref.constructor.stringify(value));
+            log(`Setting preference '${key}' to '${value}'.`);
+            getCachedPreference(key).value = value;
+            try {
+                localStorage.setItem(LS_prefix(key), pref.constructor.stringify(value));
+            } catch(e) {
+                logError(`Failed to save value for preference '${key}' to localStorage. The following error was thrown:\n\n${e}`);
+                if (e.name === ERROR_NAME_SECURITY) {
+                    throw e;
+                }
+            }
         }
     }
 
-    function get(key) {
+    function get(key) { // throws SecurityError 
         if (!preferenceExists(key)) {
             throw new Error(`There is no preference with key '${key}'.`);
         }
         const pref = getPreference(key);
-        const savedValue = localStorage.getItem(LS_prefix(key));
+        const defaultValue = pref.getDefaultValue();
+        let savedValue;
+        try {
+            savedValue = localStorage.getItem(LS_prefix(key));
+        } catch(e) {
+            logError(`Failed to load saved value for preference '${key}' from localStorage. The following error was thrown:\n\n${e}`);
+            if (e.name === ERROR_NAME_SECURITY) {
+                throw e;
+            } else {
+                logWarning(`Returning the default value for '${key}': '${defaultValue}'`);
+                return defaultValue;
+            }
+        }
         return isValidPreferenceValue(key, pref.constructor.parse(savedValue)) ? pref.constructor.parse(savedValue) : getDefaultValue(key);
+    }
+
+    function getCached(key) {
+        return getCachedPreference(key).value;
     }
 
     function setAllToDefault() {
@@ -90,9 +147,11 @@ function PreferenceManager(preferencesData) {
         isValidPreferenceValue,
         set,
         get,
+        getCached,
         setToDefaultValue,
         getDefaultValue,
         getAllPreferencesWithValues,
+        getAllPreferencesWithDefaultValues,
         setAllToDefault
     }
 }

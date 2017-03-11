@@ -14,6 +14,7 @@ const TEXT = (() => {
         hint_alt: `Alt plus some other keys may cause undesired behavior (e.g. switching windows).`,
         hint_ctrl: `Ctrl plus some other keys may cause undesired behavior (e.g. closing the tab).`,
         hint_mouse: `Make sure to keep the mouse cursor inside the browser window.`,
+        hint_preferences_access_denied: `Could not save/load settings. Access to localStorage denied by the browser.`,
 
         keyboard_fullscreen_mac: `${KEY_CMD} + ${KEY_SHIFT} + F`,
         keyboard_fullscreen_standard: "F11",

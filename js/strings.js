@@ -3,6 +3,8 @@
 const STRINGS = (() => Object.freeze({
     game_url: "ZATACKA.html",
 
+    error_name_security: "SecurityError",
+
     class_hidden: "hidden",
     class_active: "active",
     class_description: "description",

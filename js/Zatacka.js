@@ -37,6 +37,7 @@ const Zatacka = ((window, document) => {
             alt:     new WarningMessage(TEXT.hint_alt),
             ctrl:    new WarningMessage(TEXT.hint_ctrl),
             mouse:   new WarningMessage(TEXT.hint_mouse),
+            preferences_access_denied: new WarningMessage(TEXT.hint_preferences_access_denied),
         }),
         defaultPlayers: Object.freeze([
             { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]                              , keyR: KEY.Q                         },
@@ -188,7 +189,7 @@ const Zatacka = ((window, document) => {
     function applyCursorBehavior() {
         const mouseIsBeingUsed = game.getPlayers().some(hasMouseButton);
         let behavior;
-        switch (preferenceManager.get(STRINGS.pref_key_cursor)) {
+        switch (preferenceManager.getCached(STRINGS.pref_key_cursor)) {
             case STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player:
                 behavior = mouseIsBeingUsed ? STRINGS.cursor_hidden : STRINGS.cursor_visible;
                 break;
@@ -356,7 +357,12 @@ const Zatacka = ((window, document) => {
     function showSettings() {
         clearTimeout(hintPickTimer);
         clearTimeout(hintProceedTimer);
-        guiController.updateSettingsForm(preferenceManager.getAllPreferencesWithValues());
+        try {
+            guiController.updateSettingsForm(preferenceManager.getAllPreferencesWithValues());
+        } catch(e) {
+            guiController.updateSettingsForm(preferenceManager.getAllPreferencesWithDefaultValues());
+            handleSettingsAccessError(e);
+        }
         removeLobbyEventListeners();
         addHideSettingsButtonEventListener();
         document.addEventListener("keydown", settingsKeyHandler);
@@ -367,9 +373,10 @@ const Zatacka = ((window, document) => {
         document.removeEventListener("keydown", settingsKeyHandler);
         addLobbyEventListeners();
         guiController.parseSettingsForm().forEach((newSetting) => {
-            if (preferenceManager.get(newSetting.key) !== newSetting.value) {
-                // Setting has changed, so it must be updated.
+            try {
                 preferenceManager.set(newSetting.key, newSetting.value);
+            } catch(e) {
+                handleSettingsAccessError(e);
             }
         });
         applySettings();
@@ -377,10 +384,22 @@ const Zatacka = ((window, document) => {
     }
 
     function applySettings() {
-        // Edge fix:
-        setEdgeMode(preferenceManager.get(STRINGS.pref_key_edge_fix));
-        // Hints:
-        guiController.setMessageMode(preferenceManager.get(STRINGS.pref_key_hints));
+        try {
+            // Edge fix:
+            setEdgeMode(preferenceManager.get(STRINGS.pref_key_edge_fix));
+            // Hints:
+            guiController.setMessageMode(preferenceManager.get(STRINGS.pref_key_hints));
+        } catch(e) {
+            setEdgeMode(preferenceManager.getCached(STRINGS.pref_key_edge_fix));
+            guiController.setMessageMode(preferenceManager.getCached(STRINGS.pref_key_hints));
+            handleSettingsAccessError(e);
+        }
+    }
+
+    function handleSettingsAccessError(error) {
+        if (error.name === STRINGS.error_name_security) {
+            guiController.showMessage(config.messages.preferences_access_denied);
+        }
     }
 
     function clearMessages() {
