@@ -38,6 +38,7 @@ const Zatacka = ((window, document) => {
             ctrl:    new WarningMessage(TEXT.hint_ctrl),
             mouse:   new WarningMessage(TEXT.hint_mouse),
             preferences_access_denied: new WarningMessage(TEXT.hint_preferences_access_denied),
+            preferences_localstorage_failed: new WarningMessage(TEXT.hint_preferences_localstorage_failed),
         }),
         defaultPlayers: Object.freeze([
             { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]                              , keyR: KEY.Q                         },
@@ -358,9 +359,10 @@ const Zatacka = ((window, document) => {
         clearTimeout(hintPickTimer);
         clearTimeout(hintProceedTimer);
         try {
-            guiController.updateSettingsForm(preferenceManager.getAllPreferencesWithValues());
+            guiController.updateSettingsForm(preferenceManager.getAllPreferencesWithValues_saved());
         } catch(e) {
-            guiController.updateSettingsForm(preferenceManager.getAllPreferencesWithDefaultValues());
+            logWarning("Could not load settings from localStorage. Using cached settings instead.");
+            guiController.updateSettingsForm(preferenceManager.getAllPreferencesWithValues_cached());
             handleSettingsAccessError(e);
         }
         removeLobbyEventListeners();
@@ -372,13 +374,14 @@ const Zatacka = ((window, document) => {
     function hideSettings() {
         document.removeEventListener("keydown", settingsKeyHandler);
         addLobbyEventListeners();
-        guiController.parseSettingsForm().forEach((newSetting) => {
-            try {
+        try {
+            guiController.parseSettingsForm().forEach((newSetting) => {
                 preferenceManager.set(newSetting.key, newSetting.value);
-            } catch(e) {
-                handleSettingsAccessError(e);
-            }
-        });
+            });
+        } catch(e) {
+            logWarning("Could not save settings to localStorage.");
+            handleSettingsAccessError(e);
+        }
         applySettings();
         guiController.hideSettings();
     }
@@ -386,10 +389,11 @@ const Zatacka = ((window, document) => {
     function applySettings() {
         try {
             // Edge fix:
-            setEdgeMode(preferenceManager.get(STRINGS.pref_key_edge_fix));
+            setEdgeMode(preferenceManager.getSaved(STRINGS.pref_key_edge_fix));
             // Hints:
-            guiController.setMessageMode(preferenceManager.get(STRINGS.pref_key_hints));
+            guiController.setMessageMode(preferenceManager.getSaved(STRINGS.pref_key_hints));
         } catch(e) {
+            logWarning("Could not load settings from localStorage. Using cached settings instead.");
             setEdgeMode(preferenceManager.getCached(STRINGS.pref_key_edge_fix));
             guiController.setMessageMode(preferenceManager.getCached(STRINGS.pref_key_hints));
             handleSettingsAccessError(e);
@@ -399,6 +403,8 @@ const Zatacka = ((window, document) => {
     function handleSettingsAccessError(error) {
         if (error.name === STRINGS.error_name_security) {
             guiController.showMessage(config.messages.preferences_access_denied);
+        } else {
+            guiController.showMessage(config.messages.preferences_localstorage_failed);
         }
     }
 
