@@ -46,10 +46,10 @@ input[type="radio"] + label {
     position: relative;
 }
 
-/* Actual checkbox: */
+/* Actual checkbox or radio button: */
 input[type="checkbox"] + label::before,
 input[type="radio"] + label::before {
-    background-position: center center;
+    background-image: url("resources/kurve-icons.png");
     background-repeat: no-repeat;
     box-sizing: border-box;
     content: "";
@@ -61,21 +61,25 @@ input[type="radio"] + label::before {
     width: 12px;
 }
 
+/* Actual checkbox: */
 input[type="checkbox"] + label::before {
     border: 1px white solid;
-}
-
-input[type="radio"] + label::before {
-    background-image: url("resources/kurve-radio-button.png");
+    background-position: 0 0;
 }
 
 /* Actual checkbox when checked: */
 input[type="checkbox"]:checked + label::before {
-    background-image: url("resources/kurve-checkbox-tickmark.png");
+    background-position: 0 -48px;
 }
 
+/* Actual radio button: */
+input[type="radio"] + label::before {
+    background-position: 0 -64px;
+}
+
+/* Actual radio button when checked: */
 input[type="radio"]:checked + label::before {
-    background-image: url("resources/kurve-radio-button-checked.png");
+    background-position: 0 -80px;
 }
 
 input[type="checkbox"] + label,
@@ -297,11 +301,11 @@ select {
 #lobby #controls .blue.ready      { background-position: -160px -250px; }
 
 #button-show-settings {
-    background-position: 0 -16px;
+    background-position: 0 -32px;
 }
 
 #button-hide-settings {
-    background-position: 0 0;
+    background-position: 0 -16px;
 }
 
 #settings {
@@ -313,6 +317,23 @@ select {
     box-sizing: border-box;
     margin: 12px 0;
     opacity: 0.6;
+}
+
+#settings-form > div.half-width {
+    display: inline-block;
+    width: calc(50% - 8px); /* 50% - half the margin-right */
+    margin-top: 0; /* otherwise it will stack with the margin-bottom above */
+    margin-right: 16px;
+}
+
+#settings-form > div.half-width.right-hand-side {
+    /* A half-width div on the right hand side must have no margin-right, so it fits in the available horizontal space. */
+    margin-right: 0;
+}
+
+#settings-form > div.half-width + div {
+    /* A full-width div right after a half-width one must have no margin-top; otherwise their margins will stack. */
+    margin-top: 0;
 }
 
 #settings-form > div:hover {

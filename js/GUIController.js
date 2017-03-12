@@ -16,6 +16,7 @@ function GUIController(cfg) {
     const settingsForm = byID("settings-form");
 
     const ORIGINAL_LEFT_WIDTH = left.offsetWidth;
+    const MULTICHOICE_LABEL_MAX_LENGTH_FOR_HALFWIDTH_FIELDSET = 22; // More characters than this will result in a full-width div/fieldset.
 
     let currentMessages = [];
 
@@ -58,6 +59,15 @@ function GUIController(cfg) {
                 break;
             default:
                 logError(`Cannot set cursor behavior to '${behavior}'.`);
+        }
+    }
+
+    function settingsEntryShouldBeHalfWidth(preference) {
+        if (preference instanceof MultichoicePreference) {
+            const longestValueLabel = preference.labels.reduce((acc, current) => current.length > acc.length ? current : acc);
+            return longestValueLabel.length <= MULTICHOICE_LABEL_MAX_LENGTH_FOR_HALFWIDTH_FIELDSET;
+        } else {
+            return false;
         }
     }
 
@@ -108,6 +118,9 @@ function GUIController(cfg) {
                 fieldset.appendChild(radioButtonLabel);
             });
             div.appendChild(fieldset);
+            if (settingsEntryShouldBeHalfWidth(preference)) {
+                div.classList.add(STRINGS.class_half_width);
+            }
         }
 
         // Range
@@ -200,8 +213,23 @@ function GUIController(cfg) {
 
     function updateSettingsForm(preferencesWithData) {
         flush(settingsForm);
-        preferencesWithData.forEach((preferenceWithData) => {
-            settingsForm.appendChild(settingsEntryHTMLElement(preferenceWithData.preference, preferenceWithData.value));
+        let settingsEntries = preferencesWithData.map((preferenceWithData) => settingsEntryHTMLElement(preferenceWithData.preference, preferenceWithData.value));
+        // Add special class to half-width divs on the right hand side:
+        let consecutiveHalfWidthDivs = 0;
+        for (let i = 0; i < settingsEntries.length; i++) {
+            const currentEntry = settingsEntries[i];
+            if (currentEntry.classList.contains(STRINGS.class_half_width)) {
+                consecutiveHalfWidthDivs++;
+                if (consecutiveHalfWidthDivs % 2 === 0) {
+                    // Even number of consecutive half-width divs, so this one will be on the right hand side.
+                    currentEntry.classList.add(STRINGS.class_right_hand_side);
+                }
+            } else {
+                consecutiveHalfWidthDivs = 0;
+            }
+        }
+        settingsEntries.forEach((settingsEntry) => {
+            settingsForm.appendChild(settingsEntry);
         });
     }
 
