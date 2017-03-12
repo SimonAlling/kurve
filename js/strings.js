@@ -18,6 +18,7 @@ const STRINGS = (() => Object.freeze({
 
     id_start_hint: "start-hint",
     id_fullscreen_hint: "fullscreen-hint",
+    id_popup_hint: "popup-hint",
 
     pref_key_cursor: "cursor",
     pref_value_cursor_always_visible: "always_visible",
