@@ -37,6 +37,8 @@ const Zatacka = ((window, document) => {
             alt:     new WarningMessage(TEXT.hint_alt),
             ctrl:    new WarningMessage(TEXT.hint_ctrl),
             mouse:   new WarningMessage(TEXT.hint_mouse),
+            preferences_access_denied: new WarningMessage(TEXT.hint_preferences_access_denied),
+            preferences_localstorage_failed: new WarningMessage(TEXT.hint_preferences_localstorage_failed),
         }),
         defaultPlayers: Object.freeze([
             { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]                              , keyR: KEY.Q                         },
@@ -49,25 +51,63 @@ const Zatacka = ((window, document) => {
     });
 
     const PREFERENCES = Object.freeze([
+        // {
+        //     type: BooleanPreference,
+        //     key: STRINGS.pref_key_prevent_spawnkill,
+        //     label: TEXT.pref_label_prevent_spawnkill,
+        //     description: TEXT.pref_label_description_prevent_spawnkill,
+        //     default: true,
+        // },
         {
             type: MultichoicePreference,
             key: STRINGS.pref_key_cursor,
+            label: TEXT.pref_label_cursor,
+            description: TEXT.pref_label_description_cursor,
             values: [
                 STRINGS.pref_value_cursor_always_visible,
                 STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player,
-                STRINGS.pref_value_cursor_always_hidden
+                STRINGS.pref_value_cursor_always_hidden,
             ],
-            default: STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player
+            labels: [
+                TEXT.pref_label_cursor_always_visible,
+                TEXT.pref_label_cursor_hidden_when_mouse_used_by_player,
+                TEXT.pref_label_cursor_always_hidden,
+            ],
+            default: STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player,
+        },
+        {
+            type: MultichoicePreference,
+            key: STRINGS.pref_key_edge_fix,
+            label: TEXT.pref_label_edge_fix,
+            description: TEXT.pref_label_description_edge_fix,
+            values: [
+                STRINGS.pref_value_edge_fix_full,
+                STRINGS.pref_value_edge_fix_minimal,
+                STRINGS.pref_value_edge_fix_off,
+            ],
+            labels: [
+                TEXT.pref_label_edge_fix_full,
+                TEXT.pref_label_edge_fix_minimal,
+                TEXT.pref_label_edge_fix_off,
+            ],
+            default: STRINGS.pref_value_edge_fix_off,
         },
         {
             type: MultichoicePreference,
             key: STRINGS.pref_key_hints,
+            label: TEXT.pref_label_hints,
+            description: TEXT.pref_label_description_hints,
             values: [
                 STRINGS.pref_value_hints_all,
                 STRINGS.pref_value_hints_warnings_only,
-                STRINGS.pref_value_hints_none
+                STRINGS.pref_value_hints_none,
             ],
-            default: STRINGS.pref_value_hints_all
+            labels: [
+                TEXT.pref_label_hints_all,
+                TEXT.pref_label_hints_warnings_only,
+                TEXT.pref_label_hints_none,
+            ],
+            default: STRINGS.pref_value_hints_all,
         }
     ]);
 
@@ -150,15 +190,15 @@ const Zatacka = ((window, document) => {
     function applyCursorBehavior() {
         const mouseIsBeingUsed = game.getPlayers().some(hasMouseButton);
         let behavior;
-        switch (preferenceManager.get(STRINGS.pref_key_cursor)) {
+        switch (preferenceManager.getCached(STRINGS.pref_key_cursor)) {
             case STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player:
-                behavior = mouseIsBeingUsed ? guiController.CURSOR_HIDDEN : guiController.CURSOR_VISIBLE;
+                behavior = mouseIsBeingUsed ? STRINGS.cursor_hidden : STRINGS.cursor_visible;
                 break;
             case STRINGS.pref_value_cursor_always_hidden:
-                behavior = guiController.CURSOR_HIDDEN;
+                behavior = STRINGS.cursor_hidden;
                 break;
             default:
-                behavior = guiController.CURSOR_VISIBLE;
+                behavior = STRINGS.cursor_visible;
         }
         log(`Setting cursor behavior to ${behavior}.`);
         guiController.setCursorBehavior(behavior);
@@ -167,9 +207,7 @@ const Zatacka = ((window, document) => {
     function proceedKeyPressedInLobby() {
         const numberOfReadyPlayers = game.getNumberOfPlayers();
         if (numberOfReadyPlayers > 0) {
-            clearTimeout(hintPickTimer);
-            clearTimeout(hintProceedTimer);
-            guiController.clearMessages();
+            clearMessages();
             removeLobbyEventListeners();
             addGameEventListeners();
             applyCursorBehavior();
@@ -242,6 +280,10 @@ const Zatacka = ((window, document) => {
         }
     }
 
+    function eventConsumer(event) {
+        event.stopPropagation();
+    }
+
     function keyPressedInLobby(pressedKey) {
         config.defaultPlayers.forEach((playerData) => {
             addOrRemovePlayer(playerData, pressedKey);
@@ -299,8 +341,106 @@ const Zatacka = ((window, document) => {
         event.preventDefault();
     }
 
+    function gameUnloadHandler(event) {
+        // A simple trick to prevent accidental unloading of the entire game.
+        const message = TEXT.hint_unload;
+        event.returnValue = message; // Gecko, Trident, Chrome 34+
+        return message;              // Gecko, Webkit, Chrome <34
+    }
+
+    function settingsKeyHandler(event) {
+        const pressedKey = event.keyCode;
+        if (isQuitKey(pressedKey)) {
+            hideSettings();
+        }
+    }
+
+    function showSettings() {
+        clearTimeout(hintPickTimer);
+        clearTimeout(hintProceedTimer);
+        try {
+            guiController.updateSettingsForm(preferenceManager.getAllPreferencesWithValues_saved());
+        } catch(e) {
+            logWarning("Could not load settings from localStorage. Using cached settings instead.");
+            guiController.updateSettingsForm(preferenceManager.getAllPreferencesWithValues_cached());
+            handleSettingsAccessError(e);
+        }
+        removeLobbyEventListeners();
+        addHideSettingsButtonEventListener();
+        document.addEventListener("keydown", settingsKeyHandler);
+        guiController.showSettings();
+    }
+
+    function hideSettings() {
+        document.removeEventListener("keydown", settingsKeyHandler);
+        addLobbyEventListeners();
+        guiController.parseSettingsForm().forEach((newSetting) => {
+            try {
+                preferenceManager.set(newSetting.key, newSetting.value);
+            } catch(e) {
+                logWarning(`Could not save setting '${newSetting.key}' to localStorage.`);
+                handleSettingsAccessError(e);
+            }
+        });
+        applySettings();
+        guiController.hideSettings();
+    }
+
+    function applySettings() {
+        try {
+            // Edge fix:
+            setEdgeMode(preferenceManager.getSaved(STRINGS.pref_key_edge_fix));
+            // Hints:
+            guiController.setMessageMode(preferenceManager.getSaved(STRINGS.pref_key_hints));
+        } catch(e) {
+            logWarning("Could not load settings from localStorage. Using cached settings instead.");
+            setEdgeMode(preferenceManager.getCached(STRINGS.pref_key_edge_fix));
+            guiController.setMessageMode(preferenceManager.getCached(STRINGS.pref_key_hints));
+            handleSettingsAccessError(e);
+        }
+    }
+
+    function handleSettingsAccessError(error) {
+        if (error.name === STRINGS.error_name_security) {
+            guiController.showMessage(config.messages.preferences_access_denied);
+        } else {
+            guiController.showMessage(config.messages.preferences_localstorage_failed);
+        }
+    }
+
+    function clearMessages() {
+        clearTimeout(hintPickTimer);
+        clearTimeout(hintProceedTimer);
+        guiController.clearMessages();
+    }
+
+    function addShowSettingsButtonEventListener() {
+        const showSettingsButton = byID("button-show-settings");
+        if (showSettingsButton instanceof HTMLElement) {
+            showSettingsButton.addEventListener("mousedown", eventConsumer);
+            showSettingsButton.addEventListener("click", showSettings);
+        }
+    }
+
+    function addHideSettingsButtonEventListener() {
+        const hideSettingsButton = byID("button-hide-settings");
+        if (hideSettingsButton instanceof HTMLElement) {
+            hideSettingsButton.addEventListener("mousedown", eventConsumer);
+            hideSettingsButton.addEventListener("click", hideSettings);
+        }
+    }
+
+    function removeShowSettingsButtonEventListener() {
+        const showSettingsButton = byID("button-show-settings");
+        if (showSettingsButton instanceof HTMLElement) {
+            showSettingsButton.removeEventListener("mousedown", eventConsumer);
+            showSettingsButton.removeEventListener("click", showSettings);
+        }
+    }
+
     function addLobbyEventListeners() {
         log("Adding lobby event listeners ...");
+        addShowSettingsButtonEventListener();
         document.addEventListener("keydown", lobbyKeyHandler);
         document.addEventListener("mousedown", lobbyMouseHandler);
         document.addEventListener("contextmenu", lobbyMouseHandler);
@@ -309,6 +449,7 @@ const Zatacka = ((window, document) => {
 
     function removeLobbyEventListeners() {
         log("Removing lobby event listeners ...");
+        removeShowSettingsButtonEventListener();
         document.removeEventListener("keydown", lobbyKeyHandler);
         document.removeEventListener("mousedown", lobbyMouseHandler);
         document.removeEventListener("contextmenu", lobbyMouseHandler);
@@ -324,6 +465,7 @@ const Zatacka = ((window, document) => {
         document.addEventListener("keydown", gameKeyHandler);
         document.addEventListener("mousedown", gameMouseHandler);
         document.addEventListener("contextmenu", gameMouseHandler);
+        window.addEventListener("beforeunload", gameUnloadHandler);
         log("Done.");
     }
 
@@ -331,6 +473,7 @@ const Zatacka = ((window, document) => {
         log("Removing game event listeners ...");
         document.removeEventListener("keydown", gameKeyHandler);
         document.removeEventListener("mousedown", gameMouseHandler);
+        window.removeEventListener("beforeunload", gameUnloadHandler);
         log("Done.");
     }
 
@@ -347,6 +490,8 @@ const Zatacka = ((window, document) => {
     let hintPickTimer = setTimeout(() => {
         guiController.showMessage(config.messages.pick);
     }, config.hintDelay);
+
+    applySettings();
 
     return {
         getConfig: () => config,

@@ -27,13 +27,17 @@ main {
     font-size: 1.2em;
 }
 
-#fullscreen-hint {
+#fullscreen-hint, #popup-hint {
     font-size: 0.9em;
+}
+
+#popup-hint a {
+    text-decoration: underline;
 }
 
 main footer {
     bottom: 0;
-    height: 80px;
+    height: 40px;
     position: absolute;
     width: 100%;
 }
