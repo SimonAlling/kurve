@@ -8,6 +8,8 @@ const STRINGS = (() => Object.freeze({
     class_hidden: "hidden",
     class_active: "active",
     class_description: "description",
+    class_half_width: "half-width",
+    class_right_hand_side: "right-hand-side",
     class_nocursor: "nocursor",
     class_hints_warnings_only: "hints-warnings-only",
     class_hints_none: "hints-none",
