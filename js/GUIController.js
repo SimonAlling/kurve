@@ -209,7 +209,7 @@ function GUIController(cfg) {
         const newSettings = [];
         // <input> elements:
         const inputs = settingsForm.querySelectorAll("input");
-        inputs.forEach((input) => {
+        Array.from(inputs).forEach((input) => {
             if (input.type === "checkbox") {
                 // checkbox
                 newSettings.push({ key: input.dataset.key, value: input.checked });
@@ -225,7 +225,7 @@ function GUIController(cfg) {
         });
         // <select> elements:
         const selects = settingsForm.querySelectorAll("select");
-        selects.forEach((select) => {
+        Array.from(selects).forEach((select) => {
             newSettings.push({ key: select.dataset.key, value: select.options[select.selectedIndex].value });
         });
         return newSettings;
