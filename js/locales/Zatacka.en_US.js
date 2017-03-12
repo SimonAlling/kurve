@@ -36,7 +36,7 @@ const TEXT = (() => {
         pref_label_edge_fix_off: `Off`,
 
         pref_label_hints: `Hints`,
-        pref_label_description_hints: `Hints, except for warnings, are redundant for experienced Kurve players.`,
+        pref_label_description_hints: `Hints may be redundant for experienced Kurve players.`,
         pref_label_hints_all: `All`,
         pref_label_hints_warnings_only: `Warnings only`,
         pref_label_hints_none: `None`,
