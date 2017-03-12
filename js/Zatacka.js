@@ -18,6 +18,7 @@ const Zatacka = ((window, document) => {
         minSpawnAngle: -Math.PI/2, // radians
         maxSpawnAngle:  Math.PI/2, // radians
         spawnMargin: 100, // Kuxels
+        preventSpawnkill: false,
         flickerFrequency: 20, // Hz, when spawning
         flickerDuration: 830, // ms, when spawning
         minHoleInterval: 90, // Kuxels
@@ -51,13 +52,13 @@ const Zatacka = ((window, document) => {
     });
 
     const PREFERENCES = Object.freeze([
-        // {
-        //     type: BooleanPreference,
-        //     key: STRINGS.pref_key_prevent_spawnkill,
-        //     label: TEXT.pref_label_prevent_spawnkill,
-        //     description: TEXT.pref_label_description_prevent_spawnkill,
-        //     default: true,
-        // },
+        {
+            type: BooleanPreference,
+            key: STRINGS.pref_key_prevent_spawnkill,
+            label: TEXT.pref_label_prevent_spawnkill,
+            description: TEXT.pref_label_description_prevent_spawnkill,
+            default: false,
+        },
         {
             type: MultichoicePreference,
             key: STRINGS.pref_key_cursor,
@@ -147,6 +148,14 @@ const Zatacka = ((window, document) => {
             setEdgePadding(padding);
         } catch(e) {
             logError(e);
+        }
+    }
+
+    function setPreventSpawnkill(mode) {
+        if (game.isStarted()) {
+            throw new Error("Cannot change edge padding when the game is running.");
+        } else {
+            game.setPreventSpawnkill(mode);
         }
     }
 
@@ -392,10 +401,13 @@ const Zatacka = ((window, document) => {
             setEdgeMode(preferenceManager.getSaved(STRINGS.pref_key_edge_fix));
             // Hints:
             guiController.setMessageMode(preferenceManager.getSaved(STRINGS.pref_key_hints));
+            // Prevent spawnkill:
+            game.setPreventSpawnkill(preferenceManager.getSaved(STRINGS.pref_key_prevent_spawnkill));
         } catch(e) {
             logWarning("Could not load settings from localStorage. Using cached settings instead.");
             setEdgeMode(preferenceManager.getCached(STRINGS.pref_key_edge_fix));
             guiController.setMessageMode(preferenceManager.getCached(STRINGS.pref_key_hints));
+            game.setPreventSpawnkill(preferenceManager.getCached(STRINGS.pref_key_prevent_spawnkill));
             handleSettingsAccessError(e);
         }
     }

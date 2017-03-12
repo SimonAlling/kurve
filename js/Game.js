@@ -9,6 +9,8 @@ class Game {
         this.constructor.DEFAULT_TARGET_SCORE = 10;
         this.constructor.MAX_TARGET_SCORE = 1000;
         this.constructor.MAX_PLAYERS = 255; // since we use a Uint8Array
+        this.constructor.MAX_QUOTA_THAT_SPAWN_CIRCLES_MAY_FILL = 0.5; // out of available spawn area
+        this.constructor.DESIRED_MINIMUM_SPAWN_DISTANCE_TURNING_RADIUS_FACTOR = 1;
         this.constructor.KONEC_HRY = "KONEC HRY!";
 
         if (renderer === undefined) {
@@ -33,6 +35,7 @@ class Game {
         this.renderer = renderer;
         this.guiController = guiController;
         this.mode = this.constructor.DEFAULT_MODE;
+        this.preventSpawnkill = config.preventSpawnkill;
         this.totalNumberOfTicks = 0;
         this.targetScore = null;
         this.initMainLoop();
@@ -117,6 +120,43 @@ class Game {
             }
         }
         return hitboxPixels;
+    }
+
+    desiredMinimumSpawnDistance() { // to closest opponent
+        // This is calculated by multiplying the turning radius with a constant factor and then adding the Kurve thickness.
+        const turningRadiusPart = this.config.turningRadius * this.constructor.DESIRED_MINIMUM_SPAWN_DISTANCE_TURNING_RADIUS_FACTOR;
+        return round(this.config.thickness + turningRadiusPart, 2);
+    }
+
+    safeMinimumSpawnDistance() { // to closest opponent, without risking infinite or too much sampling
+        const spawnAreaCoordinates = this.computeSpawnArea();
+        const availableSpawnArea = (spawnAreaCoordinates.x_max - spawnAreaCoordinates.x_min) * (spawnAreaCoordinates.y_max - spawnAreaCoordinates.y_min);
+        const maximumSafeDistance = Math.sqrt( this.constructor.MAX_QUOTA_THAT_SPAWN_CIRCLES_MAY_FILL * availableSpawnArea / (this.getNumberOfPlayers() * Math.PI) );
+        return Math.min(
+            this.desiredMinimumSpawnDistance(),
+            round(maximumSafeDistance, 2)
+        );
+    }
+
+    isSafeSpawnPosition(pos) {
+        function distanceBetween(pos1, pos2) {
+            return Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
+        }
+        for (let i = 0; i < this.players.length; i++) {
+            const playerPos = { x: this.players[i].x, y: this.players[i].y };
+            if (distanceBetween(playerPos, pos) < this.safeMinimumSpawnDistance()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    safeSpawnPosition() {
+        let safePos;
+        do {
+            safePos = this.randomSpawnPosition();
+        } while (!this.isSafeSpawnPosition(safePos));
+        return safePos;
     }
 
     randomSpawnPosition() {
@@ -220,6 +260,10 @@ class Game {
         this.width = width;
         this.height = height;
         this.renderer.setSize(width, height);
+    }
+
+    setPreventSpawnkill(mode) {
+        this.preventSpawnkill = mode;
     }
 
 
@@ -473,10 +517,14 @@ class Game {
     /** Spawns and then starts all players. */
     spawnAndStartPlayers() {
         const self = this;
+        log(`Spawnkill prevention is ` + (this.preventSpawnkill
+                                       ? `enabled. No two players will spawn within ${self.safeMinimumSpawnDistance()} Kuxels of each other.`
+                                       : `disabled. Players may spawn arbitrarily close to each other.`));
         // Spawn each player, then wait for it to finish flickering before spawning the next one:
         (function spawnPlayer(i) {
             if (i < self.players.length) {
-                self.spawn(self.players[i], self.randomSpawnPosition(), self.randomSpawnAngle());
+                const spawnPosition = self.preventSpawnkill ? self.safeSpawnPosition() : self.randomSpawnPosition();
+                self.spawn(self.players[i], spawnPosition, self.randomSpawnAngle());
                 setTimeout(() => spawnPlayer(++i), self.config.flickerDuration);
             } else {
                 // All players have spawned. Start them!
