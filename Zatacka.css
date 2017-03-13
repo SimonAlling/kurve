@@ -64,12 +64,23 @@ input[type="radio"] + label::before {
 /* Actual checkbox: */
 input[type="checkbox"] + label::before {
     border: 1px white solid;
-    background-position: 0 0;
+    background-position: 0 -48px;
+}
+
+/* Actual checkbox on hover/focus: */
+input[type="checkbox"] + label:hover::before, input[type="checkbox"] + label:focus::before {
+    border: 1px white solid;
+    background-position: -16px -48px;
 }
 
 /* Actual checkbox when checked: */
 input[type="checkbox"]:checked + label::before {
-    background-position: 0 -48px;
+    background-position: -32px -48px;
+}
+
+/* Actual checkbox when checked on hover/focus: */
+input[type="checkbox"]:checked + label:hover::before, input[type="checkbox"]:checked + label:focus::before {
+    background-position: -48px -48px;
 }
 
 /* Actual radio button: */
@@ -77,9 +88,19 @@ input[type="radio"] + label::before {
     background-position: 0 -64px;
 }
 
+/* Actual radio button on hover/focus: */
+input[type="radio"] + label:hover::before, input[type="radio"] + label:focus::before {
+    background-position: -16px -64px;
+}
+
 /* Actual radio button when checked: */
 input[type="radio"]:checked + label::before {
-    background-position: 0 -80px;
+    background-position: -32px -64px;
+}
+
+/* Actual radio button when checked on hover/focus: */
+input[type="radio"]:checked + label:hover::before, input[type="radio"]:checked + label:focus::before {
+    background-position: -48px -64px;
 }
 
 input[type="checkbox"] + label,
@@ -316,7 +337,7 @@ select {
 #settings-form > div {
     box-sizing: border-box;
     margin: 12px 0;
-    opacity: 0.6;
+    opacity: 0.7;
 }
 
 #settings-form > div.half-width {
