@@ -17,6 +17,7 @@ function GUIController(cfg) {
 
     const ORIGINAL_LEFT_WIDTH = left.offsetWidth;
     const MULTICHOICE_LABEL_MAX_LENGTH_FOR_HALFWIDTH_FIELDSET = 22; // More characters than this will result in a full-width div/fieldset.
+    const FLOAT_RANGE_PREFERENCE_STEP = 0.01;
 
     let currentMessages = [];
 
@@ -125,10 +126,17 @@ function GUIController(cfg) {
 
         // Range
         else if (preference instanceof RangePreference) {
+            const isIntegerRange = preference instanceof IntegerRangePreference;
             div.appendChild(label);
             const input = document.createElement("input");
             input.type = "number";
+            input.dataset.key = preference.key;
+            input.dataset.numberType = isIntegerRange ? STRINGS.pref_number_type_integer : STRINGS.pref_number_type_float;
             input.name = STRINGS.html_name_preference_prefix + preference.key;
+            input.setAttribute("step", isIntegerRange ? 1 : FLOAT_RANGE_PREFERENCE_STEP);
+            input.setAttribute("min", preference.min);
+            input.setAttribute("max", preference.max);
+            input.value = preferenceValue;
             div.appendChild(input);
         }
 
@@ -246,8 +254,11 @@ function GUIController(cfg) {
                 if (input.checked === true) {
                     newSettings.push({ key: input.dataset.key, value: input.value });
                 }
+            } else if (input.type === "number") {
+                // number
+                newSettings.push({ key: input.dataset.key, value: (input.dataset.numberType === STRINGS.pref_number_type_integer ? parseInt : parseFloat)(input.value) });
             } else {
-                // text, number etc
+                // text
                 newSettings.push({ key: input.dataset.key, value: input.value.toString() });
             }
         });

@@ -22,6 +22,9 @@ const STRINGS = (() => Object.freeze({
     id_fullscreen_hint: "fullscreen-hint",
     id_popup_hint: "popup-hint",
 
+    pref_number_type_integer: "integer",
+    pref_number_type_float: "float",
+
     pref_key_cursor: "cursor",
     pref_value_cursor_always_visible: "always_visible",
     pref_value_cursor_hidden_when_mouse_used_by_player: "hidden_when_mouse_used_by_player",
