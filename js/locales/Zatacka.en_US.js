@@ -3,15 +3,17 @@
 const TEXT = (() => {
     const KEY_SHIFT = "⇧";
     const KEY_CMD   = "⌘";
+    const KEY_PROCEED = "Space or Enter";
+    const KEY_QUIT = "Esc";
 
     return Object.freeze({
         hint_unload: `Are you sure you want to unload the page?`,
         hint_start: `Press Space to start`,
         hint_popup: `It is recommended to run Kurve in its own window without history (to avoid switching tabs or navigating back in history mid-game). To do that, please allow popups or <a href="ZATACKA.html" target="_blank">click here</a>.`,
         hint_pick: `Pick your desired color by pressing the corresponding LEFT key (e.g. M for Orange).`,
-        hint_proceed: `Press Space or Enter to start!`,
-        hint_next: `Press Space or Enter to proceed, or Esc to quit.`,
-        hint_quit: `Press Space or Enter to start over.`,
+        hint_proceed: `Press ${KEY_PROCEED} to start!`,
+        hint_next: `Press ${KEY_PROCEED} to proceed, or ${KEY_QUIT} to quit.`,
+        hint_quit: `Press ${KEY_PROCEED} to start over.`,
         hint_alt: `Alt plus some other keys may cause undesired behavior (e.g. switching windows).`,
         hint_ctrl: `Ctrl plus some other keys may cause undesired behavior (e.g. closing the tab).`,
         hint_mouse: `Make sure to keep the mouse cursor inside the browser window.`,
