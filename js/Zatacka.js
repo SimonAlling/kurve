@@ -7,6 +7,9 @@ const Zatacka = ((window, document) => {
     const ORIGINAL_WIDTH = canvas_main.width;
     const ORIGINAL_HEIGHT = canvas_main.height;
     const TOTAL_BORDER_THICKNESS = 4;
+    const KEY_RELOAD = KEY.F5;
+    const KEY_FULLSCREEN = KEY.F11;
+    const ALLOWED_KEYS = [KEY_FULLSCREEN]; // not to be intercepted by our event handler
 
     const config = Object.freeze({
         tickrate: 600, // Hz
@@ -43,6 +46,7 @@ const Zatacka = ((window, document) => {
         }),
         dialogs: Object.freeze({
             confirmation_quit: new ConfirmationDialog(TEXT.label_text_confirm_quit, quitGame),
+            confirmation_reload: new ConfirmationDialog(TEXT.label_text_confirm_reload, reload),
         }),
         defaultPlayers: Object.freeze([
             { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]                              , keyR: KEY.Q                         },
@@ -133,7 +137,7 @@ const Zatacka = ((window, document) => {
     }
 
     function shouldPreventDefault(key) {
-        return !isFKey(key);
+        return !(ALLOWED_KEYS.includes(key));
     }
 
     function setEdgePadding(padding) {
@@ -315,6 +319,9 @@ const Zatacka = ((window, document) => {
     }
 
     function keyHandler(event) {
+        if (shouldPreventDefault(event.keyCode)) {
+            event.preventDefault();
+        }
         const callback = game.isStarted() ? gameKeyHandler
                                           : guiController.isShowingSettings() ? settingsKeyHandler
                                                                               : lobbyKeyHandler;
@@ -334,10 +341,9 @@ const Zatacka = ((window, document) => {
 
     function lobbyKeyHandler(event) {
         const pressedKey = event.keyCode;
-        if (shouldPreventDefault(pressedKey)) {
-            event.preventDefault();
-        }
-        if (isProceedKey(pressedKey)) {
+        if (pressedKey === KEY_RELOAD) {
+            reload();
+        } else if (isProceedKey(pressedKey)) {
             proceedKeyPressedInLobby();
         } else {
             keyPressedInLobby(pressedKey);
@@ -349,6 +355,10 @@ const Zatacka = ((window, document) => {
         mouseClickedInLobby(event.button);
     }
 
+    function reload() {
+        window.location.reload();
+    }
+
     function quitGame() {
         game.quit();
         guiController.gameQuit();
@@ -357,9 +367,6 @@ const Zatacka = ((window, document) => {
 
     function gameKeyHandler(event) {
         const pressedKey = event.keyCode;
-        if (shouldPreventDefault(pressedKey)) {
-            event.preventDefault();
-        }
         if (isProceedKey(pressedKey)) {
             if (game.shouldQuitOnProceedKey()) {
                 quitGame();
@@ -372,6 +379,8 @@ const Zatacka = ((window, document) => {
             } else {
                 quitGame();
             }
+        } else if (pressedKey === KEY_RELOAD && game.shouldShowReloadConfirmationOnReloadKey()) {
+            guiController.showDialog(config.dialogs.confirmation_reload, reload);
         }
     }
 
@@ -390,6 +399,8 @@ const Zatacka = ((window, document) => {
         const pressedKey = event.keyCode;
         if (isQuitKey(pressedKey)) {
             hideSettings();
+        } else if (pressedKey === KEY_RELOAD) {
+            reload();
         }
     }
 

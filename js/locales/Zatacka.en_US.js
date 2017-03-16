@@ -30,6 +30,7 @@ const TEXT = (() => {
         label_button_confirm_no: `No`,
 
         label_text_confirm_quit: `Are you sure you want to quit?`,
+        label_text_confirm_reload: `Are you sure you want to reload the application?`,
 
         pref_label_cursor: `Cursor`,
         pref_label_description_cursor: `Control how the cursor behaves when the game is running.`,

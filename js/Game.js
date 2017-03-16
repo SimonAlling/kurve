@@ -619,6 +619,10 @@ class Game {
         }
     }
 
+    shouldShowReloadConfirmationOnReloadKey() {
+        return this.isPostRound();
+    }
+
     shouldQuitOnQuitKey() {
         return this.isPostRound() && !this.isGameOver();
     }

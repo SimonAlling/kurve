@@ -289,6 +289,7 @@ function GUIController(cfg) {
             }
             switch (event.keyCode) {
                 case KEY.SPACE:
+                case KEY.ENTER:
                     // Necessary because buttons do not automatically react to Space until keyup, making them feel sluggish compared to when Enter is used.
                     if (isButton(currentlyFocusedButton)) {
                         currentlyFocusedButton.click();
@@ -297,6 +298,15 @@ function GUIController(cfg) {
                 case KEY.ESCAPE:
                     if (escapeShouldCloseCurrentDialog()) {
                         currentDialogClosed();
+                    }
+                    break;
+                case KEY.TAB:
+                    if (Keyboard.isDown(KEY.SHIFT)) {
+                        if (isButton(previousButton)) {
+                            previousButton.focus();
+                        }
+                    } else if (isButton(nextButton)) {
+                        nextButton.focus();
                     }
                     break;
                 case KEY.LEFT_ARROW:
