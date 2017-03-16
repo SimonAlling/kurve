@@ -41,6 +41,9 @@ const Zatacka = ((window, document) => {
             preferences_access_denied: new WarningMessage(TEXT.hint_preferences_access_denied),
             preferences_localstorage_failed: new WarningMessage(TEXT.hint_preferences_localstorage_failed),
         }),
+        dialogs: Object.freeze({
+            confirmation_quit: new ConfirmationDialog(TEXT.label_text_confirm_quit, quitGame),
+        }),
         defaultPlayers: Object.freeze([
             { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]                              , keyR: KEY.Q                         },
             { id: 2, name: "Yellow", color: "#C3C300", keyL: [ KEY.CTRL, KEY.Z ]                   , keyR: [ KEY.ALT, KEY.X ]            },
@@ -58,6 +61,13 @@ const Zatacka = ((window, document) => {
             label: TEXT.pref_label_prevent_spawnkill,
             description: TEXT.pref_label_description_prevent_spawnkill,
             default: false,
+        },
+        {
+            type: BooleanPreference,
+            key: STRINGS.pref_key_confirm_quit,
+            label: TEXT.pref_label_confirm_quit,
+            description: TEXT.pref_label_description_confirm_quit,
+            default: true,
         },
         {
             type: MultichoicePreference,
@@ -217,8 +227,6 @@ const Zatacka = ((window, document) => {
         const numberOfReadyPlayers = game.getNumberOfPlayers();
         if (numberOfReadyPlayers > 0) {
             clearMessages();
-            removeLobbyEventListeners();
-            addGameEventListeners();
             applyCursorBehavior();
             game.setMode(numberOfReadyPlayers === 1 ? Game.PRACTICE : Game.COMPETITIVE);
             game.start();
@@ -291,6 +299,7 @@ const Zatacka = ((window, document) => {
 
     function eventConsumer(event) {
         event.stopPropagation();
+        event.preventDefault();
     }
 
     function keyPressedInLobby(pressedKey) {
@@ -303,6 +312,24 @@ const Zatacka = ((window, document) => {
         config.defaultPlayers.forEach((playerData) => {
             addOrRemovePlayer(playerData, MOUSE.pack(button));
         });
+    }
+
+    function keyHandler(event) {
+        const callback = game.isStarted() ? gameKeyHandler
+                                          : guiController.isShowingSettings() ? settingsKeyHandler
+                                                                              : lobbyKeyHandler;
+        guiController.keyPressed(event, callback);
+    }
+
+    function mouseHandler(event) {
+        const callback = game.isStarted() ? gameMouseHandler : lobbyMouseHandler;
+        guiController.mouseClicked(event, callback);
+    }
+
+    function unloadHandler(event) {
+        if (game.isStarted()) {
+            gameUnloadHandler();
+        }
     }
 
     function lobbyKeyHandler(event) {
@@ -323,8 +350,6 @@ const Zatacka = ((window, document) => {
     }
 
     function quitGame() {
-        removeGameEventListeners();
-        addLobbyEventListeners();
         game.quit();
         guiController.gameQuit();
         game = newGame();
@@ -342,7 +367,11 @@ const Zatacka = ((window, document) => {
                 game.proceedKeyPressed();
             }
         } else if (isQuitKey(pressedKey) && game.shouldQuitOnQuitKey()) {
-            quitGame();
+            if (preferenceManager.getCached(STRINGS.pref_key_confirm_quit) === true) {
+                guiController.showDialog(config.dialogs.confirmation_quit);
+            } else {
+                quitGame();
+            }
         }
     }
 
@@ -374,15 +403,10 @@ const Zatacka = ((window, document) => {
             guiController.updateSettingsForm(preferenceManager.getAllPreferencesWithValues_cached());
             handleSettingsAccessError(e);
         }
-        removeLobbyEventListeners();
-        addHideSettingsButtonEventListener();
-        document.addEventListener("keydown", settingsKeyHandler);
         guiController.showSettings();
     }
 
     function hideSettings() {
-        document.removeEventListener("keydown", settingsKeyHandler);
-        addLobbyEventListeners();
         guiController.parseSettingsForm().forEach((newSetting) => {
             try {
                 preferenceManager.set(newSetting.key, newSetting.value);
@@ -442,54 +466,29 @@ const Zatacka = ((window, document) => {
         }
     }
 
-    function removeShowSettingsButtonEventListener() {
-        const showSettingsButton = byID("button-show-settings");
-        if (showSettingsButton instanceof HTMLElement) {
-            showSettingsButton.removeEventListener("mousedown", eventConsumer);
-            showSettingsButton.removeEventListener("click", showSettings);
-        }
-    }
+    function addEventListeners() {
+        log("Adding event listeners ...");
 
-    function addLobbyEventListeners() {
-        log("Adding lobby event listeners ...");
+        // Hide/show settings:
         addShowSettingsButtonEventListener();
-        document.addEventListener("keydown", lobbyKeyHandler);
-        document.addEventListener("mousedown", lobbyMouseHandler);
-        document.addEventListener("contextmenu", lobbyMouseHandler);
-        log("Done.");
-    }
+        addHideSettingsButtonEventListener();
 
-    function removeLobbyEventListeners() {
-        log("Removing lobby event listeners ...");
-        removeShowSettingsButtonEventListener();
-        document.removeEventListener("keydown", lobbyKeyHandler);
-        document.removeEventListener("mousedown", lobbyMouseHandler);
-        document.removeEventListener("contextmenu", lobbyMouseHandler);
-        log("Done.");
-    }
+        // General event handlers:
+        document.addEventListener("keydown", keyHandler);
+        document.addEventListener("mousedown", mouseHandler);
+        document.addEventListener("contextmenu", eventConsumer);
+        window.addEventListener("beforeunload", unloadHandler);
 
-    function addGameEventListeners() {
-        log("Adding game event listeners ...");
+        // Player input:
         document.addEventListener("keydown", Keyboard.onKeydown.bind(Keyboard));
         document.addEventListener("keyup", Keyboard.onKeyup.bind(Keyboard));
         document.addEventListener("mousedown", Mouse.onMousedown.bind(Mouse));
         document.addEventListener("mouseup", Mouse.onMouseup.bind(Mouse));
-        document.addEventListener("keydown", gameKeyHandler);
-        document.addEventListener("mousedown", gameMouseHandler);
-        document.addEventListener("contextmenu", gameMouseHandler);
-        window.addEventListener("beforeunload", gameUnloadHandler);
+
         log("Done.");
     }
 
-    function removeGameEventListeners() {
-        log("Removing game event listeners ...");
-        document.removeEventListener("keydown", gameKeyHandler);
-        document.removeEventListener("mousedown", gameMouseHandler);
-        window.removeEventListener("beforeunload", gameUnloadHandler);
-        log("Done.");
-    }
-
-    addLobbyEventListeners();
+    addEventListeners();
 
     function newGame() {
         return new Game(config, Renderer(canvas_main, canvas_overlay), guiController);

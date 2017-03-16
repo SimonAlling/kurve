@@ -7,10 +7,14 @@ const STRINGS = (() => Object.freeze({
 
     class_hidden: "hidden",
     class_active: "active",
+    class_dialog: "dialog",
+    class_dialog_alert: "alert",
+    class_dialog_confirmation: "confirmation",
     class_description: "description",
     class_half_width: "half-width",
     class_right_hand_side: "right-hand-side",
     class_nocursor: "nocursor",
+    class_tempcursor: "tempcursor",
     class_hints_warnings_only: "hints-warnings-only",
     class_hints_none: "hints-none",
     html_name_preference_prefix: "preference-",
@@ -40,5 +44,6 @@ const STRINGS = (() => Object.freeze({
     pref_value_hints_warnings_only: "warnings",
     pref_value_hints_none: "none",
 
+    pref_key_confirm_quit: "confirm_quit",
     pref_key_prevent_spawnkill: "prevent_spawnkill",
 }))();

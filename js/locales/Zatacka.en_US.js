@@ -25,6 +25,12 @@ const TEXT = (() => {
 
         getFullscreenHint: (shortcut) => `Press ${shortcut} to toggle fullscreen`,
 
+        label_button_alert_ok: `OK`,
+        label_button_confirm_yes: `Yes`,
+        label_button_confirm_no: `No`,
+
+        label_text_confirm_quit: `Are you sure you want to quit?`,
+
         pref_label_cursor: `Cursor`,
         pref_label_description_cursor: `Control how the cursor behaves when the game is running.`,
         pref_label_cursor_always_visible: `Always visible`,
@@ -45,5 +51,8 @@ const TEXT = (() => {
 
         pref_label_prevent_spawnkill: `Prevent spawnkills`,
         pref_label_description_prevent_spawnkill: `Enforce a minimum distance between player spawns.`,
+
+        pref_label_confirm_quit: `Confirm quit`,
+        pref_label_description_confirm_quit: `Ask for confirmation before quitting to the main menu.`,
     });
 })();

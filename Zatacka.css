@@ -116,6 +116,29 @@ select {
     cursor: pointer;
 }
 
+button {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background-color: rgba(0, 0, 0, 0);
+    color: white;
+    height: 32px;
+    cursor: pointer;
+    width: calc(50% - 8px);
+}
+
+button:hover, button:focus, button:focus:active {
+    outline: none;
+}
+
+button:focus {
+    border-color: rgba(255, 255, 255, 1);
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+button:hover {
+    border-color: rgba(255, 255, 255, 1);
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
 .button {
     align-items: center;
     background-color: rgba(255, 255, 255, 0.16);
@@ -172,6 +195,10 @@ select {
 
 .nocursor {
     cursor: none;
+}
+
+.nocursor.tempcursor {
+    cursor: auto;
 }
 
 .icon-button {
@@ -261,7 +288,7 @@ select {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 .unobtrusive {
@@ -331,6 +358,9 @@ select {
 
 #settings {
     background-color: rgba(0, 0, 0, 0.95);
+}
+
+#settings {
     padding: 50px 80px 50px 80px;
 }
 
@@ -438,6 +468,41 @@ select {
 #messages.hints-warnings-only .message.warning {
     display: block;
 }
+
+#dialogs {
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+}
+
+.dialog {
+    background-color: rgba(0, 0, 0, 0.9);
+    border: 1px solid white;
+    cursor: auto !important;
+    padding: 16px;
+    width: 240px;
+}
+
+.dialog p {
+    min-height: 64px;
+}
+
+.alert.dialog button {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.confirmation.dialog button {
+    margin-right: 16px;
+}
+
+.confirmation.dialog button:last-of-type {
+    margin-right: 0;
+}
+
+
 
 .canvasHeight {
     height: 480px;
