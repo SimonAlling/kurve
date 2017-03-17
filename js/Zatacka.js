@@ -462,7 +462,7 @@ const Zatacka = ((window, document) => {
     }
 
     function addShowSettingsButtonEventListener() {
-        const showSettingsButton = byID("button-show-settings");
+        const showSettingsButton = byID(STRINGS.id_button_show_settings);
         if (showSettingsButton instanceof HTMLElement) {
             showSettingsButton.addEventListener("mousedown", eventConsumer);
             showSettingsButton.addEventListener("click", showSettings);
@@ -470,7 +470,7 @@ const Zatacka = ((window, document) => {
     }
 
     function addHideSettingsButtonEventListener() {
-        const hideSettingsButton = byID("button-hide-settings");
+        const hideSettingsButton = byID(STRINGS.id_button_hide_settings);
         if (hideSettingsButton instanceof HTMLElement) {
             hideSettingsButton.addEventListener("mousedown", eventConsumer);
             hideSettingsButton.addEventListener("click", hideSettings);
