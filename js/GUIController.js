@@ -13,12 +13,31 @@ function GUIController(cfg) {
     const KONEC_HRY = byID("KONEC_HRY");
     const messagesContainer = byID("messages");
     const settingsContainer = byID("settings");
+    const dialogsOverlay = byID("dialogs");
     const settingsForm = byID("settings-form");
 
     const ORIGINAL_LEFT_WIDTH = left.offsetWidth;
     const MULTICHOICE_LABEL_MAX_LENGTH_FOR_HALFWIDTH_FIELDSET = 22; // More characters than this will result in a full-width div/fieldset.
+    const FLOAT_RANGE_PREFERENCE_STEP = 0.01;
 
+    const BUTTON_TAG_NAME = "button";
+    const BUTTON_NODE_CLASS = HTMLButtonElement;
+
+    const LABEL_ALERT_OK = TEXT.label_button_alert_ok;
+    const LABEL_CONFIRM_YES = TEXT.label_button_confirm_yes;
+    const LABEL_CONFIRM_NO = TEXT.label_button_confirm_no;
+
+    let showingSettings = false;
     let currentMessages = [];
+    let queuedDialogs = [];
+    let currentDialogWithBox = null;
+
+    class DialogWithBox {
+        constructor(dialog, box) {
+            this.dialog = dialog;
+            this.box = box;
+        }
+    }
 
 
     // PRIVATE FUNCTIONS
@@ -33,8 +52,114 @@ function GUIController(cfg) {
         lobby.classList.remove(STRINGS.class_hidden);
     }
 
+    function showDialogsOverlay() {
+        dialogsOverlay.classList.remove(STRINGS.class_hidden);
+    }
+
+    function hideDialogsOverlay() {
+        dialogsOverlay.classList.add(STRINGS.class_hidden);
+    }
+
     function isLobbyEntry(element) {
         return isHTMLElement(element) && element.children.length >= 2;
+    }
+
+    function isButton(element) {
+        return element instanceof BUTTON_NODE_CLASS;
+    }
+
+    function showDialogRightAway(dialog) {
+        const dialogBox = dialogHTMLElement(dialog);
+        currentDialogWithBox = new DialogWithBox(dialog, dialogBox);
+        setTemporaryCursorVisibility(true);
+        showDialogsOverlay();
+        dialogsOverlay.appendChild(dialogBox);
+        // A dialog should have its last button focused:
+        dialogBox.querySelector("button:last-of-type").focus();
+    }
+
+    function currentDialogClosed() {
+        currentDialogWithBox.box.remove();
+        currentDialogWithBox = null;
+        if (anyQueuedDialogs()) {
+            // There is at least one dialog waiting. Show it:
+            showDialogRightAway(queuedDialogs.shift());
+        } else {
+            // No more dialogs. Restore:
+            setTemporaryCursorVisibility(false);
+            hideDialogsOverlay();
+        }
+    }
+
+    function isShowingDialog() {
+        return currentDialogWithBox !== null;
+    }
+
+    function anyQueuedDialogs() {
+        return queuedDialogs.length > 0;
+    }
+
+    function escapeShouldCloseCurrentDialog() {
+        return currentDialogWithBox.dialog instanceof ConfirmationDialog;
+    }
+
+    function dialogHTMLElementBoilerplate(text) {
+        const dialogBox = document.createElement("div");
+        dialogBox.classList.add(STRINGS.class_dialog);
+        const label = document.createElement("p");
+        label.textContent = text;
+        dialogBox.appendChild(label);
+        return dialogBox;
+    }
+
+    function alertDialogHTMLElement(dialog) {
+        const alertDialogBox = dialogHTMLElementBoilerplate(dialog.text);
+        alertDialogBox.classList.add(STRINGS.class_dialog_alert);
+        const buttonOK = document.createElement("button");
+        buttonOK.textContent = LABEL_ALERT_OK;
+        alertDialogBox.appendChild(buttonOK);
+
+        function alertDialogEventHandler() {
+            currentDialogClosed();
+        }
+        // Event listener:
+        buttonOK.addEventListener("click", alertDialogEventHandler);
+
+        return alertDialogBox;
+    }
+
+    function confirmationDialogHTMLElement(confirmationDialog) {
+        const confirmationDialogBox = dialogHTMLElementBoilerplate(confirmationDialog.text);
+        confirmationDialogBox.classList.add(STRINGS.class_dialog_confirmation);
+        const buttonYes = document.createElement("button");
+        buttonYes.textContent = LABEL_CONFIRM_YES;
+        const buttonNo  = document.createElement("button");
+        buttonNo.textContent = LABEL_CONFIRM_NO;
+        confirmationDialogBox.appendChild(buttonYes);
+        confirmationDialogBox.appendChild(buttonNo);
+
+        function confirmationDialogEventHandler(response) {
+            return () => {
+                currentDialogClosed();
+                if (response === true) {
+                    confirmationDialog.callback();
+                }
+            };
+        }
+        // Event listeners:
+        buttonYes.addEventListener("click", confirmationDialogEventHandler(true));
+        buttonNo.addEventListener("click", confirmationDialogEventHandler(false));
+
+        return confirmationDialogBox;
+    }
+
+    function dialogHTMLElement(dialog) {
+        if (dialog instanceof ConfirmationDialog) {
+            return confirmationDialogHTMLElement(dialog);
+        } else if (dialog instanceof Dialog) {
+            return alertDialogHTMLElement(dialog);
+        }
+        throw new TypeError(`${dialog} is not a valid dialog.`);
     }
 
     function resetScoreboardEntry(entry) {
@@ -59,6 +184,14 @@ function GUIController(cfg) {
                 break;
             default:
                 logError(`Cannot set cursor behavior to '${behavior}'.`);
+        }
+    }
+
+    function setTemporaryCursorVisibility(tempCursorActive) {
+        if (tempCursorActive) {
+            document.body.classList.add(STRINGS.class_tempcursor);
+        } else {
+            document.body.classList.remove(STRINGS.class_tempcursor);
         }
     }
 
@@ -125,10 +258,17 @@ function GUIController(cfg) {
 
         // Range
         else if (preference instanceof RangePreference) {
+            const isIntegerRange = preference instanceof IntegerRangePreference;
             div.appendChild(label);
             const input = document.createElement("input");
             input.type = "number";
+            input.dataset.key = preference.key;
+            input.dataset.numberType = isIntegerRange ? STRINGS.pref_number_type_integer : STRINGS.pref_number_type_float;
             input.name = STRINGS.html_name_preference_prefix + preference.key;
+            input.setAttribute("step", isIntegerRange ? 1 : FLOAT_RANGE_PREFERENCE_STEP);
+            input.setAttribute("min", preference.min);
+            input.setAttribute("max", preference.max);
+            input.value = preferenceValue;
             div.appendChild(input);
         }
 
@@ -138,6 +278,69 @@ function GUIController(cfg) {
 
 
     // PUBLIC API
+
+    function keyPressed(event, callback) {
+        if (isShowingDialog()) {
+            const currentlyFocusedButton = currentDialogWithBox.box.querySelector(`${BUTTON_TAG_NAME}:focus`);
+            let previousButton, nextButton;
+            if (isButton(currentlyFocusedButton)) {
+                previousButton = isButton(currentlyFocusedButton.previousSibling) ? currentlyFocusedButton.previousSibling : null;
+                nextButton = isButton(currentlyFocusedButton.nextSibling) ? currentlyFocusedButton.nextSibling : null;
+            }
+            switch (event.keyCode) {
+                case KEY.SPACE:
+                case KEY.ENTER:
+                    // Necessary because buttons do not automatically react to Space until keyup, making them feel sluggish compared to when Enter is used.
+                    if (isButton(currentlyFocusedButton)) {
+                        currentlyFocusedButton.click();
+                    }
+                    break;
+                case KEY.ESCAPE:
+                    if (escapeShouldCloseCurrentDialog()) {
+                        currentDialogClosed();
+                    }
+                    break;
+                case KEY.TAB:
+                    if (Keyboard.isDown(KEY.SHIFT)) {
+                        if (isButton(previousButton)) {
+                            previousButton.focus();
+                        }
+                    } else if (isButton(nextButton)) {
+                        nextButton.focus();
+                    }
+                    break;
+                case KEY.LEFT_ARROW:
+                    if (isButton(previousButton)) {
+                        previousButton.focus();
+                    }
+                    break;
+                case KEY.RIGHT_ARROW:
+                    if (isButton(nextButton)) {
+                        nextButton.focus();
+                    }
+                    break;
+                default:
+            }
+        } else {
+            callback(event);
+        }
+    }
+
+    function mouseClicked(event, callback) {
+        if (isShowingDialog()) {
+            // Do nothing particular, but consume the event.
+        } else {
+            callback(event);
+        }
+    }
+
+    function showDialog(dialog) {
+        if (isShowingDialog()) {
+            queuedDialogs.push(dialog);
+        } else {
+            showDialogRightAway(dialog);
+        }
+    }
 
     function setEdgePadding(padding) {
         left.style.width = `${ORIGINAL_LEFT_WIDTH + padding}px`;
@@ -204,11 +407,17 @@ function GUIController(cfg) {
     }
 
     function showSettings() {
+        showingSettings = true;
         settings.classList.remove(STRINGS.class_hidden);
     }
 
     function hideSettings() {
+        showingSettings = false;
         settings.classList.add(STRINGS.class_hidden);
+    }
+
+    function isShowingSettings() {
+        return showingSettings;
     }
 
     function updateSettingsForm(preferencesWithData) {
@@ -246,8 +455,11 @@ function GUIController(cfg) {
                 if (input.checked === true) {
                     newSettings.push({ key: input.dataset.key, value: input.value });
                 }
+            } else if (input.type === "number") {
+                // number
+                newSettings.push({ key: input.dataset.key, value: (input.dataset.numberType === STRINGS.pref_number_type_integer ? parseInt : parseFloat)(input.value) });
             } else {
-                // text, number etc
+                // text
                 newSettings.push({ key: input.dataset.key, value: input.value.toString() });
             }
         });
@@ -328,13 +540,17 @@ function GUIController(cfg) {
     }
 
     return {
+        keyPressed,
+        mouseClicked,
         playerReady,
         playerUnready,
         gameStarted,
         gameQuit,
         konecHry,
+        showDialog,
         showSettings,
         hideSettings,
+        isShowingSettings,
         updateSettingsForm,
         parseSettingsForm,
         updateScoreOfPlayer,

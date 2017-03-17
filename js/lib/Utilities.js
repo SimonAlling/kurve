@@ -141,7 +141,7 @@ function forfor(y_start, y_end, x_start, x_end, func, arg) {
 const Keyboard = {
     pressed: {},
     isDown: function(keyCode) {
-        return this.pressed[keyCode];
+        return !!this.pressed[keyCode];
     },
     onKeydown: function(event) {
         this.pressed[event.keyCode] = true;

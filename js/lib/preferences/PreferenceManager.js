@@ -129,6 +129,9 @@ function PreferenceManager(preferencesData) {
     }
 
     function getCached(key) {
+        if (!preferenceExists(key)) {
+            throw new Error(`There is no preference with key '${key}'.`);
+        }
         return getCachedPreference(key).value;
     }
 

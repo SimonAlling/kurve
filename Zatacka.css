@@ -64,12 +64,23 @@ input[type="radio"] + label::before {
 /* Actual checkbox: */
 input[type="checkbox"] + label::before {
     border: 1px white solid;
-    background-position: 0 0;
+    background-position: 0 -48px;
+}
+
+/* Actual checkbox on hover/focus: */
+input[type="checkbox"] + label:hover::before, input[type="checkbox"] + label:focus::before {
+    border: 1px white solid;
+    background-position: -16px -48px;
 }
 
 /* Actual checkbox when checked: */
 input[type="checkbox"]:checked + label::before {
-    background-position: 0 -48px;
+    background-position: -32px -48px;
+}
+
+/* Actual checkbox when checked on hover/focus: */
+input[type="checkbox"]:checked + label:hover::before, input[type="checkbox"]:checked + label:focus::before {
+    background-position: -48px -48px;
 }
 
 /* Actual radio button: */
@@ -77,9 +88,19 @@ input[type="radio"] + label::before {
     background-position: 0 -64px;
 }
 
+/* Actual radio button on hover/focus: */
+input[type="radio"] + label:hover::before, input[type="radio"] + label:focus::before {
+    background-position: -16px -64px;
+}
+
 /* Actual radio button when checked: */
 input[type="radio"]:checked + label::before {
-    background-position: 0 -80px;
+    background-position: -32px -64px;
+}
+
+/* Actual radio button when checked on hover/focus: */
+input[type="radio"]:checked + label:hover::before, input[type="radio"]:checked + label:focus::before {
+    background-position: -48px -64px;
 }
 
 input[type="checkbox"] + label,
@@ -93,6 +114,29 @@ input[type="checkbox"] + label,
 input[type="radio"] + label,
 select {
     cursor: pointer;
+}
+
+button {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background-color: rgba(0, 0, 0, 0);
+    color: white;
+    height: 32px;
+    cursor: pointer;
+    width: calc(50% - 8px);
+}
+
+button:hover, button:focus, button:focus:active {
+    outline: none;
+}
+
+button:focus {
+    border-color: rgba(255, 255, 255, 1);
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+button:hover {
+    border-color: rgba(255, 255, 255, 1);
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
 .button {
@@ -153,6 +197,10 @@ select {
     cursor: none;
 }
 
+.nocursor.tempcursor {
+    cursor: auto;
+}
+
 .icon-button {
     background-image: url("resources/kurve-icons.png");
     cursor: pointer;
@@ -170,29 +218,6 @@ select {
     right: 16px;
     top: 16px;
 }
-
-#debug {
-    background-color: black;
-    border: 1px white solid;
-    display: none;
-    left: 0;
-    position: fixed;
-    top: 0;
-    z-index: 50;
-}
-
-#debug span {
-    font-family: monospace;
-    font-size: 16px;
-    display: block;
-}
-
-#debug_red { color: #FF2800; }
-#debug_yellow { color: #C3C300; }
-#debug_orange { color: #FF7900; }
-#debug_green { color: #00CB00; }
-#debug_pink { color: #DF51B6; }
-#debug_blue { color: #00A2CB; }
 
 #wrapper {
     align-items: center;
@@ -240,7 +265,7 @@ select {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 .unobtrusive {
@@ -310,13 +335,16 @@ select {
 
 #settings {
     background-color: rgba(0, 0, 0, 0.95);
+}
+
+#settings {
     padding: 50px 80px 50px 80px;
 }
 
 #settings-form > div {
     box-sizing: border-box;
     margin: 12px 0;
-    opacity: 0.6;
+    opacity: 0.7;
 }
 
 #settings-form > div.half-width {
@@ -351,10 +379,6 @@ select {
 
 #settings-form fieldset legend {
     padding: 0 4px;
-}
-
-#settings-form input[type="checkbox"] + label {
-    margin-left: 13px; /* to align with fieldset content */
 }
 
 #settings-form fieldset input[type="radio"] + label {
@@ -417,6 +441,41 @@ select {
 #messages.hints-warnings-only .message.warning {
     display: block;
 }
+
+#dialogs {
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+}
+
+.dialog {
+    background-color: rgba(0, 0, 0, 0.9);
+    border: 1px solid white;
+    cursor: auto !important;
+    padding: 16px;
+    width: 240px;
+}
+
+.dialog p {
+    min-height: 64px;
+}
+
+.alert.dialog button {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.confirmation.dialog button {
+    margin-right: 16px;
+}
+
+.confirmation.dialog button:last-of-type {
+    margin-right: 0;
+}
+
+
 
 .canvasHeight {
     height: 480px;
