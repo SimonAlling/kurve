@@ -404,10 +404,6 @@ button:hover {
     padding: 0 4px;
 }
 
-#settings-form input[type="checkbox"] + label {
-    margin-left: 13px; /* to align with fieldset content */
-}
-
 #settings-form fieldset input[type="radio"] + label {
     margin-left: 4px; /* to align with legend */
 }
