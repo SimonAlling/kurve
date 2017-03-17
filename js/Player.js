@@ -32,6 +32,7 @@ class Player {
             this.L_keys = L_keys;
         } else {
             logWarning(`Creating player "${this.name}" without any LEFT key(s).`);
+            this.L_keys = [];
         }
 
         if (isPositiveInt(R_keys)) {
@@ -40,6 +41,7 @@ class Player {
             this.R_keys = R_keys;
         } else {
             logWarning(`Creating player "${this.name}" without any RIGHT key(s).`);
+            this.R_keys = [];
         }
     }
 
