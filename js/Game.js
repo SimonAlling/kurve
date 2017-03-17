@@ -680,14 +680,8 @@ class Game {
 
     updatePlayer(player, delta) {
         if (player.isAlive()) {
-            // Debugging:
-            const debugFieldID = "debug_" + player.getName().toLowerCase();
-            const debugField = document.getElementById(debugFieldID);
             const angleChange = this.computeAngleChange();
             let direction = player.getDirection();
-            if (isHTMLElement(debugField)) {
-                debugField.textContent = "x ~ "+Math.round(player.x)+", y ~ "+Math.round(player.y)+", dir = "+round(radToDeg(player.direction), 2);
-            }
             if (player.isPressingLeft()) {
                 direction = direction + angleChange; // let compound assignment not optimizable in V8
             }

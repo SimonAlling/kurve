@@ -219,29 +219,6 @@ button:hover {
     top: 16px;
 }
 
-#debug {
-    background-color: black;
-    border: 1px white solid;
-    display: none;
-    left: 0;
-    position: fixed;
-    top: 0;
-    z-index: 50;
-}
-
-#debug span {
-    font-family: monospace;
-    font-size: 16px;
-    display: block;
-}
-
-#debug_red { color: #FF2800; }
-#debug_yellow { color: #C3C300; }
-#debug_orange { color: #FF7900; }
-#debug_green { color: #00CB00; }
-#debug_pink { color: #DF51B6; }
-#debug_blue { color: #00A2CB; }
-
 #wrapper {
     align-items: center;
     display: flex;
