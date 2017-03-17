@@ -319,9 +319,6 @@ const Zatacka = ((window, document) => {
     }
 
     function keyHandler(event) {
-        if (shouldPreventDefault(event.keyCode)) {
-            event.preventDefault();
-        }
         const callback = game.isStarted() ? gameKeyHandler
                                           : guiController.isShowingSettings() ? settingsKeyHandler
                                                                               : lobbyKeyHandler;
@@ -329,7 +326,9 @@ const Zatacka = ((window, document) => {
     }
 
     function mouseHandler(event) {
-        const callback = game.isStarted() ? gameMouseHandler : lobbyMouseHandler;
+        const callback = game.isStarted() ? gameMouseHandler
+                                          : guiController.isShowingSettings() ? settingsMouseHandler
+                                                                              : lobbyMouseHandler;
         guiController.mouseClicked(event, callback);
     }
 
@@ -340,6 +339,9 @@ const Zatacka = ((window, document) => {
     }
 
     function lobbyKeyHandler(event) {
+        if (shouldPreventDefault(event.keyCode)) {
+            event.preventDefault();
+        }
         const pressedKey = event.keyCode;
         if (pressedKey === KEY_RELOAD) {
             reload();
@@ -366,6 +368,9 @@ const Zatacka = ((window, document) => {
     }
 
     function gameKeyHandler(event) {
+        if (shouldPreventDefault(event.keyCode)) {
+            event.preventDefault();
+        }
         const pressedKey = event.keyCode;
         if (isProceedKey(pressedKey)) {
             if (game.shouldQuitOnProceedKey()) {
@@ -402,6 +407,10 @@ const Zatacka = ((window, document) => {
         } else if (pressedKey === KEY_RELOAD) {
             reload();
         }
+    }
+
+    function settingsMouseHandler(event) {
+        // Intentionally empty.
     }
 
     function showSettings() {
