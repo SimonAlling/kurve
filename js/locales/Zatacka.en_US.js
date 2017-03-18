@@ -55,5 +55,8 @@ const TEXT = (() => {
 
         pref_label_confirm_quit: `Confirm quit`,
         pref_label_description_confirm_quit: `Ask for confirmation before quitting to the main menu.`,
+
+        pref_label_confirm_reload: `Confirm reload`,
+        pref_label_description_confirm_reload: `Ask for confirmation before reloading the application.`,
     });
 })();
