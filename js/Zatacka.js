@@ -379,12 +379,12 @@ const Zatacka = ((window, document) => {
                 game.proceedKeyPressed();
             }
         } else if (isQuitKey(pressedKey) && game.shouldQuitOnQuitKey()) {
-            if (preferenceManager.getCached(STRINGS.pref_key_confirm_quit) === true) {
+            if (preferenceManager.getCached(STRINGS.pref_key_confirm_quit) === true && !(guiController.isShowingDialog())) {
                 guiController.showDialog(config.dialogs.confirmation_quit);
             } else {
                 quitGame();
             }
-        } else if (pressedKey === KEY_RELOAD && game.shouldShowReloadConfirmationOnReloadKey()) {
+        } else if (pressedKey === KEY_RELOAD && game.shouldShowReloadConfirmationOnReloadKey() && !(guiController.isShowingDialog())) {
             guiController.showDialog(config.dialogs.confirmation_reload, reload);
         }
     }

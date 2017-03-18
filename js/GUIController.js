@@ -91,10 +91,6 @@ function GUIController(cfg) {
         }
     }
 
-    function isShowingDialog() {
-        return currentDialogWithBox !== null;
-    }
-
     function anyQueuedDialogs() {
         return queuedDialogs.length > 0;
     }
@@ -320,6 +316,7 @@ function GUIController(cfg) {
                     }
                     break;
                 default:
+                    callback(event);
             }
         } else {
             callback(event);
@@ -340,6 +337,10 @@ function GUIController(cfg) {
         } else {
             showDialogRightAway(dialog);
         }
+    }
+
+    function isShowingDialog() {
+        return currentDialogWithBox !== null;
     }
 
     function setEdgePadding(padding) {
@@ -548,6 +549,7 @@ function GUIController(cfg) {
         gameQuit,
         konecHry,
         showDialog,
+        isShowingDialog,
         showSettings,
         hideSettings,
         isShowingSettings,
