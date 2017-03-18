@@ -31,6 +31,10 @@ main {
     font-size: 0.9em;
 }
 
+kbd {
+    color: white;
+}
+
 #popup-hint a {
     text-decoration: underline;
 }
