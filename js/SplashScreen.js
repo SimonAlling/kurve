@@ -25,14 +25,14 @@
     function showStartHint() {
         const startHintElement = byID(STRINGS.id_start_hint);
         if (isHTMLElement(startHintElement)) {
-            startHintElement.textContent = TEXT.hint_start;
+            startHintElement.innerHTML = TEXT.hint_start;
         }
     }
 
     function showFullscreenHint() {
         const fullscreenHintElement = byID(STRINGS.id_fullscreen_hint);
         if (isHTMLElement(fullscreenHintElement)) {
-            fullscreenHintElement.textContent = TEXT.getFullscreenHint(PLATFORM.getFullscreenShortcut());
+            fullscreenHintElement.innerHTML = TEXT.getFullscreenHint(PLATFORM.getFullscreenShortcut());
         }
     }
 
