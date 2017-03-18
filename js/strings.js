@@ -47,5 +47,6 @@ const STRINGS = (() => Object.freeze({
     pref_value_hints_none: "none",
 
     pref_key_confirm_quit: "confirm_quit",
+    pref_key_confirm_reload: "confirm_reload",
     pref_key_prevent_spawnkill: "prevent_spawnkill",
 }))();

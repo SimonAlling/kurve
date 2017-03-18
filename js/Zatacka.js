@@ -75,6 +75,13 @@ const Zatacka = ((window, document) => {
             default: true,
         },
         {
+            type: BooleanPreference,
+            key: STRINGS.pref_key_confirm_reload,
+            label: TEXT.pref_label_confirm_reload,
+            description: TEXT.pref_label_description_confirm_reload,
+            default: true,
+        },
+        {
             type: MultichoicePreference,
             key: STRINGS.pref_key_cursor,
             label: TEXT.pref_label_cursor,
@@ -385,8 +392,14 @@ const Zatacka = ((window, document) => {
             } else {
                 quitGame();
             }
-        } else if (pressedKey === KEY_RELOAD && game.shouldShowReloadConfirmationOnReloadKey() && !(guiController.isShowingDialog())) {
-            guiController.showDialog(config.dialogs.confirmation_reload, reload);
+        } else if (pressedKey === KEY_RELOAD) {
+            if (preferenceManager.getCached(STRINGS.pref_key_confirm_reload) === true) {
+                if (game.shouldShowReloadConfirmationOnReloadKey() && !(guiController.isShowingDialog())) {
+                    guiController.showDialog(config.dialogs.confirmation_reload, reload);
+                }
+            } else {
+                reload();
+            }
         }
     }
 

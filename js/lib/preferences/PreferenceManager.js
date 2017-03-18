@@ -14,9 +14,18 @@ function PreferenceManager(preferencesData) {
     CACHED_PREFERENCES_WITH_VALUES.forEach((preferenceWithValue) => {
         const key = preferenceWithValue.preference.key;
         try {
-            preferenceWithValue.value = getSaved(key);
+            const savedValue = getSaved(key);
+            const defaultValue = preferenceWithValue.preference.getDefaultValue();
+            if (savedValue === null) {
+                log(`Using default value '${defaultValue}' for preference '${key}' since there was no saved value.`);
+            }
+            preferenceWithValue.value = savedValue !== null ? savedValue : defaultValue;
         } catch(e) {
-            logWarning(`Using default value '${preferenceWithValue.preference.getDefaultValue()}' for preference '${key}' since no saved value could be loaded from localStorage.`);
+            if (e instanceof TypeError) {
+                logWarning(`Using default value '${defaultValue}' for preference '${key}' since the saved value in localStorage was not a valid one.`);
+            } else {
+                logWarning(`Using default value '${defaultValue}' for preference '${key}' since no saved value could be loaded from localStorage.`);
+            }
         }
     });
 
@@ -113,7 +122,7 @@ function PreferenceManager(preferencesData) {
         }
     }
 
-    function getSaved(key) { // throws SecurityError etc
+    function getSaved(key) { // throws SecurityError, TypeError etc
         if (!preferenceExists(key)) {
             throw new Error(`There is no preference with key '${key}'.`);
         }
@@ -125,7 +134,14 @@ function PreferenceManager(preferencesData) {
             logError(`Failed to load saved value for preference '${key}' from localStorage. The following error was thrown:\n${e}`);
             throw e; // likely a SecurityError, but could be others as well
         }
-        return isValidPreferenceValue(key, pref.constructor.parse(savedValue)) ? pref.constructor.parse(savedValue) : getDefaultValue(key);
+        if (savedValue === null) {
+            // There was no saved value.
+            return null;
+        } else if (isValidPreferenceValue(key, pref.constructor.parse(savedValue))) {
+            return pref.constructor.parse(savedValue);
+        } else {
+            throw new TypeError(`'${savedValue}' could not be parsed to a valid value for preference '${pref}'.`);
+        }
     }
 
     function getCached(key) {
