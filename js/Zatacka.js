@@ -9,7 +9,8 @@ const Zatacka = ((window, document) => {
     const TOTAL_BORDER_THICKNESS = 4;
     const KEY_RELOAD = KEY.F5;
     const KEY_FULLSCREEN = KEY.F11;
-    const ALLOWED_KEYS = [KEY_FULLSCREEN]; // not to be intercepted by our event handler
+    const KEY_DEVTOOLS = KEY.F12;
+    const ALLOWED_KEYS = [KEY_FULLSCREEN, KEY_DEVTOOLS]; // not to be intercepted by our event handler
 
     const config = Object.freeze({
         tickrate: 600, // Hz
