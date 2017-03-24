@@ -3,7 +3,7 @@
   "description": "Achtung, die Kurve! in JavaScript",
   "scripts": {
     "build": "webpack --optimize-minimize",
-    "deploy": "git checkout master & git merge --no-ff -m \"Merge branch 'develop'\" develop & npm run build & git commit -am \"Deploy\""
+    "deploy": "rm -f zatacka.min.* & git checkout master & git merge --no-ff -m \"Merge branch 'develop'\" develop & npm run build & git commit -am \"Deploy\""
   },
   "author": "Simon Alling",
   "devDependencies": {
