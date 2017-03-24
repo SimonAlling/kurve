@@ -1,6 +1,4 @@
-"use strict";
-
-function Renderer(mainCanvas, overlayCanvas) {
+export function Renderer(mainCanvas, overlayCanvas) {
 
     const context_main = mainCanvas.getContext("2d");
     const context_overlay = overlayCanvas.getContext("2d");

@@ -1,6 +1,17 @@
-"use strict";
+import { Preference } from "./lib/preferences/Preference.js";
+import { BooleanPreference } from "./lib/preferences/BooleanPreference.js";
+import { RangePreference } from "./lib/preferences/RangePreference.js";
+import { IntegerRangePreference } from "./lib/preferences/IntegerRangePreference.js";
+import { MultichoicePreference } from "./lib/preferences/MultichoicePreference.js";
 
-function GUIController(cfg) {
+import { Dialog } from "./lib/Dialog.js";
+import { ConfirmationDialog } from "./lib/ConfirmationDialog.js";
+
+import { byID, flush, isHTMLElement, log, logWarning, logError, KEY, Keyboard } from "./lib/Utilities.js";
+import TEXT from "./locales/Zatacka.en_US.js";
+import STRINGS from "./strings.js";
+
+export function GUIController(cfg) {
 
     const config = cfg;
     const lobby = byID("lobby");
@@ -12,7 +23,7 @@ function GUIController(cfg) {
     const results = byID("results");
     const KONEC_HRY = byID("KONEC_HRY");
     const messagesContainer = byID("messages");
-    const settingsContainer = byID("settings");
+    // const settingsContainer = byID("settings");
     const dialogsOverlay = byID("dialogs");
     const settingsForm = byID("settings-form");
 
@@ -201,7 +212,7 @@ function GUIController(cfg) {
     }
 
     function settingsEntryHTMLElement(preference, preferenceValue) {
-        if (!preference instanceof Preference) {
+        if (!(preference instanceof Preference)) {
             throw new TypeError(`${preference} is not a preference.`);
         }
 

@@ -1,6 +1,8 @@
-"use strict";
+import { isString } from "./PreferencesUtilities.js";
+import { Preference } from "./Preference.js";
+import { PreferenceWithValue } from "./PreferenceWithValue.js";
 
-function PreferenceManager(preferencesData) {
+export function PreferenceManager(preferencesData) {
     const LOCALSTORAGE_PREFIX = "pref_key_";
     const CONSOLE_PREFIX = "[PreferenceManager] ";
 

@@ -189,10 +189,6 @@ button:hover {
     color: rgb(40, 70, 230);
 }
 
-#fatalError_ES6 {
-    display: none;
-}
-
 .nocursor {
     cursor: none;
 }
@@ -719,4 +715,3 @@ button:hover {
     body#ZATACKA { justify-content: center; }
     body#ZATACKA #wrapper { transform-origin: center; }
 }
-

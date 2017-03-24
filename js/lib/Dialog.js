@@ -1,6 +1,6 @@
-"use strict";
+import { isString } from "./Utilities.js";
 
-class Dialog {
+export class Dialog {
     constructor(text) {
         if (!isString(text)) {
             throw new TypeError(`text must be a string (found ${text}).`);

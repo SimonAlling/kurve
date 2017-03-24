@@ -1,6 +1,6 @@
-"use strict";
+import { isString } from "./PreferencesUtilities.js";
 
-class Preference {
+export class Preference {
     constructor(data) {
         if (!isString(data.key)) {
             throw new TypeError(`key must be a string (found ${data.key}). More info: ${data}`);

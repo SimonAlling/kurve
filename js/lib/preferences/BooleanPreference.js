@@ -1,6 +1,6 @@
-"use strict";
+import { Preference } from "./Preference.js";
 
-class BooleanPreference extends Preference {
+export class BooleanPreference extends Preference {
     constructor(data) {
         super(data);
         if (!(data.default === true || data.default === false)) {

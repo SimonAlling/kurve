@@ -1,4 +1,4 @@
-class Message {
+export class Message {
     constructor(text, styleClass) {
         this.text = text;
         this.class = styleClass;

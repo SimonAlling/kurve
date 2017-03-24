@@ -1,6 +1,6 @@
-"use strict";
+import { Dialog } from "./Dialog.js";
 
-class ConfirmationDialog extends Dialog {
+export class ConfirmationDialog extends Dialog {
     constructor(question, callback) {
         if (!(callback instanceof Function)) {
             throw new TypeError(`callback must be a function (found ${callback}).`);

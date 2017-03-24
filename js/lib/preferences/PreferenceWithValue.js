@@ -1,6 +1,4 @@
-"use strict";
-
-class PreferenceWithValue {
+export class PreferenceWithValue {
     constructor(preference, value) {
         if (!preference.isValidValue(value)) {
             throw new TypeError(`${value} is not a valid value for preference ${preference.key}.`);

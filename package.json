@@ -1,0 +1,15 @@
+{
+  "name": "zatacka",
+  "description": "Achtung, die Kurve! in JavaScript",
+  "scripts": {
+    "build": "webpack --optimize-minimize",
+    "deploy": "git checkout master & git merge --no-ff -m \"Merge branch 'develop'\" develop & npm run build & git commit -am \"Deploy\""
+  },
+  "author": "Simon Alling",
+  "devDependencies": {
+    "babel-core": "^6.24.0",
+    "babel-loader": "^6.4.1",
+    "babel-preset-es2015": "^6.24.0",
+    "webpack": "^2.3.1"
+  }
+}

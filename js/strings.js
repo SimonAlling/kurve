@@ -1,6 +1,4 @@
-"use strict";
-
-const STRINGS = (() => Object.freeze({
+export default Object.freeze({
     game_url: "ZATACKA.html",
 
     error_name_security: "SecurityError",
@@ -49,4 +47,4 @@ const STRINGS = (() => Object.freeze({
     pref_key_confirm_quit: "confirm_quit",
     pref_key_confirm_reload: "confirm_reload",
     pref_key_prevent_spawnkill: "prevent_spawnkill",
-}))();
+});

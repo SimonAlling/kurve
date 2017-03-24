@@ -1,6 +1,7 @@
-"use strict";
+import { Preference } from "./Preference.js";
+import { isString } from "./PreferencesUtilities.js";
 
-class MultichoicePreference extends Preference {
+export class MultichoicePreference extends Preference {
     constructor(data) {
         if (!isNonEmptyStringArray(data.values)) {
             throw new TypeError(`values must be a non-empty string array (found ${data.values} for preference '${data.key}').`);
