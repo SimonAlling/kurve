@@ -1,6 +1,7 @@
-"use strict";
+import { log, logWarning, flush, isObject, isPositiveInt, arePositiveNumbers, round, distanceToDuration, randomFloat, MOUSE_BUTTONS, isMouseButton, isKeyList, anyInputBeingPressed } from "./lib/Utilities.js";
+import { Queue } from "./lib/Queue.js";
 
-class Player {
+export class Player {
     constructor(id, name = `Player ${id}`, color = "white", L_keys, R_keys, holeConfig) {
         if (!isPositiveInt(id)) {
             throw new TypeError(`Cannot create a player with ID ${id}. Only positive integers are accepted.`);

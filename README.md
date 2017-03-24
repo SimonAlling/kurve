@@ -13,6 +13,25 @@ The game will automatically scale itself up as much as possible; fullscreen is r
 
 ## Contribute
 
+### Preparations
+
+We use [Webpack](https://webpack.github.io) with [Babel](https://babeljs.io) to transpile and pack all JS into one single file, `zatacka.min.js`.
+
+To install the necessary software, first install npm and then run
+
+    npm install
+
+in the root directory of this repo. This will install all the Node packages you need.
+
+To build, run
+
+    npm run build
+
+in the root of this repo.
+
+
+### Code structure
+
 All JavaScript files can be found in `js/`.
 
 The main JS file is `Zatacka.js`. It is responsible for creating a `Game` and supplying a config, a `Renderer` and a `GUIController` to it. It also adds `Player`s to the `Game` and forwards key events to it.

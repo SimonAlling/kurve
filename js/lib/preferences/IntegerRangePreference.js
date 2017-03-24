@@ -1,6 +1,9 @@
-"use strict";
+import { Preference } from "./Preference.js";
+import { RangePreference } from "./RangePreference.js";
 
-class IntegerRangePreference extends RangePreference {
+import { isInt } from "./PreferencesUtilities.js";
+
+export class IntegerRangePreference extends RangePreference {
     constructor(data) {
         if (!isInt(data.min) || !isInt(data.max)) {
             throw new TypeError(`min and max must be integers (found ${data.min} and ${data.max} for preference '${data.key}').`);

@@ -1,6 +1,22 @@
-"use strict";
+import { byID, KEY, MOUSE, Keyboard, Mouse, log, logWarning, logError } from "./lib/Utilities.js";
 
-const Zatacka = ((window, document) => {
+import { Game } from "./Game.js";
+import { Player } from "./Player.js";
+import { Renderer } from "./Renderer.js";
+import { GUIController } from "./GUIController.js";
+
+import { BooleanPreference } from "./lib/preferences/BooleanPreference.js";
+import { MultichoicePreference } from "./lib/preferences/MultichoicePreference.js";
+import { PreferenceManager } from "./lib/preferences/PreferenceManager.js";
+
+import { InfoMessage } from "./lib/InfoMessage.js";
+import { WarningMessage } from "./lib/WarningMessage.js";
+import { ConfirmationDialog } from "./lib/ConfirmationDialog.js";
+
+import TEXT from "./locales/Zatacka.en_US.js";
+import STRINGS from "./strings.js";
+
+const Zatacka = (() => {
 
     const canvas_main = byID("canvas_main");
     const canvas_overlay = byID("canvas_overlay");
@@ -547,4 +563,4 @@ const Zatacka = ((window, document) => {
         }
     };
 
-})(window, document);
+})();

@@ -1,6 +1,4 @@
-"use strict";
-
-const TEXT = (() => {
+export default (() => {
     const KEY_SHIFT = "⇧";
     const KEY_CMD   = "⌘";
     const KEY_PROCEED = "Space or Enter";

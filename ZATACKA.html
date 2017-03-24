@@ -36,23 +36,23 @@
     <meta name="theme-color" content="#ffffff" />
 
     <script src="js/SupportCheck_JS.js"></script>
-    <script src="js/SupportCheck_ES6.js"></script>
+    <script src="js/SupportCheck_UA.js"></script>
 
 </head>
 
 <body id="ZATACKA">
 
     <h1>Achtung, die Kurve!</h1>
+    <div id="fatalError_UA" class="fatalError">
+        <div>
+            <p>Your browser is not supported.</p>
+            <p class="fatalErrorExtraInfo">Please use <a href="https://google.com/chrome/" title="Google Chrome">Chrome&nbsp;49+</a>, <a href="https://getfirefox.com" title="Mozilla Firefox">Firefox&nbsp;45+</a>, or another modern browser.</p>
+        </div>
+    </div>
     <div id="fatalError_JS" class="fatalError">
         <div>
             <p>JavaScript is not enabled.</p>
             <p class="fatalErrorExtraInfo">Please enable JavaScript.</p>
-        </div>
-    </div>
-    <div id="fatalError_ES6" class="fatalError">
-        <div>
-            <p>Your browser does not support modern JavaScript.</p>
-            <p class="fatalErrorExtraInfo">Please use <a href="https://google.com/chrome/" title="Google Chrome">Chrome&nbsp;49+</a>, <a href="https://getfirefox.com" title="Mozilla Firefox">Firefox&nbsp;45+</a>, or another modern browser.</p>
         </div>
     </div>
     <div id="wrapper">
@@ -123,29 +123,7 @@
         </aside>
     </div>
 
-    <script src="js/strings.js"></script>
-    <script src="js/lib/Queue.js"></script>
-    <script src="js/lib/mainloop.min.js"></script>
-    <script src="js/lib/Utilities.js"></script>
-    <script src="js/lib/Message.js"></script>
-    <script src="js/lib/InfoMessage.js"></script>
-    <script src="js/lib/WarningMessage.js"></script>
-    <script src="js/lib/Dialog.js"></script>
-    <script src="js/lib/ConfirmationDialog.js"></script>
-    <script src="js/locales/Zatacka.en_US.js"></script>
-    <script src="js/lib/preferences/Preference.js"></script>
-    <script src="js/lib/preferences/PreferenceWithValue.js"></script>
-    <script src="js/lib/preferences/MultichoicePreference.js"></script>
-    <script src="js/lib/preferences/BooleanPreference.js"></script>
-    <script src="js/lib/preferences/RangePreference.js"></script>
-    <script src="js/lib/preferences/IntegerRangePreference.js"></script>
-    <script src="js/lib/preferences/PreferenceManager.js"></script>
-    <script src="js/Player.js"></script>
-    <script src="js/Round.js"></script>
-    <script src="js/Renderer.js"></script>
-    <script src="js/GUIController.js"></script>
-    <script src="js/Game.js"></script>
-    <script src="js/Zatacka.js"></script>
+    <script src="zatacka.min.js"></script>
 
 </body>
 

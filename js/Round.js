@@ -1,6 +1,4 @@
-"use strict";
-
-class Round {
+export class Round {
     constructor(players) {
         // A list of the players in the order they died (winner also included):
         this.results = [];
