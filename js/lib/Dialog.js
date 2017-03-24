@@ -1,4 +1,4 @@
-import { isString } from "./Utilities.js";
+import { isString } from "./utilities.js";
 
 export class Dialog {
     constructor(text) {

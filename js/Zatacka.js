@@ -1,4 +1,4 @@
-import { byID, KEY, MOUSE, Keyboard, Mouse, log, logWarning, logError } from "./lib/Utilities.js";
+import { byID, KEY, MOUSE, Keyboard, Mouse, log, logWarning, logError } from "./lib/utilities.js";
 
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";

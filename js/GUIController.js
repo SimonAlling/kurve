@@ -7,7 +7,7 @@ import { MultichoicePreference } from "./lib/preferences/MultichoicePreference.j
 import { Dialog } from "./lib/Dialog.js";
 import { ConfirmationDialog } from "./lib/ConfirmationDialog.js";
 
-import { byID, flush, isHTMLElement, log, logWarning, logError, KEY, Keyboard } from "./lib/Utilities.js";
+import { byID, flush, isHTMLElement, log, logWarning, logError, KEY, Keyboard } from "./lib/utilities.js";
 import TEXT from "./locales/Zatacka.en_US.js";
 import STRINGS from "./strings.js";
 

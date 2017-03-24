@@ -1,7 +1,7 @@
 import MainLoop from "./lib/mainloop.min.js";
 import { Player } from "./Player.js";
 import { Round } from "./Round.js";
-import { isInt, log, logWarning, logError, randomFloat, round, forfor, sameAbs, normalizeAngle } from "./lib/Utilities.js";
+import { isInt, log, logWarning, logError, randomFloat, round, forfor, sameAbs, normalizeAngle } from "./lib/utilities.js";
 
 export class Game {
     constructor(config, renderer, guiController) {
