@@ -5,7 +5,7 @@ module.exports = {
   devtool: "source-map",
   entry: [
     // Add your application"s scripts below
-    "./" + DIR_SOURCE + "/Zatacka.js",
+    "./" + DIR_SOURCE + "/Main.js",
   ],
   output: {
     path: path.resolve(__dirname, "."),
