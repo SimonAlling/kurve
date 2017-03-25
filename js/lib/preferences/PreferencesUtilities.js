@@ -7,6 +7,20 @@ const typeOf = ((global) => {
     };
 })(this);
 
+const CONSOLE_PREFIX = "[Preferences] ";
+
+export function log(string) {
+    console.log(CONSOLE_PREFIX + string);
+}
+
+export function logWarning(string) {
+    console.warn(CONSOLE_PREFIX + string);
+}
+
+export function logError(string) {
+    console.error(CONSOLE_PREFIX + string);
+}
+
 export function isObject(obj) {
     return typeOf(obj) === "object";
 }
