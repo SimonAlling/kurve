@@ -289,6 +289,7 @@ export function GUIController(cfg) {
     function keyPressed(event, callback) {
         if (isShowingDialog()) {
             const currentlyFocusedButton = currentDialogWithBox.box.querySelector(`${BUTTON_TAG_NAME}:focus`);
+            const shiftIsDown = Keyboard.isDown(KEY.SHIFT);
             let previousButton, nextButton;
             if (isButton(currentlyFocusedButton)) {
                 previousButton = isButton(currentlyFocusedButton.previousSibling) ? currentlyFocusedButton.previousSibling : null;
@@ -308,7 +309,8 @@ export function GUIController(cfg) {
                     }
                     break;
                 case KEY.TAB:
-                    if (Keyboard.isDown(KEY.SHIFT)) {
+                    event.preventDefault();
+                    if (shiftIsDown) {
                         if (isButton(previousButton)) {
                             previousButton.focus();
                         }
