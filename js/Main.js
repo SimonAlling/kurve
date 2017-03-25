@@ -500,6 +500,12 @@ const Zatacka = (() => {
         guiController.clearMessages();
     }
 
+    function blurHandler() {
+        logWarning("Application lost focus.");
+        Keyboard.reset();
+        Mouse.reset();
+    }
+
     function addShowSettingsButtonEventListener() {
         const showSettingsButton = byID(STRINGS.id_button_show_settings);
         if (showSettingsButton instanceof HTMLElement) {
@@ -528,6 +534,7 @@ const Zatacka = (() => {
         document.addEventListener("mousedown", mouseHandler);
         document.addEventListener("contextmenu", eventConsumer);
         window.addEventListener("beforeunload", unloadHandler);
+        window.addEventListener("blur", blurHandler);
 
         // Player input:
         document.addEventListener("keydown", Keyboard.onKeydown.bind(Keyboard));

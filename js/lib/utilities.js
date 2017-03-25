@@ -148,7 +148,10 @@ export const Keyboard = {
     },
     onKeyup: function(event) {
         delete this.pressed[event.keyCode];
-    }
+    },
+    reset: function() {
+        this.pressed = {};
+    },
 };
 
 export const Mouse = {
@@ -161,7 +164,10 @@ export const Mouse = {
     },
     onMouseup: function(event) {
         delete this.pressed[event.button];
-    }
+    },
+    reset: function() {
+        this.pressed = {};
+    },
 };
 
 export function anyKeyBeingPressed(keyCodes) {
