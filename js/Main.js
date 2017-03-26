@@ -98,6 +98,13 @@ const Zatacka = (() => {
             default: true,
         },
         {
+            type: BooleanPreference,
+            key: STRINGS.pref_key_allow_blurry_scaling,
+            label: TEXT.pref_label_allow_blurry_scaling,
+            description: TEXT.pref_label_description_allow_blurry_scaling,
+            default: false,
+        },
+        {
             type: MultichoicePreference,
             key: STRINGS.pref_key_cursor,
             label: TEXT.pref_label_cursor,
@@ -477,11 +484,14 @@ const Zatacka = (() => {
             guiController.setMessageMode(preferenceManager.getSaved(STRINGS.pref_key_hints));
             // Prevent spawnkill:
             game.setPreventSpawnkill(preferenceManager.getSaved(STRINGS.pref_key_prevent_spawnkill));
+            // Blurry scaling:
+            guiController.setBlurryScaling(preferenceManager.getSaved(STRINGS.pref_key_allow_blurry_scaling));
         } catch(e) {
             logWarning("Could not load settings from localStorage. Using cached settings instead.");
             setEdgeMode(preferenceManager.getCached(STRINGS.pref_key_edge_fix));
             guiController.setMessageMode(preferenceManager.getCached(STRINGS.pref_key_hints));
             game.setPreventSpawnkill(preferenceManager.getCached(STRINGS.pref_key_prevent_spawnkill));
+            guiController.setBlurryScaling(preferenceManager.getCached(STRINGS.pref_key_allow_blurry_scaling));
             handleSettingsAccessError(e);
         }
     }

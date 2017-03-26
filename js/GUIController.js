@@ -360,6 +360,10 @@ export function GUIController(cfg) {
         left.style.width = `${ORIGINAL_LEFT_WIDTH + padding}px`;
     }
 
+    function setBlurryScaling(allowed) {
+        (document.body.classList[allowed === true ? "add" : "remove"])(STRINGS.class_blurry);
+    }
+
     function playerReady(id) {
         const index = id - 1;
         const entry = controls.children[index];
@@ -575,6 +579,7 @@ export function GUIController(cfg) {
         clearMessages,
         setMessageMode,
         setCursorBehavior,
+        setBlurryScaling,
         setEdgePadding
     };
 

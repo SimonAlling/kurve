@@ -11,6 +11,7 @@ export default Object.freeze({
     class_description: "description",
     class_half_width: "half-width",
     class_right_hand_side: "right-hand-side",
+    class_blurry: "blurry",
     class_nocursor: "nocursor",
     class_tempcursor: "tempcursor",
     class_hints_warnings_only: "hints-warnings-only",
@@ -47,4 +48,5 @@ export default Object.freeze({
     pref_key_confirm_quit: "confirm_quit",
     pref_key_confirm_reload: "confirm_reload",
     pref_key_prevent_spawnkill: "prevent_spawnkill",
+    pref_key_allow_blurry_scaling: "allow_blurry_scaling",
 });
