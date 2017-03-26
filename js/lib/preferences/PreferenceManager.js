@@ -1,10 +1,9 @@
-import { isString } from "./PreferencesUtilities.js";
+import { isString, log, logWarning, logError } from "./PreferencesUtilities.js";
 import { Preference } from "./Preference.js";
 import { PreferenceWithValue } from "./PreferenceWithValue.js";
 
 export function PreferenceManager(preferencesData) {
     const LOCALSTORAGE_PREFIX = "pref_key_";
-    const CONSOLE_PREFIX = "[PreferenceManager] ";
 
     // Parse and validate preferences:
     log("Validating preferences ...");
@@ -30,18 +29,6 @@ export function PreferenceManager(preferencesData) {
             }
         }
     });
-
-    function log(string) {
-        console.log(CONSOLE_PREFIX + string);
-    }
-
-    function logWarning(string) {
-        console.warn(CONSOLE_PREFIX + string);
-    }
-
-    function logError(string) {
-        console.error(CONSOLE_PREFIX + string);
-    }
 
     function parsePreferences(preferencesData) {
         return preferencesData.map(parsePreference);

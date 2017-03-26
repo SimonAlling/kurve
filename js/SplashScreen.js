@@ -1,4 +1,6 @@
-"use strict";
+import { byID, KEY, isProceedKey, isHTMLElement, PLATFORM } from "./lib/utilities.js";
+import STRINGS from "./strings.js";
+import TEXT from "./locales/Zatacka.en_US.js";
 
 (() => {
     const PROCEED_KEYS = Object.freeze([KEY.SPACE, KEY.ENTER]);
@@ -32,7 +34,8 @@
     function showFullscreenHint() {
         const fullscreenHintElement = byID(STRINGS.id_fullscreen_hint);
         if (isHTMLElement(fullscreenHintElement)) {
-            fullscreenHintElement.innerHTML = TEXT.getFullscreenHint(PLATFORM.getFullscreenShortcut());
+            const fullscreenShortcut = PLATFORM.getFullscreenShortcut() === "mac" ? TEXT.keyboard_fullscreen_mac : TEXT.keyboard_fullscreen_standard;
+            fullscreenHintElement.innerHTML = TEXT.getFullscreenHint(fullscreenShortcut);
         }
     }
 

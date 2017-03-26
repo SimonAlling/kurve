@@ -1,4 +1,4 @@
-import { byID, KEY, MOUSE, Keyboard, Mouse, log, logWarning, logError } from "./lib/Utilities.js";
+import { byID, KEY, MOUSE, Keyboard, Mouse, log, logWarning, logError } from "./lib/utilities.js";
 
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
@@ -96,6 +96,13 @@ const Zatacka = (() => {
             label: TEXT.pref_label_confirm_reload,
             description: TEXT.pref_label_description_confirm_reload,
             default: true,
+        },
+        {
+            type: BooleanPreference,
+            key: STRINGS.pref_key_allow_blurry_scaling,
+            label: TEXT.pref_label_allow_blurry_scaling,
+            description: TEXT.pref_label_description_allow_blurry_scaling,
+            default: false,
         },
         {
             type: MultichoicePreference,
@@ -477,11 +484,14 @@ const Zatacka = (() => {
             guiController.setMessageMode(preferenceManager.getSaved(STRINGS.pref_key_hints));
             // Prevent spawnkill:
             game.setPreventSpawnkill(preferenceManager.getSaved(STRINGS.pref_key_prevent_spawnkill));
+            // Blurry scaling:
+            guiController.setBlurryScaling(preferenceManager.getSaved(STRINGS.pref_key_allow_blurry_scaling));
         } catch(e) {
             logWarning("Could not load settings from localStorage. Using cached settings instead.");
             setEdgeMode(preferenceManager.getCached(STRINGS.pref_key_edge_fix));
             guiController.setMessageMode(preferenceManager.getCached(STRINGS.pref_key_hints));
             game.setPreventSpawnkill(preferenceManager.getCached(STRINGS.pref_key_prevent_spawnkill));
+            guiController.setBlurryScaling(preferenceManager.getCached(STRINGS.pref_key_allow_blurry_scaling));
             handleSettingsAccessError(e);
         }
     }
@@ -498,6 +508,12 @@ const Zatacka = (() => {
         clearTimeout(hintPickTimer);
         clearTimeout(hintProceedTimer);
         guiController.clearMessages();
+    }
+
+    function blurHandler() {
+        logWarning("Application lost focus.");
+        Keyboard.reset();
+        Mouse.reset();
     }
 
     function addShowSettingsButtonEventListener() {
@@ -528,6 +544,7 @@ const Zatacka = (() => {
         document.addEventListener("mousedown", mouseHandler);
         document.addEventListener("contextmenu", eventConsumer);
         window.addEventListener("beforeunload", unloadHandler);
+        window.addEventListener("blur", blurHandler);
 
         // Player input:
         document.addEventListener("keydown", Keyboard.onKeydown.bind(Keyboard));

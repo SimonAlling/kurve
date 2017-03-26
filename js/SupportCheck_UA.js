@@ -3,14 +3,16 @@
 // Hide UA error message if browser passes support check:
 (function() {
     var dummyElement = document.createElement("div");
-    if (
-            Object.freeze &&
-            dummyElement.style.flex !== undefined &&
-            dummyElement.style.imageRendering !== undefined
-        ) {
-        var css = "#fatalError_UA { display: none; }";
-        var styleElement = document.createElement("style");
-        styleElement.textContent = css;
-        document.head.appendChild(styleElement);
+
+    function userAgentSupportsFlex() {
+        return dummyElement.style.flex !== undefined;
+    }
+
+    function userAgentSupportsPixelMapping() {
+        return dummyElement.style.imageRendering !== undefined
+    }
+
+    if (Object.freeze && userAgentSupportsFlex() && userAgentSupportsPixelMapping()) {
+        document.querySelector("#fatalError_UA").remove();
     }
 })();

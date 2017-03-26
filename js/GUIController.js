@@ -7,7 +7,7 @@ import { MultichoicePreference } from "./lib/preferences/MultichoicePreference.j
 import { Dialog } from "./lib/Dialog.js";
 import { ConfirmationDialog } from "./lib/ConfirmationDialog.js";
 
-import { byID, flush, isHTMLElement, log, logWarning, logError, KEY, Keyboard } from "./lib/Utilities.js";
+import { byID, flush, isHTMLElement, log, logWarning, logError, KEY, Keyboard } from "./lib/utilities.js";
 import TEXT from "./locales/Zatacka.en_US.js";
 import STRINGS from "./strings.js";
 
@@ -289,6 +289,7 @@ export function GUIController(cfg) {
     function keyPressed(event, callback) {
         if (isShowingDialog()) {
             const currentlyFocusedButton = currentDialogWithBox.box.querySelector(`${BUTTON_TAG_NAME}:focus`);
+            const shiftIsDown = Keyboard.isDown(KEY.SHIFT);
             let previousButton, nextButton;
             if (isButton(currentlyFocusedButton)) {
                 previousButton = isButton(currentlyFocusedButton.previousSibling) ? currentlyFocusedButton.previousSibling : null;
@@ -308,7 +309,8 @@ export function GUIController(cfg) {
                     }
                     break;
                 case KEY.TAB:
-                    if (Keyboard.isDown(KEY.SHIFT)) {
+                    event.preventDefault();
+                    if (shiftIsDown) {
                         if (isButton(previousButton)) {
                             previousButton.focus();
                         }
@@ -356,6 +358,10 @@ export function GUIController(cfg) {
 
     function setEdgePadding(padding) {
         left.style.width = `${ORIGINAL_LEFT_WIDTH + padding}px`;
+    }
+
+    function setBlurryScaling(allowed) {
+        (document.body.classList[allowed === true ? "add" : "remove"])(STRINGS.class_blurry);
     }
 
     function playerReady(id) {
@@ -573,6 +579,7 @@ export function GUIController(cfg) {
         clearMessages,
         setMessageMode,
         setCursorBehavior,
+        setBlurryScaling,
         setEdgePadding
     };
 

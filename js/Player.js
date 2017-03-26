@@ -1,4 +1,4 @@
-import { log, logWarning, flush, isObject, isPositiveInt, arePositiveNumbers, round, distanceToDuration, randomFloat, MOUSE_BUTTONS, isMouseButton, isKeyList, anyInputBeingPressed } from "./lib/Utilities.js";
+import { log, logWarning, flush, isObject, isPositiveInt, arePositiveNumbers, round, distanceToDuration, randomFloat, MOUSE_BUTTONS, isMouseButton, isKeyList, anyInputBeingPressed } from "./lib/utilities.js";
 import { Queue } from "./lib/Queue.js";
 
 export class Player {

@@ -56,5 +56,8 @@ export default (() => {
 
         pref_label_confirm_reload: `Confirm reload`,
         pref_label_description_confirm_reload: `Ask for confirmation before reloading the application.`,
+
+        pref_label_allow_blurry_scaling: `Allow blurry scaling`,
+        pref_label_description_allow_blurry_scaling: `Let the game use the available screen area more efficiently at the expense of visual quality. Can be useful if the game is very small on your screen.`,
     });
 })();

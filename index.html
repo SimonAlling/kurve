@@ -36,28 +36,21 @@
     <meta name="msapplication-TileImage" content="resources/icon/ms-icon-144x144.png" />
     <meta name="theme-color" content="#ffffff" />
 
-    <script src="js/SupportCheck_JS.js"></script>
-    <script src="js/SupportCheck_ES6.js"></script>
-    <script src="js/strings.js"></script>
-    <script src="js/lib/Utilities.js"></script>
-    <script src="js/locales/Zatacka.en_US.js"></script>
-    <script src="js/SplashScreen.js"></script>
-
 </head>
 
-<body>
+<body class="body">
 
     <h1>Achtung, die Kurve!</h1>
+    <div id="fatalError_UA" class="fatalError">
+        <div>
+            <p>Your browser is not supported.</p>
+            <p class="fatalErrorExtraInfo">Please use <a href="https://google.com/chrome/" title="Google Chrome">Chrome&nbsp;49+</a>, <a href="https://getfirefox.com" title="Mozilla Firefox">Firefox&nbsp;45+</a>, or another modern browser.</p>
+        </div>
+    </div>
     <div id="fatalError_JS" class="fatalError">
         <div>
             <p>JavaScript is not enabled.</p>
             <p class="fatalErrorExtraInfo">Please enable JavaScript.</p>
-        </div>
-    </div>
-    <div id="fatalError_ES6" class="fatalError">
-        <div>
-            <p>Your browser does not support modern JavaScript.</p>
-            <p class="fatalErrorExtraInfo">Please use <a href="https://google.com/chrome/" title="Google Chrome">Chrome&nbsp;49+</a>, <a href="https://getfirefox.com" title="Mozilla Firefox">Firefox&nbsp;45+</a>, or another modern browser.</p>
         </div>
     </div>
     <div id="wrapper">
@@ -82,6 +75,11 @@
         <img src="resources/kurve-konec-hry.png" />
         <img src="resources/kurve-icons.png" />
     </div>
+
+    <script src="js/SupportCheck_JS.js"></script>
+    <script src="js/SupportCheck_UA.js"></script>
+
+    <script src="splashscreen.min.js"></script>
 
 </body>
 

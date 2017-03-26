@@ -1,8 +1,6 @@
 * {
     margin: 0;
     padding: 0;
-    image-rendering: -moz-crisp-edges;
-    image-rendering: pixelated;
     font-family: "Consolas", monospace;
 }
 
@@ -591,127 +589,235 @@ button:hover {
 
 /* ======== 1x ======== */
 @media screen and (min-width: 640px) and (min-height: 480px) {
-    body#ZATACKA { justify-content: flex-end; }
-    body#ZATACKA #wrapper { transform-origin: right; } /* so the game stays properly in the viewport when not centered */
-    #wrapper {
-        zoom: 1; /* because everything gets blurred with transform: scale in Chrome */
-        -moz-transform: scale(1); /* for Firefox, which does not support zoom */
+    body#ZATACKA.body { justify-content: flex-end; }
+    body#ZATACKA.body { transform-origin: right; }
+    body.body #wrapper {
+        zoom: 1;
+        -moz-transform: scale(1);
+    }
+    body.body * {
+        image-rendering: -moz-crisp-edges;
+        image-rendering: pixelated;
     }
 }
 
 @media screen and (min-width: 720px) and (min-height: 480px) {
-    body#ZATACKA { justify-content: center; }
-    body#ZATACKA #wrapper { transform-origin: center; }
+    body#ZATACKA.body { justify-content: center; }
+    body#ZATACKA.body #wrapper { transform-origin: center; }
+}
+
+
+/* ======== 1.25x ======== (only used if pixelmapping is not enforced) */
+@media screen and (min-width: 800px) and (min-height: 600px) {
+    body#ZATACKA.blurry { justify-content: flex-end; }
+    body#ZATACKA.blurry { transform-origin: right; }
+    body.blurry #wrapper {
+        zoom: 1.25;
+        -moz-transform: scale(1.25);
+    }
+    body.blurry * {
+        image-rendering: auto;
+    }
+}
+
+@media screen and (min-width: 900px) and (min-height: 600px) {
+    body#ZATACKA.blurry { justify-content: center; }
+    body#ZATACKA.blurry #wrapper { transform-origin: center; }
+}
+
+
+/* ======== 1.5x ======== (only used if pixelmapping is not enforced) */
+@media screen and (min-width: 960px) and (min-height: 720px) {
+    body#ZATACKA.blurry { justify-content: flex-end; }
+    body#ZATACKA.blurry { transform-origin: right; }
+    body.blurry #wrapper {
+        zoom: 1.5;
+        -moz-transform: scale(1.5);
+    }
+    body.blurry * {
+        image-rendering: auto;
+    }
+}
+
+@media screen and (min-width: 1080px) and (min-height: 720px) {
+    body#ZATACKA.blurry { justify-content: center; }
+    body#ZATACKA.blurry #wrapper { transform-origin: center; }
+}
+
+
+/* ======== 1.75x ======== (only used if pixelmapping is not enforced) */
+@media screen and (min-width: 1120px) and (min-height: 840px) {
+    body#ZATACKA.blurry { justify-content: flex-end; }
+    body#ZATACKA.blurry { transform-origin: right; }
+    body.blurry #wrapper {
+        zoom: 1.75;
+        -moz-transform: scale(1.75);
+    }
+    body.blurry * {
+        image-rendering: auto;
+    }
+}
+
+@media screen and (min-width: 1260px) and (min-height: 840px) {
+    body#ZATACKA.blurry { justify-content: center; }
+    body#ZATACKA.blurry #wrapper { transform-origin: center; }
 }
 
 
 /* ======== 2x ======== */
 @media screen and (min-width: 1280px) and (min-height: 960px) {
-    body#ZATACKA { justify-content: flex-end; }
-    body#ZATACKA #wrapper { transform-origin: right; }
-    #wrapper {
+    body#ZATACKA.body { justify-content: flex-end; }
+    body#ZATACKA.body { transform-origin: right; }
+    body.body #wrapper {
         zoom: 2;
         -moz-transform: scale(2);
+    }
+    body.body * {
+        image-rendering: -moz-crisp-edges;
+        image-rendering: pixelated;
     }
 }
 
 @media screen and (min-width: 1440px) and (min-height: 960px) {
-    body#ZATACKA { justify-content: center; }
-    body#ZATACKA #wrapper { transform-origin: center; }
+    body#ZATACKA.body { justify-content: center; }
+    body#ZATACKA.body #wrapper { transform-origin: center; }
+}
+
+
+/* ======== 2.5x ======== (only used if pixelmapping is not enforced) */
+@media screen and (min-width: 1600px) and (min-height: 1200px) {
+    body#ZATACKA.blurry { justify-content: flex-end; }
+    body#ZATACKA.blurry { transform-origin: right; }
+    body.blurry #wrapper {
+        zoom: 2.5;
+        -moz-transform: scale(2.5);
+    }
+    body.blurry * {
+        image-rendering: auto;
+    }
+}
+
+@media screen and (min-width: 1800px) and (min-height: 1200px) {
+    body#ZATACKA.blurry { justify-content: center; }
+    body#ZATACKA.blurry #wrapper { transform-origin: center; }
 }
 
 
 /* ======== 3x ======== */
 @media screen and (min-width: 1920px) and (min-height: 1440px) {
-    body#ZATACKA { justify-content: flex-end; }
-    body#ZATACKA #wrapper { transform-origin: right; }
-    #wrapper {
+    body#ZATACKA.body { justify-content: flex-end; }
+    body#ZATACKA.body { transform-origin: right; }
+    body.body #wrapper {
         zoom: 3;
         -moz-transform: scale(3);
+    }
+    body.body * {
+        image-rendering: -moz-crisp-edges;
+        image-rendering: pixelated;
     }
 }
 
 @media screen and (min-width: 2160px) and (min-height: 1440px) {
-    body#ZATACKA { justify-content: center; }
-    body#ZATACKA #wrapper { transform-origin: center; }
+    body#ZATACKA.body { justify-content: center; }
+    body#ZATACKA.body #wrapper { transform-origin: center; }
 }
 
 
 /* ======== 4x ======== */
 @media screen and (min-width: 2560px) and (min-height: 1920px) {
-    body#ZATACKA { justify-content: flex-end; }
-    body#ZATACKA #wrapper { transform-origin: right; }
-    #wrapper {
+    body#ZATACKA.body { justify-content: flex-end; }
+    body#ZATACKA.body { transform-origin: right; }
+    body.body #wrapper {
         zoom: 4;
         -moz-transform: scale(4);
+    }
+    body.body * {
+        image-rendering: -moz-crisp-edges;
+        image-rendering: pixelated;
     }
 }
 
 @media screen and (min-width: 2880px) and (min-height: 1920px) {
-    body#ZATACKA { justify-content: center; }
-    body#ZATACKA #wrapper { transform-origin: center; }
+    body#ZATACKA.body { justify-content: center; }
+    body#ZATACKA.body #wrapper { transform-origin: center; }
 }
 
 
 /* ======== 5x ======== */
 @media screen and (min-width: 3200px) and (min-height: 2400px) {
-    body#ZATACKA { justify-content: flex-end; }
-    body#ZATACKA #wrapper { transform-origin: right; }
-    #wrapper {
+    body#ZATACKA.body { justify-content: flex-end; }
+    body#ZATACKA.body { transform-origin: right; }
+    body.body #wrapper {
         zoom: 5;
         -moz-transform: scale(5);
+    }
+    body.body * {
+        image-rendering: -moz-crisp-edges;
+        image-rendering: pixelated;
     }
 }
 
 @media screen and (min-width: 3600px) and (min-height: 2400px) {
-    body#ZATACKA { justify-content: center; }
-    body#ZATACKA #wrapper { transform-origin: center; }
+    body#ZATACKA.body { justify-content: center; }
+    body#ZATACKA.body #wrapper { transform-origin: center; }
 }
 
 
 /* ======== 6x ======== */
 @media screen and (min-width: 3840px) and (min-height: 2880px) {
-    body#ZATACKA { justify-content: flex-end; }
-    body#ZATACKA #wrapper { transform-origin: right; }
-    #wrapper {
+    body#ZATACKA.body { justify-content: flex-end; }
+    body#ZATACKA.body { transform-origin: right; }
+    body.body #wrapper {
         zoom: 6;
         -moz-transform: scale(6);
+    }
+    body.body * {
+        image-rendering: -moz-crisp-edges;
+        image-rendering: pixelated;
     }
 }
 
 @media screen and (min-width: 4320px) and (min-height: 2880px) {
-    body#ZATACKA { justify-content: center; }
-    body#ZATACKA #wrapper { transform-origin: center; }
+    body#ZATACKA.body { justify-content: center; }
+    body#ZATACKA.body #wrapper { transform-origin: center; }
 }
 
 
 /* ======== 7x ======== */
 @media screen and (min-width: 4480px) and (min-height: 3360px) {
-    body#ZATACKA { justify-content: flex-end; }
-    body#ZATACKA #wrapper { transform-origin: right; }
-    #wrapper {
+    body#ZATACKA.body { justify-content: flex-end; }
+    body#ZATACKA.body { transform-origin: right; }
+    body.body #wrapper {
         zoom: 7;
         -moz-transform: scale(7);
+    }
+    body.body * {
+        image-rendering: -moz-crisp-edges;
+        image-rendering: pixelated;
     }
 }
 
 @media screen and (min-width: 5040px) and (min-height: 3360px) {
-    body#ZATACKA { justify-content: center; }
-    body#ZATACKA #wrapper { transform-origin: center; }
+    body#ZATACKA.body { justify-content: center; }
+    body#ZATACKA.body #wrapper { transform-origin: center; }
 }
 
 
 /* ======== 8x ======== */
 @media screen and (min-width: 5120px) and (min-height: 3840px) {
-    body#ZATACKA { justify-content: flex-end; }
-    body#ZATACKA #wrapper { transform-origin: right; }
-    #wrapper {
+    body#ZATACKA.body { justify-content: flex-end; }
+    body#ZATACKA.body { transform-origin: right; }
+    body.body #wrapper {
         zoom: 8;
         -moz-transform: scale(8);
+    }
+    body.body * {
+        image-rendering: -moz-crisp-edges;
+        image-rendering: pixelated;
     }
 }
 
 @media screen and (min-width: 5760px) and (min-height: 3840px) {
-    body#ZATACKA { justify-content: center; }
-    body#ZATACKA #wrapper { transform-origin: center; }
+    body#ZATACKA.body { justify-content: center; }
+    body#ZATACKA.body #wrapper { transform-origin: center; }
 }
