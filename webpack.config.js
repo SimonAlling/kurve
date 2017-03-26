@@ -3,13 +3,13 @@ const DIR_SOURCE = "js";
 
 module.exports = {
   devtool: "source-map",
-  entry: [
-    // Add your application"s scripts below
-    "./" + DIR_SOURCE + "/Main.js",
-  ],
+  entry: {
+    zatacka: "./" + DIR_SOURCE + "/Main.js",
+    splashscreen: "./" + DIR_SOURCE + "/SplashScreen.js",
+},
   output: {
     path: path.resolve(__dirname, "."),
-    filename: "zatacka.min.js"
+    filename: "[name].min.js"
   },
   module: {
     loaders: [

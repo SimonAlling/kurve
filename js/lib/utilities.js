@@ -224,10 +224,10 @@ export const PLATFORM = (() => {
         getFullscreenShortcut: () => {
             switch (PLATFORM.getOS()) {
                 case strings.os_name_mac:
-                    return TEXT.keyboard_fullscreen_mac;
+                    return "mac";
                     break;
                 default:
-                    return TEXT.keyboard_fullscreen_standard;
+                    return "default";
             }
         },
     };
