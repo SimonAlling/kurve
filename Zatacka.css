@@ -346,6 +346,7 @@ button:hover {
     margin: 12px 0;
     transition-property: opacity;
     opacity: 0.6;
+    vertical-align: top; /* so half-width divs are aligned properly */
 }
 
 #settings-form > div:hover {
