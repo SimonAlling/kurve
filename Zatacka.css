@@ -325,20 +325,37 @@ button:hover {
 
 #button-hide-settings {
     background-position: 0 -16px;
+    z-index: 10; /* so it stays in front of the right hand side :hover blocker */
 }
 
 #settings {
     background-color: rgba(0, 0, 0, 0.95);
+    overflow: hidden;
 }
 
 #settings {
     padding: 50px 80px 50px 80px;
 }
 
+#settings-form {
+    height: 100%;
+}
+
 #settings-form > div {
     box-sizing: border-box;
     margin: 12px 0;
-    opacity: 0.7;
+    transition-property: opacity;
+    opacity: 0.6;
+}
+
+#settings-form > div:hover {
+    opacity: 1;
+}
+
+#settings-form > div,
+#settings-form > div::before,
+#settings-form > div .description {
+    transition-duration: 200ms;
 }
 
 #settings-form > div.half-width {
@@ -356,14 +373,6 @@ button:hover {
 #settings-form > div.half-width + div {
     /* A full-width div right after a half-width one must have no margin-top; otherwise their margins will stack. */
     margin-top: 0;
-}
-
-#settings-form > div:hover {
-    opacity: 1;
-}
-
-#settings-form > div:hover .description {
-    visibility: visible;
 }
 
 #settings-form fieldset {
@@ -385,16 +394,79 @@ button:hover {
 
 #settings-form .description {
     box-sizing: border-box;
-    bottom: 0;
     font-size: 0.75em;
-    height: 50px;
     left: 0;
-    opacity: 0.8;
-    padding: 0 80px;
+    bottom: 30px; /* Match with #settings::after height! */
+    margin-left: calc(80px - 16px + 1px);
+    padding-bottom: 4px;
+    padding-left: 16px;
+    padding-right: 4px;
     position: absolute;
-    visibility: hidden;
-    width: 100%;
+    max-width: calc(100% - 160px + 16px - 1px);
+    border-bottom-style: solid;
 }
+
+#settings-form > div.half-width.right-hand-side .description {
+    left: unset;
+    right: 0;
+    padding-left: 4px;
+    padding-right: 16px;
+    margin-left: unset;
+    margin-right: calc(80px - 16px + 1px);
+}
+
+/* To clip the connection to the description: */
+#settings::after {
+    background-color: black;
+    content: "";
+    display: block;
+    height: 30px; /* Match with .description bottom! */
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+#settings-form > div::before,
+#settings-form > div .description {
+    opacity: 0;
+    border-width: 1px; /* apparently necessary, otherwise it is always the same (wrong) thickness regardless of scale */
+    transition-property: opacity;
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+#settings-form > div:hover::before,
+#settings-form > div:hover .description {
+    opacity: 0.9;
+}
+
+#settings-form > div:hover::before,
+#settings-form > div:hover .description {
+    transition-property: opacity;
+    transition-delay: 500ms;
+    transition-duration: 1s;
+}
+
+#settings-form > div::before {
+    border-left-style: solid;
+    border-top-style: solid;
+    content: "";
+    height: 1000%;
+    left: 64px;
+    margin-top: 7px;
+    position: absolute;
+    width: 7px;
+    pointer-events: none;
+}
+
+#settings-form > div.half-width.right-hand-side::before {
+    border-left-style: none;
+    border-right-style: solid;
+    content: "";
+    left: unset;
+    right: 64px;
+}
+
 
 #settings-form select {
     background: black;
