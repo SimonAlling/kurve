@@ -30,32 +30,32 @@ export default (() => {
         label_text_confirm_quit: `Are you sure you want to quit?`,
         label_text_confirm_reload: `Are you sure you want to reload the application?`,
 
-        pref_label_cursor: `Cursor`,
-        pref_label_description_cursor: `Control how the cursor behaves when the game is running.`,
+        pref_label_cursor: `Mouse pointer`,
+        pref_label_description_cursor: `Control how the pointer behaves when the game is live. (It is always visible in the menu.) "Used by player" means that a player is using the mouse to control their Kurve.`,
         pref_label_cursor_always_visible: `Always visible`,
         pref_label_cursor_hidden_when_mouse_used_by_player: `Hidden when mouse used by player`,
         pref_label_cursor_always_hidden: `Always hidden`,
 
-        pref_label_edge_fix: `Edge fix`,
-        pref_label_description_edge_fix: `Shrink the playing field slightly to make the edge visible if the monitor is exactly the same height or width as the game.`,
+        pref_label_edge_fix: `Invisible border fix`,
+        pref_label_description_edge_fix: `Shrink the playing field slightly to make the gray border visible if the monitor is exactly the same height and/or width as the game (in pixels).`,
         pref_label_edge_fix_full: `Full`,
         pref_label_edge_fix_minimal: `Minimal`,
         pref_label_edge_fix_off: `Off`,
 
-        pref_label_hints: `Hints`,
-        pref_label_description_hints: `Hints may be redundant for experienced Kurve players.`,
-        pref_label_hints_all: `All`,
+        pref_label_hints: `Messages`,
+        pref_label_description_hints: `Hints (white text) are unnecessary for experienced Kurve players. Warnings (yellow) can be useful for players new to playing Kurve in the browser.`,
+        pref_label_hints_all: `Hints and warnings`,
         pref_label_hints_warnings_only: `Warnings only`,
         pref_label_hints_none: `None`,
 
         pref_label_prevent_spawnkill: `Prevent spawnkills`,
-        pref_label_description_prevent_spawnkill: `Enforce a minimum distance between player spawns.`,
+        pref_label_description_prevent_spawnkill: `Enforce a minimum distance between players at round start.`,
 
         pref_label_confirm_quit: `Confirm quit`,
-        pref_label_description_confirm_quit: `Ask for confirmation before quitting to the main menu.`,
+        pref_label_description_confirm_quit: `Ask for confirmation before quitting to the main menu (Esc).`,
 
         pref_label_confirm_reload: `Confirm reload`,
-        pref_label_description_confirm_reload: `Ask for confirmation before reloading the application.`,
+        pref_label_description_confirm_reload: `Ask for confirmation before reloading the application (F5).`,
 
         pref_label_allow_blurry_scaling: `Allow blurry scaling`,
         pref_label_description_allow_blurry_scaling: `Let the game use the available screen area more efficiently at the expense of visual quality. Can be useful if the game is very small on your screen.`,
