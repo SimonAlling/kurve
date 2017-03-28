@@ -477,23 +477,32 @@ const Zatacka = (() => {
     }
 
     function applySettings() {
+        let preference_value_edge_fix;
+        let preference_value_hints;
+        let preference_value_prevent_spawnkill;
+        let preference_value_allow_blurry_scaling;
         try {
-            // Edge fix:
-            setEdgeMode(preferenceManager.getSaved(STRINGS.pref_key_edge_fix));
-            // Hints:
-            guiController.setMessageMode(preferenceManager.getSaved(STRINGS.pref_key_hints));
-            // Prevent spawnkill:
-            game.setPreventSpawnkill(preferenceManager.getSaved(STRINGS.pref_key_prevent_spawnkill));
-            // Blurry scaling:
-            guiController.setBlurryScaling(preferenceManager.getSaved(STRINGS.pref_key_allow_blurry_scaling));
+            preference_value_edge_fix = preferenceManager.getSaved(STRINGS.pref_key_edge_fix);
+            preference_value_hints = preferenceManager.getSaved(STRINGS.pref_key_hints);
+            preference_value_prevent_spawnkill = preferenceManager.getSaved(STRINGS.pref_key_prevent_spawnkill);
+            preference_value_allow_blurry_scaling = preferenceManager.getSaved(STRINGS.pref_key_allow_blurry_scaling);
         } catch(e) {
             logWarning("Could not load settings from localStorage. Using cached settings instead.");
-            setEdgeMode(preferenceManager.getCached(STRINGS.pref_key_edge_fix));
-            guiController.setMessageMode(preferenceManager.getCached(STRINGS.pref_key_hints));
-            game.setPreventSpawnkill(preferenceManager.getCached(STRINGS.pref_key_prevent_spawnkill));
-            guiController.setBlurryScaling(preferenceManager.getCached(STRINGS.pref_key_allow_blurry_scaling));
+            preference_value_edge_fix = preferenceManager.getCached(STRINGS.pref_key_edge_fix);
+            preference_value_hints = preferenceManager.getCached(STRINGS.pref_key_hints);
+            preference_value_prevent_spawnkill = preferenceManager.getCached(STRINGS.pref_key_prevent_spawnkill);
+            preference_value_allow_blurry_scaling = preferenceManager.getCached(STRINGS.pref_key_allow_blurry_scaling);
             handleSettingsAccessError(e);
         }
+
+        // Edge fix:
+        setEdgeMode(preference_value_edge_fix);
+        // Hints:
+        guiController.setMessageMode(preference_value_hints);
+        // Prevent spawnkill:
+        game.setPreventSpawnkill(preference_value_prevent_spawnkill);
+        // Blurry scaling:
+        guiController.setBlurryScaling(preference_value_allow_blurry_scaling);
     }
 
     function handleSettingsAccessError(error) {
