@@ -28,7 +28,7 @@ export function GUIController(cfg) {
     const settingsForm = byID("settings-form");
 
     const ORIGINAL_LEFT_WIDTH = left.offsetWidth;
-    const MULTICHOICE_LABEL_MAX_LENGTH_FOR_HALFWIDTH_FIELDSET = 22; // More characters than this will result in a full-width div/fieldset.
+    const MULTICHOICE_LABEL_MAX_LENGTH_FOR_HALFWIDTH_FIELDSET = 20; // More characters than this will result in a full-width div/fieldset.
     const FLOAT_RANGE_PREFERENCE_STEP = 0.01;
 
     const BUTTON_TAG_NAME = "button";

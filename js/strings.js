@@ -48,5 +48,8 @@ export default Object.freeze({
     pref_key_confirm_quit: "confirm_quit",
     pref_key_confirm_reload: "confirm_reload",
     pref_key_prevent_spawnkill: "prevent_spawnkill",
-    pref_key_allow_blurry_scaling: "allow_blurry_scaling",
+
+    pref_key_scaling: "scaling",
+    pref_value_scaling_prefer_quality: "prefer_quality",
+    pref_value_scaling_prefer_size: "prefer_size",
 });

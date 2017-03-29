@@ -14,9 +14,9 @@ export function PreferenceManager(preferencesData) {
     let CACHED_PREFERENCES_WITH_VALUES = getAllPreferencesWithDefaultValues();
     CACHED_PREFERENCES_WITH_VALUES.forEach((preferenceWithValue) => {
         const key = preferenceWithValue.preference.key;
+        const defaultValue = preferenceWithValue.preference.getDefaultValue();
         try {
             const savedValue = getSaved(key);
-            const defaultValue = preferenceWithValue.preference.getDefaultValue();
             if (savedValue === null) {
                 log(`Using default value '${defaultValue}' for preference '${key}' since there was no saved value.`);
             }
