@@ -52,10 +52,7 @@ export default (() => {
         pref_label_description_prevent_spawnkill: `Enforce a minimum distance between players at round start.`,
 
         pref_label_confirm_quit: `Confirm quit`,
-        pref_label_description_confirm_quit: `Ask for confirmation before quitting to the main menu (Esc).`,
-
-        pref_label_confirm_reload: `Confirm reload`,
-        pref_label_description_confirm_reload: `Ask for confirmation before reloading the application (F5).`,
+        pref_label_description_confirm_quit: `Ask for confirmation before quitting to the main menu (Esc) or reloading the application (F5).`,
 
         pref_label_scaling: `Scaling`,
         pref_label_description_scaling: `Visual quality ensures a crisp, pixelmapped image. On-screen size may result in blurry graphics and other visual errors, but can be useful if the game is very small on your screen.`,

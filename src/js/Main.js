@@ -91,13 +91,6 @@ const Zatacka = (() => {
             default: true,
         },
         {
-            type: BooleanPreference,
-            key: STRINGS.pref_key_confirm_reload,
-            label: TEXT.pref_label_confirm_reload,
-            description: TEXT.pref_label_description_confirm_reload,
-            default: true,
-        },
-        {
             type: MultichoicePreference,
             key: STRINGS.pref_key_scaling,
             label: TEXT.pref_label_scaling,
@@ -428,7 +421,7 @@ const Zatacka = (() => {
                 quitGame();
             }
         } else if (pressedKey === KEY_RELOAD) {
-            if (preferenceManager.getCached(STRINGS.pref_key_confirm_reload) === true) {
+            if (preferenceManager.getCached(STRINGS.pref_key_confirm_quit) === true) {
                 if (game.shouldShowReloadConfirmationOnReloadKey() && !(guiController.isShowingDialog())) {
                     guiController.showDialog(config.dialogs.confirmation_reload, reload);
                 }

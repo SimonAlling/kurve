@@ -47,7 +47,7 @@ input[type="radio"] + label {
 /* Actual checkbox or radio button: */
 input[type="checkbox"] + label::before,
 input[type="radio"] + label::before {
-    background-image: url("resources/kurve-icons.png");
+    background-image: url("../resources/kurve-icons.png");
     background-repeat: no-repeat;
     box-sizing: border-box;
     content: "";
@@ -196,7 +196,7 @@ button:hover {
 }
 
 .icon-button {
-    background-image: url("resources/kurve-icons.png");
+    background-image: url("../resources/kurve-icons.png");
     cursor: pointer;
     height: 16px;
     opacity: 0.75;
@@ -292,13 +292,13 @@ button:hover {
 }
 
 #lobby #controls .controls {
-    background-image: url("resources/kurve-lobby-controls-ready.png");
+    background-image: url("../resources/kurve-lobby-controls-ready.png");
     width: 160px;
 }
 
 #lobby #controls .ready {
     visibility: hidden;
-    background-image: url("resources/kurve-lobby-controls-ready.png");
+    background-image: url("../resources/kurve-lobby-controls-ready.png");
     width: 80px;
 }
 
@@ -562,7 +562,7 @@ button:hover {
 }
 
 #KONEC_HRY {
-    background-image: url("resources/kurve-konec-hry.png");
+    background-image: url("../resources/kurve-konec-hry.png");
 }
 
 #KONEC_HRY #results {
@@ -585,12 +585,12 @@ button:hover {
     float: left;
 }
 
-.red.digits    div { background-image: url("resources/kurve-digits-red.png");    }
-.yellow.digits div { background-image: url("resources/kurve-digits-yellow.png"); }
-.orange.digits div { background-image: url("resources/kurve-digits-orange.png"); }
-.green.digits  div { background-image: url("resources/kurve-digits-green.png");  }
-.pink.digits   div { background-image: url("resources/kurve-digits-pink.png");   }
-.blue.digits   div { background-image: url("resources/kurve-digits-blue.png");   }
+.red.digits    div { background-image: url("../resources/kurve-digits-red.png");    }
+.yellow.digits div { background-image: url("../resources/kurve-digits-yellow.png"); }
+.orange.digits div { background-image: url("../resources/kurve-digits-orange.png"); }
+.green.digits  div { background-image: url("../resources/kurve-digits-green.png");  }
+.pink.digits   div { background-image: url("../resources/kurve-digits-pink.png");   }
+.blue.digits   div { background-image: url("../resources/kurve-digits-blue.png");   }
 
 /* Scoreboard digits: */
 #scoreboard .digits {

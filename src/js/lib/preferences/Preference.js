@@ -6,6 +6,10 @@ export class Preference {
             throw new TypeError(`key must be a string (found ${data.key}). More info: ${data}`);
         } else if (data.default === undefined) {
             throw new TypeError(`Preference '${data.key}' must have a default value.`);
+        } else if (data.label === undefined) {
+            throw new TypeError(`Preference '${data.key}' must have a label.`);
+        } else if (data.description === undefined) {
+            throw new TypeError(`Preference '${data.key}' must have a description.`);
         }
         this.key = data.key;
         this.label = data.label;
