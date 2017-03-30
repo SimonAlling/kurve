@@ -1,0 +1,12 @@
+{
+	"version": 3,
+	"file": "kurve.se.css",
+	"sources": [
+		"../src/css/kurve.se.scss"
+	],
+	"sourcesContent": [
+		"/* STYLESHEET FOR KURVE.SE */\r\n\r\nbody {\r\n    background-color: black;\r\n    color: rgba(255, 255, 255, 0.5);\r\n}\r\n\r\na:hover, a:focus, a:active {\r\n    color: rgba(255, 255, 255, 1.0);\r\n}\r\n\r\nmain {\r\n    background: black url(\"../resources/kurve-splash.png\");\r\n    box-sizing: border-box;\r\n    height: 480px;\r\n    padding-top: 288px;\r\n    position: relative; /* so we can position footer absolutely */\r\n    text-align: center;\r\n    width: 640px;\r\n}\r\n\r\n#wrapper p {\r\n    margin: 0 0 1em 0;\r\n}\r\n\r\n#start-hint {\r\n    font-size: 1.2em;\r\n}\r\n\r\n#fullscreen-hint, #popup-hint {\r\n    font-size: 0.9em;\r\n}\r\n\r\nkbd {\r\n    color: white;\r\n}\r\n\r\n#popup-hint a {\r\n    text-decoration: underline;\r\n}\r\n\r\nmain footer {\r\n    bottom: 0;\r\n    height: 40px;\r\n    position: absolute;\r\n    width: 100%;\r\n}\r\n\r\n#preload {\r\n    display: none;\r\n}\r\n"
+	],
+	"names": [],
+	"mappings": "AAEA,AAAA,IAAI,AAAC,CACD,gBAAgB,CAAE,KAAK,CACvB,KAAK,CAAE,qBAAwB,CAClC,AAED,AAAA,CAAC,AAAA,MAAM,CAAE,AAAA,CAAC,AAAA,MAAM,CAAE,AAAA,CAAC,AAAA,OAAO,AAAC,CACvB,KAAK,CAAE,IAAwB,CAClC,AAED,AAAA,IAAI,AAAC,CACD,UAAU,CAAE,KAAK,CAAC,oCAAoC,CACtD,UAAU,CAAE,UAAU,CACtB,MAAM,CAAE,KAAK,CACb,WAAW,CAAE,KAAK,CAClB,QAAQ,CAAE,QAAQ,CAClB,UAAU,CAAE,MAAM,CAClB,KAAK,CAAE,KAAK,CACf,AAED,AAAS,QAAD,CAAC,CAAC,AAAC,CACP,MAAM,CAAE,SAAS,CACpB,AAED,AAAA,WAAW,AAAC,CACR,SAAS,CAAE,KAAK,CACnB,AAED,AAAA,gBAAgB,CAAE,AAAA,WAAW,AAAC,CAC1B,SAAS,CAAE,KAAK,CACnB,AAED,AAAA,GAAG,AAAC,CACA,KAAK,CAAE,KAAK,CACf,AAED,AAAY,WAAD,CAAC,CAAC,AAAC,CACV,eAAe,CAAE,SAAS,CAC7B,AAED,AAAK,IAAD,CAAC,MAAM,AAAC,CACR,MAAM,CAAE,CAAC,CACT,MAAM,CAAE,IAAI,CACZ,QAAQ,CAAE,QAAQ,CAClB,KAAK,CAAE,IAAI,CACd,AAED,AAAA,QAAQ,AAAC,CACL,OAAO,CAAE,IAAI,CAChB"
+}
