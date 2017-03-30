@@ -1,14 +1,14 @@
 const path = require("path");
-const DIR_SOURCE = "js";
+const DIR_SOURCE = "src";
 
 module.exports = {
     devtool: "source-map",
     entry: {
-        zatacka: "./" + DIR_SOURCE + "/Main.js",
-        splashscreen: "./" + DIR_SOURCE + "/SplashScreen.js",
+        zatacka: "./" + DIR_SOURCE + "/js/Main.js",
+        splashscreen: "./" + DIR_SOURCE + "/js/SplashScreen.js",
     },
     output: {
-        path: path.resolve(__dirname, "."),
+        path: path.resolve(__dirname, "./js"),
         filename: "[name].min.js"
     },
     module: {
