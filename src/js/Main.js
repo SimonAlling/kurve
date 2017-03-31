@@ -401,6 +401,7 @@ const Zatacka = (() => {
         game.quit();
         guiController.gameQuit();
         game = newGame();
+        applySettings();
     }
 
     function gameKeyHandler(event) {
