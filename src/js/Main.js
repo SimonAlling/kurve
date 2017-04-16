@@ -95,13 +95,15 @@ const Zatacka = (() => {
             key: STRINGS.pref_key_scaling,
             label: TEXT.pref_label_scaling,
             description: TEXT.pref_label_description_scaling,
-            values: [
-                STRINGS.pref_value_scaling_prefer_quality,
-                STRINGS.pref_value_scaling_prefer_size,
-            ],
-            labels: [
-                TEXT.pref_label_scaling_prefer_quality,
-                TEXT.pref_label_scaling_prefer_size,
+            options: [
+                {
+                    key: STRINGS.pref_value_scaling_prefer_quality,
+                    label: TEXT.pref_label_scaling_prefer_quality,
+                },
+                {
+                    key: STRINGS.pref_value_scaling_prefer_size,
+                    label: TEXT.pref_label_scaling_prefer_size,
+                },
             ],
             default: STRINGS.pref_value_scaling_prefer_quality,
         },
@@ -110,15 +112,19 @@ const Zatacka = (() => {
             key: STRINGS.pref_key_cursor,
             label: TEXT.pref_label_cursor,
             description: TEXT.pref_label_description_cursor,
-            values: [
-                STRINGS.pref_value_cursor_always_visible,
-                STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player,
-                STRINGS.pref_value_cursor_always_hidden,
-            ],
-            labels: [
-                TEXT.pref_label_cursor_always_visible,
-                TEXT.pref_label_cursor_hidden_when_mouse_used_by_player,
-                TEXT.pref_label_cursor_always_hidden,
+            options: [
+                {
+                    key: STRINGS.pref_value_cursor_always_visible,
+                    label: TEXT.pref_label_cursor_always_visible,
+                },
+                {
+                    key: STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player,
+                    label: TEXT.pref_label_cursor_hidden_when_mouse_used_by_player,
+                },
+                {
+                    key: STRINGS.pref_value_cursor_always_hidden,
+                    label: TEXT.pref_label_cursor_always_hidden,
+                },
             ],
             default: STRINGS.pref_value_cursor_hidden_when_mouse_used_by_player,
         },
@@ -127,15 +133,19 @@ const Zatacka = (() => {
             key: STRINGS.pref_key_edge_fix,
             label: TEXT.pref_label_edge_fix,
             description: TEXT.pref_label_description_edge_fix,
-            values: [
-                STRINGS.pref_value_edge_fix_off,
-                STRINGS.pref_value_edge_fix_minimal,
-                STRINGS.pref_value_edge_fix_full,
-            ],
-            labels: [
-                TEXT.pref_label_edge_fix_off,
-                TEXT.pref_label_edge_fix_minimal,
-                TEXT.pref_label_edge_fix_full,
+            options: [
+                {
+                    key: STRINGS.pref_value_edge_fix_off,
+                    label: TEXT.pref_label_edge_fix_off,
+                },
+                {
+                    key: STRINGS.pref_value_edge_fix_minimal,
+                    label: TEXT.pref_label_edge_fix_minimal,
+                },
+                {
+                    key: STRINGS.pref_value_edge_fix_full,
+                    label: TEXT.pref_label_edge_fix_full,
+                },
             ],
             default: STRINGS.pref_value_edge_fix_off,
         },
@@ -144,15 +154,19 @@ const Zatacka = (() => {
             key: STRINGS.pref_key_hints,
             label: TEXT.pref_label_hints,
             description: TEXT.pref_label_description_hints,
-            values: [
-                STRINGS.pref_value_hints_all,
-                STRINGS.pref_value_hints_warnings_only,
-                STRINGS.pref_value_hints_none,
-            ],
-            labels: [
-                TEXT.pref_label_hints_all,
-                TEXT.pref_label_hints_warnings_only,
-                TEXT.pref_label_hints_none,
+            options: [
+                {
+                    key: STRINGS.pref_value_hints_all,
+                    label: TEXT.pref_label_hints_all,
+                },
+                {
+                    key: STRINGS.pref_value_hints_warnings_only,
+                    label: TEXT.pref_label_hints_warnings_only,
+                },
+                {
+                    key: STRINGS.pref_value_hints_none,
+                    label: TEXT.pref_label_hints_none,
+                },
             ],
             default: STRINGS.pref_value_hints_all,
         }

@@ -204,7 +204,8 @@ export function GUIController(cfg) {
 
     function settingsEntryShouldBeHalfWidth(preference) {
         if (preference instanceof MultichoicePreference) {
-            const longestValueLabel = preference.labels.reduce((acc, current) => current.length > acc.length ? current : acc);
+            const labels = preference.options.map(option => option.label);
+            const longestValueLabel = labels.reduce((acc, current) => current.length > acc.length ? current : acc);
             return longestValueLabel.length <= MULTICHOICE_LABEL_MAX_LENGTH_FOR_HALFWIDTH_FIELDSET;
         } else {
             return false;
@@ -242,17 +243,17 @@ export function GUIController(cfg) {
             const legend = document.createElement("legend");
             legend.textContent = preference.label;
             fieldset.appendChild(legend);
-            preference.values.forEach((value, index) => {
-                const id = STRINGS.html_name_preference_prefix + preference.key + "-" + preference.values[index];
+            preference.options.forEach(option => {
+                const id = STRINGS.html_name_preference_prefix + preference.key + "-" + option.key;
                 const radioButton = document.createElement("input");
                 radioButton.type = "radio";
                 radioButton.id = id;
                 radioButton.name = STRINGS.html_name_preference_prefix + preference.key;
-                radioButton.value = value;
+                radioButton.value = option.key;
                 radioButton.dataset.key = preference.key;
-                radioButton.checked = preferenceValue === value;
+                radioButton.checked = preferenceValue === option.key;
                 const radioButtonLabel = document.createElement("label");
-                radioButtonLabel.textContent = preference.labels[index];
+                radioButtonLabel.textContent = option.label;
                 radioButtonLabel.setAttribute("for", id);
                 fieldset.appendChild(radioButton);
                 fieldset.appendChild(radioButtonLabel);
