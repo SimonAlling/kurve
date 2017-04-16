@@ -128,14 +128,14 @@ const Zatacka = (() => {
             label: TEXT.pref_label_edge_fix,
             description: TEXT.pref_label_description_edge_fix,
             values: [
-                STRINGS.pref_value_edge_fix_full,
-                STRINGS.pref_value_edge_fix_minimal,
                 STRINGS.pref_value_edge_fix_off,
+                STRINGS.pref_value_edge_fix_minimal,
+                STRINGS.pref_value_edge_fix_full,
             ],
             labels: [
-                TEXT.pref_label_edge_fix_full,
-                TEXT.pref_label_edge_fix_minimal,
                 TEXT.pref_label_edge_fix_off,
+                TEXT.pref_label_edge_fix_minimal,
+                TEXT.pref_label_edge_fix_full,
             ],
             default: STRINGS.pref_value_edge_fix_off,
         },
