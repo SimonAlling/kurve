@@ -1,25 +1,37 @@
 import { Preference } from "./Preference.js";
-import { isString } from "./PreferencesUtilities.js";
+import { MultichoicePreferenceOption } from "./MultichoicePreferenceOption.js";
 
 export class MultichoicePreference extends Preference {
     constructor(data) {
-        if (!isNonEmptyStringArray(data.values)) {
-            throw new TypeError(`values must be a non-empty string array (found ${data.values} for preference '${data.key}').`);
+        if (!isArray(data.options)) {
+            throw new TypeError(`options must be an array (found ${data.options} for preference '${data.key}').`);
+        }
+        if (!hasMultipleEntries(data.options)) {
+            throw new TypeError(`options must have a length greater than 1 (was ${data.options.length} for preference '${data.key}').`);
         }
         super(data);
-        this.values = data.values;
-        this.labels = data.labels;
+
+        try {
+            this.options = data.options.map(option => new MultichoicePreferenceOption(option.key, option.label));
+        } catch(e) {
+            throw new TypeError(`The list of options for preference '${data.key}' was malformed: ${e.message}`);
+        }
+
         if (!this.isValidValue(data.default)) {
             super.invalidValue(data.default);
         }
 
-        function isNonEmptyStringArray(strings) {
-            return strings instanceof Array && strings.length > 0 && strings.every(isString);
+        function isArray(options) {
+            return options instanceof Array;
+        }
+
+        function hasMultipleEntries(options) {
+            return options.length > 1;
         }
     }
 
     isValidValue(value) {
-        return this.values.indexOf(value) > -1;
+        return this.options.some(option => option.key === value);
     }
 
     static stringify(value) {

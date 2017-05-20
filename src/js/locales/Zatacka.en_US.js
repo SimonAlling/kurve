@@ -38,9 +38,9 @@ export default (() => {
 
         pref_label_edge_fix: `Invisible border fix`,
         pref_label_description_edge_fix: `Shrink the playing field slightly to make the gray border visible if the monitor is exactly the same height and/or width as the game (in pixels).`,
-        pref_label_edge_fix_full: `Full`,
-        pref_label_edge_fix_minimal: `Minimal`,
         pref_label_edge_fix_off: `Off`,
+        pref_label_edge_fix_minimal: `Minimal`,
+        pref_label_edge_fix_full: `Full`,
 
         pref_label_hints: `Messages`,
         pref_label_description_hints: `Hints (white text) are unnecessary for experienced Kurve players. Warnings (yellow) can be useful for players new to playing Kurve in the browser.`,

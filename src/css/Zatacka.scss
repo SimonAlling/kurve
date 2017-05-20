@@ -266,6 +266,10 @@ button:hover {
     pointer-events: none;
 }
 
+#fatalError_UA {
+    display: none;
+}
+
 #lobby, #KONEC_HRY, #canvas_main {
     background-color: black;
     overflow: hidden;
@@ -405,6 +409,7 @@ button:hover {
     position: absolute;
     max-width: calc(100% - 160px + 16px - 1px);
     border-bottom-style: solid;
+    pointer-events: none;
 }
 
 #settings-form > div.half-width.right-hand-side .description {

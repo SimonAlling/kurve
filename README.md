@@ -17,11 +17,15 @@ The game will automatically scale itself up as much as possible; fullscreen is r
 
 We use [Webpack](https://webpack.github.io) with [Babel](https://babeljs.io) to transpile and pack all JS into one single file, `zatacka.min.js`.
 
-To install the necessary software, first install npm and then run
+To install the necessary software, first install [Node](https://nodejs.org) and then run
 
     npm install
 
 in the root directory of this repo. This will install all the Node packages you need.
+
+
+
+### Build
 
 To build, run
 
@@ -29,10 +33,21 @@ To build, run
 
 in the root of this repo.
 
+To run a development server:
+
+    npm run watch
+
+The difference is that `build` will write compiled JS files to disk, and you can see your changes simply by opening `ZATACKA.html` or `index.html`.
+
+`watch`, on the other hand, does not write to disk, and you must visit `localhost:8080` in your browser to see your changes. The advantage is that everything (both JS and CSS) is recompiled automatically when a file is modified.
+
+
 
 ### Code structure
 
-All JavaScript files can be found in `js/`.
+All JavaScript source files can be found in `src/js/`; SASS in `src/css/`.
+
+`js/` (in the root) contains _compiled_ JS.
 
 The main JS file is `Main.js`. It is responsible for creating a `Game` and supplying a config, a `Renderer` and a `GUIController` to it. It also adds `Player`s to the `Game` and forwards key events to it.
 
@@ -44,6 +59,6 @@ The main JS file is `Main.js`. It is responsible for creating a `Game` and suppl
 
 `GUIController.js` controls the scoreboard and additional GUI features, such as hiding the lobby and showing the results when the game ends. When a player's score is changed, the `Game` will tell its `GUIController` to update the scoreboard entry of that player.
 
-`js/lib/` contains **general libraries** and help functions.
+`src/js/lib/` contains **general libraries** and help functions.
 
 `dev/` may only contain **development tools** that are not needed at runtime, such as test suites or code generators.
