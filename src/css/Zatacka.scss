@@ -266,6 +266,10 @@ button:hover {
     pointer-events: none;
 }
 
+#fatalError_UA {
+    display: none;
+}
+
 #lobby, #KONEC_HRY, #canvas_main {
     background-color: black;
     overflow: hidden;
