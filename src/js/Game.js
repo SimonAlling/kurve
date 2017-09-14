@@ -712,10 +712,6 @@ export class Game {
             });
         }
         this.totalNumberOfTicks++;
-        // Cycle players so the players take turns being prioritized:
-        if (this.isLive()) {
-            this.players.unshift(this.players.pop());
-        }
     }
 
     /**
