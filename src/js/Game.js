@@ -390,6 +390,18 @@ export class Game {
         this.beginNewRound();
     }
 
+    pause() {
+        MainLoop.stop();
+    }
+
+    isPaused() {
+        return !MainLoop.isRunning();
+    }
+
+    resume() {
+        MainLoop.start();
+    }
+
     /** Announce KONEC HRY, show results etc. */
     konecHry() {
         log(this.constructor.KONEC_HRY);

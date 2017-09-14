@@ -326,7 +326,9 @@ const Zatacka = (() => {
         }
         const pressedKey = event.keyCode;
         if (isProceedKey(pressedKey)) {
-            if (game.shouldQuitOnProceedKey()) {
+            if (game.isPaused()) {
+                game.resume();
+            } else if (game.shouldQuitOnProceedKey()) {
                 quitGame();
             } else {
                 game.proceedKeyPressed();
@@ -443,6 +445,9 @@ const Zatacka = (() => {
 
     function blurHandler() {
         logWarning("Application lost focus.");
+        if (game.isLive()) {
+            game.pause();
+        }
         Keyboard.reset();
         Mouse.reset();
     }
