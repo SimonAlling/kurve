@@ -59,7 +59,6 @@ const Zatacka = (() => {
             ctrl:    new WarningMessage(TEXT.hint_ctrl),
             mouse:   new WarningMessage(TEXT.hint_mouse),
             preferences_access_denied: new WarningMessage(TEXT.hint_preferences_access_denied),
-            preferences_localstorage_failed: new WarningMessage(TEXT.hint_preferences_localstorage_failed),
         }),
         dialogs: Object.freeze({
             confirmation_quit: new ConfirmationDialog(TEXT.label_text_confirm_quit, quitGame),
@@ -435,8 +434,6 @@ const Zatacka = (() => {
     function handleSettingsAccessError(error) {
         if (error.name === STRINGS.error_name_security) {
             guiController.showMessage(config.messages.preferences_access_denied);
-        } else {
-            guiController.showMessage(config.messages.preferences_localstorage_failed);
         }
     }
 

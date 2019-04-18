@@ -15,7 +15,6 @@ export default (() => {
         hint_ctrl: `Ctrl plus some other keys may cause undesired behavior (e.g. closing the tab).`,
         hint_mouse: `Make sure to keep the mouse cursor inside the browser window.`,
         hint_preferences_access_denied: `Could not save/load settings because access to localStorage was denied by the browser. This might be caused by "third-party site data" being blocked or similar.`,
-        hint_preferences_localstorage_failed: `Could not save/load settings because access to localStorage failed.`,
 
         keyboard_fullscreen_mac: `<kbd>${KEY_CMD} + Ctrl + F</kbd> and/or <kbd>${KEY_CMD} + ${KEY_SHIFT} + F</kbd>`,
         keyboard_fullscreen_standard: "<kbd>F11</kbd>",
