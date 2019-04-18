@@ -5,9 +5,8 @@ export default (() => {
     const KEY_QUIT = "Esc";
 
     return Object.freeze({
-        hint_unload: `Are you sure you want to unload the page?`,
         hint_start: `Press <kbd>Space</kbd> to start`,
-        hint_popup: `It is recommended to run Kurve in its own window without history (to avoid switching tabs or navigating back in history mid-game). To do that, please allow popups or <a href="ZATACKA.html" target="_blank">click here</a>.`,
+        hint_popup: `It is recommended to run Kurve in its own window without history (to avoid switching tabs or navigating back in history mid-game). Click here to do so.`,
         hint_pick: `Pick your desired color by pressing the corresponding LEFT key (e.g. M for Orange).`,
         hint_proceed: `Press ${KEY_PROCEED} to start!`,
         hint_next: `Press ${KEY_PROCEED} to proceed, or ${KEY_QUIT} to quit.`,

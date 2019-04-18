@@ -337,14 +337,6 @@ export function GUIController(cfg) {
         }
     }
 
-    function mouseClicked(event, callback) {
-        if (isShowingDialog()) {
-            // Do nothing particular, but consume the event.
-        } else {
-            callback(event);
-        }
-    }
-
     function showDialog(dialog) {
         if (isShowingDialog()) {
             queuedDialogs.push(dialog);
@@ -560,7 +552,6 @@ export function GUIController(cfg) {
 
     return {
         keyPressed,
-        mouseClicked,
         playerReady,
         playerUnready,
         gameStarted,

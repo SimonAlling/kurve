@@ -13,7 +13,7 @@ import TEXT from "./locales/Zatacka.en_US.js";
         const newWindow = window.open(STRINGS.game_url);
         if (!newWindow || newWindow.closed || typeof newWindow.closed === "undefined") {
             // Browser is blocking popups.
-            showPopupHint();
+            window.location.href = STRINGS.game_url;
         }
     }
 
@@ -36,13 +36,6 @@ import TEXT from "./locales/Zatacka.en_US.js";
         if (isHTMLElement(fullscreenHintElement)) {
             const fullscreenShortcut = PLATFORM.getFullscreenShortcut() === "mac" ? TEXT.keyboard_fullscreen_mac : TEXT.keyboard_fullscreen_standard;
             fullscreenHintElement.innerHTML = TEXT.getFullscreenHint(fullscreenShortcut);
-        }
-    }
-
-    function showPopupHint() {
-        const popupHintElement = byID(STRINGS.id_popup_hint);
-        if (isHTMLElement(popupHintElement)) {
-            popupHintElement.innerHTML = TEXT.hint_popup;
         }
     }
 

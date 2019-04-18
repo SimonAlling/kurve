@@ -23,7 +23,6 @@ export default Object.freeze({
 
     id_start_hint: "start-hint",
     id_fullscreen_hint: "fullscreen-hint",
-    id_popup_hint: "popup-hint",
     id_button_show_settings: "button-show-settings",
     id_button_hide_settings: "button-hide-settings",
 

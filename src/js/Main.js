@@ -54,6 +54,7 @@ const Zatacka = (() => {
             proceed: new InfoMessage(TEXT.hint_proceed),
             next:    new InfoMessage(TEXT.hint_next),
             quit:    new InfoMessage(TEXT.hint_quit),
+            popup:   new WarningMessage(`<a href="${STRINGS.game_url}" target="_blank">` + TEXT.hint_popup + `</a>`),
             alt:     new WarningMessage(TEXT.hint_alt),
             ctrl:    new WarningMessage(TEXT.hint_ctrl),
             mouse:   new WarningMessage(TEXT.hint_mouse),
@@ -278,15 +279,19 @@ const Zatacka = (() => {
     }
 
     function mouseHandler(event) {
-        const callback = game.isStarted() ? gameMouseHandler
-                                          : guiController.isShowingSettings() ? settingsMouseHandler
-                                                                              : lobbyMouseHandler;
-        guiController.mouseClicked(event, callback);
+        const handle = (
+            game.isStarted() ? gameMouseHandler :
+            guiController.isShowingSettings() ? settingsMouseHandler :
+            guiController.isShowingDialog() ? eventConsumer :
+            event.target instanceof HTMLAnchorElement ? () => {} :
+            lobbyMouseHandler
+        );
+        handle(event);
     }
 
     function unloadHandler(event) {
         if (game.isStarted()) {
-            gameUnloadHandler();
+            gameUnloadHandler(event);
         }
     }
 
@@ -305,11 +310,11 @@ const Zatacka = (() => {
     }
 
     function lobbyMouseHandler(event) {
-        event.preventDefault();
         mouseClickedInLobby(event.button);
     }
 
     function reload() {
+        window.removeEventListener("beforeunload", unloadHandler);
         window.location.reload();
     }
 
@@ -356,9 +361,7 @@ const Zatacka = (() => {
 
     function gameUnloadHandler(event) {
         // A simple trick to prevent accidental unloading of the entire game.
-        const message = TEXT.hint_unload;
-        event.returnValue = message; // Gecko, Trident, Chrome 34+
-        return message;              // Gecko, Webkit, Chrome <34
+        return event.returnValue = true;
     }
 
     function settingsKeyHandler(event) {
@@ -468,6 +471,12 @@ const Zatacka = (() => {
         }
     }
 
+    function handleHistoryHazards() {
+        if (history && history.length > 1) {
+            guiController.showMessage(config.messages.popup);
+        }
+    }
+
     function addEventListeners() {
         log("Adding event listeners ...");
 
@@ -506,6 +515,7 @@ const Zatacka = (() => {
     }, config.hintDelay);
 
     applySettings();
+    handleHistoryHazards();
 
     return {
         getConfig: () => config,

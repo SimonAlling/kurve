@@ -262,10 +262,6 @@ button:hover {
     display: none !important;
 }
 
-.unobtrusive {
-    pointer-events: none;
-}
-
 #fatalError_UA {
     display: none;
 }
@@ -487,7 +483,8 @@ button:hover {
 }
 
 #messages {
-    padding-top: 350px; /* 350 = 7 * 50, where 50 is the total height of each player's controls and 7 is 6 players plus 1 for margin */
+    top: 350px; /* 350 = 7 * 50, where 50 is the total height of each player's controls and 7 is 6 players plus 1 for margin */
+    height: unset; // otherwise 100% from .overlay
 }
 
 .message {
