@@ -54,11 +54,11 @@ const Zatacka = (() => {
             proceed: new InfoMessage(TEXT.hint_proceed),
             next:    new InfoMessage(TEXT.hint_next),
             quit:    new InfoMessage(TEXT.hint_quit),
+            popup:   new WarningMessage(`<a href="${STRINGS.game_url}" target="_blank">` + TEXT.hint_popup + `</a>`),
             alt:     new WarningMessage(TEXT.hint_alt),
             ctrl:    new WarningMessage(TEXT.hint_ctrl),
             mouse:   new WarningMessage(TEXT.hint_mouse),
             preferences_access_denied: new WarningMessage(TEXT.hint_preferences_access_denied),
-            preferences_localstorage_failed: new WarningMessage(TEXT.hint_preferences_localstorage_failed),
         }),
         dialogs: Object.freeze({
             confirmation_quit: new ConfirmationDialog(TEXT.label_text_confirm_quit, quitGame),
@@ -278,15 +278,19 @@ const Zatacka = (() => {
     }
 
     function mouseHandler(event) {
-        const callback = game.isStarted() ? gameMouseHandler
-                                          : guiController.isShowingSettings() ? settingsMouseHandler
-                                                                              : lobbyMouseHandler;
-        guiController.mouseClicked(event, callback);
+        const handle = (
+            game.isStarted() ? gameMouseHandler :
+            guiController.isShowingSettings() ? settingsMouseHandler :
+            guiController.isShowingDialog() ? eventConsumer :
+            event.target instanceof HTMLAnchorElement ? () => {} :
+            lobbyMouseHandler
+        );
+        handle(event);
     }
 
     function unloadHandler(event) {
         if (game.isStarted()) {
-            gameUnloadHandler();
+            gameUnloadHandler(event);
         }
     }
 
@@ -305,11 +309,11 @@ const Zatacka = (() => {
     }
 
     function lobbyMouseHandler(event) {
-        event.preventDefault();
         mouseClickedInLobby(event.button);
     }
 
     function reload() {
+        window.removeEventListener("beforeunload", unloadHandler);
         window.location.reload();
     }
 
@@ -356,9 +360,7 @@ const Zatacka = (() => {
 
     function gameUnloadHandler(event) {
         // A simple trick to prevent accidental unloading of the entire game.
-        const message = TEXT.hint_unload;
-        event.returnValue = message; // Gecko, Trident, Chrome 34+
-        return message;              // Gecko, Webkit, Chrome <34
+        return event.returnValue = true;
     }
 
     function settingsKeyHandler(event) {
@@ -432,8 +434,6 @@ const Zatacka = (() => {
     function handleSettingsAccessError(error) {
         if (error.name === STRINGS.error_name_security) {
             guiController.showMessage(config.messages.preferences_access_denied);
-        } else {
-            guiController.showMessage(config.messages.preferences_localstorage_failed);
         }
     }
 
@@ -465,6 +465,12 @@ const Zatacka = (() => {
         if (hideSettingsButton instanceof HTMLElement) {
             hideSettingsButton.addEventListener("mousedown", eventConsumer);
             hideSettingsButton.addEventListener("click", hideSettings);
+        }
+    }
+
+    function handleHistoryHazards() {
+        if (history && history.length > 1) {
+            guiController.showMessage(config.messages.popup);
         }
     }
 
@@ -506,6 +512,7 @@ const Zatacka = (() => {
     }, config.hintDelay);
 
     applySettings();
+    handleHistoryHazards();
 
     return {
         getConfig: () => config,

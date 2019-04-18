@@ -6,7 +6,7 @@ export class Message {
 
     toHTMLElement() {
     	const p = document.createElement("p");
-    	p.textContent = this.text;
+    	p.innerHTML = this.text;
     	p.classList.add(this.class);
     	p.classList.add("message");
     	return p;
