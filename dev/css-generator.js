@@ -63,7 +63,7 @@ function generateCSS(maxScaling, debug) {
     scales.sort();
 
     let css = "";
-    scales.forEach((scale) => {
+    scales.forEach(scale => {
         css += cssForScale(scale, 1, debug) + cssForScale(scale, 2, debug);
     });
 

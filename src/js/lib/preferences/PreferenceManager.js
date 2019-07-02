@@ -12,7 +12,7 @@ export function PreferenceManager(preferencesData) {
 
     // Initialize cached preference database:
     const CACHED_PREFERENCES_WITH_VALUES = getAllPreferencesWithDefaultValues();
-    CACHED_PREFERENCES_WITH_VALUES.forEach((preferenceWithValue) => {
+    CACHED_PREFERENCES_WITH_VALUES.forEach(preferenceWithValue => {
         const key = preferenceWithValue.preference.key;
         const defaultValue = preferenceWithValue.preference.getDefaultValue();
         try {
@@ -50,23 +50,23 @@ export function PreferenceManager(preferencesData) {
     }
 
     function getPreference(key) {
-        return PREFERENCES.find((pref) => pref.key === key);
+        return PREFERENCES.find(pref => pref.key === key);
     }
 
     function getCachedPreference(key) {
-        return CACHED_PREFERENCES_WITH_VALUES.find((preferenceWithValue) => preferenceWithValue.preference.key === key);
+        return CACHED_PREFERENCES_WITH_VALUES.find(preferenceWithValue => preferenceWithValue.preference.key === key);
     }
 
     function getAllPreferencesWithValues_saved() { // throws SecurityError etc
-        return PREFERENCES.map((preference) => new PreferenceWithValue(preference, getSaved(preference.key)));
+        return PREFERENCES.map(preference => new PreferenceWithValue(preference, getSaved(preference.key)));
     }
 
     function getAllPreferencesWithValues_cached() {
-        return PREFERENCES.map((preference) => new PreferenceWithValue(preference, getCached(preference.key)));
+        return PREFERENCES.map(preference => new PreferenceWithValue(preference, getCached(preference.key)));
     }
 
     function getAllPreferencesWithDefaultValues() {
-        return PREFERENCES.map((preference) => new PreferenceWithValue(preference, preference.getDefaultValue()));
+        return PREFERENCES.map(preference => new PreferenceWithValue(preference, preference.getDefaultValue()));
     }
 
     function getKey(pref) {

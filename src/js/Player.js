@@ -94,7 +94,7 @@ export class Player {
     }
 
     usesAnyMouseButton() {
-        return MOUSE_BUTTONS.some((button) => this.hasMouseButton(button));
+        return MOUSE_BUTTONS.some(button => this.hasMouseButton(button));
     }
 
     hasKey(key) {

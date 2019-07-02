@@ -1,4 +1,4 @@
-const typeOf = ((global) => {
+const typeOf = (global => {
     return function(obj) {
         if (obj === global) {
             return "global";
@@ -14,8 +14,8 @@ export const KEY = { BACKSPACE: 8, TAB: 9, ENTER: 13, SHIFT: 16, CTRL: 17, ALT: 
 export const MOUSE = (() => {
     const offset = 1000;
     return {
-        unpack: (offseted) => offseted - offset,
-        pack:   (standard) => standard + offset,
+        unpack: offseted => offseted - offset,
+        pack:   standard => standard + offset,
         LEFT:   offset+0,
         RIGHT:  offset+2,
         MIDDLE: offset+1,
@@ -175,7 +175,7 @@ export function anyInputBeingPressed(keysOrMouseButtons) {
 }
 
 export function isMouseButton(button) {
-    return isPositiveInt(button) && Object.keys(MOUSE).some((buttonName) => MOUSE.hasOwnProperty(buttonName));
+    return isPositiveInt(button) && Object.keys(MOUSE).some(buttonName => MOUSE.hasOwnProperty(buttonName));
 }
 
 export function isKeyList(keys) {

@@ -201,7 +201,7 @@ export class Game {
 
     // Returns the player with the specified ID, or undefined if no such player exists:
     getPlayerByID(id) {
-        return this.players.find((player) => player.hasID(id));
+        return this.players.find(player => player.hasID(id));
     }
 
     getLivePlayers() {
@@ -371,14 +371,14 @@ export class Game {
             this.GUI_playerUnready(id);
         }
         // Update this.players:
-        this.players = this.players.filter((player) => player !== playerToRemove);
+        this.players = this.players.filter(player => player !== playerToRemove);
     }
 
     /** Starts the game. */
     start() {
         if (this.isCompetitive()) {
             this.setTargetScore(this.constructor.calculateTargetScore(this.getNumberOfPlayers()));
-            this.players.forEach((player) => {
+            this.players.forEach(player => {
                 this.GUI_updateScoreOfPlayer(player.getID(), 0);
             });
         }
@@ -598,7 +598,7 @@ export class Game {
     }
 
     updateGUIScoreboard() {
-        const updateScore = (player) => {
+        const updateScore = player => {
             const id = player.getID();
             this.GUI_updateScoreOfPlayer(id, this.getScoreOfPlayer(id));
         }
@@ -721,9 +721,9 @@ export class Game {
      *   The amount of time since the last update, in seconds.
      */
     update(delta) {
-        this.players.forEach((player) => { this.updatePlayer(player, delta); });
+        this.players.forEach(player => { this.updatePlayer(player, delta); });
         if (this.totalNumberOfTicks % this.maxTicksBetweenDraws() === 0) {
-            this.getLivePlayers().forEach((player) => {
+            this.getLivePlayers().forEach(player => {
                 player.enqueueDraw();
             });
         }

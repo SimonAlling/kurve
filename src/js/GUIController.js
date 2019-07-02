@@ -433,7 +433,7 @@ export function GUIController(cfg) {
 
     function updateSettingsForm(preferencesWithData) {
         flush(settingsForm);
-        const settingsEntries = preferencesWithData.map((preferenceWithData) => settingsEntryHTMLElement(preferenceWithData.preference, preferenceWithData.value));
+        const settingsEntries = preferencesWithData.map(preferenceWithData => settingsEntryHTMLElement(preferenceWithData.preference, preferenceWithData.value));
         // Add special class to half-width divs on the right hand side:
         let consecutiveHalfWidthDivs = 0;
         for (let i = 0; i < settingsEntries.length; i++) {
@@ -448,7 +448,7 @@ export function GUIController(cfg) {
                 consecutiveHalfWidthDivs = 0;
             }
         }
-        settingsEntries.forEach((settingsEntry) => {
+        settingsEntries.forEach(settingsEntry => {
             settingsForm.appendChild(settingsEntry);
         });
     }
@@ -457,7 +457,7 @@ export function GUIController(cfg) {
         const newSettings = [];
         // <input> elements:
         const inputs = settingsForm.querySelectorAll("input");
-        Array.from(inputs).forEach((input) => {
+        Array.from(inputs).forEach(input => {
             if (input.type === "checkbox") {
                 // checkbox
                 newSettings.push({ key: input.dataset.key, value: input.checked });
@@ -476,7 +476,7 @@ export function GUIController(cfg) {
         });
         // <select> elements:
         const selects = settingsForm.querySelectorAll("select");
-        Array.from(selects).forEach((select) => {
+        Array.from(selects).forEach(select => {
             newSettings.push({ key: select.dataset.key, value: select.options[select.selectedIndex].value });
         });
         return newSettings;
@@ -492,7 +492,7 @@ export function GUIController(cfg) {
             logWarning(`Cannot update messages because ${messagesContainer} is not an HTML element.`);
         } else {
             flush(messagesContainer);
-            messages.forEach((message) => {
+            messages.forEach(message => {
                 messagesContainer.insertBefore(message.toHTMLElement(), null);
             });
         }

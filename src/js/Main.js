@@ -194,13 +194,13 @@ const Zatacka = (() => {
     }
 
     function checkForDangerousInput() {
-        if (game.getPlayers().some((player) => player.hasKey(KEY.CTRL))) {
+        if (game.getPlayers().some(player => player.hasKey(KEY.CTRL))) {
             guiController.showMessage(config.messages.ctrl);
         } else {
             guiController.hideMessage(config.messages.ctrl);
         }
 
-        if (game.getPlayers().some((player) => player.hasKey(KEY.ALT))) {
+        if (game.getPlayers().some(player => player.hasKey(KEY.ALT))) {
             guiController.showMessage(config.messages.alt);
         } else {
             guiController.hideMessage(config.messages.alt);
@@ -259,13 +259,13 @@ const Zatacka = (() => {
     }
 
     function keyPressedInLobby(pressedKey) {
-        config.defaultPlayers.forEach((playerData) => {
+        config.defaultPlayers.forEach(playerData => {
             addOrRemovePlayer(playerData, pressedKey);
         });
     }
 
     function mouseClickedInLobby(button) {
-        config.defaultPlayers.forEach((playerData) => {
+        config.defaultPlayers.forEach(playerData => {
             addOrRemovePlayer(playerData, MOUSE.pack(button));
         });
     }
@@ -390,7 +390,7 @@ const Zatacka = (() => {
     }
 
     function hideSettings() {
-        guiController.parseSettingsForm().forEach((newSetting) => {
+        guiController.parseSettingsForm().forEach(newSetting => {
             try {
                 preferenceManager.set(newSetting.key, newSetting.value);
             } catch(e) {
@@ -517,7 +517,7 @@ const Zatacka = (() => {
     return {
         getConfig: () => config,
         getGame: () => game,
-        addPlayer: (playerOrID) => {
+        addPlayer: playerOrID => {
             const player = Player.isPlayer(playerOrID) ? playerOrID : new Player(playerOrID);
             game.addPlayer(player);
         }

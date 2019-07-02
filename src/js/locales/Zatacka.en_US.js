@@ -19,7 +19,7 @@ export default (() => {
         keyboard_fullscreen_mac: `<kbd>${KEY_CMD} + Ctrl + F</kbd> and/or <kbd>${KEY_CMD} + ${KEY_SHIFT} + F</kbd>`,
         keyboard_fullscreen_standard: "<kbd>F11</kbd>",
 
-        getFullscreenHint: (shortcut) => `Press ${shortcut} to toggle fullscreen`,
+        getFullscreenHint: shortcut => `Press ${shortcut} to toggle fullscreen`,
 
         label_button_alert_ok: `OK`,
         label_button_confirm_yes: `Yes`,

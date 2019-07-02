@@ -1,4 +1,4 @@
-const typeOf = ((global) => {
+const typeOf = (global => {
     return function(obj) {
         if (obj === global) {
             return "global";
