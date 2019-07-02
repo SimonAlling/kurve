@@ -1,7 +1,7 @@
 import MainLoop from "./lib/mainloop.min.js";
 import { Player } from "./Player.js";
 import { Round } from "./Round.js";
-import { isInt, log, logWarning, logError, randomFloat, round, forfor, sameAbs, normalizeAngle } from "./lib/utilities.js";
+import { isInt, log, logWarning, logError, randomFloat, round, sameAbs, normalizeAngle } from "./lib/utilities.js";
 
 export class Game {
     constructor(config, renderer, guiController) {
@@ -490,7 +490,11 @@ export class Game {
         let right = left + this.config.thickness;
         let bottom = top + this.config.thickness;
         let id = player.getID();
-        forfor(top, bottom, left, right, this.occupyPixel.bind(this), id);
+        for (let y = top; y < bottom; y++) {
+            for (let x = left; x < right; x++) {
+                this.occupyPixel(x, y, id);
+            }
+        }
         this.Render_drawSquare(left, top, player.getColor());
     }
 

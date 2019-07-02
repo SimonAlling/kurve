@@ -130,14 +130,6 @@ export function flush(node) {
     }
 }
 
-export function forfor(y_start, y_end, x_start, x_end, func, arg) {
-    for (let y = y_start; y < y_end; y++) {
-        for (let x = x_start; x < x_end; x++) {
-            func.call(this, x, y, arg);
-        }
-    }
-}
-
 export const Keyboard = {
     pressed: {},
     isDown: function(keyCode) {
