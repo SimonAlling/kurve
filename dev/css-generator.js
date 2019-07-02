@@ -56,7 +56,7 @@ function generateCSS(maxScaling, debug) {
     const defaultMaxScaling = 8;
     const safeMaxScaling = maxScaling || defaultMaxScaling;
 
-    let scales = FRACTION_SCALES.slice();
+    const scales = FRACTION_SCALES.slice();
     for (let i = 1; i <= safeMaxScaling; i++) {
         scales.push(i);
     }

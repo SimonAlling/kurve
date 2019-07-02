@@ -94,31 +94,31 @@ export class Game {
     }
 
     computeFrontCornerPixel(edge, dir) {
-        let t = this.config.thickness;
-        let cf = 100;
+        const t = this.config.thickness;
+        const cf = 100;
         return (cf*edge + cf*(t-1)/2 + cf*dir*(t-1)/2) / cf;
     }
 
     computeFrontEdgePixel(edge, dir_parallel, dir_perpendicular, i) {
-        let t = this.config.thickness;
+        const t = this.config.thickness;
         return edge + Math.abs(dir_parallel)*(t-1)/2 + dir_parallel*(t-1)/2 + Math.abs(dir_perpendicular)*i;
     }
 
     computeHitbox(player, left, top) {
-        let hitboxPixels = [];
-        let lastPosition = player.getLastPosition();
-        let dir_horizontal = left - lastPosition.left; // positive => going right; negative => going left
-        let dir_vertical   = top  - lastPosition.top;  // positive => going down;  negative => going up
+        const hitboxPixels = [];
+        const lastPosition = player.getLastPosition();
+        const dir_horizontal = left - lastPosition.left; // positive => going right; negative => going left
+        const dir_vertical   = top  - lastPosition.top;  // positive => going down;  negative => going up
         if (sameAbs(dir_horizontal, dir_vertical)) {
             // "45 degree" draw
-            let frontPixel_left = this.computeFrontCornerPixel(left, dir_horizontal);
-            let frontPixel_top  = this.computeFrontCornerPixel(top, dir_vertical);
+            const frontPixel_left = this.computeFrontCornerPixel(left, dir_horizontal);
+            const frontPixel_top  = this.computeFrontCornerPixel(top, dir_vertical);
             hitboxPixels.push(this.pixelAddress(frontPixel_left, frontPixel_top));
         } else {
             // "90 degree" draw
             for (let i = 0; i < this.config.thickness; i++) {
-                let frontPixel_left = this.computeFrontEdgePixel(left, dir_horizontal, dir_vertical, i);
-                let frontPixel_top = this.computeFrontEdgePixel(top, dir_vertical, dir_horizontal, i);
+                const frontPixel_left = this.computeFrontEdgePixel(left, dir_horizontal, dir_vertical, i);
+                const frontPixel_top = this.computeFrontEdgePixel(top, dir_vertical, dir_horizontal, i);
                 hitboxPixels.push(this.pixelAddress(frontPixel_left, frontPixel_top));
             }
         }
@@ -163,7 +163,7 @@ export class Game {
     }
 
     randomSpawnPosition() {
-        let spawnArea = this.computeSpawnArea();
+        const spawnArea = this.computeSpawnArea();
         return {
             x: randomFloat(spawnArea.x_min, spawnArea.x_max),
             y: randomFloat(spawnArea.y_min, spawnArea.y_max)
@@ -179,8 +179,8 @@ export class Game {
     }
 
     pixelAddressToCoordinates(addr) {
-        let x = addr % this.width;
-        let y = (addr - x) / this.width;
+        const x = addr % this.width;
+        const y = (addr - x) / this.width;
         return "("+x+", "+y+")";
     }
 
@@ -240,7 +240,7 @@ export class Game {
 
     setTargetScore(score) {
         let ts = this.constructor.DEFAULT_TARGET_SCORE;
-        let mts = this.constructor.MAX_TARGET_SCORE;
+        const mts = this.constructor.MAX_TARGET_SCORE;
         // Neither floats nor negative numbers are allowed:
         if (isInt(score) && score > 0) {
             // Check if the desired target score is allowed:
@@ -487,9 +487,9 @@ export class Game {
     }
 
     occupy(player, left, top) {
-        let right = left + this.config.thickness;
-        let bottom = top + this.config.thickness;
-        let id = player.getID();
+        const right = left + this.config.thickness;
+        const bottom = top + this.config.thickness;
+        const id = player.getID();
         for (let y = top; y < bottom; y++) {
             for (let x = left; x < right; x++) {
                 this.occupyPixel(x, y, id);
@@ -501,8 +501,8 @@ export class Game {
     flicker(player) {
         const stopFlickering = () => {
             clearInterval(flickerTicker);
-            let left = this.edgeOfSquare(player.x);
-            let top  = this.edgeOfSquare(player.y);
+            const left = this.edgeOfSquare(player.x);
+            const top  = this.edgeOfSquare(player.y);
             this.Render_drawSquare(left, top, player.getColor());
         }
         const self = this;
@@ -510,7 +510,7 @@ export class Game {
         const top  = this.edgeOfSquare(player.y);
         const color = player.getColor();
         let isVisible = false;
-        let flickerTicker = setInterval(() => {
+        const flickerTicker = setInterval(() => {
             if (isVisible) {
                 this.Render_clearSquare(left, top);
             } else {
@@ -558,11 +558,11 @@ export class Game {
     drawPlayer(player) {
         const thickness = this.config.thickness;
         while (player.isAlive() && !player.queuedDraws.isEmpty()) {
-            let color = player.getColor();
-            let lastPosition = player.getLastPosition();
-            let currentDraw = player.queuedDraws.dequeue();
-            let left = this.edgeOfSquare(currentDraw.x);
-            let top  = this.edgeOfSquare(currentDraw.y);
+            const color = player.getColor();
+            const lastPosition = player.getLastPosition();
+            const currentDraw = player.queuedDraws.dequeue();
+            const left = this.edgeOfSquare(currentDraw.x);
+            const top  = this.edgeOfSquare(currentDraw.y);
             if (!player.justWasAt(left, top)) {
                 // The new position is not identical to the last one.
                 let diff_left = left - player.getLastPosition().left;
@@ -748,7 +748,7 @@ export class Game {
      */
     end(framerate, panic) {
         if (panic) {
-            let discardedTime = Math.round(MainLoop.resetFrameDelta());
+            const discardedTime = Math.round(MainLoop.resetFrameDelta());
             console.warn("Main loop panicked. Discarding " + discardedTime + "ms.");
         }
     }

@@ -11,7 +11,7 @@ export function PreferenceManager(preferencesData) {
     log("Done.");
 
     // Initialize cached preference database:
-    let CACHED_PREFERENCES_WITH_VALUES = getAllPreferencesWithDefaultValues();
+    const CACHED_PREFERENCES_WITH_VALUES = getAllPreferencesWithDefaultValues();
     CACHED_PREFERENCES_WITH_VALUES.forEach((preferenceWithValue) => {
         const key = preferenceWithValue.preference.key;
         const defaultValue = preferenceWithValue.preference.getDefaultValue();

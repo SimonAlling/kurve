@@ -433,7 +433,7 @@ export function GUIController(cfg) {
 
     function updateSettingsForm(preferencesWithData) {
         flush(settingsForm);
-        let settingsEntries = preferencesWithData.map((preferenceWithData) => settingsEntryHTMLElement(preferenceWithData.preference, preferenceWithData.value));
+        const settingsEntries = preferencesWithData.map((preferenceWithData) => settingsEntryHTMLElement(preferenceWithData.preference, preferenceWithData.value));
         // Add special class to half-width divs on the right hand side:
         let consecutiveHalfWidthDivs = 0;
         for (let i = 0; i < settingsEntries.length; i++) {
@@ -537,7 +537,7 @@ export function GUIController(cfg) {
                 flush(entry);
                 entry.classList.add("active");
                 newScoreDigitClasses.forEach((digitClass, index) => {
-                    let digitElement = createDigit(); // A completely clean element ...
+                    const digitElement = createDigit(); // A completely clean element ...
                     digitElement.classList.add(newScoreDigitClasses[index]); // ... that now has a digit class.
                     entry.appendChild(digitElement);
                 });
