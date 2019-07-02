@@ -3,7 +3,7 @@ import STRINGS from "./strings.js";
 import TEXT from "./locales/Zatacka.en_US.js";
 
 (() => {
-    const PROCEED_KEYS = Object.freeze([KEY.SPACE, KEY.ENTER]);
+    const PROCEED_KEYS = [KEY.SPACE, KEY.ENTER];
 
     function isProceedKey(key) {
         return PROCEED_KEYS.some((proceedKey) => proceedKey === key);

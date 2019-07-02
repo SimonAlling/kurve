@@ -4,7 +4,7 @@ export default (() => {
     const KEY_PROCEED = "Space or Enter";
     const KEY_QUIT = "Esc";
 
-    return Object.freeze({
+    return {
         hint_start: `Press <kbd>Space</kbd> to start`,
         hint_popup: `It is recommended to run Kurve in its own window without history (to avoid switching tabs or navigating back in history mid-game). Click here to do so.`,
         hint_pick: `Pick your desired color by pressing the corresponding LEFT key (e.g. M for Orange).`,
@@ -56,5 +56,5 @@ export default (() => {
         pref_label_description_scaling: `Visual quality ensures a crisp, pixelmapped image. On-screen size may result in blurry graphics and other visual errors, but can be useful if the game is very small on your screen.`,
         pref_label_scaling_prefer_quality: `Prefer visual quality`,
         pref_label_scaling_prefer_size: `Prefer on-screen size`,
-    });
+    };
 })();

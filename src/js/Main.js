@@ -27,7 +27,7 @@ const Zatacka = (() => {
     const KEY_DEVTOOLS = KEY.F12;
     const ALLOWED_KEYS = [KEY_FULLSCREEN, KEY_DEVTOOLS]; // not to be intercepted by our event handler
 
-    const config = Object.freeze({
+    const config = {
         tickrate: 600, // Hz
         maxFramerate: 300, // Hz
         canvas: canvas_main,
@@ -49,7 +49,7 @@ const Zatacka = (() => {
             "proceed": [KEY.SPACE, KEY.ENTER],
             "quit":    [KEY.ESCAPE]
         },
-        messages: Object.freeze({
+        messages: {
             pick:    new InfoMessage(TEXT.hint_pick),
             proceed: new InfoMessage(TEXT.hint_proceed),
             next:    new InfoMessage(TEXT.hint_next),
@@ -59,20 +59,20 @@ const Zatacka = (() => {
             ctrl:    new WarningMessage(TEXT.hint_ctrl),
             mouse:   new WarningMessage(TEXT.hint_mouse),
             preferences_access_denied: new WarningMessage(TEXT.hint_preferences_access_denied),
-        }),
-        dialogs: Object.freeze({
+        },
+        dialogs: {
             confirmation_quit: new ConfirmationDialog(TEXT.label_text_confirm_quit, quitGame),
             confirmation_reload: new ConfirmationDialog(TEXT.label_text_confirm_reload, reload),
-        }),
-        defaultPlayers: Object.freeze([
+        },
+        defaultPlayers: [
             { id: 1, name: "Red"   , color: "#FF2800", keyL: KEY["1"]                              , keyR: KEY.Q                         },
             { id: 2, name: "Yellow", color: "#C3C300", keyL: [ KEY.CTRL, KEY.Z ]                   , keyR: [ KEY.ALT, KEY.X ]            },
             { id: 3, name: "Orange", color: "#FF7900", keyL: KEY.M                                 , keyR: KEY.COMMA                     },
             { id: 4, name: "Green" , color: "#00CB00", keyL: KEY.LEFT_ARROW                        , keyR: KEY.DOWN_ARROW                },
             { id: 5, name: "Pink"  , color: "#DF51B6", keyL: [ KEY.DIVIDE, KEY.END, KEY.PAGE_DOWN ], keyR: [ KEY.MULTIPLY, KEY.PAGE_UP ] },
             { id: 6, name: "Blue"  , color: "#00A2CB", keyL: MOUSE.LEFT                            , keyR: MOUSE.RIGHT                   }
-        ])
-    });
+        ],
+    };
 
     const preferenceManager = new PreferenceManager(PREFERENCES);
 

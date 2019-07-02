@@ -10,7 +10,7 @@
     }
 
     function userAgentIsSupported() {
-        return Object.freeze && userAgentSupportsFlex() && userAgentSupportsPixelMapping();
+        return userAgentSupportsFlex() && userAgentSupportsPixelMapping();
     }
 
     if (!userAgentIsSupported()) {

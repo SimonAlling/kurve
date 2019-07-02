@@ -1,4 +1,4 @@
-export default Object.freeze({
+export default {
     game_url: "ZATACKA.html",
 
     error_name_security: "SecurityError",
@@ -51,4 +51,4 @@ export default Object.freeze({
     pref_key_scaling: "scaling",
     pref_value_scaling_prefer_quality: "prefer_quality",
     pref_value_scaling_prefer_size: "prefer_size",
-});
+};

@@ -4,7 +4,7 @@ import { MultichoicePreference } from "./lib/preferences/MultichoicePreference.j
 import TEXT from "./locales/Zatacka.en_US.js";
 import STRINGS from "./strings.js";
 
-export default Object.freeze([
+export default [
     {
         type: BooleanPreference,
         key: STRINGS.pref_key_prevent_spawnkill,
@@ -99,4 +99,4 @@ export default Object.freeze([
         ],
         default: STRINGS.pref_value_hints_all,
     }
-]);
+];
