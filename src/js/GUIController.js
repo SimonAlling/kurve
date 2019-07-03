@@ -463,7 +463,7 @@ export function GUIController(cfg) {
                 newSettings.push({ key: input.dataset.key, value: input.checked });
             } else if (input.type === "radio") {
                 // radio
-                if (input.checked === true) {
+                if (input.checked) {
                     newSettings.push({ key: input.dataset.key, value: input.value });
                 }
             } else if (input.type === "number") {

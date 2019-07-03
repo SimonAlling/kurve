@@ -565,8 +565,6 @@ export class Game {
             const top  = this.edgeOfSquare(currentDraw.y);
             if (!player.justWasAt(left, top)) {
                 // The new position is not identical to the last one.
-                let diff_left = left - player.getLastPosition().left;
-                let diff_top  = top  - player.getLastPosition().top;
                 if (!this.isOnField(left, top)) {
                     // The player wants to draw outside the playing field => DIE.
                     this.death(player, "crashed into the wall");

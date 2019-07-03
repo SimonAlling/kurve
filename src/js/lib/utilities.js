@@ -20,7 +20,7 @@ export const MOUSE = (() => {
         RIGHT:  offset+2,
         MIDDLE: offset+1,
         MOUSE4: offset+3,
-        MOUSE5: offset+4
+        MOUSE5: offset+4,
     };
 })();
 
@@ -65,7 +65,7 @@ export function arePositiveNumbers(numbers) {
 }
 
 export function round(number, decimals) {
-    return Math.round(number * (Math.pow(10, decimals))) / (Math.pow(10, decimals));
+    return Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
 
 export function sameAbs(a, b) {

@@ -69,10 +69,6 @@ export function PreferenceManager(preferencesData) {
         return PREFERENCES.map(preference => new PreferenceWithValue(preference, preference.getDefaultValue()));
     }
 
-    function getKey(pref) {
-        return pref.key;
-    }
-
     function isValidPreferenceValue(key, value) {
         return getPreference(key).isValidValue(value);
     }
@@ -142,7 +138,7 @@ export function PreferenceManager(preferencesData) {
 
     function setAllToDefault() {
         log("Resetting all preferences ...");
-        PREFERENCES.map(getKey).forEach(setToDefaultValue);
+        PREFERENCES.map(p => p.key).forEach(setToDefaultValue);
         log("Done.");
     }
 

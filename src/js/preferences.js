@@ -98,5 +98,5 @@ export default [
             },
         ],
         default: STRINGS.pref_value_hints_all,
-    }
+    },
 ];

@@ -6,7 +6,7 @@
     }
 
     function userAgentSupportsPixelMapping() {
-        return document.body.style.imageRendering !== undefined
+        return document.body.style.imageRendering !== undefined;
     }
 
     function userAgentIsSupported() {

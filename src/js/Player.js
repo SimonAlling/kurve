@@ -1,4 +1,4 @@
-import { log, logWarning, flush, isObject, isPositiveInt, arePositiveNumbers, round, distanceToDuration, randomFloat, MOUSE_BUTTONS, isMouseButton, isKeyList, anyInputBeingPressed } from "./lib/utilities.js";
+import { log, logWarning, isObject, isPositiveInt, arePositiveNumbers, round, distanceToDuration, randomFloat, MOUSE_BUTTONS, isMouseButton, isKeyList, anyInputBeingPressed } from "./lib/utilities.js";
 import { Queue } from "./lib/Queue.js";
 
 export class Player {
@@ -51,13 +51,12 @@ export class Player {
     }
 
     static isHoleConfig(holeConfig) {
-        return isObject(holeConfig)
-            && arePositiveNumbers([
-                                   holeConfig.minPaddedHoleSize,
-                                   holeConfig.maxPaddedHoleSize,
-                                   holeConfig.minPaddedHoleInterval,
-                                   holeConfig.maxPaddedHoleInterval
-                                  ]);
+        return isObject(holeConfig) && arePositiveNumbers([
+            holeConfig.minPaddedHoleSize,
+            holeConfig.maxPaddedHoleSize,
+            holeConfig.minPaddedHoleInterval,
+            holeConfig.maxPaddedHoleInterval,
+        ]);
     }
 
 
@@ -88,9 +87,11 @@ export class Player {
     }
 
     hasMouseButton(button) {
-        return isMouseButton(button)
-            && (this.L_keys.includes(button)
-             || this.R_keys.includes(button));
+        return (
+            isMouseButton(button)
+            &&
+            (this.L_keys.includes(button) || this.R_keys.includes(button))
+        );
     }
 
     usesAnyMouseButton() {
@@ -98,8 +99,7 @@ export class Player {
     }
 
     hasKey(key) {
-        return this.L_keys.includes(key)
-            || this.R_keys.includes(key);
+        return this.L_keys.includes(key) || this.R_keys.includes(key);
     }
 
 

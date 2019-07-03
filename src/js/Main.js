@@ -47,7 +47,7 @@ const Zatacka = (() => {
         hintDelay: 3000, // ms
         keys: {
             "proceed": [KEY.SPACE, KEY.ENTER],
-            "quit":    [KEY.ESCAPE]
+            "quit":    [KEY.ESCAPE],
         },
         messages: {
             pick:    new InfoMessage(TEXT.hint_pick),
@@ -70,7 +70,7 @@ const Zatacka = (() => {
             { id: 3, name: "Orange", color: "#FF7900", keyL: KEY.M                                 , keyR: KEY.COMMA                     },
             { id: 4, name: "Green" , color: "#00CB00", keyL: KEY.LEFT_ARROW                        , keyR: KEY.DOWN_ARROW                },
             { id: 5, name: "Pink"  , color: "#DF51B6", keyL: [ KEY.DIVIDE, KEY.END, KEY.PAGE_DOWN ], keyR: [ KEY.MULTIPLY, KEY.PAGE_UP ] },
-            { id: 6, name: "Blue"  , color: "#00A2CB", keyL: MOUSE.LEFT                            , keyR: MOUSE.RIGHT                   }
+            { id: 6, name: "Blue"  , color: "#00A2CB", keyL: MOUSE.LEFT                            , keyR: MOUSE.RIGHT                   },
         ],
     };
 
@@ -125,28 +125,18 @@ const Zatacka = (() => {
         }
     }
 
-    function getHoleConfig() {
+    function getPaddedHoleConfig() {
+        const thickness = config.thickness;
         return {
-            minHoleSize: config.minHoleSize,
-            maxHoleSize: config.maxHoleSize,
-            minHoleInterval: config.minHoleInterval,
-            maxHoleInterval: config.maxHoleInterval
+            minPaddedHoleSize: config.minHoleSize + thickness,
+            maxPaddedHoleSize: config.maxHoleSize + thickness,
+            minPaddedHoleInterval: Math.max(0, config.minHoleInterval - thickness),
+            maxPaddedHoleInterval: Math.max(0, config.maxHoleInterval - thickness),
         };
     }
 
-    function getPaddedHoleConfig() {
-        const thickness = config.thickness;
-        const holeConfig = getHoleConfig();
-        const paddedHoleConfig = {};
-        paddedHoleConfig.minPaddedHoleSize = holeConfig.minHoleSize + thickness;
-        paddedHoleConfig.maxPaddedHoleSize = holeConfig.maxHoleSize + thickness;
-        paddedHoleConfig.minPaddedHoleInterval = Math.max(0, holeConfig.minHoleInterval - thickness);
-        paddedHoleConfig.maxPaddedHoleInterval = Math.max(0, holeConfig.maxHoleInterval - thickness);
-        return paddedHoleConfig;
-    }
-
     function defaultPlayerData(id) {
-        return config.defaultPlayers.find(defaultPlayer => defaultPlayer.id === id);
+        return config.defaultPlayers.find(p => p.id === id);
     }
 
     function defaultPlayer(id) {
@@ -154,12 +144,14 @@ const Zatacka = (() => {
         if (playerData === undefined) {
             throw new TypeError(`There is no default player with ID ${id}.`);
         }
-        return new Player(playerData.id,
-                          playerData.name,
-                          playerData.color,
-                          playerData.keyL,
-                          playerData.keyR,
-                          getPaddedHoleConfig());
+        return new Player(
+            playerData.id,
+            playerData.name,
+            playerData.color,
+            playerData.keyL,
+            playerData.keyR,
+            getPaddedHoleConfig(),
+        );
     }
 
     function applyCursorBehavior() {
