@@ -119,7 +119,7 @@ const Zatacka = (() => {
 
     function setPreventSpawnkill(mode) {
         if (game.isStarted()) {
-            throw new Error("Cannot change edge padding when the game is running.");
+            throw new Error("Cannot change spawnkill prevention when the game is running.");
         } else {
             game.setPreventSpawnkill(mode);
         }
