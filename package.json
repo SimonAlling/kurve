@@ -18,6 +18,7 @@
     "concurrently": "^3.4.0",
     "node-sass": "^4.13.1",
     "webpack": "^2.3.1",
-    "webpack-dev-server": "^3.1.11"
+    "webpack-cli": "^2.1.5",
+    "webpack-dev-server": "^2.11.5"
   }
 }
