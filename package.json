@@ -2,6 +2,7 @@
   "name": "zatacka",
   "description": "Achtung, die Kurve! in JavaScript",
   "scripts": {
+    "postinstall": "elm-tooling install",
     "sass-build": "sass --source-map src/css/:css/",
     "sass-watch": "sass --watch --source-map src/css/:css/",
     "webpack-build": "webpack --optimize-minimize",
@@ -16,6 +17,7 @@
     "babel-loader": "^6.4.1",
     "babel-preset-es2015": "^6.24.0",
     "concurrently": "^3.4.0",
+    "elm-tooling": "^1.6.0",
     "sass": "^1.43.3",
     "webpack": "^2.3.1",
     "webpack-cli": "^2.1.5",
