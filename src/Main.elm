@@ -1,16 +1,25 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import Platform exposing (worker)
+import Time
+
+
+port myPort : Int -> Cmd msg
+
+
+tickrate : Float
+tickrate =
+    60
 
 
 type alias Model =
-    { ett : Int
+    { x : Int
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { ett = 5555555 }, Cmd.none )
+    ( { x = 0 }, Cmd.none )
 
 
 type Msg
@@ -21,12 +30,16 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Msg _ ->
-            ( model, Cmd.none )
+            let
+                newX =
+                    model.x + 1
+            in
+            ( { model | x = newX }, myPort newX )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    Time.every (1000 / tickrate) (Time.posixToMillis >> Msg)
 
 
 main =
