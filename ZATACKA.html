@@ -124,6 +124,16 @@
     app.ports.myPort.subscribe(model => {
         renderer.drawSquare(model.x, model.y, 3, "red")
     })
+
+
+    document.addEventListener("keydown", event => {
+        event.preventDefault()
+        app.ports.onKeydown.send(event.key)
+    })
+    document.addEventListener("keyup", () => {
+        // Traditionally we never prevented default on keyup.
+        app.ports.onKeyup.send(event.key)
+    })
     </script>
 
 </body>
