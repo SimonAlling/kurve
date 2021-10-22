@@ -4,7 +4,7 @@ import Platform exposing (worker)
 import Time
 
 
-port myPort : Int -> Cmd msg
+port myPort : Model -> Cmd msg
 
 
 tickrate : Float
@@ -14,12 +14,13 @@ tickrate =
 
 type alias Model =
     { x : Int
+    , y : Int
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { x = 0 }, Cmd.none )
+    ( { x = 0, y = 0 }, Cmd.none )
 
 
 type Msg
@@ -31,10 +32,13 @@ update msg model =
     case msg of
         Msg _ ->
             let
-                newX =
-                    model.x + 1
+                newModel =
+                    { model
+                        | x = model.x + 1
+                        , y = model.y + 2
+                    }
             in
-            ( { model | x = newX }, myPort newX )
+            ( newModel, myPort newModel )
 
 
 subscriptions : Model -> Sub Msg
