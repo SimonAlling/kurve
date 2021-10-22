@@ -69,7 +69,7 @@ update msg model =
                 newModel =
                     { model
                         | x = model.x + theta * cos newDirection
-                        , y = model.y + theta * sin newDirection
+                        , y = model.y - theta * sin newDirection
                         , direction = newDirection
                     }
             in
