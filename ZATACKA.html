@@ -114,6 +114,18 @@
         </aside>
     </div>
 
+    <script src="./js/kurve.js"></script>
+    <script type="module">
+    import { Renderer } from "./src/js/Renderer.js"
+
+    const renderer = new Renderer(canvas_main, canvas_overlay)
+    const app = Elm.Main.init()
+
+    app.ports.myPort.subscribe(x => {
+        renderer.drawSquare(x, 200, 3, "red")
+    })
+    </script>
+
 </body>
 
 </html>
