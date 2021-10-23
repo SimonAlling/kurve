@@ -1,5 +1,6 @@
 port module Main exposing (main)
 
+import List.Cartesian
 import Platform exposing (worker)
 import RasterShapes
 import Set exposing (Set(..))
@@ -23,6 +24,7 @@ port onKeyup : (String -> msg) -> Sub msg
 type alias Model =
     { position : Position
     , direction : Angle
+    , occupiedPixels : Set Pixel
     , pressedKeys : Set String
     }
 
@@ -40,6 +42,7 @@ init _ =
     ( { position = position
       , direction = Angle 0.5
       , pressedKeys = Set.empty
+      , occupiedPixels = pixels (drawingPosition position)
       }
     , render
         { position = drawingPosition position
@@ -79,6 +82,22 @@ theAngleChange =
     Angle (Speed.toFloat theSpeed / (Tickrate.toFloat theTickrate * Radius.toFloat theTurningRadius))
 
 
+pixels : DrawingPosition -> Set Pixel
+pixels { leftEdge, topEdge } =
+    let
+        rangeFrom start =
+            List.range start (start + Thickness.toInt theThickness - 1)
+
+        xs =
+            rangeFrom leftEdge
+
+        ys =
+            rangeFrom topEdge
+    in
+    List.Cartesian.map2 Tuple.pair xs ys
+        |> Set.fromList
+
+
 type alias Position =
     ( Float, Float )
 
@@ -100,6 +119,8 @@ fromBresenham { x, y } =
 drawingPositionsBetween : Position -> Position -> List DrawingPosition
 drawingPositionsBetween position1 position2 =
     RasterShapes.line (drawingPosition position1 |> toBresenham) (drawingPosition position2 |> toBresenham)
+        -- The RasterShapes library returns the positions in reverse order.
+        |> List.reverse
         |> List.map fromBresenham
 
 
@@ -111,6 +132,34 @@ edgeOfSquare xOrY =
 drawingPosition : Position -> DrawingPosition
 drawingPosition ( x, y ) =
     { leftEdge = edgeOfSquare x, topEdge = edgeOfSquare y }
+
+
+type Fate
+    = Lives
+    | Dies
+
+
+evaluateMove : List DrawingPosition -> Set Pixel -> ( List DrawingPosition, Fate )
+evaluateMove positions occupiedPixels =
+    let
+        checkPositions : List DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Fate )
+        checkPositions checked remaining =
+            case remaining of
+                [] ->
+                    ( checked, Lives )
+
+                x :: xs ->
+                    let
+                        dies =
+                            False
+                    in
+                    if dies then
+                        ( checked, Dies )
+
+                    else
+                        checkPositions (x :: checked) xs
+    in
+    Tuple.mapFirst List.reverse <| checkPositions [] positions
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -141,14 +190,26 @@ update msg model =
                       y - distanceTraveledSinceLastTick * Angle.sin newDirection
                     )
 
+                desiredDrawingPositions =
+                    drawingPositionsBetween model.position newPosition
+
+                ( confirmedDrawingPositions, fate ) =
+                    evaluateMove desiredDrawingPositions model.occupiedPixels
+
+                newModel : Model
                 newModel =
                     { model
                         | position = newPosition
                         , direction = newDirection
+                        , occupiedPixels =
+                            confirmedDrawingPositions
+                                |> List.foldr
+                                    (pixels >> Set.union)
+                                    model.occupiedPixels
                     }
             in
             ( newModel
-            , drawingPositionsBetween model.position newPosition
+            , confirmedDrawingPositions
                 |> List.map
                     (\position ->
                         render
