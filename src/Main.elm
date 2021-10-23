@@ -1,6 +1,7 @@
 port module Main exposing (main)
 
 import Platform exposing (worker)
+import RasterShapes
 import Set exposing (Set(..))
 import Time
 import Types.Angle as Angle exposing (Angle(..))
@@ -79,43 +80,12 @@ type alias Position =
 
 
 type alias DrawingPosition =
-    ( Int
-    , Int
-    )
+    RasterShapes.Position
 
 
-positionsToGetBetween : Position -> Position -> List Position
-positionsToGetBetween ( x1, y1 ) ( x2, y2 ) =
-    let
-        xDistance =
-            x2 - x1
-
-        yDistance =
-            y2 - y1
-
-        distance =
-            sqrt (xDistance ^ 2 + yDistance ^ 2)
-
-        stepsNeeded =
-            (-- The distance is measured in pixels and we want to progress in "1-pixel steps".
-             -- This will sometimes be too many (e.g. when going from (0, 0) to (3, 3)), but never too few.
-             ceiling distance
-            )
-
-        stepIndices =
-            List.range 1 stepsNeeded
-    in
-    List.map
-        (\i ->
-            let
-                t =
-                    toFloat i / toFloat stepsNeeded
-            in
-            ( x1 + xDistance * t
-            , y1 + yDistance * t
-            )
-        )
-        stepIndices
+drawingPositionsBetween : Position -> Position -> List DrawingPosition
+drawingPositionsBetween position1 position2 =
+    RasterShapes.line (drawingPosition position1) (drawingPosition position2)
 
 
 drawingPosition : Position -> DrawingPosition
@@ -124,7 +94,7 @@ drawingPosition ( x, y ) =
         edgeOfSquare xOrY =
             round (xOrY - (toFloat (Thickness.toInt theThickness) / 2))
     in
-    ( edgeOfSquare x, edgeOfSquare y )
+    { x = edgeOfSquare x, y = edgeOfSquare y }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -162,11 +132,11 @@ update msg model =
                     }
             in
             ( newModel
-            , positionsToGetBetween model.position newPosition
+            , drawingPositionsBetween model.position newPosition
                 |> List.map
                     (\position ->
                         render
-                            { position = drawingPosition position
+                            { position = position
                             , thickness = Thickness.toInt theThickness
                             }
                     )
