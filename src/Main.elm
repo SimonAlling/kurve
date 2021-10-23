@@ -27,6 +27,10 @@ type alias Model =
     }
 
 
+type alias Pixel =
+    ( Int, Int )
+
+
 init : () -> ( Model, Cmd Msg )
 init _ =
     let
@@ -80,12 +84,23 @@ type alias Position =
 
 
 type alias DrawingPosition =
-    RasterShapes.Position
+    { leftEdge : Int, topEdge : Int }
+
+
+toBresenham : DrawingPosition -> RasterShapes.Position
+toBresenham { leftEdge, topEdge } =
+    { x = leftEdge, y = topEdge }
+
+
+fromBresenham : RasterShapes.Position -> DrawingPosition
+fromBresenham { x, y } =
+    { leftEdge = x, topEdge = y }
 
 
 drawingPositionsBetween : Position -> Position -> List DrawingPosition
 drawingPositionsBetween position1 position2 =
-    RasterShapes.line (drawingPosition position1) (drawingPosition position2)
+    RasterShapes.line (drawingPosition position1 |> toBresenham) (drawingPosition position2 |> toBresenham)
+        |> List.map fromBresenham
 
 
 edgeOfSquare : Float -> Int
@@ -95,7 +110,7 @@ edgeOfSquare xOrY =
 
 drawingPosition : Position -> DrawingPosition
 drawingPosition ( x, y ) =
-    { x = edgeOfSquare x, y = edgeOfSquare y }
+    { leftEdge = edgeOfSquare x, topEdge = edgeOfSquare y }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
