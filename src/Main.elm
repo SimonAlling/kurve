@@ -77,6 +77,40 @@ type alias DrawingPosition =
     )
 
 
+positionsToGetBetween : Position -> Position -> List Position
+positionsToGetBetween ( x1, y1 ) ( x2, y2 ) =
+    let
+        xDistance =
+            x2 - x1
+
+        yDistance =
+            y2 - y1
+
+        distance =
+            sqrt (xDistance ^ 2 + yDistance ^ 2)
+
+        stepsNeeded =
+            (-- The distance is measured in pixels and we want to progress in "1-pixel steps".
+             -- This will sometimes be too many (e.g. when going from (0, 0) to (3, 3)), but never too few.
+             ceiling distance
+            )
+
+        stepIndices =
+            List.range 1 stepsNeeded
+    in
+    List.map
+        (\i ->
+            let
+                t =
+                    toFloat i / toFloat stepsNeeded
+            in
+            ( x1 + xDistance * t
+            , y1 + yDistance * t
+            )
+        )
+        stepIndices
+
+
 drawingPosition : Position -> DrawingPosition
 drawingPosition ( x, y ) =
     let
@@ -121,10 +155,19 @@ update msg model =
                     }
             in
             ( newModel
-            , render
-                { position = drawingPosition newPosition
-                , thickness = Thickness.toInt theThickness
-                }
+            , Cmd.batch <|
+                List.map
+                    (\dp ->
+                        render
+                            { position = dp
+                            , thickness = Thickness.toInt theThickness
+                            }
+                    )
+                    (List.map drawingPosition <|
+                        positionsToGetBetween
+                            model.position
+                            newPosition
+                    )
             )
 
         KeyWasPressed key ->
