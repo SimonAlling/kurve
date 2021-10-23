@@ -1,7 +1,11 @@
 port module Main exposing (main)
 
+import Angle exposing (Angle(..))
 import Platform exposing (worker)
-import Set exposing (Set)
+import Radius exposing (Radius(..))
+import Set exposing (Set(..))
+import Speed exposing (Speed(..))
+import Tickrate exposing (Tickrate(..))
 import Time
 
 
@@ -12,50 +16,6 @@ port onKeydown : (String -> msg) -> Sub msg
 
 
 port onKeyup : (String -> msg) -> Sub msg
-
-
-{-| A tickrate in ticks per second (Hz).
--}
-type Tickrate
-    = Tickrate Float
-
-
-tickrateToFloat : Tickrate -> Float
-tickrateToFloat (Tickrate r) =
-    r
-
-
-{-| A speed in kuxels per second.
--}
-type Speed
-    = Speed Float
-
-
-speedToFloat : Speed -> Float
-speedToFloat (Speed s) =
-    s
-
-
-{-| An angle in radians.
--}
-type Angle
-    = Angle Float
-
-
-angleToFloat : Angle -> Float
-angleToFloat (Angle a) =
-    a
-
-
-{-| A radius in kuxels.
--}
-type Radius
-    = Radius Float
-
-
-radiusToFloat : Radius -> Float
-radiusToFloat (Radius r) =
-    r
 
 
 type alias Model =
@@ -101,7 +61,7 @@ theSpeed =
 
 theAngleChange : Angle
 theAngleChange =
-    Angle (speedToFloat theSpeed / (tickrateToFloat theTickrate * radiusToFloat theTurningRadius))
+    Angle (Speed.toFloat theSpeed / (Tickrate.toFloat theTickrate * Radius.toFloat theTurningRadius))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -110,14 +70,14 @@ update msg model =
         Tick _ ->
             let
                 distanceTraveledSinceLastTick =
-                    speedToFloat theSpeed / tickrateToFloat theTickrate
+                    Speed.toFloat theSpeed / Tickrate.toFloat theTickrate
 
                 newDirection =
                     if Set.member "m" model.pressedKeys then
-                        model.direction + angleToFloat theAngleChange
+                        model.direction + Angle.toFloat theAngleChange
 
                     else if Set.member "," model.pressedKeys then
-                        model.direction - angleToFloat theAngleChange
+                        model.direction - Angle.toFloat theAngleChange
 
                     else
                         model.direction
@@ -154,7 +114,7 @@ integerCoordinates coords =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ Time.every (1000 / tickrateToFloat theTickrate) Tick
+        [ Time.every (1000 / Tickrate.toFloat theTickrate) Tick
         , onKeydown KeyWasPressed
         , onKeyup KeyWasReleased
         ]
