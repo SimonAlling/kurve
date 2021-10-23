@@ -50,7 +50,6 @@ theTickrate =
 
 theTurningRadius : Radius
 theTurningRadius =
-    -- Kuxels (NB: radius, not diameter)
     Radius 28.5
 
 
