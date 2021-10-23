@@ -72,10 +72,10 @@ update msg model =
                     Speed.toFloat theSpeed / Tickrate.toFloat theTickrate
 
                 newDirection =
-                    if Set.member "m" model.pressedKeys then
+                    if Set.member "ArrowLeft" model.pressedKeys then
                         Angle.add model.direction theAngleChange
 
-                    else if Set.member "," model.pressedKeys then
+                    else if Set.member "ArrowDown" model.pressedKeys then
                         Angle.add model.direction (Angle.negate theAngleChange)
 
                     else
