@@ -28,11 +28,18 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { position = ( 300, 300 )
+    let
+        position =
+            ( 300, 300 )
+    in
+    ( { position = position
       , direction = Angle 0.5
       , pressedKeys = Set.empty
       }
-    , Cmd.none
+    , render
+        { position = drawingPosition position
+        , thickness = Thickness.toInt theThickness
+        }
     )
 
 
