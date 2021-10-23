@@ -88,12 +88,13 @@ drawingPositionsBetween position1 position2 =
     RasterShapes.line (drawingPosition position1) (drawingPosition position2)
 
 
+edgeOfSquare : Float -> Int
+edgeOfSquare xOrY =
+    round (xOrY - (toFloat (Thickness.toInt theThickness) / 2))
+
+
 drawingPosition : Position -> DrawingPosition
 drawingPosition ( x, y ) =
-    let
-        edgeOfSquare xOrY =
-            round (xOrY - (toFloat (Thickness.toInt theThickness) / 2))
-    in
     { x = edgeOfSquare x, y = edgeOfSquare y }
 
 
