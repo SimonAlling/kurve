@@ -1,4 +1,4 @@
-module Angle exposing (Angle(..), toFloat)
+module Types.Angle exposing (Angle(..), toFloat)
 
 {-| Angles are measured in radians.
 -}

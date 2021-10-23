@@ -1,12 +1,12 @@
 port module Main exposing (main)
 
-import Angle exposing (Angle(..))
 import Platform exposing (worker)
-import Radius exposing (Radius(..))
 import Set exposing (Set(..))
-import Speed exposing (Speed(..))
-import Tickrate exposing (Tickrate(..))
 import Time
+import Types.Angle as Angle exposing (Angle(..))
+import Types.Radius as Radius exposing (Radius(..))
+import Types.Speed as Speed exposing (Speed(..))
+import Types.Tickrate as Tickrate exposing (Tickrate(..))
 
 
 port render : { x : Int, y : Int } -> Cmd msg
