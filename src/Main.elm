@@ -21,7 +21,7 @@ port onKeyup : (String -> msg) -> Sub msg
 type alias Model =
     { x : Float
     , y : Float
-    , direction : Float
+    , direction : Angle
     , pressedKeys : Set String
     }
 
@@ -30,7 +30,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { x = 300
       , y = 300
-      , direction = 0.5
+      , direction = Angle 0.5
       , pressedKeys = Set.empty
       }
     , Cmd.none
@@ -73,18 +73,18 @@ update msg model =
 
                 newDirection =
                     if Set.member "m" model.pressedKeys then
-                        model.direction + Angle.toFloat theAngleChange
+                        Angle.add model.direction theAngleChange
 
                     else if Set.member "," model.pressedKeys then
-                        model.direction - Angle.toFloat theAngleChange
+                        Angle.add model.direction (Angle.negate theAngleChange)
 
                     else
                         model.direction
 
                 newModel =
                     { model
-                        | x = model.x + distanceTraveledSinceLastTick * cos newDirection
-                        , y = model.y - distanceTraveledSinceLastTick * sin newDirection
+                        | x = model.x + distanceTraveledSinceLastTick * Angle.cos newDirection
+                        , y = model.y - distanceTraveledSinceLastTick * Angle.sin newDirection
                         , direction = newDirection
                     }
             in
