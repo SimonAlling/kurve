@@ -1,6 +1,6 @@
 module Types.Radius exposing (Radius(..), toFloat)
 
-{-| A (turning) radius in Kurve is traditionally measured in kuxels.
+{-| A (turning) radius in Kurve is traditionally measured in pixels.
 -}
 
 
