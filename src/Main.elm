@@ -30,8 +30,8 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { x = 0
-      , y = 0
+    ( { x = 300
+      , y = 300
       , direction = 0.5
       , pressedKeys = Set.empty
       }
