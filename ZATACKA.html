@@ -127,7 +127,16 @@
 
 
     document.addEventListener("keydown", event => {
-        event.preventDefault()
+        const isDeveloperCommand = (
+            ["F5", "F12"].includes(event.key)
+            ||
+            (event.ctrlKey && event.key === "r") // Ctrl + R
+            ||
+            (event.metaKey && event.key === "r") // Cmd + R on macOS 👀
+        )
+        if (!isDeveloperCommand) {
+            event.preventDefault()
+        }
         app.ports.onKeydown.send(event.key)
     })
     document.addEventListener("keyup", () => {
