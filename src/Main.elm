@@ -116,11 +116,13 @@ fromBresenham { x, y } =
     { leftEdge = x, topEdge = y }
 
 
-drawingPositionsBetween : Position -> Position -> List DrawingPosition
-drawingPositionsBetween position1 position2 =
+desiredDrawingPositions : Position -> Position -> List DrawingPosition
+desiredDrawingPositions position1 position2 =
     RasterShapes.line (drawingPosition position1 |> toBresenham) (drawingPosition position2 |> toBresenham)
         -- The RasterShapes library returns the positions in reverse order.
         |> List.reverse
+        -- The first element in the list is the starting position, which is assumed to already have been drawn.
+        |> List.drop 1
         |> List.map fromBresenham
 
 
@@ -139,27 +141,58 @@ type Fate
     | Dies
 
 
-evaluateMove : List DrawingPosition -> Set Pixel -> ( List DrawingPosition, Fate )
-evaluateMove positions occupiedPixels =
+hitbox : DrawingPosition -> DrawingPosition -> Set Pixel
+hitbox oldPosition newPosition =
     let
-        checkPositions : List DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Fate )
-        checkPositions checked remaining =
+        is45DegreeDraw =
+            oldPosition.leftEdge /= newPosition.leftEdge && oldPosition.topEdge /= newPosition.topEdge
+
+        oldPixels =
+            pixels oldPosition
+
+        newPixels =
+            pixels newPosition
+    in
+    if is45DegreeDraw then
+        let
+            oldXs =
+                Set.map Tuple.first oldPixels
+
+            oldYs =
+                Set.map Tuple.second oldPixels
+        in
+        Set.filter (\( x, y ) -> not (Set.member x oldXs) && not (Set.member y oldYs)) newPixels
+
+    else
+        Set.diff newPixels oldPixels
+
+
+evaluateMove : DrawingPosition -> List DrawingPosition -> Set Pixel -> ( List DrawingPosition, Fate )
+evaluateMove startingPoint positionsToCheck occupiedPixels =
+    let
+        checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Fate )
+        checkPositions checked lastChecked remaining =
             case remaining of
                 [] ->
                     ( checked, Lives )
 
-                x :: xs ->
+                current :: rest ->
                     let
+                        theHitbox =
+                            hitbox lastChecked current
+
                         dies =
-                            False
+                            not <| Set.isEmpty <| Set.intersect theHitbox occupiedPixels
                     in
                     if dies then
                         ( checked, Dies )
 
                     else
-                        checkPositions (x :: checked) xs
+                        checkPositions (current :: checked) current rest
     in
-    Tuple.mapFirst List.reverse <| checkPositions [] positions
+    checkPositions [] startingPoint positionsToCheck
+        -- The list was built in reverse order.
+        |> Tuple.mapFirst List.reverse
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -190,11 +223,11 @@ update msg model =
                       y - distanceTraveledSinceLastTick * Angle.sin newDirection
                     )
 
-                desiredDrawingPositions =
-                    drawingPositionsBetween model.position newPosition
-
                 ( confirmedDrawingPositions, fate ) =
-                    evaluateMove desiredDrawingPositions model.occupiedPixels
+                    evaluateMove
+                        (drawingPosition model.position)
+                        (desiredDrawingPositions model.position newPosition)
+                        model.occupiedPixels
 
                 newModel : Model
                 newModel =
