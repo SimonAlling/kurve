@@ -155,19 +155,15 @@ update msg model =
                     }
             in
             ( newModel
-            , Cmd.batch <|
-                List.map
-                    (\dp ->
+            , positionsToGetBetween model.position newPosition
+                |> List.map
+                    (\position ->
                         render
-                            { position = dp
+                            { position = drawingPosition position
                             , thickness = Thickness.toInt theThickness
                             }
                     )
-                    (List.map drawingPosition <|
-                        positionsToGetBetween
-                            model.position
-                            newPosition
-                    )
+                |> Cmd.batch
             )
 
         KeyWasPressed key ->
