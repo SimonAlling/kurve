@@ -6,10 +6,11 @@ import Time
 import Types.Angle as Angle exposing (Angle(..))
 import Types.Radius as Radius exposing (Radius(..))
 import Types.Speed as Speed exposing (Speed(..))
+import Types.Thickness as Thickness exposing (Thickness(..))
 import Types.Tickrate as Tickrate exposing (Tickrate(..))
 
 
-port render : { x : Int, y : Int } -> Cmd msg
+port render : { position : DrawingPosition, thickness : Int } -> Cmd msg
 
 
 port onKeydown : (String -> msg) -> Sub msg
@@ -19,8 +20,7 @@ port onKeyup : (String -> msg) -> Sub msg
 
 
 type alias Model =
-    { x : Float
-    , y : Float
+    { position : Position
     , direction : Angle
     , pressedKeys : Set String
     }
@@ -28,8 +28,7 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { x = 300
-      , y = 300
+    ( { position = ( 300, 300 )
       , direction = Angle 0.5
       , pressedKeys = Set.empty
       }
@@ -58,9 +57,33 @@ theSpeed =
     Speed 60
 
 
+theThickness : Thickness
+theThickness =
+    Thickness 3
+
+
 theAngleChange : Angle
 theAngleChange =
     Angle (Speed.toFloat theSpeed / (Tickrate.toFloat theTickrate * Radius.toFloat theTurningRadius))
+
+
+type alias Position =
+    ( Float, Float )
+
+
+type alias DrawingPosition =
+    ( Int
+    , Int
+    )
+
+
+drawingPosition : Position -> DrawingPosition
+drawingPosition ( x, y ) =
+    let
+        edgeOfSquare xOrY =
+            round (xOrY - (toFloat (Thickness.toInt theThickness) / 2))
+    in
+    ( edgeOfSquare x, edgeOfSquare y )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -81,15 +104,25 @@ update msg model =
                     else
                         model.direction
 
+                ( x, y ) =
+                    model.position
+
+                newPosition =
+                    ( x + distanceTraveledSinceLastTick * Angle.cos newDirection
+                    , y - distanceTraveledSinceLastTick * Angle.sin newDirection
+                    )
+
                 newModel =
                     { model
-                        | x = model.x + distanceTraveledSinceLastTick * Angle.cos newDirection
-                        , y = model.y - distanceTraveledSinceLastTick * Angle.sin newDirection
+                        | position = newPosition
                         , direction = newDirection
                     }
             in
             ( newModel
-            , render (integerCoordinates { x = newModel.x, y = newModel.y })
+            , render
+                { position = drawingPosition newPosition
+                , thickness = Thickness.toInt theThickness
+                }
             )
 
         KeyWasPressed key ->
@@ -101,13 +134,6 @@ update msg model =
             ( { model | pressedKeys = Set.remove key model.pressedKeys }
             , Cmd.none
             )
-
-
-integerCoordinates : { x : Float, y : Float } -> { x : Int, y : Int }
-integerCoordinates coords =
-    { x = round coords.x
-    , y = round coords.y
-    }
 
 
 subscriptions : Model -> Sub Msg

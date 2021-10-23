@@ -121,8 +121,8 @@
     const renderer = new Renderer(canvas_main, canvas_overlay)
     const app = Elm.Main.init()
 
-    app.ports.render.subscribe(model => {
-        renderer.drawSquare(model.x, model.y, 3, "#00CB00")
+    app.ports.render.subscribe(data => {
+        renderer.drawSquare(data.position[0], data.position[1], data.thickness, "#00CB00")
     })
 
 
