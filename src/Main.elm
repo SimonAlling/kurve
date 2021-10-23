@@ -6,7 +6,7 @@ import Set exposing (Set)
 import Time
 
 
-port myPort : { x : Float, y : Float } -> Cmd msg
+port render : { x : Int, y : Int } -> Cmd msg
 
 
 port onKeydown : (String -> msg) -> Sub msg
@@ -73,7 +73,9 @@ update msg model =
                         , direction = newDirection
                     }
             in
-            ( newModel, myPort { x = newModel.x, y = newModel.y } )
+            ( newModel
+            , render (integerCoordinates { x = newModel.x, y = newModel.y })
+            )
 
         KeyWasPressed key ->
             ( { model | pressedKeys = Set.insert key model.pressedKeys }
@@ -84,6 +86,13 @@ update msg model =
             ( { model | pressedKeys = Set.remove key model.pressedKeys }
             , Cmd.none
             )
+
+
+integerCoordinates : { x : Float, y : Float } -> { x : Int, y : Int }
+integerCoordinates coords =
+    { x = round coords.x
+    , y = round coords.y
+    }
 
 
 subscriptions : Model -> Sub Msg
