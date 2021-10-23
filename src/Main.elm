@@ -109,7 +109,9 @@ update msg model =
 
                 newPosition =
                     ( x + distanceTraveledSinceLastTick * Angle.cos newDirection
-                    , y - distanceTraveledSinceLastTick * Angle.sin newDirection
+                    , -- The coordinate system is traditionally "flipped" (wrt standard math) such that the Y axis points downwards.
+                      -- Therefore, we have to use minus instead of plus for the Y-axis calculation.
+                      y - distanceTraveledSinceLastTick * Angle.sin newDirection
                     )
 
                 newModel =
