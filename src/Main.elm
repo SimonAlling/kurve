@@ -1,6 +1,5 @@
 port module Main exposing (main)
 
-import Browser.Events exposing (onKeyDown)
 import Platform exposing (worker)
 import Set exposing (Set)
 import Time
