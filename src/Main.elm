@@ -33,27 +33,46 @@ type alias Model =
 
 generatePlayers : List Config.PlayerConfig -> Random.Generator (List Player)
 generatePlayers configs =
+    let
+        numberOfPlayers =
+            List.length configs
+    in
     Random.traverse generatePlayer configs
-        |> Random.filter (List.map .position >> areSafe)
+        |> Random.filter (List.map .position >> areSafeFor numberOfPlayers)
 
 
-areSafe : List Position -> Bool
-areSafe positions =
+areSafeFor : Int -> List Position -> Bool
+areSafeFor numberOfPlayers positions =
     case positions of
         [] ->
             True
 
         thisPosition :: rest ->
-            List.all (not << isCloseTo thisPosition) rest && areSafe rest
+            List.all (not << isTooCloseFor numberOfPlayers thisPosition) rest
+                && areSafeFor numberOfPlayers rest
 
 
-isCloseTo : Position -> Position -> Bool
-isCloseTo ( x1, y1 ) ( x2, y2 ) =
+isTooCloseFor : Int -> Position -> Position -> Bool
+isTooCloseFor numberOfPlayers ( x1, y1 ) ( x2, y2 ) =
     let
+        desiredMinimumDistance =
+            toFloat (Thickness.toInt Config.thickness) + Radius.toFloat Config.turningRadius * Config.desiredMinimumSpawnDistanceTurningRadiusFactor
+
+        ( ( left, top ), ( right, bottom ) ) =
+            spawnArea
+
+        availableArea =
+            (right - left) * (bottom - top)
+
+        -- Derived from:
+        -- audacity × total available area > number of players × ( max allowed minimum distance / 2 )² × pi
+        maxAllowedMinimumDistance =
+            2 * sqrt (Config.spawnProtectionAudacity * availableArea / (toFloat numberOfPlayers * pi))
+
         distance =
             sqrt ((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
     in
-    distance < Radius.toFloat Config.turningRadius
+    distance < min desiredMinimumDistance maxAllowedMinimumDistance
 
 
 generatePlayer : Config.PlayerConfig -> Random.Generator Player

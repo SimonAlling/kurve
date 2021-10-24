@@ -41,6 +41,18 @@ spawnMargin =
     100
 
 
+desiredMinimumSpawnDistanceTurningRadiusFactor : Float
+desiredMinimumSpawnDistanceTurningRadiusFactor =
+    1
+
+
+{-| Closer to 1 ⇔ less risk of spawn kills but higher risk of no solution
+-}
+spawnProtectionAudacity : Float
+spawnProtectionAudacity =
+    0.25
+
+
 worldWidth : Int
 worldWidth =
     559
