@@ -7,21 +7,21 @@ import Types.Thickness exposing (Thickness(..))
 import Types.Tickrate exposing (Tickrate(..))
 
 
-theTickrate : Tickrate
-theTickrate =
+tickrate : Tickrate
+tickrate =
     Tickrate 60
 
 
-theTurningRadius : Radius
-theTurningRadius =
+turningRadius : Radius
+turningRadius =
     Radius 28.5
 
 
-theSpeed : Speed
-theSpeed =
+speed : Speed
+speed =
     Speed 60
 
 
-theThickness : Thickness
-theThickness =
+thickness : Thickness
+thickness =
     Thickness 3

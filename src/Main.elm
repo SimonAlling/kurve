@@ -1,6 +1,6 @@
 port module Main exposing (main)
 
-import Config exposing (theSpeed, theThickness, theTickrate, theTurningRadius)
+import Config
 import Platform exposing (worker)
 import Set exposing (Set(..))
 import Time
@@ -40,7 +40,7 @@ init _ =
             (\player ->
                 render
                     { position = World.drawingPosition player.position
-                    , thickness = Thickness.toInt theThickness
+                    , thickness = Thickness.toInt Config.thickness
                     , color = player.color
                     }
             )
@@ -73,7 +73,7 @@ type Msg
 
 computedAngleChange : Angle
 computedAngleChange =
-    Angle (Speed.toFloat theSpeed / (Tickrate.toFloat theTickrate * Radius.toFloat theTurningRadius))
+    Angle (Speed.toFloat Config.speed / (Tickrate.toFloat Config.tickrate * Radius.toFloat Config.turningRadius))
 
 
 evaluateMove : DrawingPosition -> List DrawingPosition -> Set Pixel -> ( List DrawingPosition, Player.Fate )
@@ -108,7 +108,7 @@ updatePlayer : Set String -> Set Pixel -> Player -> ( List DrawingPosition, Play
 updatePlayer pressedKeys occupiedPixels player =
     let
         distanceTraveledSinceLastTick =
-            Speed.toFloat theSpeed / Tickrate.toFloat theTickrate
+            Speed.toFloat Config.speed / Tickrate.toFloat Config.tickrate
 
         ( leftKeys, rightKeys ) =
             player.controls
@@ -196,7 +196,7 @@ update msg model =
                     (\( color, position ) ->
                         render
                             { position = position
-                            , thickness = Thickness.toInt theThickness
+                            , thickness = Thickness.toInt Config.thickness
                             , color = color
                             }
                     )
@@ -217,7 +217,7 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ Time.every (1000 / Tickrate.toFloat theTickrate) Tick
+        [ Time.every (1000 / Tickrate.toFloat Config.tickrate) Tick
         , onKeydown KeyWasPressed
         , onKeyup KeyWasReleased
         ]

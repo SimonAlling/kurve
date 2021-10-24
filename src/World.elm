@@ -10,7 +10,7 @@ module World exposing
     , toBresenham
     )
 
-import Config exposing (theThickness)
+import Config
 import List.Cartesian
 import RasterShapes
 import Set exposing (Set)
@@ -46,14 +46,14 @@ drawingPosition ( x, y ) =
 
 edgeOfSquare : Float -> Int
 edgeOfSquare xOrY =
-    round (xOrY - (toFloat (Thickness.toInt theThickness) / 2))
+    round (xOrY - (toFloat (Thickness.toInt Config.thickness) / 2))
 
 
 pixels : DrawingPosition -> Set Pixel
 pixels { leftEdge, topEdge } =
     let
         rangeFrom start =
-            List.range start (start + Thickness.toInt theThickness - 1)
+            List.range start (start + Thickness.toInt Config.thickness - 1)
 
         xs =
             rangeFrom leftEdge
