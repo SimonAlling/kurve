@@ -122,7 +122,7 @@
     const app = Elm.Main.init()
 
     app.ports.render.subscribe(data => {
-        renderer.drawSquare(data.position.leftEdge, data.position.topEdge, data.thickness, "#00CB00")
+        renderer.drawSquare(data.position.leftEdge, data.position.topEdge, data.thickness, data.color)
     })
 
 

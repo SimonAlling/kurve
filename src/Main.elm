@@ -12,7 +12,7 @@ import Types.Thickness as Thickness exposing (Thickness(..))
 import Types.Tickrate as Tickrate exposing (Tickrate(..))
 
 
-port render : { position : DrawingPosition, thickness : Int } -> Cmd msg
+port render : { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
 port onKeydown : (String -> msg) -> Sub msg
@@ -22,10 +22,18 @@ port onKeyup : (String -> msg) -> Sub msg
 
 
 type alias Model =
-    { position : Position
-    , direction : Angle
+    { players : List Player
     , occupiedPixels : Set Pixel
     , pressedKeys : Set String
+    }
+
+
+type alias Player =
+    { color : String
+    , controls : ( Set String, Set String )
+    , position : Position
+    , direction : Angle
+    , fate : Fate
     }
 
 
@@ -35,20 +43,38 @@ type alias Pixel =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    let
-        position =
-            ( 300, 300 )
-    in
-    ( { position = position
-      , direction = Angle 0.5
+    ( { players = thePlayers
       , pressedKeys = Set.empty
-      , occupiedPixels = pixels (drawingPosition position)
+      , occupiedPixels = List.foldr (.position >> drawingPosition >> pixels >> Set.union) Set.empty thePlayers
       }
-    , render
-        { position = drawingPosition position
-        , thickness = Thickness.toInt theThickness
-        }
+    , thePlayers
+        |> List.map
+            (\player ->
+                render
+                    { position = drawingPosition player.position
+                    , thickness = Thickness.toInt theThickness
+                    , color = player.color
+                    }
+            )
+        |> Cmd.batch
     )
+
+
+thePlayers : List Player
+thePlayers =
+    [ { color = "red"
+      , controls = ( Set.fromList [ "1" ], Set.fromList [ "q" ] )
+      , position = ( 100, 100 )
+      , direction = Angle 0.1
+      , fate = Lives
+      }
+    , { color = "green"
+      , controls = ( Set.fromList [ "ArrowLeft" ], Set.fromList [ "ArrowDown" ] )
+      , position = ( 100, 300 )
+      , direction = Angle -0.1
+      , fate = Lives
+      }
+    ]
 
 
 type Msg
@@ -195,59 +221,100 @@ evaluateMove startingPoint positionsToCheck occupiedPixels =
         |> Tuple.mapFirst List.reverse
 
 
+updatePlayer : Set String -> Set Pixel -> Player -> ( List DrawingPosition, Player )
+updatePlayer pressedKeys occupiedPixels player =
+    let
+        distanceTraveledSinceLastTick =
+            Speed.toFloat theSpeed / Tickrate.toFloat theTickrate
+
+        ( leftKeys, rightKeys ) =
+            player.controls
+
+        someIsPressed =
+            Set.intersect pressedKeys >> Set.isEmpty >> not
+
+        angleChangeLeft =
+            if someIsPressed leftKeys then
+                theAngleChange
+
+            else
+                Angle 0
+
+        angleChangeRight =
+            if someIsPressed rightKeys then
+                Angle.negate theAngleChange
+
+            else
+                Angle 0
+
+        newDirection =
+            -- Turning left and right at the same time cancel each other out, just like in the original game.
+            Angle.add player.direction (Angle.add angleChangeLeft angleChangeRight)
+
+        ( x, y ) =
+            player.position
+
+        newPosition =
+            ( x + distanceTraveledSinceLastTick * Angle.cos newDirection
+            , -- The coordinate system is traditionally "flipped" (wrt standard math) such that the Y axis points downwards.
+              -- Therefore, we have to use minus instead of plus for the Y-axis calculation.
+              y - distanceTraveledSinceLastTick * Angle.sin newDirection
+            )
+
+        ( confirmedDrawingPositions, fate ) =
+            evaluateMove
+                (drawingPosition player.position)
+                (desiredDrawingPositions player.position newPosition)
+                occupiedPixels
+    in
+    ( confirmedDrawingPositions
+    , { player
+        | position = newPosition
+        , direction = newDirection
+        , fate = fate
+      }
+    )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Tick _ ->
             let
-                distanceTraveledSinceLastTick =
-                    Speed.toFloat theSpeed / Tickrate.toFloat theTickrate
+                ( newPlayers, newOccupiedPixels, newDrawingPositions ) =
+                    List.foldr
+                        (\player ( players, updatedPixels, coloredDrawingPositions ) ->
+                            let
+                                ( newPlayerDrawingPositions, newPlayer ) =
+                                    case player.fate of
+                                        Lives ->
+                                            updatePlayer model.pressedKeys updatedPixels player
 
-                newDirection =
-                    if Set.member "ArrowLeft" model.pressedKeys then
-                        Angle.add model.direction theAngleChange
-
-                    else if Set.member "ArrowDown" model.pressedKeys then
-                        Angle.add model.direction (Angle.negate theAngleChange)
-
-                    else
-                        model.direction
-
-                ( x, y ) =
-                    model.position
-
-                newPosition =
-                    ( x + distanceTraveledSinceLastTick * Angle.cos newDirection
-                    , -- The coordinate system is traditionally "flipped" (wrt standard math) such that the Y axis points downwards.
-                      -- Therefore, we have to use minus instead of plus for the Y-axis calculation.
-                      y - distanceTraveledSinceLastTick * Angle.sin newDirection
-                    )
-
-                ( confirmedDrawingPositions, fate ) =
-                    evaluateMove
-                        (drawingPosition model.position)
-                        (desiredDrawingPositions model.position newPosition)
-                        model.occupiedPixels
-
-                newModel : Model
-                newModel =
-                    { model
-                        | position = newPosition
-                        , direction = newDirection
-                        , occupiedPixels =
-                            confirmedDrawingPositions
-                                |> List.foldr
-                                    (pixels >> Set.union)
-                                    model.occupiedPixels
-                    }
+                                        Dies ->
+                                            ( [], player )
+                            in
+                            ( newPlayer :: players
+                            , List.foldr
+                                (pixels >> Set.union)
+                                updatedPixels
+                                newPlayerDrawingPositions
+                            , coloredDrawingPositions ++ List.map (Tuple.pair player.color) newPlayerDrawingPositions
+                            )
+                        )
+                        ( [], model.occupiedPixels, [] )
+                        model.players
             in
-            ( newModel
-            , confirmedDrawingPositions
+            ( { players = newPlayers
+              , occupiedPixels = newOccupiedPixels
+              , pressedKeys = model.pressedKeys
+              }
+            , newDrawingPositions
                 |> List.map
-                    (\position ->
+                    (\( color, position ) ->
                         render
                             { position = position
                             , thickness = Thickness.toInt theThickness
+                            , color = color
                             }
                     )
                 |> Cmd.batch
