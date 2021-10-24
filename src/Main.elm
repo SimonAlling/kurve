@@ -71,8 +71,8 @@ type Msg
     | KeyWasReleased String
 
 
-theAngleChange : Angle
-theAngleChange =
+computedAngleChange : Angle
+computedAngleChange =
     Angle (Speed.toFloat theSpeed / (Tickrate.toFloat theTickrate * Radius.toFloat theTurningRadius))
 
 
@@ -118,14 +118,14 @@ updatePlayer pressedKeys occupiedPixels player =
 
         angleChangeLeft =
             if someIsPressed leftKeys then
-                theAngleChange
+                computedAngleChange
 
             else
                 Angle 0
 
         angleChangeRight =
             if someIsPressed rightKeys then
-                Angle.negate theAngleChange
+                Angle.negate computedAngleChange
 
             else
                 Angle 0
