@@ -1,15 +1,16 @@
 port module Main exposing (main)
 
-import List.Cartesian
+import Config exposing (theSpeed, theThickness, theTickrate, theTurningRadius)
 import Platform exposing (worker)
-import RasterShapes
 import Set exposing (Set(..))
 import Time
 import Types.Angle as Angle exposing (Angle(..))
+import Types.Player as Player exposing (Player)
 import Types.Radius as Radius exposing (Radius(..))
 import Types.Speed as Speed exposing (Speed(..))
 import Types.Thickness as Thickness exposing (Thickness(..))
 import Types.Tickrate as Tickrate exposing (Tickrate(..))
+import World exposing (DrawingPosition, Pixel)
 
 
 port render : { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
@@ -28,30 +29,17 @@ type alias Model =
     }
 
 
-type alias Player =
-    { color : String
-    , controls : ( Set String, Set String )
-    , position : Position
-    , direction : Angle
-    , fate : Fate
-    }
-
-
-type alias Pixel =
-    ( Int, Int )
-
-
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { players = thePlayers
       , pressedKeys = Set.empty
-      , occupiedPixels = List.foldr (.position >> drawingPosition >> pixels >> Set.union) Set.empty thePlayers
+      , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixels >> Set.union) Set.empty thePlayers
       }
     , thePlayers
         |> List.map
             (\player ->
                 render
-                    { position = drawingPosition player.position
+                    { position = World.drawingPosition player.position
                     , thickness = Thickness.toInt theThickness
                     , color = player.color
                     }
@@ -66,13 +54,13 @@ thePlayers =
       , controls = ( Set.fromList [ "1" ], Set.fromList [ "q" ] )
       , position = ( 100, 100 )
       , direction = Angle 0.1
-      , fate = Lives
+      , fate = Player.Lives
       }
     , { color = "green"
       , controls = ( Set.fromList [ "ArrowLeft" ], Set.fromList [ "ArrowDown" ] )
       , position = ( 100, 300 )
       , direction = Angle -0.1
-      , fate = Lives
+      , fate = Player.Lives
       }
     ]
 
@@ -83,135 +71,30 @@ type Msg
     | KeyWasReleased String
 
 
-theTickrate : Tickrate
-theTickrate =
-    Tickrate 60
-
-
-theTurningRadius : Radius
-theTurningRadius =
-    Radius 28.5
-
-
-theSpeed : Speed
-theSpeed =
-    Speed 60
-
-
-theThickness : Thickness
-theThickness =
-    Thickness 3
-
-
 theAngleChange : Angle
 theAngleChange =
     Angle (Speed.toFloat theSpeed / (Tickrate.toFloat theTickrate * Radius.toFloat theTurningRadius))
 
 
-pixels : DrawingPosition -> Set Pixel
-pixels { leftEdge, topEdge } =
-    let
-        rangeFrom start =
-            List.range start (start + Thickness.toInt theThickness - 1)
-
-        xs =
-            rangeFrom leftEdge
-
-        ys =
-            rangeFrom topEdge
-    in
-    List.Cartesian.map2 Tuple.pair xs ys
-        |> Set.fromList
-
-
-type alias Position =
-    ( Float, Float )
-
-
-type alias DrawingPosition =
-    { leftEdge : Int, topEdge : Int }
-
-
-toBresenham : DrawingPosition -> RasterShapes.Position
-toBresenham { leftEdge, topEdge } =
-    { x = leftEdge, y = topEdge }
-
-
-fromBresenham : RasterShapes.Position -> DrawingPosition
-fromBresenham { x, y } =
-    { leftEdge = x, topEdge = y }
-
-
-desiredDrawingPositions : Position -> Position -> List DrawingPosition
-desiredDrawingPositions position1 position2 =
-    RasterShapes.line (drawingPosition position1 |> toBresenham) (drawingPosition position2 |> toBresenham)
-        -- The RasterShapes library returns the positions in reverse order.
-        |> List.reverse
-        -- The first element in the list is the starting position, which is assumed to already have been drawn.
-        |> List.drop 1
-        |> List.map fromBresenham
-
-
-edgeOfSquare : Float -> Int
-edgeOfSquare xOrY =
-    round (xOrY - (toFloat (Thickness.toInt theThickness) / 2))
-
-
-drawingPosition : Position -> DrawingPosition
-drawingPosition ( x, y ) =
-    { leftEdge = edgeOfSquare x, topEdge = edgeOfSquare y }
-
-
-type Fate
-    = Lives
-    | Dies
-
-
-hitbox : DrawingPosition -> DrawingPosition -> Set Pixel
-hitbox oldPosition newPosition =
-    let
-        is45DegreeDraw =
-            oldPosition.leftEdge /= newPosition.leftEdge && oldPosition.topEdge /= newPosition.topEdge
-
-        oldPixels =
-            pixels oldPosition
-
-        newPixels =
-            pixels newPosition
-    in
-    if is45DegreeDraw then
-        let
-            oldXs =
-                Set.map Tuple.first oldPixels
-
-            oldYs =
-                Set.map Tuple.second oldPixels
-        in
-        Set.filter (\( x, y ) -> not (Set.member x oldXs) && not (Set.member y oldYs)) newPixels
-
-    else
-        Set.diff newPixels oldPixels
-
-
-evaluateMove : DrawingPosition -> List DrawingPosition -> Set Pixel -> ( List DrawingPosition, Fate )
+evaluateMove : DrawingPosition -> List DrawingPosition -> Set Pixel -> ( List DrawingPosition, Player.Fate )
 evaluateMove startingPoint positionsToCheck occupiedPixels =
     let
-        checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Fate )
+        checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Player.Fate )
         checkPositions checked lastChecked remaining =
             case remaining of
                 [] ->
-                    ( checked, Lives )
+                    ( checked, Player.Lives )
 
                 current :: rest ->
                     let
                         theHitbox =
-                            hitbox lastChecked current
+                            World.hitbox lastChecked current
 
                         dies =
                             not <| Set.isEmpty <| Set.intersect theHitbox occupiedPixels
                     in
                     if dies then
-                        ( checked, Dies )
+                        ( checked, Player.Dies )
 
                     else
                         checkPositions (current :: checked) current rest
@@ -263,8 +146,8 @@ updatePlayer pressedKeys occupiedPixels player =
 
         ( confirmedDrawingPositions, fate ) =
             evaluateMove
-                (drawingPosition player.position)
-                (desiredDrawingPositions player.position newPosition)
+                (World.drawingPosition player.position)
+                (World.desiredDrawingPositions player.position newPosition)
                 occupiedPixels
     in
     ( confirmedDrawingPositions
@@ -287,15 +170,15 @@ update msg model =
                             let
                                 ( newPlayerDrawingPositions, newPlayer ) =
                                     case player.fate of
-                                        Lives ->
+                                        Player.Lives ->
                                             updatePlayer model.pressedKeys updatedPixels player
 
-                                        Dies ->
+                                        Player.Dies ->
                                             ( [], player )
                             in
                             ( newPlayer :: players
                             , List.foldr
-                                (pixels >> Set.union)
+                                (World.pixels >> Set.union)
                                 updatedPixels
                                 newPlayerDrawingPositions
                             , coloredDrawingPositions ++ List.map (Tuple.pair player.color) newPlayerDrawingPositions
