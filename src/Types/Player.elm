@@ -1,8 +1,8 @@
 module Types.Player exposing (Fate(..), Player)
 
 import Set exposing (Set(..))
-import World exposing (Position)
 import Types.Angle exposing (Angle(..))
+import World exposing (Position)
 
 
 type alias Player =
