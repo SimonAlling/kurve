@@ -36,20 +36,24 @@ generatePlayers configs =
     let
         numberOfPlayers =
             List.length configs
+
+        generateNewAndPrepend : Config.PlayerConfig -> List Player -> Random.Generator (List Player)
+        generateNewAndPrepend config precedingPlayers =
+            generatePlayer numberOfPlayers (List.map .position precedingPlayers) config
+                |> Random.map (\player -> player :: precedingPlayers)
+
+        generateReversedPlayers =
+            List.foldl
+                (Random.andThen << generateNewAndPrepend)
+                (Random.constant [])
+                configs
     in
-    Random.traverse generatePlayer configs
-        |> Random.filter (List.map .position >> areSafeFor numberOfPlayers)
+    generateReversedPlayers |> Random.map List.reverse
 
 
-areSafeFor : Int -> List Position -> Bool
-areSafeFor numberOfPlayers positions =
-    case positions of
-        [] ->
-            True
-
-        thisPosition :: rest ->
-            List.all (not << isTooCloseFor numberOfPlayers thisPosition) rest
-                && areSafeFor numberOfPlayers rest
+isSafeNewPosition : Int -> List Position -> Position -> Bool
+isSafeNewPosition numberOfPlayers existingPositions newPosition =
+    List.all (not << isTooCloseFor numberOfPlayers newPosition) existingPositions
 
 
 isTooCloseFor : Int -> Position -> Position -> Bool
@@ -75,8 +79,12 @@ isTooCloseFor numberOfPlayers ( x1, y1 ) ( x2, y2 ) =
     distance < min desiredMinimumDistance maxAllowedMinimumDistance
 
 
-generatePlayer : Config.PlayerConfig -> Random.Generator Player
-generatePlayer config =
+generatePlayer : Int -> List Position -> Config.PlayerConfig -> Random.Generator Player
+generatePlayer numberOfPlayers existingPositions config =
+    let
+        safeSpawnPosition =
+            spawnPosition |> Random.filter (isSafeNewPosition numberOfPlayers existingPositions)
+    in
     Random.map2
         (\generatedPosition generatedAngle ->
             { config = config
@@ -85,7 +93,7 @@ generatePlayer config =
             , fate = Player.Lives
             }
         )
-        spawnPosition
+        safeSpawnPosition
         spawnAngle
 
 
