@@ -90,7 +90,7 @@ generatePlayer numberOfPlayers existingPositions config =
             { config = config
             , position = generatedPosition
             , direction = generatedAngle
-            , fate = Player.Lives
+            , status = Player.Alive
             }
         )
         safeSpawnPosition
@@ -161,14 +161,14 @@ computedAngleChange =
     Angle (Speed.toFloat Config.speed / (Tickrate.toFloat Config.tickrate * Radius.toFloat Config.turningRadius))
 
 
-evaluateMove : DrawingPosition -> List DrawingPosition -> Set Pixel -> ( List DrawingPosition, Player.Fate )
+evaluateMove : DrawingPosition -> List DrawingPosition -> Set Pixel -> ( List DrawingPosition, Player.Status )
 evaluateMove startingPoint positionsToCheck occupiedPixels =
     let
-        checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Player.Fate )
+        checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Player.Status )
         checkPositions checked lastChecked remaining =
             case remaining of
                 [] ->
-                    ( checked, Player.Lives )
+                    ( checked, Player.Alive )
 
                 current :: rest ->
                     let
@@ -179,7 +179,7 @@ evaluateMove startingPoint positionsToCheck occupiedPixels =
                             not <| Set.isEmpty <| Set.intersect theHitbox occupiedPixels
                     in
                     if dies then
-                        ( checked, Player.Dies )
+                        ( checked, Player.Dead )
 
                     else
                         checkPositions (current :: checked) current rest
@@ -229,7 +229,7 @@ updatePlayer pressedKeys occupiedPixels player =
               y - distanceTraveledSinceLastTick * Angle.sin newDirection
             )
 
-        ( confirmedDrawingPositions, fate ) =
+        ( confirmedDrawingPositions, newStatus ) =
             evaluateMove
                 (World.drawingPosition player.position)
                 (World.desiredDrawingPositions player.position newPosition)
@@ -239,7 +239,7 @@ updatePlayer pressedKeys occupiedPixels player =
     , { player
         | position = newPosition
         , direction = newDirection
-        , fate = fate
+        , status = newStatus
       }
     )
 
@@ -252,11 +252,11 @@ update msg model =
                 checkIndividualPlayer player ( players, occupiedPixels, coloredDrawingPositions ) =
                     let
                         ( newPlayerDrawingPositions, checkedPlayer ) =
-                            case player.fate of
-                                Player.Lives ->
+                            case player.status of
+                                Player.Alive ->
                                     updatePlayer model.pressedKeys occupiedPixels player
 
-                                Player.Dies ->
+                                Player.Dead ->
                                     ( [], player )
 
                         occupiedPixelsAfterCheckingThisPlayer =

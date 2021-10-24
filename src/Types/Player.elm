@@ -1,4 +1,4 @@
-module Types.Player exposing (Fate(..), Player)
+module Types.Player exposing (Player, Status(..))
 
 import Config
 import Set exposing (Set(..))
@@ -10,10 +10,10 @@ type alias Player =
     { config : Config.PlayerConfig
     , position : Position
     , direction : Angle
-    , fate : Fate
+    , status : Status
     }
 
 
-type Fate
-    = Lives
-    | Dies
+type Status
+    = Alive
+    | Dead
