@@ -34,6 +34,26 @@ type alias Model =
 generatePlayers : List Config.PlayerConfig -> Random.Generator (List Player)
 generatePlayers configs =
     Random.traverse generatePlayer configs
+        |> Random.filter (List.map .position >> areSafe)
+
+
+areSafe : List Position -> Bool
+areSafe positions =
+    case positions of
+        [] ->
+            True
+
+        thisPosition :: rest ->
+            List.all (not << isCloseTo thisPosition) rest && areSafe rest
+
+
+isCloseTo : Position -> Position -> Bool
+isCloseTo ( x1, y1 ) ( x2, y2 ) =
+    let
+        distance =
+            sqrt ((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
+    in
+    distance < Radius.toFloat Config.turningRadius
 
 
 generatePlayer : Config.PlayerConfig -> Random.Generator Player
