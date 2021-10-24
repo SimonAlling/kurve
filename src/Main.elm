@@ -2,6 +2,8 @@ port module Main exposing (main)
 
 import Config
 import Platform exposing (worker)
+import Random
+import Random.Extra as Random
 import Set exposing (Set(..))
 import Time
 import Types.Angle as Angle exposing (Angle(..))
@@ -10,7 +12,7 @@ import Types.Radius as Radius exposing (Radius(..))
 import Types.Speed as Speed exposing (Speed(..))
 import Types.Thickness as Thickness exposing (Thickness(..))
 import Types.Tickrate as Tickrate exposing (Tickrate(..))
-import World exposing (DrawingPosition, Pixel)
+import World exposing (DrawingPosition, Pixel, Position)
 
 
 port render : { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
@@ -29,8 +31,31 @@ type alias Model =
     }
 
 
+generatePlayers : List Config.PlayerConfig -> Random.Generator (List Player)
+generatePlayers configs =
+    Random.traverse generatePlayer configs
+
+
+generatePlayer : Config.PlayerConfig -> Random.Generator Player
+generatePlayer config =
+    Random.map2
+        (\generatedPosition generatedAngle ->
+            { config = config
+            , position = generatedPosition
+            , direction = generatedAngle
+            , fate = Player.Lives
+            }
+        )
+        spawnPosition
+        spawnAngle
+
+
 init : () -> ( Model, Cmd Msg )
 init _ =
+    let
+        thePlayers =
+            Random.step (generatePlayers Config.players) (Random.initialSeed 1337) |> Tuple.first
+    in
     ( { players = thePlayers
       , pressedKeys = Set.empty
       , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixels >> Set.union) Set.empty thePlayers
@@ -41,28 +66,41 @@ init _ =
                 render
                     { position = World.drawingPosition player.position
                     , thickness = Thickness.toInt Config.thickness
-                    , color = player.color
+                    , color = player.config.color
                     }
             )
         |> Cmd.batch
     )
 
 
-thePlayers : List Player
-thePlayers =
-    [ { color = "red"
-      , controls = ( Set.fromList [ "1" ], Set.fromList [ "q" ] )
-      , position = ( 100, 100 )
-      , direction = Angle 0.1
-      , fate = Player.Lives
-      }
-    , { color = "green"
-      , controls = ( Set.fromList [ "ArrowLeft" ], Set.fromList [ "ArrowDown" ] )
-      , position = ( 100, 300 )
-      , direction = Angle -0.1
-      , fate = Player.Lives
-      }
-    ]
+spawnArea : ( Position, Position )
+spawnArea =
+    let
+        topLeft =
+            ( Config.spawnMargin
+            , Config.spawnMargin
+            )
+
+        bottomRight =
+            ( toFloat Config.worldWidth - Config.spawnMargin
+            , toFloat Config.worldHeight - Config.spawnMargin
+            )
+    in
+    ( topLeft, bottomRight )
+
+
+spawnPosition : Random.Generator Position
+spawnPosition =
+    let
+        ( ( left, top ), ( right, bottom ) ) =
+            spawnArea
+    in
+    Random.pair (Random.float left right) (Random.float top bottom)
+
+
+spawnAngle : Random.Generator Angle
+spawnAngle =
+    Random.float (-pi / 2) (pi / 2) |> Random.map Angle
 
 
 type Msg
@@ -111,7 +149,7 @@ updatePlayer pressedKeys occupiedPixels player =
             Speed.toFloat Config.speed / Tickrate.toFloat Config.tickrate
 
         ( leftKeys, rightKeys ) =
-            player.controls
+            player.config.controls
 
         someIsPressed =
             Set.intersect pressedKeys >> Set.isEmpty >> not
@@ -181,7 +219,7 @@ update msg model =
                                 (World.pixels >> Set.union)
                                 updatedPixels
                                 newPlayerDrawingPositions
-                            , coloredDrawingPositions ++ List.map (Tuple.pair player.color) newPlayerDrawingPositions
+                            , coloredDrawingPositions ++ List.map (Tuple.pair player.config.color) newPlayerDrawingPositions
                             )
                         )
                         ( [], model.occupiedPixels, [] )
