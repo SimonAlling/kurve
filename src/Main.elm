@@ -175,8 +175,19 @@ evaluateMove startingPoint positionsToCheck occupiedPixels =
                         theHitbox =
                             World.hitbox lastChecked current
 
+                        thickness =
+                            Thickness.toInt Config.thickness
+
+                        drawsOutsideWorld =
+                            List.any ((==) True)
+                                [ current.leftEdge < 0
+                                , current.topEdge < 0
+                                , current.leftEdge > Config.worldWidth - thickness
+                                , current.topEdge > Config.worldHeight - thickness
+                                ]
+
                         dies =
-                            not <| Set.isEmpty <| Set.intersect theHitbox occupiedPixels
+                            drawsOutsideWorld || (not <| Set.isEmpty <| Set.intersect theHitbox occupiedPixels)
                     in
                     if dies then
                         ( checked, Player.Dead )
