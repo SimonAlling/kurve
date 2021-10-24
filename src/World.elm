@@ -6,7 +6,7 @@ module World exposing
     , drawingPosition
     , fromBresenham
     , hitbox
-    , pixels
+    , pixelsToOccupy
     , toBresenham
     )
 
@@ -49,8 +49,8 @@ edgeOfSquare xOrY =
     round (xOrY - (toFloat (Thickness.toInt Config.thickness) / 2))
 
 
-pixels : DrawingPosition -> Set Pixel
-pixels { leftEdge, topEdge } =
+pixelsToOccupy : DrawingPosition -> Set Pixel
+pixelsToOccupy { leftEdge, topEdge } =
     let
         rangeFrom start =
             List.range start (start + Thickness.toInt Config.thickness - 1)
@@ -84,10 +84,10 @@ hitbox oldPosition newPosition =
             oldPosition.leftEdge /= newPosition.leftEdge && oldPosition.topEdge /= newPosition.topEdge
 
         oldPixels =
-            pixels oldPosition
+            pixelsToOccupy oldPosition
 
         newPixels =
-            pixels newPosition
+            pixelsToOccupy newPosition
     in
     if is45DegreeDraw then
         let

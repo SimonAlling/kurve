@@ -105,7 +105,7 @@ init _ =
     in
     ( { players = thePlayers
       , pressedKeys = Set.empty
-      , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixels >> Set.union) Set.empty thePlayers
+      , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty thePlayers
       }
     , thePlayers
         |> List.map
@@ -263,7 +263,7 @@ update msg model =
                             in
                             ( newPlayer :: players
                             , List.foldr
-                                (World.pixels >> Set.union)
+                                (World.pixelsToOccupy >> Set.union)
                                 updatedPixels
                                 newPlayerDrawingPositions
                             , coloredDrawingPositions ++ List.map (Tuple.pair player.config.color) newPlayerDrawingPositions
