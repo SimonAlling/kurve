@@ -249,26 +249,33 @@ update msg model =
     case msg of
         Tick _ ->
             let
-                ( newPlayers, newOccupiedPixels, newDrawingPositions ) =
-                    List.foldr
-                        (\player ( players, updatedPixels, coloredDrawingPositions ) ->
-                            let
-                                ( newPlayerDrawingPositions, newPlayer ) =
-                                    case player.fate of
-                                        Player.Lives ->
-                                            updatePlayer model.pressedKeys updatedPixels player
+                checkIndividualPlayer player ( players, occupiedPixels, coloredDrawingPositions ) =
+                    let
+                        ( newPlayerDrawingPositions, checkedPlayer ) =
+                            case player.fate of
+                                Player.Lives ->
+                                    updatePlayer model.pressedKeys occupiedPixels player
 
-                                        Player.Dies ->
-                                            ( [], player )
-                            in
-                            ( newPlayer :: players
-                            , List.foldr
+                                Player.Dies ->
+                                    ( [], player )
+
+                        occupiedPixelsAfterCheckingThisPlayer =
+                            List.foldr
                                 (World.pixelsToOccupy >> Set.union)
-                                updatedPixels
+                                occupiedPixels
                                 newPlayerDrawingPositions
-                            , coloredDrawingPositions ++ List.map (Tuple.pair player.config.color) newPlayerDrawingPositions
-                            )
-                        )
+
+                        coloredDrawingPositionsAfterCheckingThisPlayer =
+                            coloredDrawingPositions ++ List.map (Tuple.pair player.config.color) newPlayerDrawingPositions
+                    in
+                    ( checkedPlayer :: players
+                    , occupiedPixelsAfterCheckingThisPlayer
+                    , coloredDrawingPositionsAfterCheckingThisPlayer
+                    )
+
+                ( newPlayers, newOccupiedPixels, newColoredDrawingPositions ) =
+                    List.foldr
+                        checkIndividualPlayer
                         ( [], model.occupiedPixels, [] )
                         model.players
             in
@@ -276,7 +283,7 @@ update msg model =
               , occupiedPixels = newOccupiedPixels
               , pressedKeys = model.pressedKeys
               }
-            , newDrawingPositions
+            , newColoredDrawingPositions
                 |> List.map
                     (\( color, position ) ->
                         render
