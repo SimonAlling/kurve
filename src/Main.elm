@@ -83,7 +83,7 @@ generatePlayer : Int -> List Position -> Config.PlayerConfig -> Random.Generator
 generatePlayer numberOfPlayers existingPositions config =
     let
         safeSpawnPosition =
-            spawnPosition |> Random.filter (isSafeNewPosition numberOfPlayers existingPositions)
+            generateSpawnPosition |> Random.filter (isSafeNewPosition numberOfPlayers existingPositions)
     in
     Random.map2
         (\generatedPosition generatedAngle ->
@@ -94,7 +94,7 @@ generatePlayer numberOfPlayers existingPositions config =
             }
         )
         safeSpawnPosition
-        spawnAngle
+        generateSpawnAngle
 
 
 init : () -> ( Model, Cmd Msg )
@@ -136,8 +136,8 @@ spawnArea =
     ( topLeft, bottomRight )
 
 
-spawnPosition : Random.Generator Position
-spawnPosition =
+generateSpawnPosition : Random.Generator Position
+generateSpawnPosition =
     let
         ( ( left, top ), ( right, bottom ) ) =
             spawnArea
@@ -145,8 +145,8 @@ spawnPosition =
     Random.pair (Random.float left right) (Random.float top bottom)
 
 
-spawnAngle : Random.Generator Angle
-spawnAngle =
+generateSpawnAngle : Random.Generator Angle
+generateSpawnAngle =
     Random.float (-pi / 2) (pi / 2) |> Random.map Angle
 
 
