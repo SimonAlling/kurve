@@ -7,6 +7,7 @@ import Random.Extra as Random
 import Set exposing (Set(..))
 import Time
 import Types.Angle as Angle exposing (Angle(..))
+import Types.Distance as Distance exposing (Distance(..))
 import Types.Player as Player exposing (Player)
 import Types.Radius as Radius exposing (Radius(..))
 import Types.Speed as Speed exposing (Speed(..))
@@ -87,10 +88,19 @@ generatePlayer numberOfPlayers existingPositions config =
     in
     Random.map2
         (\generatedPosition generatedAngle ->
+            let
+                generateHoleStatus =
+                    Random.map (distanceToTicks Config.speed >> Player.Unholy) generateHoleSpacing
+
+                ( generatedHoleStatus, steppedSeed ) =
+                    Random.step generateHoleStatus <| Random.initialSeed 42
+            in
             { config = config
             , position = generatedPosition
             , direction = generatedAngle
             , status = Player.Alive
+            , holeStatus = generatedHoleStatus
+            , holeSeed = steppedSeed
             }
         )
         safeSpawnPosition
@@ -150,6 +160,16 @@ generateSpawnAngle =
     Random.float (-pi / 2) (pi / 2) |> Random.map Angle
 
 
+generateHoleSpacing : Random.Generator Distance
+generateHoleSpacing =
+    Distance.generate Config.holes.minInterval Config.holes.maxInterval
+
+
+generateHoleSize : Random.Generator Distance
+generateHoleSize =
+    Distance.generate Config.holes.minSize Config.holes.maxSize
+
+
 type Msg
     = Tick Time.Posix
     | KeyWasPressed String
@@ -161,8 +181,13 @@ computedAngleChange =
     Angle (Speed.toFloat Config.speed / (Tickrate.toFloat Config.tickrate * Radius.toFloat Config.turningRadius))
 
 
-evaluateMove : DrawingPosition -> List DrawingPosition -> Set Pixel -> ( List DrawingPosition, Player.Status )
-evaluateMove startingPoint positionsToCheck occupiedPixels =
+distanceToTicks : Speed -> Distance -> Int
+distanceToTicks speed distance =
+    round <| Tickrate.toFloat Config.tickrate * Distance.toFloat distance / Speed.toFloat speed
+
+
+evaluateMove : DrawingPosition -> List DrawingPosition -> Set Pixel -> Player.HoleStatus -> ( List DrawingPosition, Player.Status )
+evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
     let
         checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Player.Status )
         checkPositions checked lastChecked remaining =
@@ -194,10 +219,34 @@ evaluateMove startingPoint positionsToCheck occupiedPixels =
 
                     else
                         checkPositions (current :: checked) current rest
+
+        isHoly =
+            case holeStatus of
+                Player.Holy _ ->
+                    True
+
+                Player.Unholy _ ->
+                    False
+
+        ( checkedPositionsReversed, evaluatedStatus ) =
+            checkPositions [] startingPoint positionsToCheck
+
+        positionsToDraw =
+            if isHoly then
+                case evaluatedStatus of
+                    Player.Alive ->
+                        []
+
+                    Player.Dead ->
+                        -- The player's head must always be drawn when they die, even if they are in the middle of a hole.
+                        -- If the player couldn't draw at all in this tick, then the last position where the player could draw before dying (and therefore the one to draw to represent the player's death) is this tick's starting point.
+                        -- Otherwise, the last position where the player could draw is the last checked position before death occurred.
+                        List.singleton <| Maybe.withDefault startingPoint <| List.head checkedPositionsReversed
+
+            else
+                checkedPositionsReversed
     in
-    checkPositions [] startingPoint positionsToCheck
-        -- The list was built in reverse order.
-        |> Tuple.mapFirst List.reverse
+    ( positionsToDraw |> List.reverse, evaluatedStatus )
 
 
 updatePlayer : Set String -> Set Pixel -> Player -> ( List DrawingPosition, Player )
@@ -245,14 +294,44 @@ updatePlayer pressedKeys occupiedPixels player =
                 (World.drawingPosition player.position)
                 (World.desiredDrawingPositions player.position newPosition)
                 occupiedPixels
+                player.holeStatus
+
+        ( newHoleStatus, newSeed ) =
+            updateHoleStatus Config.speed player.holeSeed player.holeStatus
     in
     ( confirmedDrawingPositions
     , { player
         | position = newPosition
         , direction = newDirection
         , status = newStatus
+        , holeStatus = newHoleStatus
+        , holeSeed = newSeed
       }
     )
+
+
+updateHoleStatus : Speed -> Random.Seed -> Player.HoleStatus -> ( Player.HoleStatus, Random.Seed )
+updateHoleStatus speed seed holeStatus =
+    case holeStatus of
+        Player.Holy 0 ->
+            let
+                ( distanceToNextHole, newSeed ) =
+                    Random.step generateHoleSpacing seed
+            in
+            ( Player.Unholy (distanceToTicks speed distanceToNextHole), newSeed )
+
+        Player.Holy ticksLeft ->
+            ( Player.Holy (ticksLeft - 1), seed )
+
+        Player.Unholy 0 ->
+            let
+                ( holeSize, newSeed ) =
+                    Random.step generateHoleSize seed
+            in
+            ( Player.Holy (distanceToTicks speed holeSize), newSeed )
+
+        Player.Unholy ticksLeft ->
+            ( Player.Unholy (ticksLeft - 1), seed )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

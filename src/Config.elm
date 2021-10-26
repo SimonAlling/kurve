@@ -2,6 +2,7 @@ module Config exposing (..)
 
 import Set exposing (Set)
 import Types.Angle exposing (Angle(..))
+import Types.Distance exposing (Distance(..))
 import Types.Radius exposing (Radius(..))
 import Types.Speed exposing (Speed(..))
 import Types.Thickness exposing (Thickness(..))
@@ -11,6 +12,14 @@ import Types.Tickrate exposing (Tickrate(..))
 type alias PlayerConfig =
     { color : String
     , controls : ( Set String, Set String )
+    }
+
+
+type alias HoleConfig =
+    { minInterval : Distance
+    , maxInterval : Distance
+    , minSize : Distance
+    , maxSize : Distance
     }
 
 
@@ -72,3 +81,12 @@ players =
       , controls = ( Set.fromList [ "ArrowLeft" ], Set.fromList [ "ArrowDown" ] )
       }
     ]
+
+
+holes : HoleConfig
+holes =
+    { minInterval = Distance 90
+    , maxInterval = Distance 300
+    , minSize = Distance 5
+    , maxSize = Distance 9
+    }
