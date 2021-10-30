@@ -344,7 +344,7 @@ update msg model =
         Tick _ ->
             let
                 checkIndividualPlayer : Player -> ( List Player, Set World.Pixel, List ( String, DrawingPosition ) ) -> ( List Player, Set World.Pixel, List ( String, DrawingPosition ) )
-                checkIndividualPlayer player ( players, occupiedPixels, coloredDrawingPositions ) =
+                checkIndividualPlayer player ( checkedPlayers, occupiedPixels, coloredDrawingPositions ) =
                     let
                         ( newPlayerDrawingPositions, checkedPlayer ) =
                             updatePlayer model.pressedKeys occupiedPixels player
@@ -361,10 +361,10 @@ update msg model =
                         previouslyCheckedAndMaybeThisPlayer =
                             case checkedPlayer of
                                 Nothing ->
-                                    players
+                                    checkedPlayers
 
                                 Just p ->
-                                    p :: players
+                                    p :: checkedPlayers
                     in
                     ( previouslyCheckedAndMaybeThisPlayer
                     , occupiedPixelsAfterCheckingThisPlayer
