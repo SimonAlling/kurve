@@ -339,6 +339,7 @@ update msg model =
     case msg of
         Tick _ ->
             let
+                checkIndividualPlayer : Player -> ( List Player, Set World.Pixel, List ( String, DrawingPosition ) ) -> ( List Player, Set World.Pixel, List ( String, DrawingPosition ) )
                 checkIndividualPlayer player ( players, occupiedPixels, coloredDrawingPositions ) =
                     let
                         ( newPlayerDrawingPositions, checkedPlayer ) =
