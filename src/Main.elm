@@ -26,7 +26,7 @@ port onKeyup : (String -> msg) -> Sub msg
 
 
 type alias Model =
-    { players : List Player
+    { livingPlayers : List Player
     , occupiedPixels : Set Pixel
     , pressedKeys : Set String
     }
@@ -98,7 +98,6 @@ generatePlayer numberOfPlayers existingPositions config =
             { config = config
             , position = generatedPosition
             , direction = generatedAngle
-            , status = Player.Alive
             , holeStatus = generatedHoleStatus
             , holeSeed = steppedSeed
             }
@@ -113,7 +112,7 @@ init _ =
         thePlayers =
             Random.step (generatePlayers Config.players) (Random.initialSeed 1337) |> Tuple.first
     in
-    ( { players = thePlayers
+    ( { livingPlayers = thePlayers
       , pressedKeys = Set.empty
       , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty thePlayers
       }
@@ -186,14 +185,14 @@ distanceToTicks speed distance =
     round <| Tickrate.toFloat Config.tickrate * Distance.toFloat distance / Speed.toFloat speed
 
 
-evaluateMove : DrawingPosition -> List DrawingPosition -> Set Pixel -> Player.HoleStatus -> ( List DrawingPosition, Player.Status )
+evaluateMove : DrawingPosition -> List DrawingPosition -> Set Pixel -> Player.HoleStatus -> ( List DrawingPosition, Player.Fate )
 evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
     let
-        checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Player.Status )
+        checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Player.Fate )
         checkPositions checked lastChecked remaining =
             case remaining of
                 [] ->
-                    ( checked, Player.Alive )
+                    ( checked, Player.Lives )
 
                 current :: rest ->
                     let
@@ -215,7 +214,7 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
                             drawsOutsideWorld || (not <| Set.isEmpty <| Set.intersect theHitbox occupiedPixels)
                     in
                     if dies then
-                        ( checked, Player.Dead )
+                        ( checked, Player.Dies )
 
                     else
                         checkPositions (current :: checked) current rest
@@ -234,10 +233,10 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
         positionsToDraw =
             if isHoly then
                 case evaluatedStatus of
-                    Player.Alive ->
+                    Player.Lives ->
                         []
 
-                    Player.Dead ->
+                    Player.Dies ->
                         -- The player's head must always be drawn when they die, even if they are in the middle of a hole.
                         -- If the player couldn't draw at all in this tick, then the last position where the player could draw before dying (and therefore the one to draw to represent the player's death) is this tick's starting point.
                         -- Otherwise, the last position where the player could draw is the last checked position before death occurred.
@@ -249,7 +248,7 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
 
-updatePlayer : Set String -> Set Pixel -> Player -> ( List DrawingPosition, Player )
+updatePlayer : Set String -> Set Pixel -> Player -> ( List DrawingPosition, Maybe Player )
 updatePlayer pressedKeys occupiedPixels player =
     let
         distanceTraveledSinceLastTick =
@@ -289,7 +288,7 @@ updatePlayer pressedKeys occupiedPixels player =
               y - distanceTraveledSinceLastTick * Angle.sin newDirection
             )
 
-        ( confirmedDrawingPositions, newStatus ) =
+        ( confirmedDrawingPositions, fate ) =
             evaluateMove
                 (World.drawingPosition player.position)
                 (World.desiredDrawingPositions player.position newPosition)
@@ -300,13 +299,18 @@ updatePlayer pressedKeys occupiedPixels player =
             updateHoleStatus Config.speed player.holeSeed player.holeStatus
     in
     ( confirmedDrawingPositions
-    , { player
-        | position = newPosition
-        , direction = newDirection
-        , status = newStatus
-        , holeStatus = newHoleStatus
-        , holeSeed = newSeed
-      }
+    , case fate of
+        Player.Lives ->
+            Just
+                { player
+                    | position = newPosition
+                    , direction = newDirection
+                    , holeStatus = newHoleStatus
+                    , holeSeed = newSeed
+                }
+
+        Player.Dies ->
+            Nothing
     )
 
 
@@ -343,12 +347,7 @@ update msg model =
                 checkIndividualPlayer player ( players, occupiedPixels, coloredDrawingPositions ) =
                     let
                         ( newPlayerDrawingPositions, checkedPlayer ) =
-                            case player.status of
-                                Player.Alive ->
-                                    updatePlayer model.pressedKeys occupiedPixels player
-
-                                Player.Dead ->
-                                    ( [], player )
+                            updatePlayer model.pressedKeys occupiedPixels player
 
                         occupiedPixelsAfterCheckingThisPlayer =
                             List.foldr
@@ -358,8 +357,16 @@ update msg model =
 
                         coloredDrawingPositionsAfterCheckingThisPlayer =
                             coloredDrawingPositions ++ List.map (Tuple.pair player.config.color) newPlayerDrawingPositions
+
+                        previouslyCheckedAndMaybeThisPlayer =
+                            case checkedPlayer of
+                                Nothing ->
+                                    players
+
+                                Just p ->
+                                    p :: players
                     in
-                    ( checkedPlayer :: players
+                    ( previouslyCheckedAndMaybeThisPlayer
                     , occupiedPixelsAfterCheckingThisPlayer
                     , coloredDrawingPositionsAfterCheckingThisPlayer
                     )
@@ -368,9 +375,9 @@ update msg model =
                     List.foldr
                         checkIndividualPlayer
                         ( [], model.occupiedPixels, [] )
-                        model.players
+                        model.livingPlayers
             in
-            ( { players = newPlayers
+            ( { livingPlayers = newPlayers
               , occupiedPixels = newOccupiedPixels
               , pressedKeys = model.pressedKeys
               }

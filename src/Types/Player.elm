@@ -1,4 +1,4 @@
-module Types.Player exposing (HoleStatus(..), Player, Status(..))
+module Types.Player exposing (Fate(..), HoleStatus(..), Player)
 
 import Config
 import Random
@@ -11,15 +11,14 @@ type alias Player =
     { config : Config.PlayerConfig
     , position : Position
     , direction : Angle
-    , status : Status
     , holeStatus : HoleStatus
     , holeSeed : Random.Seed
     }
 
 
-type Status
-    = Alive
-    | Dead
+type Fate
+    = Lives
+    | Dies
 
 
 {-| In both cases, the integer represent the number of ticks left in the current state.
