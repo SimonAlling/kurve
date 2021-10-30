@@ -26,9 +26,15 @@ port onKeyup : (String -> msg) -> Sub msg
 
 
 type alias Model =
-    { livingPlayers : List Player
+    { players : Players
     , occupiedPixels : Set Pixel
     , pressedKeys : Set String
+    }
+
+
+type alias Players =
+    { alive : List Player
+    , dead : List Player
     }
 
 
@@ -112,7 +118,7 @@ init _ =
         thePlayers =
             Random.step (generatePlayers Config.players) (Random.initialSeed 1337) |> Tuple.first
     in
-    ( { livingPlayers = thePlayers
+    ( { players = { alive = thePlayers, dead = [] }
       , pressedKeys = Set.empty
       , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty thePlayers
       }
@@ -248,7 +254,7 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
 
-updatePlayer : Set String -> Set Pixel -> Player -> ( List DrawingPosition, Maybe Player )
+updatePlayer : Set String -> Set Pixel -> Player -> ( List DrawingPosition, Player, Player.Fate )
 updatePlayer pressedKeys occupiedPixels player =
     let
         distanceTraveledSinceLastTick =
@@ -299,18 +305,13 @@ updatePlayer pressedKeys occupiedPixels player =
             updateHoleStatus Config.speed player.holeSeed player.holeStatus
     in
     ( confirmedDrawingPositions
-    , case fate of
-        Player.Lives ->
-            Just
-                { player
-                    | position = newPosition
-                    , direction = newDirection
-                    , holeStatus = newHoleStatus
-                    , holeSeed = newSeed
-                }
-
-        Player.Dies ->
-            Nothing
+    , { player
+        | position = newPosition
+        , direction = newDirection
+        , holeStatus = newHoleStatus
+        , holeSeed = newSeed
+      }
+    , fate
     )
 
 
@@ -343,10 +344,17 @@ update msg model =
     case msg of
         Tick _ ->
             let
-                checkIndividualPlayer : Player -> ( List Player, Set World.Pixel, List ( String, DrawingPosition ) ) -> ( List Player, Set World.Pixel, List ( String, DrawingPosition ) )
+                checkIndividualPlayer :
+                    Player
+                    -> ( Players, Set World.Pixel, List ( String, DrawingPosition ) )
+                    ->
+                        ( Players
+                        , Set World.Pixel
+                        , List ( String, DrawingPosition )
+                        )
                 checkIndividualPlayer player ( checkedPlayers, occupiedPixels, coloredDrawingPositions ) =
                     let
-                        ( newPlayerDrawingPositions, checkedPlayer ) =
+                        ( newPlayerDrawingPositions, checkedPlayer, fate ) =
                             updatePlayer model.pressedKeys occupiedPixels player
 
                         occupiedPixelsAfterCheckingThisPlayer =
@@ -358,15 +366,16 @@ update msg model =
                         coloredDrawingPositionsAfterCheckingThisPlayer =
                             coloredDrawingPositions ++ List.map (Tuple.pair player.config.color) newPlayerDrawingPositions
 
-                        previouslyCheckedAndMaybeThisPlayer =
-                            case checkedPlayer of
-                                Nothing ->
-                                    checkedPlayers
+                        playersAfterCheckingThisPlayer : Players
+                        playersAfterCheckingThisPlayer =
+                            case fate of
+                                Player.Dies ->
+                                    { checkedPlayers | dead = checkedPlayer :: checkedPlayers.dead }
 
-                                Just p ->
-                                    p :: checkedPlayers
+                                Player.Lives ->
+                                    { checkedPlayers | alive = checkedPlayer :: checkedPlayers.alive }
                     in
-                    ( previouslyCheckedAndMaybeThisPlayer
+                    ( playersAfterCheckingThisPlayer
                     , occupiedPixelsAfterCheckingThisPlayer
                     , coloredDrawingPositionsAfterCheckingThisPlayer
                     )
@@ -374,10 +383,15 @@ update msg model =
                 ( newPlayers, newOccupiedPixels, newColoredDrawingPositions ) =
                     List.foldr
                         checkIndividualPlayer
-                        ( [], model.occupiedPixels, [] )
-                        model.livingPlayers
+                        ( { alive = [] -- We start with the empty list because the new one we'll create may not include all the players from the old one.
+                          , dead = model.players.dead -- Dead players, however, will not spring to life again.
+                          }
+                        , model.occupiedPixels
+                        , []
+                        )
+                        model.players.alive
             in
-            ( { livingPlayers = newPlayers
+            ( { players = newPlayers
               , occupiedPixels = newOccupiedPixels
               , pressedKeys = model.pressedKeys
               }
