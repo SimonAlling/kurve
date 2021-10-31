@@ -303,14 +303,17 @@ updatePlayer pressedKeys occupiedPixels player =
 
         ( newHoleStatus, newSeed ) =
             updateHoleStatus Config.speed player.holeSeed player.holeStatus
+
+        newPlayer =
+            { player
+                | position = newPosition
+                , direction = newDirection
+                , holeStatus = newHoleStatus
+                , holeSeed = newSeed
+            }
     in
     ( confirmedDrawingPositions
-    , { player
-        | position = newPosition
-        , direction = newDirection
-        , holeStatus = newHoleStatus
-        , holeSeed = newSeed
-      }
+    , newPlayer
     , fate
     )
 
