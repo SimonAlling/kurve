@@ -64,7 +64,7 @@ isSafeNewPosition numberOfPlayers existingPositions newPosition =
 
 
 isTooCloseFor : Int -> Position -> Position -> Bool
-isTooCloseFor numberOfPlayers ( x1, y1 ) ( x2, y2 ) =
+isTooCloseFor numberOfPlayers point1 point2 =
     let
         desiredMinimumDistance =
             toFloat (Thickness.toInt Config.thickness) + Radius.toFloat Config.turningRadius * Config.desiredMinimumSpawnDistanceTurningRadiusFactor
@@ -79,11 +79,13 @@ isTooCloseFor numberOfPlayers ( x1, y1 ) ( x2, y2 ) =
         -- audacity × total available area > number of players × ( max allowed minimum distance / 2 )² × pi
         maxAllowedMinimumDistance =
             2 * sqrt (Config.spawnProtectionAudacity * availableArea / (toFloat numberOfPlayers * pi))
-
-        distance =
-            sqrt ((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
     in
-    distance < min desiredMinimumDistance maxAllowedMinimumDistance
+    Distance.toFloat (distanceBetween point1 point2) < min desiredMinimumDistance maxAllowedMinimumDistance
+
+
+distanceBetween : Position -> Position -> Distance
+distanceBetween ( x1, y1 ) ( x2, y2 ) =
+    Distance <| sqrt ((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
 
 
 generatePlayer : Int -> List Position -> Config.PlayerConfig -> Random.Generator Player
