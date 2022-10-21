@@ -341,10 +341,14 @@ updateHoleStatus speed seed holeStatus =
 
         Player.Unholy 0 ->
             let
-                ( holeSize, newSeed ) =
+                ( unpaddedHoleSize, newSeed ) =
                     Random.step generateHoleSize seed
+
+                paddedHoleSize =
+                    -- The unpadded hole size refers to the distance between the _edges_ of the drawn squares, but we need the distance between their _centers_.
+                    Distance <| Distance.toFloat unpaddedHoleSize + toFloat (Thickness.toInt Config.thickness)
             in
-            ( Player.Holy (distanceToTicks speed holeSize), newSeed )
+            ( Player.Holy (distanceToTicks speed paddedHoleSize), newSeed )
 
         Player.Unholy ticksLeft ->
             ( Player.Unholy (ticksLeft - 1), seed )
