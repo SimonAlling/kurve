@@ -1,0 +1,10 @@
+{
+    "targets": {
+        "zatacka": {
+            "inputs": [
+                "src/Main.elm"
+            ],
+            "output": "js/kurve.min.js"
+        }
+    }
+}
