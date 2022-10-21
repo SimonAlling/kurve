@@ -48,10 +48,6 @@ export function Renderer(mainCanvas, overlayCanvas) {
         _drawRectangle(context_overlay, left, top, size, size, color);
     }
 
-    function clearSquare_overlay(left, top, size) {
-        _clearRectangle(context_overlay, left, top, size, size);
-    }
-
     function clearRectangle_overlay(left, top, width, height) {
         _clearRectangle(context_overlay, left, top, width, height);
     }
@@ -61,7 +57,6 @@ export function Renderer(mainCanvas, overlayCanvas) {
         clearSquare,
         clearRectangle,
         drawSquare_overlay,
-        clearSquare_overlay,
         clearRectangle_overlay,
         setSize
     };
