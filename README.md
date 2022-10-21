@@ -15,8 +15,6 @@ The game will automatically scale itself up as much as possible; fullscreen is r
 
 ### Preparations
 
-We use [Webpack](https://webpack.github.io) with [Babel](https://babeljs.io) to transpile and pack all JS into one single file, `zatacka.min.js`.
-
 To install the necessary software, first install [Node](https://nodejs.org) and then run
 
     npm install
