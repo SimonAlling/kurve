@@ -125,6 +125,13 @@
         renderer.drawSquare(data.position.leftEdge, data.position.topEdge, data.thickness, data.color)
     })
 
+    app.ports.renderOverlay.subscribe(data => {
+        renderer.drawSquare_overlay(data.position.leftEdge, data.position.topEdge, data.thickness, data.color)
+    })
+
+    app.ports.clearOverlay.subscribe(data => {
+        renderer.clearRectangle_overlay(0, 0, data.width, data.height)
+    })
 
     document.addEventListener("keydown", event => {
         const isDeveloperCommand = (

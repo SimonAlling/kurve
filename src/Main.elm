@@ -19,6 +19,12 @@ import World exposing (DrawingPosition, Pixel, Position)
 port render : { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
+port renderOverlay : { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
+
+
+port clearOverlay : { width : Int, height : Int } -> Cmd msg
+
+
 port onKeydown : (String -> msg) -> Sub msg
 
 
@@ -395,20 +401,36 @@ update msg model =
                         , []
                         )
                         model.players.alive
+
+                bodyDrawingCmds =
+                    newColoredDrawingPositions
+                        |> List.map
+                            (\( color, position ) ->
+                                render
+                                    { position = position
+                                    , thickness = Thickness.toInt Config.thickness
+                                    , color = color
+                                    }
+                            )
+
+                headDrawingCmds =
+                    model.players.alive
+                        |> List.map
+                            (\player ->
+                                renderOverlay
+                                    { position = World.drawingPosition player.position
+                                    , thickness = Thickness.toInt Config.thickness
+                                    , color = player.config.color
+                                    }
+                            )
             in
             ( { players = newPlayers
               , occupiedPixels = newOccupiedPixels
               , pressedKeys = model.pressedKeys
               }
-            , newColoredDrawingPositions
-                |> List.map
-                    (\( color, position ) ->
-                        render
-                            { position = position
-                            , thickness = Thickness.toInt Config.thickness
-                            , color = color
-                            }
-                    )
+            , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
+                :: headDrawingCmds
+                ++ bodyDrawingCmds
                 |> Cmd.batch
             )
 
