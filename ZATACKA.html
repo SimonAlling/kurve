@@ -125,6 +125,10 @@
         renderer.drawSquare(data.position.leftEdge, data.position.topEdge, data.thickness, data.color)
     })
 
+    app.ports.clear.subscribe(data => {
+        renderer.clearRectangle(0, 0, data.width, data.height)
+    })
+
     app.ports.renderOverlay.subscribe(data => {
         renderer.drawSquare_overlay(data.position.leftEdge, data.position.topEdge, data.thickness, data.color)
     })

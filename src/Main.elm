@@ -19,6 +19,9 @@ import World exposing (DrawingPosition, Pixel, Position)
 port render : { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
+port clear : { width : Int, height : Int } -> Cmd msg
+
+
 port renderOverlay : { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
@@ -116,24 +119,32 @@ generatePlayer numberOfPlayers existingPositions config =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
+    newRound Set.empty (Random.initialSeed 1337)
+
+
+newRound : Set String -> Random.Seed -> ( Model, Cmd Msg )
+newRound pressedKeys seed =
     let
-        ( thePlayers, seed ) =
-            Random.step (generatePlayers Config.players) (Random.initialSeed 1337)
+        ( thePlayers, newSeed ) =
+            Random.step (generatePlayers Config.players) seed
     in
     ( { players = { alive = thePlayers, dead = [] }
-      , pressedKeys = Set.empty
+      , pressedKeys = pressedKeys
       , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty thePlayers
-      , seed = seed
+      , seed = newSeed
       }
-    , thePlayers
-        |> List.map
-            (\player ->
-                render
-                    { position = World.drawingPosition player.position
-                    , thickness = Thickness.toInt Config.thickness
-                    , color = player.config.color
-                    }
-            )
+    , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
+        :: clear { width = Config.worldWidth, height = Config.worldHeight }
+        :: (thePlayers
+                |> List.map
+                    (\player ->
+                        render
+                            { position = World.drawingPosition player.position
+                            , thickness = Thickness.toInt Config.thickness
+                            , color = player.config.color
+                            }
+                    )
+           )
         |> Cmd.batch
     )
 
@@ -442,9 +453,13 @@ update msg model =
             )
 
         KeyWasPressed key ->
-            ( { model | pressedKeys = Set.insert key model.pressedKeys }
-            , Cmd.none
-            )
+            if key == " " && roundIsOver model.players then
+                newRound model.pressedKeys model.seed
+
+            else
+                ( { model | pressedKeys = Set.insert key model.pressedKeys }
+                , Cmd.none
+                )
 
         KeyWasReleased key ->
             ( { model | pressedKeys = Set.remove key model.pressedKeys }
