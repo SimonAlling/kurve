@@ -452,10 +452,26 @@ update msg model =
             )
 
 
+roundIsOver : Players -> Bool
+roundIsOver players =
+    let
+        someoneHasWonInMultiPlayer =
+            List.length players.alive == 1 && not (List.isEmpty players.dead)
+
+        playerHasDiedInSinglePlayer =
+            List.isEmpty players.alive
+    in
+    someoneHasWonInMultiPlayer || playerHasDiedInSinglePlayer
+
+
 subscriptions : Model -> Sub Msg
-subscriptions _ =
+subscriptions model =
     Sub.batch
-        [ Time.every (1000 / Tickrate.toFloat Config.tickrate) Tick
+        [ if roundIsOver model.players then
+            Sub.none
+
+          else
+            Time.every (1000 / Tickrate.toFloat Config.tickrate) Tick
         , onKeydown KeyWasPressed
         , onKeyup KeyWasReleased
         ]
