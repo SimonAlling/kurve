@@ -542,10 +542,10 @@ update msg model =
             case model.mode of
                 BetweenRounds { pressedKeys } ->
                     case key of
-                        " " ->
+                        "Space" ->
                             startLiveRound model.seed pressedKeys
 
-                        "r" ->
+                        "KeyR" ->
                             startReplayRound
                                 model.roundHistory.initialState.seed
                                 model.roundHistory.initialState.pressedKeys

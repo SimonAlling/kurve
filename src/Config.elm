@@ -75,7 +75,7 @@ worldHeight =
 players : List PlayerConfig
 players =
     [ { color = "red"
-      , controls = ( Set.fromList [ "1" ], Set.fromList [ "q" ] )
+      , controls = ( Set.fromList [ "Digit1" ], Set.fromList [ "KeyQ" ] )
       }
     , { color = "green"
       , controls = ( Set.fromList [ "ArrowLeft" ], Set.fromList [ "ArrowDown" ] )

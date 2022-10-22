@@ -149,12 +149,12 @@
             event.preventDefault()
         }
         if (!event.repeat) {
-            app.ports.onKeydown.send(event.key)
+            app.ports.onKeydown.send(event.code)
         }
     })
     document.addEventListener("keyup", event => {
         // Traditionally we never prevented default on keyup.
-        app.ports.onKeyup.send(event.key)
+        app.ports.onKeyup.send(event.code)
     })
     </script>
 
