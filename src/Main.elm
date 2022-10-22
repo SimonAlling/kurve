@@ -202,7 +202,7 @@ computeDistanceBetweenCenters distanceBetweenEdges =
 
 
 type Msg
-    = Tick Time.Posix
+    = Tick
     | KeyWasPressed String
     | KeyWasReleased String
 
@@ -366,7 +366,7 @@ updateHoleStatus speed holeStatus =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Tick _ ->
+        Tick ->
             let
                 checkIndividualPlayer :
                     Player
@@ -486,7 +486,7 @@ subscriptions model =
             Sub.none
 
           else
-            Time.every (1000 / Tickrate.toFloat Config.tickrate) Tick
+            Time.every (1000 / Tickrate.toFloat Config.tickrate) (always Tick)
         , onKeydown KeyWasPressed
         , onKeyup KeyWasReleased
         ]
