@@ -581,34 +581,34 @@ updatePressedKeys direction =
 
 
 handleKeyboardInteraction : KeyDirection -> String -> Model -> Model
-handleKeyboardInteraction direction key ({ currentRound } as model) =
+handleKeyboardInteraction direction key model =
     case model.mode of
         Replay _ ->
             model
 
         Live { pressedKeys } ->
-            let
-                { history } =
-                    currentRound
-            in
             { model
                 | mode = Live { pressedKeys = updatePressedKeys direction key pressedKeys }
-                , currentRound =
-                    { currentRound
-                        | history =
-                            { history
-                                | reversedKeyboardInteractions =
-                                    { happenedAfterTick = currentRound.tick
-                                    , direction = direction
-                                    , key = key
-                                    }
-                                        :: history.reversedKeyboardInteractions
-                            }
-                    }
+                , currentRound = recordKeyboardInteraction direction key model.currentRound
             }
 
         BetweenRounds { pressedKeys } ->
             { model | mode = BetweenRounds { pressedKeys = updatePressedKeys direction key pressedKeys } }
+
+
+recordKeyboardInteraction : KeyDirection -> String -> Round -> Round
+recordKeyboardInteraction direction key ({ history } as currentRound) =
+    { currentRound
+        | history =
+            { history
+                | reversedKeyboardInteractions =
+                    { happenedAfterTick = currentRound.tick
+                    , direction = direction
+                    , key = key
+                    }
+                        :: history.reversedKeyboardInteractions
+            }
+    }
 
 
 roundIsOver : Players -> Bool
