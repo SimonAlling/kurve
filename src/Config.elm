@@ -80,6 +80,12 @@ players =
     , { color = "green"
       , controls = ( Set.fromList [ "ArrowLeft" ], Set.fromList [ "ArrowDown" ] )
       }
+    , { color = "orange"
+      , controls = ( Set.fromList [ "KeyM" ], Set.fromList [ "Comma" ] )
+      }
+    , { color = "yellow"
+      , controls = ( Set.fromList [ "KeyZ" ], Set.fromList [ "KeyX" ] )
+      }
     ]
 
 
