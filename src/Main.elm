@@ -203,8 +203,12 @@ computeDistanceBetweenCenters distanceBetweenEdges =
 
 type Msg
     = Tick
-    | KeyWasPressed String
-    | KeyWasReleased String
+    | KeyboardUsed KeyDirection String
+
+
+type KeyDirection
+    = Up
+    | Down
 
 
 computedAngleChange : Angle
@@ -452,7 +456,7 @@ update msg model =
                 |> Cmd.batch
             )
 
-        KeyWasPressed key ->
+        KeyboardUsed Down key ->
             if key == " " && roundIsOver model.players then
                 newRound model.pressedKeys model.seed
 
@@ -461,7 +465,7 @@ update msg model =
                 , Cmd.none
                 )
 
-        KeyWasReleased key ->
+        KeyboardUsed Up key ->
             ( { model | pressedKeys = Set.remove key model.pressedKeys }
             , Cmd.none
             )
@@ -487,8 +491,8 @@ subscriptions model =
 
           else
             Time.every (1000 / Tickrate.toFloat Config.tickrate) (always Tick)
-        , onKeydown KeyWasPressed
-        , onKeyup KeyWasReleased
+        , onKeydown (KeyboardUsed Down)
+        , onKeyup (KeyboardUsed Up)
         ]
 
 
