@@ -35,11 +35,16 @@ port onKeyup : (String -> msg) -> Sub msg
 
 
 type alias Model =
-    { players : Players
-    , occupiedPixels : Set Pixel
+    { currentRound : Round
     , mode : Mode
     , seed : Random.Seed
-    , roundHistory : RoundHistory
+    }
+
+
+type alias Round =
+    { players : Players
+    , occupiedPixels : Set Pixel
+    , history : RoundHistory
     , tick : Int
     }
 
@@ -165,18 +170,20 @@ startRoundHelper seed mode pressedKeys reversedKeyboardInteractions =
         ( thePlayers, newSeed ) =
             Random.step (generatePlayers Config.players) seed
     in
-    ( { players = { alive = thePlayers, dead = [] }
-      , mode = mode
-      , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty thePlayers
-      , seed = newSeed
-      , roundHistory =
-            { initialState =
-                { seed = seed
-                , pressedKeys = pressedKeys
+    ( { currentRound =
+            { players = { alive = thePlayers, dead = [] }
+            , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty thePlayers
+            , history =
+                { initialState =
+                    { seed = seed
+                    , pressedKeys = pressedKeys
+                    }
+                , reversedKeyboardInteractions = reversedKeyboardInteractions
                 }
-            , reversedKeyboardInteractions = reversedKeyboardInteractions
+            , tick = 0
             }
-      , tick = 0
+      , mode = mode
+      , seed = newSeed
       }
     , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
         :: clear { width = Config.worldWidth, height = Config.worldHeight }
@@ -420,7 +427,7 @@ considerRecentKeyPresses history previousTick previousPressedKeys =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg ({ currentRound } as model) =
     case msg of
         Tick ->
             let
@@ -430,7 +437,7 @@ update msg model =
                             pressedKeys
 
                         Replay { emulatedPressedKeys } ->
-                            considerRecentKeyPresses model.roundHistory model.tick emulatedPressedKeys
+                            considerRecentKeyPresses currentRound.history currentRound.tick emulatedPressedKeys
 
                         BetweenRounds { pressedKeys } ->
                             pressedKeys
@@ -476,12 +483,12 @@ update msg model =
                         checkIndividualPlayer
                         ( Random.constant
                             { alive = [] -- We start with the empty list because the new one we'll create may not include all the players from the old one.
-                            , dead = model.players.dead -- Dead players, however, will not spring to life again.
+                            , dead = currentRound.players.dead -- Dead players, however, will not spring to life again.
                             }
-                        , model.occupiedPixels
+                        , currentRound.occupiedPixels
                         , []
                         )
-                        model.players.alive
+                        currentRound.players.alive
 
                 ( newPlayers, newSeed ) =
                     Random.step newPlayersGenerator model.seed
@@ -498,7 +505,7 @@ update msg model =
                             )
 
                 headDrawingCmds =
-                    model.players.alive
+                    model.currentRound.players.alive
                         |> List.map
                             (\player ->
                                 renderOverlay
@@ -508,8 +515,12 @@ update msg model =
                                     }
                             )
             in
-            ( { players = newPlayers
-              , occupiedPixels = newOccupiedPixels
+            ( { currentRound =
+                    { players = newPlayers
+                    , occupiedPixels = newOccupiedPixels
+                    , history = model.currentRound.history
+                    , tick = model.currentRound.tick + 1
+                    }
               , mode =
                     case model.mode of
                         Live { pressedKeys } ->
@@ -529,8 +540,6 @@ update msg model =
                         BetweenRounds _ ->
                             model.mode
               , seed = newSeed
-              , roundHistory = model.roundHistory
-              , tick = model.tick + 1
               }
             , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
                 :: headDrawingCmds
@@ -547,9 +556,9 @@ update msg model =
 
                         "KeyR" ->
                             startReplayRound
-                                model.roundHistory.initialState.seed
-                                model.roundHistory.initialState.pressedKeys
-                                model.roundHistory.reversedKeyboardInteractions
+                                currentRound.history.initialState.seed
+                                currentRound.history.initialState.pressedKeys
+                                currentRound.history.reversedKeyboardInteractions
 
                         _ ->
                             ( handleKeyboardInteraction Down key model, Cmd.none )
@@ -572,22 +581,29 @@ updatePressedKeys direction =
 
 
 handleKeyboardInteraction : KeyDirection -> String -> Model -> Model
-handleKeyboardInteraction direction key ({ roundHistory } as model) =
+handleKeyboardInteraction direction key ({ currentRound } as model) =
     case model.mode of
         Replay _ ->
             model
 
         Live { pressedKeys } ->
+            let
+                { history } =
+                    currentRound
+            in
             { model
                 | mode = Live { pressedKeys = updatePressedKeys direction key pressedKeys }
-                , roundHistory =
-                    { roundHistory
-                        | reversedKeyboardInteractions =
-                            { happenedAfterTick = model.tick
-                            , direction = direction
-                            , key = key
+                , currentRound =
+                    { currentRound
+                        | history =
+                            { history
+                                | reversedKeyboardInteractions =
+                                    { happenedAfterTick = currentRound.tick
+                                    , direction = direction
+                                    , key = key
+                                    }
+                                        :: history.reversedKeyboardInteractions
                             }
-                                :: roundHistory.reversedKeyboardInteractions
                     }
             }
 
