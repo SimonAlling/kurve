@@ -39,8 +39,21 @@ type alias Model =
     , occupiedPixels : Set Pixel
     , pressedKeys : Set String
     , seed : Random.Seed
-    , reversedRoundHistory : List KeyboardInteraction
+    , roundHistory : RoundHistory
+    , isReplaying : Bool
     , tick : Int
+    }
+
+
+type alias RoundInitialState =
+    { seed : Random.Seed
+    , pressedKeys : Set String
+    }
+
+
+type alias RoundHistory =
+    { initialState : RoundInitialState
+    , reversedKeyboardInteractions : List KeyboardInteraction
     }
 
 
@@ -128,20 +141,21 @@ generatePlayer numberOfPlayers existingPositions config =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    newRound Set.empty (Random.initialSeed 1337)
+    startRound False { initialState = { pressedKeys = Set.empty, seed = Random.initialSeed 1337 }, reversedKeyboardInteractions = [] }
 
 
-newRound : Set String -> Random.Seed -> ( Model, Cmd Msg )
-newRound pressedKeys seed =
+startRound : Bool -> RoundHistory -> ( Model, Cmd Msg )
+startRound isReplay history =
     let
         ( thePlayers, newSeed ) =
-            Random.step (generatePlayers Config.players) seed
+            Random.step (generatePlayers Config.players) history.initialState.seed
     in
     ( { players = { alive = thePlayers, dead = [] }
-      , pressedKeys = pressedKeys
+      , pressedKeys = history.initialState.pressedKeys
       , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty thePlayers
       , seed = newSeed
-      , reversedRoundHistory = []
+      , roundHistory = history
+      , isReplaying = isReplay
       , tick = 0
       }
     , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
@@ -378,11 +392,25 @@ updateHoleStatus speed holeStatus =
             Random.constant <| Player.Unholy (ticksLeft - 1)
 
 
+considerRecentKeyPresses : RoundHistory -> Int -> Set String -> Set String
+considerRecentKeyPresses history previousTick previousPressedKeys =
+    history.reversedKeyboardInteractions
+        |> List.filter (\k -> k.happenedAfterTick == previousTick)
+        |> List.foldr (\k -> updatePressedKeys k.direction k.key) previousPressedKeys
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Tick ->
             let
+                pressedKeys =
+                    if model.isReplaying then
+                        considerRecentKeyPresses model.roundHistory model.tick model.pressedKeys
+
+                    else
+                        model.pressedKeys
+
                 checkIndividualPlayer :
                     Player
                     -> ( Random.Generator Players, Set World.Pixel, List ( String, DrawingPosition ) )
@@ -394,7 +422,7 @@ update msg model =
                 checkIndividualPlayer player ( checkedPlayersGenerator, occupiedPixels, coloredDrawingPositions ) =
                     let
                         ( newPlayerDrawingPositions, checkedPlayerGenerator, fate ) =
-                            updatePlayer model.pressedKeys occupiedPixels player
+                            updatePlayer pressedKeys occupiedPixels player
 
                         occupiedPixelsAfterCheckingThisPlayer =
                             List.foldr
@@ -455,12 +483,23 @@ update msg model =
                                     , color = player.config.color
                                     }
                             )
+
+                theRoundIsOver =
+                    roundIsOver newPlayers
             in
             ( { players = newPlayers
               , occupiedPixels = newOccupiedPixels
-              , pressedKeys = model.pressedKeys
+              , pressedKeys =
+                    if model.isReplaying && theRoundIsOver then
+                        -- Recorded key presses should not affect the next live round.
+                        Set.empty
+
+                    else
+                        pressedKeys
               , seed = newSeed
-              , reversedRoundHistory = model.reversedRoundHistory
+              , roundHistory = model.roundHistory
+              , isReplaying =
+                    not theRoundIsOver && model.isReplaying
               , tick = model.tick + 1
               }
             , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
@@ -470,8 +509,16 @@ update msg model =
             )
 
         KeyboardUsed Down key ->
-            if key == " " && roundIsOver model.players then
-                newRound model.pressedKeys model.seed
+            if roundIsOver model.players then
+                case key of
+                    " " ->
+                        startRound False { initialState = { pressedKeys = model.pressedKeys, seed = model.seed }, reversedKeyboardInteractions = [] }
+
+                    "r" ->
+                        startRound True model.roundHistory
+
+                    _ ->
+                        ( recordKeyboardInteraction Down key model, Cmd.none )
 
             else
                 ( recordKeyboardInteraction Down key model, Cmd.none )
@@ -480,26 +527,34 @@ update msg model =
             ( recordKeyboardInteraction Up key model, Cmd.none )
 
 
-recordKeyboardInteraction : KeyDirection -> String -> Model -> Model
-recordKeyboardInteraction direction key model =
-    let
-        updateSet =
-            case direction of
-                Down ->
-                    Set.insert
+updatePressedKeys : KeyDirection -> String -> Set String -> Set String
+updatePressedKeys direction =
+    case direction of
+        Down ->
+            Set.insert
 
-                Up ->
-                    Set.remove
-    in
-    { model
-        | pressedKeys = updateSet key model.pressedKeys
-        , reversedRoundHistory =
-            { happenedAfterTick = model.tick
-            , direction = direction
-            , key = key
-            }
-                :: model.reversedRoundHistory
-    }
+        Up ->
+            Set.remove
+
+
+recordKeyboardInteraction : KeyDirection -> String -> Model -> Model
+recordKeyboardInteraction direction key ({ roundHistory } as model) =
+    if model.isReplaying then
+        model
+
+    else
+        { model
+            | pressedKeys = updatePressedKeys direction key model.pressedKeys
+            , roundHistory =
+                { roundHistory
+                    | reversedKeyboardInteractions =
+                        { happenedAfterTick = model.tick
+                        , direction = direction
+                        , key = key
+                        }
+                            :: roundHistory.reversedKeyboardInteractions
+                }
+        }
 
 
 roundIsOver : Players -> Bool
