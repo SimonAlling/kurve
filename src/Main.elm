@@ -183,6 +183,13 @@ generateHoleSize =
     Distance.generate Config.holes.minSize Config.holes.maxSize
 
 
+{-| Takes the distance between the _edges_ of two drawn squares and returns the distance between their _centers_.
+-}
+computeDistanceBetweenCenters : Distance -> Distance
+computeDistanceBetweenCenters distanceBetweenEdges =
+    Distance <| Distance.toFloat distanceBetweenEdges + toFloat (Thickness.toInt Config.thickness)
+
+
 type Msg
     = Tick Time.Posix
     | KeyWasPressed String
@@ -343,12 +350,8 @@ updateHoleStatus speed seed holeStatus =
             let
                 ( unpaddedHoleSize, newSeed ) =
                     Random.step generateHoleSize seed
-
-                paddedHoleSize =
-                    -- The unpadded hole size refers to the distance between the _edges_ of the drawn squares, but we need the distance between their _centers_.
-                    Distance <| Distance.toFloat unpaddedHoleSize + toFloat (Thickness.toInt Config.thickness)
             in
-            ( Player.Holy (distanceToTicks speed paddedHoleSize), newSeed )
+            ( Player.Holy (distanceToTicks speed (computeDistanceBetweenCenters unpaddedHoleSize)), newSeed )
 
         Player.Unholy ticksLeft ->
             ( Player.Unholy (ticksLeft - 1), seed )
