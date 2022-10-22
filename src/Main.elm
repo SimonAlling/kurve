@@ -552,13 +552,13 @@ update msg model =
                                 model.roundHistory.reversedKeyboardInteractions
 
                         _ ->
-                            ( recordKeyboardInteraction Down key model, Cmd.none )
+                            ( handleKeyboardInteraction Down key model, Cmd.none )
 
                 _ ->
-                    ( recordKeyboardInteraction Down key model, Cmd.none )
+                    ( handleKeyboardInteraction Down key model, Cmd.none )
 
         KeyboardUsed Up key ->
-            ( recordKeyboardInteraction Up key model, Cmd.none )
+            ( handleKeyboardInteraction Up key model, Cmd.none )
 
 
 updatePressedKeys : KeyDirection -> String -> Set String -> Set String
@@ -571,8 +571,8 @@ updatePressedKeys direction =
             Set.remove
 
 
-recordKeyboardInteraction : KeyDirection -> String -> Model -> Model
-recordKeyboardInteraction direction key ({ roundHistory } as model) =
+handleKeyboardInteraction : KeyDirection -> String -> Model -> Model
+handleKeyboardInteraction direction key ({ roundHistory } as model) =
     case model.mode of
         Replay _ ->
             model
