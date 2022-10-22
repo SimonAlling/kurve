@@ -148,7 +148,9 @@
         if (!isDeveloperCommand) {
             event.preventDefault()
         }
-        app.ports.onKeydown.send(event.key)
+        if (!event.repeat) {
+            app.ports.onKeydown.send(event.key)
+        }
     })
     document.addEventListener("keyup", () => {
         // Traditionally we never prevented default on keyup.
