@@ -39,12 +39,21 @@ type alias Model =
     , occupiedPixels : Set Pixel
     , pressedKeys : Set String
     , seed : Random.Seed
+    , reversedRoundHistory : List KeyboardInteraction
+    , tick : Int
     }
 
 
 type alias Players =
     { alive : List Player
     , dead : List Player
+    }
+
+
+type alias KeyboardInteraction =
+    { happenedAfterTick : Int
+    , direction : KeyDirection
+    , key : String
     }
 
 
@@ -132,6 +141,8 @@ newRound pressedKeys seed =
       , pressedKeys = pressedKeys
       , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty thePlayers
       , seed = newSeed
+      , reversedRoundHistory = []
+      , tick = 0
       }
     , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
         :: clear { width = Config.worldWidth, height = Config.worldHeight }
@@ -449,6 +460,8 @@ update msg model =
               , occupiedPixels = newOccupiedPixels
               , pressedKeys = model.pressedKeys
               , seed = newSeed
+              , reversedRoundHistory = model.reversedRoundHistory
+              , tick = model.tick + 1
               }
             , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
                 :: headDrawingCmds
@@ -461,14 +474,32 @@ update msg model =
                 newRound model.pressedKeys model.seed
 
             else
-                ( { model | pressedKeys = Set.insert key model.pressedKeys }
-                , Cmd.none
-                )
+                ( recordKeyboardInteraction Down key model, Cmd.none )
 
         KeyboardUsed Up key ->
-            ( { model | pressedKeys = Set.remove key model.pressedKeys }
-            , Cmd.none
-            )
+            ( recordKeyboardInteraction Up key model, Cmd.none )
+
+
+recordKeyboardInteraction : KeyDirection -> String -> Model -> Model
+recordKeyboardInteraction direction key model =
+    let
+        updateSet =
+            case direction of
+                Down ->
+                    Set.insert
+
+                Up ->
+                    Set.remove
+    in
+    { model
+        | pressedKeys = updateSet key model.pressedKeys
+        , reversedRoundHistory =
+            { happenedAfterTick = model.tick
+            , direction = direction
+            , key = key
+            }
+                :: model.reversedRoundHistory
+    }
 
 
 roundIsOver : Players -> Bool
