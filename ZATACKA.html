@@ -152,7 +152,7 @@
             app.ports.onKeydown.send(event.key)
         }
     })
-    document.addEventListener("keyup", () => {
+    document.addEventListener("keyup", event => {
         // Traditionally we never prevented default on keyup.
         app.ports.onKeyup.send(event.key)
     })
