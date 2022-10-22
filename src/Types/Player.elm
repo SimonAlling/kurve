@@ -1,7 +1,6 @@
 module Types.Player exposing (Fate(..), HoleStatus(..), Player)
 
 import Config
-import Random
 import Set exposing (Set(..))
 import Types.Angle exposing (Angle(..))
 import World exposing (Position)
@@ -12,7 +11,6 @@ type alias Player =
     , position : Position
     , direction : Angle
     , holeStatus : HoleStatus
-    , holeSeed : Random.Seed
     }
 
 

@@ -35,6 +35,7 @@ type alias Model =
     { players : Players
     , occupiedPixels : Set Pixel
     , pressedKeys : Set String
+    , seed : Random.Seed
     }
 
 
@@ -100,35 +101,29 @@ generatePlayer numberOfPlayers existingPositions config =
         safeSpawnPosition =
             generateSpawnPosition |> Random.filter (isSafeNewPosition numberOfPlayers existingPositions)
     in
-    Random.map2
-        (\generatedPosition generatedAngle ->
-            let
-                generateHoleStatus =
-                    Random.map (distanceToTicks Config.speed >> Player.Unholy) generateHoleSpacing
-
-                ( generatedHoleStatus, steppedSeed ) =
-                    Random.step generateHoleStatus <| Random.initialSeed 42
-            in
+    Random.map3
+        (\generatedPosition generatedAngle generatedHoleStatus ->
             { config = config
             , position = generatedPosition
             , direction = generatedAngle
             , holeStatus = generatedHoleStatus
-            , holeSeed = steppedSeed
             }
         )
         safeSpawnPosition
         generateSpawnAngle
+        generateInitialHoleStatus
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
     let
-        thePlayers =
-            Random.step (generatePlayers Config.players) (Random.initialSeed 1337) |> Tuple.first
+        ( thePlayers, seed ) =
+            Random.step (generatePlayers Config.players) (Random.initialSeed 1337)
     in
     ( { players = { alive = thePlayers, dead = [] }
       , pressedKeys = Set.empty
       , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty thePlayers
+      , seed = seed
       }
     , thePlayers
         |> List.map
@@ -181,6 +176,11 @@ generateHoleSpacing =
 generateHoleSize : Random.Generator Distance
 generateHoleSize =
     Distance.generate Config.holes.minSize Config.holes.maxSize
+
+
+generateInitialHoleStatus : Random.Generator Player.HoleStatus
+generateInitialHoleStatus =
+    generateHoleSpacing |> Random.map (distanceToTicks Config.speed >> Player.Unholy)
 
 
 {-| Takes the distance between the _edges_ of two drawn squares and returns the distance between their _centers_.
@@ -269,7 +269,7 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
 
-updatePlayer : Set String -> Set Pixel -> Player -> ( List DrawingPosition, Player, Player.Fate )
+updatePlayer : Set String -> Set Pixel -> Player -> ( List DrawingPosition, Random.Generator Player, Player.Fate )
 updatePlayer pressedKeys occupiedPixels player =
     let
         distanceTraveledSinceLastTick =
@@ -316,16 +316,19 @@ updatePlayer pressedKeys occupiedPixels player =
                 occupiedPixels
                 player.holeStatus
 
-        ( newHoleStatus, newSeed ) =
-            updateHoleStatus Config.speed player.holeSeed player.holeStatus
+        newHoleStatusGenerator =
+            updateHoleStatus Config.speed player.holeStatus
 
         newPlayer =
-            { player
-                | position = newPosition
-                , direction = newDirection
-                , holeStatus = newHoleStatus
-                , holeSeed = newSeed
-            }
+            newHoleStatusGenerator
+                |> Random.map
+                    (\newHoleStatus ->
+                        { player
+                            | position = newPosition
+                            , direction = newDirection
+                            , holeStatus = newHoleStatus
+                        }
+                    )
     in
     ( confirmedDrawingPositions
     , newPlayer
@@ -333,28 +336,20 @@ updatePlayer pressedKeys occupiedPixels player =
     )
 
 
-updateHoleStatus : Speed -> Random.Seed -> Player.HoleStatus -> ( Player.HoleStatus, Random.Seed )
-updateHoleStatus speed seed holeStatus =
+updateHoleStatus : Speed -> Player.HoleStatus -> Random.Generator Player.HoleStatus
+updateHoleStatus speed holeStatus =
     case holeStatus of
         Player.Holy 0 ->
-            let
-                ( distanceToNextHole, newSeed ) =
-                    Random.step generateHoleSpacing seed
-            in
-            ( Player.Unholy (distanceToTicks speed distanceToNextHole), newSeed )
+            generateHoleSpacing |> Random.map (distanceToTicks speed >> Player.Unholy)
 
         Player.Holy ticksLeft ->
-            ( Player.Holy (ticksLeft - 1), seed )
+            Random.constant <| Player.Holy (ticksLeft - 1)
 
         Player.Unholy 0 ->
-            let
-                ( unpaddedHoleSize, newSeed ) =
-                    Random.step generateHoleSize seed
-            in
-            ( Player.Holy (distanceToTicks speed (computeDistanceBetweenCenters unpaddedHoleSize)), newSeed )
+            generateHoleSize |> Random.map (computeDistanceBetweenCenters >> distanceToTicks speed >> Player.Holy)
 
         Player.Unholy ticksLeft ->
-            ( Player.Unholy (ticksLeft - 1), seed )
+            Random.constant <| Player.Unholy (ticksLeft - 1)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -364,15 +359,15 @@ update msg model =
             let
                 checkIndividualPlayer :
                     Player
-                    -> ( Players, Set World.Pixel, List ( String, DrawingPosition ) )
+                    -> ( Random.Generator Players, Set World.Pixel, List ( String, DrawingPosition ) )
                     ->
-                        ( Players
+                        ( Random.Generator Players
                         , Set World.Pixel
                         , List ( String, DrawingPosition )
                         )
-                checkIndividualPlayer player ( checkedPlayers, occupiedPixels, coloredDrawingPositions ) =
+                checkIndividualPlayer player ( checkedPlayersGenerator, occupiedPixels, coloredDrawingPositions ) =
                     let
-                        ( newPlayerDrawingPositions, checkedPlayer, fate ) =
+                        ( newPlayerDrawingPositions, checkedPlayerGenerator, fate ) =
                             updatePlayer model.pressedKeys occupiedPixels player
 
                         occupiedPixelsAfterCheckingThisPlayer =
@@ -384,8 +379,8 @@ update msg model =
                         coloredDrawingPositionsAfterCheckingThisPlayer =
                             coloredDrawingPositions ++ List.map (Tuple.pair player.config.color) newPlayerDrawingPositions
 
-                        playersAfterCheckingThisPlayer : Players
-                        playersAfterCheckingThisPlayer =
+                        playersAfterCheckingThisPlayer : Player -> Players -> Players
+                        playersAfterCheckingThisPlayer checkedPlayer checkedPlayers =
                             case fate of
                                 Player.Dies ->
                                     { checkedPlayers | dead = checkedPlayer :: checkedPlayers.dead }
@@ -393,21 +388,25 @@ update msg model =
                                 Player.Lives ->
                                     { checkedPlayers | alive = checkedPlayer :: checkedPlayers.alive }
                     in
-                    ( playersAfterCheckingThisPlayer
+                    ( Random.map2 playersAfterCheckingThisPlayer checkedPlayerGenerator checkedPlayersGenerator
                     , occupiedPixelsAfterCheckingThisPlayer
                     , coloredDrawingPositionsAfterCheckingThisPlayer
                     )
 
-                ( newPlayers, newOccupiedPixels, newColoredDrawingPositions ) =
+                ( newPlayersGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
                     List.foldr
                         checkIndividualPlayer
-                        ( { alive = [] -- We start with the empty list because the new one we'll create may not include all the players from the old one.
-                          , dead = model.players.dead -- Dead players, however, will not spring to life again.
-                          }
+                        ( Random.constant
+                            { alive = [] -- We start with the empty list because the new one we'll create may not include all the players from the old one.
+                            , dead = model.players.dead -- Dead players, however, will not spring to life again.
+                            }
                         , model.occupiedPixels
                         , []
                         )
                         model.players.alive
+
+                ( newPlayers, newSeed ) =
+                    Random.step newPlayersGenerator model.seed
 
                 bodyDrawingCmds =
                     newColoredDrawingPositions
@@ -434,6 +433,7 @@ update msg model =
             ( { players = newPlayers
               , occupiedPixels = newOccupiedPixels
               , pressedKeys = model.pressedKeys
+              , seed = newSeed
               }
             , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
                 :: headDrawingCmds
