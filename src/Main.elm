@@ -36,6 +36,7 @@ port onKeyup : (String -> msg) -> Sub msg
 
 type alias Model =
     { currentRound : Round
+    , pressedKeys : Set String
     , mode : Mode
     , seed : Random.Seed
     }
@@ -50,9 +51,9 @@ type alias Round =
 
 
 type Mode
-    = Live { pressedKeys : Set String }
+    = Live
     | Replay { emulatedPressedKeys : Set String }
-    | BetweenRounds { pressedKeys : Set String }
+    | BetweenRounds
 
 
 type alias RoundInitialState =
@@ -156,32 +157,30 @@ init _ =
 
 startLiveRound : Random.Seed -> Set String -> ( Model, Cmd Msg )
 startLiveRound seed pressedKeys =
-    startRoundHelper seed (Live { pressedKeys = pressedKeys }) pressedKeys []
+    startRoundHelper { seed = seed, pressedKeys = pressedKeys } Live pressedKeys []
 
 
-startReplayRound : Random.Seed -> Set String -> List KeyboardInteraction -> ( Model, Cmd Msg )
-startReplayRound seed emulatedPressedKeys reversedKeyboardInteractions =
-    startRoundHelper seed (Replay { emulatedPressedKeys = emulatedPressedKeys }) emulatedPressedKeys reversedKeyboardInteractions
+startReplayRound : RoundInitialState -> Set String -> List KeyboardInteraction -> ( Model, Cmd Msg )
+startReplayRound initialState pressedKeys reversedKeyboardInteractions =
+    startRoundHelper initialState (Replay { emulatedPressedKeys = initialState.pressedKeys }) pressedKeys reversedKeyboardInteractions
 
 
-startRoundHelper : Random.Seed -> Mode -> Set String -> List KeyboardInteraction -> ( Model, Cmd msg )
-startRoundHelper seed mode pressedKeys reversedKeyboardInteractions =
+startRoundHelper : RoundInitialState -> Mode -> Set String -> List KeyboardInteraction -> ( Model, Cmd msg )
+startRoundHelper initialState mode pressedKeys reversedKeyboardInteractions =
     let
         ( thePlayers, newSeed ) =
-            Random.step (generatePlayers Config.players) seed
+            Random.step (generatePlayers Config.players) initialState.seed
     in
     ( { currentRound =
             { players = { alive = thePlayers, dead = [] }
             , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty thePlayers
             , history =
-                { initialState =
-                    { seed = seed
-                    , pressedKeys = pressedKeys
-                    }
+                { initialState = initialState
                 , reversedKeyboardInteractions = reversedKeyboardInteractions
                 }
             , tick = 0
             }
+      , pressedKeys = pressedKeys
       , mode = mode
       , seed = newSeed
       }
@@ -446,19 +445,16 @@ considerRecentKeyPresses history previousTick previousPressedKeys =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ currentRound } as model) =
+update msg ({ currentRound, pressedKeys } as model) =
     case msg of
         Tick ->
             let
                 effectivePressedKeys =
                     case model.mode of
-                        Live { pressedKeys } ->
-                            pressedKeys
-
                         Replay { emulatedPressedKeys } ->
                             considerRecentKeyPresses currentRound.history currentRound.tick emulatedPressedKeys
 
-                        BetweenRounds { pressedKeys } ->
+                        _ ->
                             pressedKeys
 
                 checkIndividualPlayer :
@@ -540,23 +536,24 @@ update msg ({ currentRound } as model) =
                     , history = model.currentRound.history
                     , tick = model.currentRound.tick + 1
                     }
+              , pressedKeys = pressedKeys
               , mode =
                     case model.mode of
-                        Live { pressedKeys } ->
+                        Live ->
                             if roundIsOver newPlayers then
-                                BetweenRounds { pressedKeys = pressedKeys }
+                                BetweenRounds
 
                             else
                                 model.mode
 
                         Replay _ ->
                             if roundIsOver newPlayers then
-                                BetweenRounds { pressedKeys = Set.empty }
+                                BetweenRounds
 
                             else
                                 Replay { emulatedPressedKeys = effectivePressedKeys }
 
-                        BetweenRounds _ ->
+                        BetweenRounds ->
                             model.mode
               , seed = newSeed
               }
@@ -568,15 +565,15 @@ update msg ({ currentRound } as model) =
 
         KeyboardUsed Down key ->
             case model.mode of
-                BetweenRounds { pressedKeys } ->
+                BetweenRounds ->
                     case key of
                         "Space" ->
                             startLiveRound model.seed pressedKeys
 
                         "KeyR" ->
                             startReplayRound
-                                currentRound.history.initialState.seed
-                                currentRound.history.initialState.pressedKeys
+                                currentRound.history.initialState
+                                pressedKeys
                                 currentRound.history.reversedKeyboardInteractions
 
                         _ ->
@@ -601,18 +598,19 @@ updatePressedKeys direction =
 
 handleKeyboardInteraction : KeyDirection -> String -> Model -> Model
 handleKeyboardInteraction direction key model =
+    let
+        modelWithNewPressedKeys =
+            { model | pressedKeys = updatePressedKeys direction key model.pressedKeys }
+    in
     case model.mode of
         Replay _ ->
-            model
+            modelWithNewPressedKeys
 
-        Live { pressedKeys } ->
-            { model
-                | mode = Live { pressedKeys = updatePressedKeys direction key pressedKeys }
-                , currentRound = recordKeyboardInteraction direction key model.currentRound
-            }
+        Live ->
+            { modelWithNewPressedKeys | currentRound = recordKeyboardInteraction direction key model.currentRound }
 
-        BetweenRounds { pressedKeys } ->
-            { model | mode = BetweenRounds { pressedKeys = updatePressedKeys direction key pressedKeys } }
+        BetweenRounds ->
+            modelWithNewPressedKeys
 
 
 recordKeyboardInteraction : KeyDirection -> String -> Round -> Round
@@ -646,7 +644,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ case model.mode of
-            BetweenRounds _ ->
+            BetweenRounds ->
                 Sub.none
 
             _ ->
