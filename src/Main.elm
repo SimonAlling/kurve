@@ -263,6 +263,46 @@ type KeyDirection
     | Down
 
 
+type TurningState
+    = TurningLeft
+    | TurningRight
+    | NotTurning
+
+
+computeAngleChange : TurningState -> Angle
+computeAngleChange turningState =
+    case turningState of
+        TurningLeft ->
+            computedAngleChange
+
+        TurningRight ->
+            Angle.negate computedAngleChange
+
+        NotTurning ->
+            Angle 0
+
+
+computeTurningState : Set String -> Player -> TurningState
+computeTurningState pressedKeys player =
+    let
+        ( leftKeys, rightKeys ) =
+            player.config.controls
+
+        someIsPressed =
+            Set.intersect pressedKeys >> Set.isEmpty >> not
+    in
+    case ( someIsPressed leftKeys, someIsPressed rightKeys ) of
+        ( True, False ) ->
+            TurningLeft
+
+        ( False, True ) ->
+            TurningRight
+
+        _ ->
+            -- Turning left and right at the same time cancel each other out, just like in the original game.
+            NotTurning
+
+
 computedAngleChange : Angle
 computedAngleChange =
     Angle (Speed.toFloat Config.speed / (Tickrate.toFloat Config.tickrate * Radius.toFloat Config.turningRadius))
@@ -342,29 +382,8 @@ updatePlayer pressedKeys occupiedPixels player =
         distanceTraveledSinceLastTick =
             Speed.toFloat Config.speed / Tickrate.toFloat Config.tickrate
 
-        ( leftKeys, rightKeys ) =
-            player.config.controls
-
-        someIsPressed =
-            Set.intersect pressedKeys >> Set.isEmpty >> not
-
-        angleChangeLeft =
-            if someIsPressed leftKeys then
-                computedAngleChange
-
-            else
-                Angle 0
-
-        angleChangeRight =
-            if someIsPressed rightKeys then
-                Angle.negate computedAngleChange
-
-            else
-                Angle 0
-
         newDirection =
-            -- Turning left and right at the same time cancel each other out, just like in the original game.
-            Angle.add player.direction (Angle.add angleChangeLeft angleChangeRight)
+            Angle.add player.direction <| computeAngleChange <| computeTurningState pressedKeys player
 
         ( x, y ) =
             player.position
