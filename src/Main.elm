@@ -556,19 +556,15 @@ update msg ({ pressedKeys } as model) =
             in
             ( { pressedKeys = pressedKeys
               , gameState =
-                    case midRoundState of
-                        Live _ ->
-                            if roundIsOver newPlayers then
-                                PostRound newCurrentRound
+                    if roundIsOver newPlayers then
+                        PostRound newCurrentRound
 
-                            else
+                    else
+                        case midRoundState of
+                            Live _ ->
                                 MidRound <| Live newCurrentRound
 
-                        Replay _ _ ->
-                            if roundIsOver newPlayers then
-                                PostRound newCurrentRound
-
-                            else
+                            Replay _ _ ->
                                 MidRound <| Replay { emulatedPressedKeys = effectivePressedKeys } newCurrentRound
               , seed = newSeed
               }
