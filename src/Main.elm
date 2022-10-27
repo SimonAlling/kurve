@@ -553,9 +553,8 @@ update msg ({ pressedKeys } as model) =
                     , history = currentRound.history
                     , tick = currentRound.tick + 1
                     }
-            in
-            ( { pressedKeys = pressedKeys
-              , gameState =
+
+                newGameState =
                     if roundIsOver newPlayers then
                         PostRound newCurrentRound
 
@@ -566,7 +565,10 @@ update msg ({ pressedKeys } as model) =
 
                             Replay _ _ ->
                                 MidRound <| Replay { emulatedPressedKeys = effectivePressedKeys } newCurrentRound
-              , seed = newSeed
+            in
+            ( { model
+                | gameState = newGameState
+                , seed = newSeed
               }
             , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
                 :: headDrawingCmds
