@@ -37,7 +37,7 @@ port onKeyup : (String -> msg) -> Sub msg
 type alias Model =
     { currentRound : Round
     , pressedKeys : Set String
-    , mode : Mode
+    , gameState : GameState
     , seed : Random.Seed
     }
 
@@ -50,7 +50,7 @@ type alias Round =
     }
 
 
-type Mode
+type GameState
     = Live
     | Replay { emulatedPressedKeys : Set String }
     | BetweenRounds
@@ -165,8 +165,8 @@ startReplayRound initialState pressedKeys reversedKeyboardInteractions =
     startRoundHelper initialState (Replay { emulatedPressedKeys = initialState.pressedKeys }) pressedKeys reversedKeyboardInteractions
 
 
-startRoundHelper : RoundInitialState -> Mode -> Set String -> List KeyboardInteraction -> ( Model, Cmd msg )
-startRoundHelper initialState mode pressedKeys reversedKeyboardInteractions =
+startRoundHelper : RoundInitialState -> GameState -> Set String -> List KeyboardInteraction -> ( Model, Cmd msg )
+startRoundHelper initialState gameState pressedKeys reversedKeyboardInteractions =
     let
         ( thePlayers, newSeed ) =
             Random.step (generatePlayers Config.players) initialState.seed
@@ -181,7 +181,7 @@ startRoundHelper initialState mode pressedKeys reversedKeyboardInteractions =
             , tick = 0
             }
       , pressedKeys = pressedKeys
-      , mode = mode
+      , gameState = gameState
       , seed = newSeed
       }
     , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
@@ -450,7 +450,7 @@ update msg ({ currentRound, pressedKeys } as model) =
         Tick ->
             let
                 effectivePressedKeys =
-                    case model.mode of
+                    case model.gameState of
                         Replay { emulatedPressedKeys } ->
                             considerRecentKeyPresses currentRound.history currentRound.tick emulatedPressedKeys
 
@@ -537,14 +537,14 @@ update msg ({ currentRound, pressedKeys } as model) =
                     , tick = model.currentRound.tick + 1
                     }
               , pressedKeys = pressedKeys
-              , mode =
-                    case model.mode of
+              , gameState =
+                    case model.gameState of
                         Live ->
                             if roundIsOver newPlayers then
                                 BetweenRounds
 
                             else
-                                model.mode
+                                model.gameState
 
                         Replay _ ->
                             if roundIsOver newPlayers then
@@ -554,7 +554,7 @@ update msg ({ currentRound, pressedKeys } as model) =
                                 Replay { emulatedPressedKeys = effectivePressedKeys }
 
                         BetweenRounds ->
-                            model.mode
+                            model.gameState
               , seed = newSeed
               }
             , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
@@ -564,7 +564,7 @@ update msg ({ currentRound, pressedKeys } as model) =
             )
 
         KeyboardUsed Down key ->
-            case model.mode of
+            case model.gameState of
                 BetweenRounds ->
                     case key of
                         "Space" ->
@@ -602,7 +602,7 @@ handleKeyboardInteraction direction key model =
         modelWithNewPressedKeys =
             { model | pressedKeys = updatePressedKeys direction key model.pressedKeys }
     in
-    case model.mode of
+    case model.gameState of
         Replay _ ->
             modelWithNewPressedKeys
 
@@ -643,7 +643,7 @@ roundIsOver players =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ case model.mode of
+        [ case model.gameState of
             BetweenRounds ->
                 Sub.none
 
