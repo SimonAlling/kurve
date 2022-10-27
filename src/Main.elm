@@ -53,7 +53,7 @@ type alias Round =
 type GameState
     = Live
     | Replay { emulatedPressedKeys : Set String }
-    | BetweenRounds
+    | PostRound
 
 
 type alias RoundInitialState =
@@ -541,19 +541,19 @@ update msg ({ currentRound, pressedKeys } as model) =
                     case model.gameState of
                         Live ->
                             if roundIsOver newPlayers then
-                                BetweenRounds
+                                PostRound
 
                             else
                                 model.gameState
 
                         Replay _ ->
                             if roundIsOver newPlayers then
-                                BetweenRounds
+                                PostRound
 
                             else
                                 Replay { emulatedPressedKeys = effectivePressedKeys }
 
-                        BetweenRounds ->
+                        PostRound ->
                             model.gameState
               , seed = newSeed
               }
@@ -565,7 +565,7 @@ update msg ({ currentRound, pressedKeys } as model) =
 
         KeyboardUsed Down key ->
             case model.gameState of
-                BetweenRounds ->
+                PostRound ->
                     case key of
                         "Space" ->
                             startLiveRound model.seed pressedKeys
@@ -609,7 +609,7 @@ handleKeyboardInteraction direction key model =
         Live ->
             { modelWithNewPressedKeys | currentRound = recordKeyboardInteraction direction key model.currentRound }
 
-        BetweenRounds ->
+        PostRound ->
             modelWithNewPressedKeys
 
 
@@ -644,7 +644,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ case model.gameState of
-            BetweenRounds ->
+            PostRound ->
                 Sub.none
 
             _ ->
