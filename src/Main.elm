@@ -654,6 +654,7 @@ subscriptions model =
         ]
 
 
+main : Program () Model Msg
 main =
     worker
         { init = init
