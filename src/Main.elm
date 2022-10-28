@@ -1,5 +1,6 @@
 port module Main exposing (main)
 
+import Color exposing (Color)
 import Config
 import Platform exposing (worker)
 import Random
@@ -196,7 +197,7 @@ startRoundHelper initialState makeMidRoundState pressedKeys reversedKeyboardInte
                         render
                             { position = World.drawingPosition player.position
                             , thickness = Thickness.toInt Config.thickness
-                            , color = player.config.color
+                            , color = Color.toCssString player.config.color
                             }
                     )
            )
@@ -476,11 +477,11 @@ update msg ({ pressedKeys } as model) =
 
                 checkIndividualPlayer :
                     Player
-                    -> ( Random.Generator Players, Set World.Pixel, List ( String, DrawingPosition ) )
+                    -> ( Random.Generator Players, Set World.Pixel, List ( Color, DrawingPosition ) )
                     ->
                         ( Random.Generator Players
                         , Set World.Pixel
-                        , List ( String, DrawingPosition )
+                        , List ( Color, DrawingPosition )
                         )
                 checkIndividualPlayer player ( checkedPlayersGenerator, occupiedPixels, coloredDrawingPositions ) =
                     let
@@ -532,7 +533,7 @@ update msg ({ pressedKeys } as model) =
                                 render
                                     { position = position
                                     , thickness = Thickness.toInt Config.thickness
-                                    , color = color
+                                    , color = Color.toCssString color
                                     }
                             )
 
@@ -543,7 +544,7 @@ update msg ({ pressedKeys } as model) =
                                 renderOverlay
                                     { position = World.drawingPosition player.position
                                     , thickness = Thickness.toInt Config.thickness
-                                    , color = player.config.color
+                                    , color = Color.toCssString player.config.color
                                     }
                             )
 

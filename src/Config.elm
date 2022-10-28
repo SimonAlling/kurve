@@ -1,5 +1,6 @@
 module Config exposing (..)
 
+import Color exposing (Color)
 import Set exposing (Set)
 import Types.Angle exposing (Angle(..))
 import Types.Distance exposing (Distance(..))
@@ -10,7 +11,7 @@ import Types.Tickrate exposing (Tickrate(..))
 
 
 type alias PlayerConfig =
-    { color : String
+    { color : Color
     , controls : ( Set String, Set String )
     }
 
@@ -74,16 +75,20 @@ worldHeight =
 
 players : List PlayerConfig
 players =
-    [ { color = "red"
+    let
+        rgb =
+            Color.rgb255
+    in
+    [ { color = rgb 255 40 0
       , controls = ( Set.fromList [ "Digit1" ], Set.fromList [ "KeyQ" ] )
       }
-    , { color = "green"
+    , { color = rgb 0 203 0
       , controls = ( Set.fromList [ "ArrowLeft" ], Set.fromList [ "ArrowDown" ] )
       }
-    , { color = "orange"
+    , { color = rgb 255 121 0
       , controls = ( Set.fromList [ "KeyM" ], Set.fromList [ "Comma" ] )
       }
-    , { color = "yellow"
+    , { color = rgb 195 195 0
       , controls = ( Set.fromList [ "KeyZ" ], Set.fromList [ "KeyX" ] )
       }
     ]
