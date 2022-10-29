@@ -83,7 +83,7 @@ players =
       , controls = ( Set.fromList [ "Digit1" ], Set.fromList [ "KeyQ" ] )
       }
     , { color = rgb 195 195 0
-      , controls = ( Set.fromList [ "KeyZ" ], Set.fromList [ "KeyX" ] )
+      , controls = ( Set.fromList [ "ControlLeft", "KeyZ" ], Set.fromList [ "AltLeft", "KeyX" ] )
       }
     , { color = rgb 255 121 0
       , controls = ( Set.fromList [ "KeyM" ], Set.fromList [ "Comma" ] )
@@ -92,7 +92,7 @@ players =
       , controls = ( Set.fromList [ "ArrowLeft" ], Set.fromList [ "ArrowDown" ] )
       }
     , { color = rgb 223 81 182
-      , controls = ( Set.fromList [ "NumpadDivide" ], Set.fromList [ "NumpadMultiply" ] )
+      , controls = ( Set.fromList [ "NumpadDivide", "End", "PageDown" ], Set.fromList [ "NumpadMultiply", "PageUp" ] )
       }
     ]
 
