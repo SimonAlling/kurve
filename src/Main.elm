@@ -2,6 +2,7 @@ port module Main exposing (main)
 
 import Color exposing (Color)
 import Config
+import Input exposing (KeyDirection(..), KeyboardInteraction, updatePressedKeys)
 import Platform exposing (worker)
 import Random
 import Random.Extra as Random
@@ -75,13 +76,6 @@ type alias RoundHistory =
 type alias Players =
     { alive : List Player
     , dead : List Player
-    }
-
-
-type alias KeyboardInteraction =
-    { happenedAfterTick : Int
-    , direction : KeyDirection
-    , key : String
     }
 
 
@@ -260,11 +254,6 @@ computeDistanceBetweenCenters distanceBetweenEdges =
 type Msg
     = Tick MidRoundState
     | KeyboardUsed KeyDirection String
-
-
-type KeyDirection
-    = Up
-    | Down
 
 
 type TurningState
@@ -598,16 +587,6 @@ update msg ({ pressedKeys } as model) =
 
         KeyboardUsed Up key ->
             ( handleKeyboardInteraction Up key model, Cmd.none )
-
-
-updatePressedKeys : KeyDirection -> String -> Set String -> Set String
-updatePressedKeys direction =
-    case direction of
-        Down ->
-            Set.insert
-
-        Up ->
-            Set.remove
 
 
 handleKeyboardInteraction : KeyDirection -> String -> Model -> Model
