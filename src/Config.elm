@@ -82,14 +82,14 @@ players =
     [ { color = rgb 255 40 0
       , controls = ( Set.fromList [ "Digit1" ], Set.fromList [ "KeyQ" ] )
       }
-    , { color = rgb 0 203 0
-      , controls = ( Set.fromList [ "ArrowLeft" ], Set.fromList [ "ArrowDown" ] )
+    , { color = rgb 195 195 0
+      , controls = ( Set.fromList [ "KeyZ" ], Set.fromList [ "KeyX" ] )
       }
     , { color = rgb 255 121 0
       , controls = ( Set.fromList [ "KeyM" ], Set.fromList [ "Comma" ] )
       }
-    , { color = rgb 195 195 0
-      , controls = ( Set.fromList [ "KeyZ" ], Set.fromList [ "KeyX" ] )
+    , { color = rgb 0 203 0
+      , controls = ( Set.fromList [ "ArrowLeft" ], Set.fromList [ "ArrowDown" ] )
       }
     ]
 
