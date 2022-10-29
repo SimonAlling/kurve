@@ -2,7 +2,7 @@ port module Main exposing (main)
 
 import Color exposing (Color)
 import Config
-import Input exposing (KeyDirection(..), KeyboardInteraction, updatePressedKeys)
+import Input exposing (ButtonDirection(..), UserInteraction, updatePressedButtons)
 import Platform exposing (worker)
 import Random
 import Random.Extra as Random
@@ -37,7 +37,7 @@ port onKeyup : (String -> msg) -> Sub msg
 
 
 type alias Model =
-    { pressedKeys : Set String
+    { pressedButtons : Set String
     , gameState : GameState
     , seed : Random.Seed
     }
@@ -58,18 +58,18 @@ type GameState
 
 type MidRoundState
     = Live Round
-    | Replay { emulatedPressedKeys : Set String } Round
+    | Replay { emulatedPressedButtons : Set String } Round
 
 
 type alias RoundInitialState =
     { seed : Random.Seed
-    , pressedKeys : Set String
+    , pressedButtons : Set String
     }
 
 
 type alias RoundHistory =
     { initialState : RoundInitialState
-    , reversedKeyboardInteractions : List KeyboardInteraction
+    , reversedUserInteractions : List UserInteraction
     }
 
 
@@ -155,17 +155,17 @@ init _ =
 
 
 startLiveRound : Random.Seed -> Set String -> ( Model, Cmd Msg )
-startLiveRound seed pressedKeys =
-    startRoundHelper { seed = seed, pressedKeys = pressedKeys } Live pressedKeys []
+startLiveRound seed pressedButtons =
+    startRoundHelper { seed = seed, pressedButtons = pressedButtons } Live pressedButtons []
 
 
-startReplayRound : RoundInitialState -> Set String -> List KeyboardInteraction -> ( Model, Cmd Msg )
-startReplayRound initialState pressedKeys reversedKeyboardInteractions =
-    startRoundHelper initialState (Replay { emulatedPressedKeys = initialState.pressedKeys }) pressedKeys reversedKeyboardInteractions
+startReplayRound : RoundInitialState -> Set String -> List UserInteraction -> ( Model, Cmd Msg )
+startReplayRound initialState pressedButtons reversedUserInteractions =
+    startRoundHelper initialState (Replay { emulatedPressedButtons = initialState.pressedButtons }) pressedButtons reversedUserInteractions
 
 
-startRoundHelper : RoundInitialState -> (Round -> MidRoundState) -> Set String -> List KeyboardInteraction -> ( Model, Cmd msg )
-startRoundHelper initialState makeMidRoundState pressedKeys reversedKeyboardInteractions =
+startRoundHelper : RoundInitialState -> (Round -> MidRoundState) -> Set String -> List UserInteraction -> ( Model, Cmd msg )
+startRoundHelper initialState makeMidRoundState pressedButtons reversedUserInteractions =
     let
         ( thePlayers, newSeed ) =
             Random.step (generatePlayers Config.players) initialState.seed
@@ -175,12 +175,12 @@ startRoundHelper initialState makeMidRoundState pressedKeys reversedKeyboardInte
             , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty thePlayers
             , history =
                 { initialState = initialState
-                , reversedKeyboardInteractions = reversedKeyboardInteractions
+                , reversedUserInteractions = reversedUserInteractions
                 }
             , tick = 0
             }
     in
-    ( { pressedKeys = pressedKeys
+    ( { pressedButtons = pressedButtons
       , gameState = MidRound <| makeMidRoundState round
       , seed = newSeed
       }
@@ -254,7 +254,7 @@ computeDistanceBetweenCenters distanceBetweenEdges =
 
 type Msg
     = Tick MidRoundState
-    | KeyboardUsed KeyDirection String
+    | ButtonUsed ButtonDirection String
 
 
 type TurningState
@@ -277,15 +277,15 @@ computeAngleChange turningState =
 
 
 computeTurningState : Set String -> Player -> TurningState
-computeTurningState pressedKeys player =
+computeTurningState pressedButtons player =
     let
-        ( leftKeys, rightKeys ) =
+        ( leftButtons, rightButtons ) =
             player.controls
 
         someIsPressed =
-            Set.intersect pressedKeys >> Set.isEmpty >> not
+            Set.intersect pressedButtons >> Set.isEmpty >> not
     in
-    case ( someIsPressed leftKeys, someIsPressed rightKeys ) of
+    case ( someIsPressed leftButtons, someIsPressed rightButtons ) of
         ( True, False ) ->
             TurningLeft
 
@@ -371,13 +371,13 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
 
 
 updatePlayer : Set String -> Set Pixel -> Player -> ( List DrawingPosition, Random.Generator Player, Player.Fate )
-updatePlayer pressedKeys occupiedPixels player =
+updatePlayer pressedButtons occupiedPixels player =
     let
         distanceTraveledSinceLastTick =
             Speed.toFloat Config.speed / Tickrate.toFloat Config.tickrate
 
         newDirection =
-            Angle.add player.direction <| computeAngleChange <| computeTurningState pressedKeys player
+            Angle.add player.direction <| computeAngleChange <| computeTurningState pressedButtons player
 
         ( x, y ) =
             player.position
@@ -432,11 +432,11 @@ updateHoleStatus speed holeStatus =
             Random.constant <| Player.Unholy (ticksLeft - 1)
 
 
-considerRecentKeyPresses : RoundHistory -> Int -> Set String -> Set String
-considerRecentKeyPresses history previousTick previousPressedKeys =
-    history.reversedKeyboardInteractions
+considerRecentButtonPresses : RoundHistory -> Int -> Set String -> Set String
+considerRecentButtonPresses history previousTick previousPressedButtons =
+    history.reversedUserInteractions
         |> List.filter (\k -> k.happenedAfterTick == previousTick)
-        |> List.foldr (\k -> updatePressedKeys k.direction k.key) previousPressedKeys
+        |> List.foldr (\k -> updatePressedButtons k.direction k.button) previousPressedButtons
 
 
 extractRound : MidRoundState -> Round
@@ -450,20 +450,20 @@ extractRound s =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ pressedKeys } as model) =
+update msg ({ pressedButtons } as model) =
     case msg of
         Tick midRoundState ->
             let
                 currentRound =
                     extractRound midRoundState
 
-                effectivePressedKeys =
+                effectivePressedButtons =
                     case midRoundState of
-                        Replay { emulatedPressedKeys } _ ->
-                            considerRecentKeyPresses currentRound.history currentRound.tick emulatedPressedKeys
+                        Replay { emulatedPressedButtons } _ ->
+                            considerRecentButtonPresses currentRound.history currentRound.tick emulatedPressedButtons
 
                         _ ->
-                            pressedKeys
+                            pressedButtons
 
                 checkIndividualPlayer :
                     Player
@@ -476,7 +476,7 @@ update msg ({ pressedKeys } as model) =
                 checkIndividualPlayer player ( checkedPlayersGenerator, occupiedPixels, coloredDrawingPositions ) =
                     let
                         ( newPlayerDrawingPositions, checkedPlayerGenerator, fate ) =
-                            updatePlayer effectivePressedKeys occupiedPixels player
+                            updatePlayer effectivePressedButtons occupiedPixels player
 
                         occupiedPixelsAfterCheckingThisPlayer =
                             List.foldr
@@ -555,7 +555,7 @@ update msg ({ pressedKeys } as model) =
                                 MidRound <| Live newCurrentRound
 
                             Replay _ _ ->
-                                MidRound <| Replay { emulatedPressedKeys = effectivePressedKeys } newCurrentRound
+                                MidRound <| Replay { emulatedPressedButtons = effectivePressedButtons } newCurrentRound
             in
             ( { model
                 | gameState = newGameState
@@ -567,59 +567,59 @@ update msg ({ pressedKeys } as model) =
                 |> Cmd.batch
             )
 
-        KeyboardUsed Down key ->
+        ButtonUsed Down button ->
             case model.gameState of
                 PostRound finishedRound ->
-                    case key of
+                    case button of
                         "Space" ->
-                            startLiveRound model.seed pressedKeys
+                            startLiveRound model.seed pressedButtons
 
                         "KeyR" ->
                             startReplayRound
                                 finishedRound.history.initialState
-                                pressedKeys
-                                finishedRound.history.reversedKeyboardInteractions
+                                pressedButtons
+                                finishedRound.history.reversedUserInteractions
 
                         _ ->
-                            ( handleKeyboardInteraction Down key model, Cmd.none )
+                            ( handleUserInteraction Down button model, Cmd.none )
 
                 _ ->
-                    ( handleKeyboardInteraction Down key model, Cmd.none )
+                    ( handleUserInteraction Down button model, Cmd.none )
 
-        KeyboardUsed Up key ->
-            ( handleKeyboardInteraction Up key model, Cmd.none )
+        ButtonUsed Up button ->
+            ( handleUserInteraction Up button model, Cmd.none )
 
 
-handleKeyboardInteraction : KeyDirection -> String -> Model -> Model
-handleKeyboardInteraction direction key model =
+handleUserInteraction : ButtonDirection -> String -> Model -> Model
+handleUserInteraction direction button model =
     let
-        modelWithNewPressedKeys =
-            { model | pressedKeys = updatePressedKeys direction key model.pressedKeys }
+        modelWithNewPressedButtons =
+            { model | pressedButtons = updatePressedButtons direction button model.pressedButtons }
     in
     case model.gameState of
         MidRound midRoundState ->
             case midRoundState of
                 Replay _ _ ->
-                    modelWithNewPressedKeys
+                    modelWithNewPressedButtons
 
                 Live currentRound ->
-                    { modelWithNewPressedKeys | gameState = MidRound (Live <| recordKeyboardInteraction direction key currentRound) }
+                    { modelWithNewPressedButtons | gameState = MidRound (Live <| recordUserInteraction direction button currentRound) }
 
         PostRound _ ->
-            modelWithNewPressedKeys
+            modelWithNewPressedButtons
 
 
-recordKeyboardInteraction : KeyDirection -> String -> Round -> Round
-recordKeyboardInteraction direction key ({ history } as currentRound) =
+recordUserInteraction : ButtonDirection -> String -> Round -> Round
+recordUserInteraction direction button ({ history } as currentRound) =
     { currentRound
         | history =
             { history
-                | reversedKeyboardInteractions =
+                | reversedUserInteractions =
                     { happenedAfterTick = currentRound.tick
                     , direction = direction
-                    , key = key
+                    , button = button
                     }
-                        :: history.reversedKeyboardInteractions
+                        :: history.reversedUserInteractions
             }
     }
 
@@ -645,8 +645,8 @@ subscriptions model =
 
             MidRound midRoundState ->
                 Time.every (1000 / Tickrate.toFloat Config.tickrate) (always <| Tick midRoundState)
-        , onKeydown (KeyboardUsed Down)
-        , onKeyup (KeyboardUsed Up)
+        , onKeydown (ButtonUsed Down)
+        , onKeyup (ButtonUsed Up)
         ]
 
 

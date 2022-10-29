@@ -1,22 +1,22 @@
-module Input exposing (KeyDirection(..), KeyboardInteraction, updatePressedKeys)
+module Input exposing (ButtonDirection(..), UserInteraction, updatePressedButtons)
 
 import Set exposing (Set(..))
 
 
-type alias KeyboardInteraction =
+type alias UserInteraction =
     { happenedAfterTick : Int
-    , direction : KeyDirection
-    , key : String
+    , direction : ButtonDirection
+    , button : String
     }
 
 
-type KeyDirection
+type ButtonDirection
     = Up
     | Down
 
 
-updatePressedKeys : KeyDirection -> String -> Set String -> Set String
-updatePressedKeys direction =
+updatePressedButtons : ButtonDirection -> String -> Set String -> Set String
+updatePressedButtons direction =
     case direction of
         Down ->
             Set.insert
