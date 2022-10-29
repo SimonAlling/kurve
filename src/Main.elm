@@ -137,7 +137,8 @@ generatePlayer numberOfPlayers existingPositions config =
     in
     Random.map3
         (\generatedPosition generatedAngle generatedHoleStatus ->
-            { config = config
+            { color = config.color
+            , controls = config.controls
             , position = generatedPosition
             , direction = generatedAngle
             , holeStatus = generatedHoleStatus
@@ -191,7 +192,7 @@ startRoundHelper initialState makeMidRoundState pressedKeys reversedKeyboardInte
                         render
                             { position = World.drawingPosition player.position
                             , thickness = Thickness.toInt Config.thickness
-                            , color = Color.toCssString player.config.color
+                            , color = Color.toCssString player.color
                             }
                     )
            )
@@ -279,7 +280,7 @@ computeTurningState : Set String -> Player -> TurningState
 computeTurningState pressedKeys player =
     let
         ( leftKeys, rightKeys ) =
-            player.config.controls
+            player.controls
 
         someIsPressed =
             Set.intersect pressedKeys >> Set.isEmpty >> not
@@ -484,7 +485,7 @@ update msg ({ pressedKeys } as model) =
                                 newPlayerDrawingPositions
 
                         coloredDrawingPositionsAfterCheckingThisPlayer =
-                            coloredDrawingPositions ++ List.map (Tuple.pair player.config.color) newPlayerDrawingPositions
+                            coloredDrawingPositions ++ List.map (Tuple.pair player.color) newPlayerDrawingPositions
 
                         playersAfterCheckingThisPlayer : Player -> Players -> Players
                         playersAfterCheckingThisPlayer checkedPlayer checkedPlayers =
@@ -533,7 +534,7 @@ update msg ({ pressedKeys } as model) =
                                 renderOverlay
                                     { position = World.drawingPosition player.position
                                     , thickness = Thickness.toInt Config.thickness
-                                    , color = Color.toCssString player.config.color
+                                    , color = Color.toCssString player.color
                                     }
                             )
 

@@ -1,13 +1,14 @@
 module Types.Player exposing (Fate(..), HoleStatus(..), Player)
 
-import Config
+import Color exposing (Color)
 import Set exposing (Set(..))
 import Types.Angle exposing (Angle(..))
 import World exposing (Position)
 
 
 type alias Player =
-    { config : Config.PlayerConfig
+    { color : Color
+    , controls : ( Set String, Set String )
     , position : Position
     , direction : Angle
     , holeStatus : HoleStatus
