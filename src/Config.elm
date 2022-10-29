@@ -91,6 +91,9 @@ players =
     , { color = rgb 0 203 0
       , controls = ( Set.fromList [ "ArrowLeft" ], Set.fromList [ "ArrowDown" ] )
       }
+    , { color = rgb 223 81 182
+      , controls = ( Set.fromList [ "NumpadDivide" ], Set.fromList [ "NumpadMultiply" ] )
+      }
     ]
 
 
