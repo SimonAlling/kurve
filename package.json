@@ -11,7 +11,7 @@
   "author": "Simon Alling",
   "devDependencies": {
     "elm-tooling": "^1.6.0",
-    "elm-watch": "^1.1.0-beta.4",
+    "elm-watch": "^1.1.0",
     "esbuild": "^0.15.12",
     "run-pty": "^4.0.2",
     "sass": "^1.43.3"
