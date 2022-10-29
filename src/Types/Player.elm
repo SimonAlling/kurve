@@ -8,7 +8,7 @@ import World exposing (Position)
 
 type alias Player =
     { color : Color
-    , controls : ( Set String, Set String )
+    , controls : ( Set String, Set String ) -- `Set` is exactly what we want here; `String` is not, but since Elm doesn't support user-defined typeclass instances, we have to make do with a type that already is `comparable`.
     , position : Position
     , direction : Angle
     , holeStatus : HoleStatus

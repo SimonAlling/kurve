@@ -2,7 +2,7 @@ port module Main exposing (main)
 
 import Color exposing (Color)
 import Config
-import Input exposing (ButtonDirection(..), UserInteraction, updatePressedButtons)
+import Input exposing (Button(..), ButtonDirection(..), UserInteraction, toStringSetControls, updatePressedButtons)
 import Platform exposing (worker)
 import Random
 import Random.Extra as Random
@@ -138,7 +138,7 @@ generatePlayer numberOfPlayers existingPositions config =
     Random.map3
         (\generatedPosition generatedAngle generatedHoleStatus ->
             { color = config.color
-            , controls = config.controls
+            , controls = toStringSetControls config.controls
             , position = generatedPosition
             , direction = generatedAngle
             , holeStatus = generatedHoleStatus
@@ -254,7 +254,7 @@ computeDistanceBetweenCenters distanceBetweenEdges =
 
 type Msg
     = Tick MidRoundState
-    | ButtonUsed ButtonDirection String
+    | ButtonUsed ButtonDirection Button
 
 
 type TurningState
@@ -571,10 +571,10 @@ update msg ({ pressedButtons } as model) =
             case model.gameState of
                 PostRound finishedRound ->
                     case button of
-                        "Space" ->
+                        Key "Space" ->
                             startLiveRound model.seed pressedButtons
 
-                        "KeyR" ->
+                        Key "KeyR" ->
                             startReplayRound
                                 finishedRound.history.initialState
                                 pressedButtons
@@ -586,11 +586,11 @@ update msg ({ pressedButtons } as model) =
                 _ ->
                     ( handleUserInteraction Down button model, Cmd.none )
 
-        ButtonUsed Up button ->
-            ( handleUserInteraction Up button model, Cmd.none )
+        ButtonUsed Up key ->
+            ( handleUserInteraction Up key model, Cmd.none )
 
 
-handleUserInteraction : ButtonDirection -> String -> Model -> Model
+handleUserInteraction : ButtonDirection -> Button -> Model -> Model
 handleUserInteraction direction button model =
     let
         modelWithNewPressedButtons =
@@ -609,7 +609,7 @@ handleUserInteraction direction button model =
             modelWithNewPressedButtons
 
 
-recordUserInteraction : ButtonDirection -> String -> Round -> Round
+recordUserInteraction : ButtonDirection -> Button -> Round -> Round
 recordUserInteraction direction button ({ history } as currentRound) =
     { currentRound
         | history =
@@ -645,8 +645,8 @@ subscriptions model =
 
             MidRound midRoundState ->
                 Time.every (1000 / Tickrate.toFloat Config.tickrate) (always <| Tick midRoundState)
-        , onKeydown (ButtonUsed Down)
-        , onKeyup (ButtonUsed Up)
+        , onKeydown (Key >> ButtonUsed Down)
+        , onKeyup (Key >> ButtonUsed Up)
         ]
 
 
