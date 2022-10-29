@@ -36,6 +36,12 @@ port onKeydown : (String -> msg) -> Sub msg
 port onKeyup : (String -> msg) -> Sub msg
 
 
+port onMousedown : (Int -> msg) -> Sub msg
+
+
+port onMouseup : (Int -> msg) -> Sub msg
+
+
 type alias Model =
     { pressedButtons : Set String
     , gameState : GameState
@@ -647,6 +653,8 @@ subscriptions model =
                 Time.every (1000 / Tickrate.toFloat Config.tickrate) (always <| Tick midRoundState)
         , onKeydown (Key >> ButtonUsed Down)
         , onKeyup (Key >> ButtonUsed Up)
+        , onMousedown (Mouse >> ButtonUsed Down)
+        , onMouseup (Mouse >> ButtonUsed Up)
         ]
 
 

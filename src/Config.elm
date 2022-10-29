@@ -94,6 +94,9 @@ players =
     , { color = rgb 223 81 182
       , controls = ( [ Key "NumpadDivide", Key "End", Key "PageDown" ], [ Key "NumpadMultiply", Key "PageUp" ] )
       }
+    , { color = rgb 0 162 203
+      , controls = ( [ Mouse 0 ], [ Mouse 2 ] )
+      }
     ]
 
 

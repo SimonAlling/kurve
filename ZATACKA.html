@@ -168,6 +168,15 @@
             // Traditionally we never prevented default on keyup.
             app.ports.onKeyup.send(event.code)
         })
+        document.addEventListener("mousedown", event => {
+            app.ports.onMousedown.send(event.button)
+        })
+        document.addEventListener("mouseup", event => {
+            app.ports.onMouseup.send(event.button)
+        })
+        document.addEventListener("contextmenu", event => {
+            event.preventDefault()
+        });
     </script>
 
 </body>

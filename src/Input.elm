@@ -29,11 +29,17 @@ updatePressedButtons direction =
 
 type Button
     = Key String
+    | Mouse Int
 
 
 buttonToString : Button -> String
-buttonToString (Key eventCode) =
-    eventCode
+buttonToString button =
+    case button of
+        Key eventCode ->
+            eventCode
+
+        Mouse buttonNumber ->
+            "Mouse" ++ String.fromInt buttonNumber
 
 
 toStringSetControls : ( List Button, List Button ) -> ( Set String, Set String )
