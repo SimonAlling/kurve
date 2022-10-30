@@ -177,9 +177,12 @@ startRoundHelper playerConfigs initialState makeMidRoundState pressedButtons rev
         ( thePlayers, newSeed ) =
             Random.step (generatePlayers playerConfigs) initialState.seed
 
+        thickness =
+            Config.thickness
+
         round =
             { players = { alive = thePlayers, dead = [] }
-            , occupiedPixels = List.foldr (.position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty thePlayers
+            , occupiedPixels = List.foldr (.position >> World.drawingPosition thickness >> World.pixelsToOccupy thickness >> Set.union) Set.empty thePlayers
             , history =
                 { initialState = initialState
                 , reversedUserInteractions = reversedUserInteractions
@@ -198,7 +201,7 @@ startRoundHelper playerConfigs initialState makeMidRoundState pressedButtons rev
                 |> List.map
                     (\player ->
                         render
-                            { position = World.drawingPosition player.position
+                            { position = World.drawingPosition Config.thickness player.position
                             , thickness = Thickness.toInt Config.thickness
                             , color = Color.toCssString player.color
                             }
@@ -327,7 +330,7 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
                 current :: rest ->
                     let
                         theHitbox =
-                            World.hitbox lastChecked current
+                            World.hitbox Config.thickness lastChecked current
 
                         thickness =
                             Thickness.toInt Config.thickness
@@ -397,10 +400,13 @@ updatePlayer pressedButtons occupiedPixels player =
               y - distanceTraveledSinceLastTick * Angle.sin newDirection
             )
 
+        thickness =
+            Config.thickness
+
         ( confirmedDrawingPositions, fate ) =
             evaluateMove
-                (World.drawingPosition player.position)
-                (World.desiredDrawingPositions player.position newPosition)
+                (World.drawingPosition thickness player.position)
+                (World.desiredDrawingPositions thickness player.position newPosition)
                 occupiedPixels
                 player.holeStatus
 
@@ -488,7 +494,7 @@ update msg ({ pressedButtons } as model) =
 
                         occupiedPixelsAfterCheckingThisPlayer =
                             List.foldr
-                                (World.pixelsToOccupy >> Set.union)
+                                (World.pixelsToOccupy Config.thickness >> Set.union)
                                 occupiedPixels
                                 newPlayerDrawingPositions
 
@@ -540,7 +546,7 @@ update msg ({ pressedButtons } as model) =
                         |> List.map
                             (\player ->
                                 renderOverlay
-                                    { position = World.drawingPosition player.position
+                                    { position = World.drawingPosition Config.thickness player.position
                                     , thickness = Thickness.toInt Config.thickness
                                     , color = Color.toCssString player.color
                                     }

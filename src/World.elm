@@ -10,7 +10,6 @@ module World exposing
     , toBresenham
     )
 
-import Config
 import List.Cartesian
 import RasterShapes
 import Set exposing (Set)
@@ -39,21 +38,21 @@ fromBresenham { x, y } =
     { leftEdge = x, topEdge = y }
 
 
-drawingPosition : Position -> DrawingPosition
-drawingPosition ( x, y ) =
-    { leftEdge = edgeOfSquare x, topEdge = edgeOfSquare y }
+drawingPosition : Thickness.Thickness -> Position -> DrawingPosition
+drawingPosition thickness ( x, y ) =
+    { leftEdge = edgeOfSquare thickness x, topEdge = edgeOfSquare thickness y }
 
 
-edgeOfSquare : Float -> Int
-edgeOfSquare xOrY =
-    round (xOrY - (toFloat (Thickness.toInt Config.thickness) / 2))
+edgeOfSquare : Thickness.Thickness -> Float -> Int
+edgeOfSquare thickness xOrY =
+    round (xOrY - (toFloat (Thickness.toInt thickness) / 2))
 
 
-pixelsToOccupy : DrawingPosition -> Set Pixel
-pixelsToOccupy { leftEdge, topEdge } =
+pixelsToOccupy : Thickness.Thickness -> DrawingPosition -> Set Pixel
+pixelsToOccupy thickness { leftEdge, topEdge } =
     let
         rangeFrom start =
-            List.range start (start + Thickness.toInt Config.thickness - 1)
+            List.range start (start + Thickness.toInt thickness - 1)
 
         xs =
             rangeFrom leftEdge
@@ -65,11 +64,11 @@ pixelsToOccupy { leftEdge, topEdge } =
         |> Set.fromList
 
 
-desiredDrawingPositions : Position -> Position -> List DrawingPosition
-desiredDrawingPositions position1 position2 =
+desiredDrawingPositions : Thickness.Thickness -> Position -> Position -> List DrawingPosition
+desiredDrawingPositions thickness position1 position2 =
     RasterShapes.line
-        (drawingPosition position1 |> toBresenham)
-        (drawingPosition position2 |> toBresenham)
+        (drawingPosition thickness position1 |> toBresenham)
+        (drawingPosition thickness position2 |> toBresenham)
         -- The RasterShapes library returns the positions in reverse order.
         |> List.reverse
         -- The first element in the list is the starting position, which is assumed to already have been drawn.
@@ -77,17 +76,17 @@ desiredDrawingPositions position1 position2 =
         |> List.map fromBresenham
 
 
-hitbox : DrawingPosition -> DrawingPosition -> Set Pixel
-hitbox oldPosition newPosition =
+hitbox : Thickness.Thickness -> DrawingPosition -> DrawingPosition -> Set Pixel
+hitbox thickness oldPosition newPosition =
     let
         is45DegreeDraw =
             oldPosition.leftEdge /= newPosition.leftEdge && oldPosition.topEdge /= newPosition.topEdge
 
         oldPixels =
-            pixelsToOccupy oldPosition
+            pixelsToOccupy thickness oldPosition
 
         newPixels =
-            pixelsToOccupy newPosition
+            pixelsToOccupy thickness newPosition
     in
     if is45DegreeDraw then
         let
