@@ -554,7 +554,7 @@ update msg ({ pressedButtons } as model) =
                 , seed = newSeed
               }
             , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
-                :: headDrawingCmds currentRound.players.alive
+                :: headDrawingCmds newPlayers.alive
                 ++ bodyDrawingCmds newColoredDrawingPositions
                 |> Cmd.batch
             )
