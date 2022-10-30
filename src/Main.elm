@@ -44,6 +44,7 @@ port onMouseup : (Int -> msg) -> Sub msg
 
 type alias Model =
     { pressedButtons : Set String
+    , playerConfigs : List Config.PlayerConfig
     , gameState : GameState
     , seed : Random.Seed
     }
@@ -157,24 +158,24 @@ generatePlayer numberOfPlayers existingPositions config =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    startLiveRound (Random.initialSeed 1337) Set.empty
+    startLiveRound Config.players (Random.initialSeed 1337) Set.empty
 
 
-startLiveRound : Random.Seed -> Set String -> ( Model, Cmd Msg )
-startLiveRound seed pressedButtons =
-    startRoundHelper { seed = seed, pressedButtons = pressedButtons } Live pressedButtons []
+startLiveRound : List Config.PlayerConfig -> Random.Seed -> Set String -> ( Model, Cmd Msg )
+startLiveRound playerConfigs seed pressedButtons =
+    startRoundHelper playerConfigs { seed = seed, pressedButtons = pressedButtons } Live pressedButtons []
 
 
-startReplayRound : RoundInitialState -> Set String -> List UserInteraction -> ( Model, Cmd Msg )
-startReplayRound initialState pressedButtons reversedUserInteractions =
-    startRoundHelper initialState (Replay { emulatedPressedButtons = initialState.pressedButtons }) pressedButtons reversedUserInteractions
+startReplayRound : List Config.PlayerConfig -> RoundInitialState -> Set String -> List UserInteraction -> ( Model, Cmd Msg )
+startReplayRound playerConfigs initialState pressedButtons reversedUserInteractions =
+    startRoundHelper playerConfigs initialState (Replay { emulatedPressedButtons = initialState.pressedButtons }) pressedButtons reversedUserInteractions
 
 
-startRoundHelper : RoundInitialState -> (Round -> MidRoundState) -> Set String -> List UserInteraction -> ( Model, Cmd msg )
-startRoundHelper initialState makeMidRoundState pressedButtons reversedUserInteractions =
+startRoundHelper : List Config.PlayerConfig -> RoundInitialState -> (Round -> MidRoundState) -> Set String -> List UserInteraction -> ( Model, Cmd msg )
+startRoundHelper playerConfigs initialState makeMidRoundState pressedButtons reversedUserInteractions =
     let
         ( thePlayers, newSeed ) =
-            Random.step (generatePlayers Config.players) initialState.seed
+            Random.step (generatePlayers playerConfigs) initialState.seed
 
         round =
             { players = { alive = thePlayers, dead = [] }
@@ -187,6 +188,7 @@ startRoundHelper initialState makeMidRoundState pressedButtons reversedUserInter
             }
     in
     ( { pressedButtons = pressedButtons
+      , playerConfigs = playerConfigs
       , gameState = MidRound <| makeMidRoundState round
       , seed = newSeed
       }
@@ -578,10 +580,11 @@ update msg ({ pressedButtons } as model) =
                 PostRound finishedRound ->
                     case button of
                         Key "Space" ->
-                            startLiveRound model.seed pressedButtons
+                            startLiveRound model.playerConfigs model.seed pressedButtons
 
                         Key "KeyR" ->
                             startReplayRound
+                                model.playerConfigs
                                 finishedRound.history.initialState
                                 pressedButtons
                                 finishedRound.history.reversedUserInteractions
