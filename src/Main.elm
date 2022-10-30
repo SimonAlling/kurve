@@ -530,28 +530,6 @@ update msg ({ pressedButtons } as model) =
                 ( newPlayers, newSeed ) =
                     Random.step newPlayersGenerator model.seed
 
-                bodyDrawingCmds =
-                    newColoredDrawingPositions
-                        |> List.map
-                            (\( color, position ) ->
-                                render
-                                    { position = position
-                                    , thickness = Thickness.toInt Config.thickness
-                                    , color = Color.toCssString color
-                                    }
-                            )
-
-                headDrawingCmds =
-                    currentRound.players.alive
-                        |> List.map
-                            (\player ->
-                                renderOverlay
-                                    { position = World.drawingPosition Config.thickness player.position
-                                    , thickness = Thickness.toInt Config.thickness
-                                    , color = Color.toCssString player.color
-                                    }
-                            )
-
                 newCurrentRound =
                     { players = newPlayers
                     , occupiedPixels = newOccupiedPixels
@@ -576,8 +554,8 @@ update msg ({ pressedButtons } as model) =
                 , seed = newSeed
               }
             , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
-                :: headDrawingCmds
-                ++ bodyDrawingCmds
+                :: headDrawingCmds currentRound.players.alive
+                ++ bodyDrawingCmds newColoredDrawingPositions
                 |> Cmd.batch
             )
 
@@ -603,6 +581,30 @@ update msg ({ pressedButtons } as model) =
 
         ButtonUsed Up key ->
             ( handleUserInteraction Up key model, Cmd.none )
+
+
+bodyDrawingCmds : List ( Color, DrawingPosition ) -> List (Cmd Msg)
+bodyDrawingCmds =
+    List.map
+        (\( color, position ) ->
+            render
+                { position = position
+                , thickness = Thickness.toInt Config.thickness
+                , color = Color.toCssString color
+                }
+        )
+
+
+headDrawingCmds : List Player -> List (Cmd Msg)
+headDrawingCmds =
+    List.map
+        (\player ->
+            renderOverlay
+                { position = World.drawingPosition Config.thickness player.position
+                , thickness = Thickness.toInt Config.thickness
+                , color = Color.toCssString player.color
+                }
+        )
 
 
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
