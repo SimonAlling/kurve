@@ -160,7 +160,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     let
         ( ( gameState, cmd ), seed ) =
-            Tuple.mapFirst startRoundGameStateAndCmd <| startLiveRound Config.players (Random.initialSeed 1337) Set.empty
+            Tuple.mapFirst newRoundGameStateAndCmd <| prepareLiveRound Config.players (Random.initialSeed 1337) Set.empty
     in
     ( { pressedButtons = Set.empty
       , playerConfigs = Config.players
@@ -171,34 +171,34 @@ init _ =
     )
 
 
-startRoundWithModel : Model -> ( MidRoundState, Random.Seed ) -> ( Model, Cmd Msg )
-startRoundWithModel model midRoundStateAndSeed =
+startRound : Model -> ( MidRoundState, Random.Seed ) -> ( Model, Cmd Msg )
+startRound model midRoundStateAndSeed =
     let
         ( ( gameState, cmd ), seed ) =
-            Tuple.mapFirst startRoundGameStateAndCmd midRoundStateAndSeed
+            Tuple.mapFirst newRoundGameStateAndCmd midRoundStateAndSeed
     in
     ( { model | gameState = gameState, seed = seed }, cmd )
 
 
-startRoundGameStateAndCmd : MidRoundState -> ( GameState, Cmd Msg )
-startRoundGameStateAndCmd midRoundState =
+newRoundGameStateAndCmd : MidRoundState -> ( GameState, Cmd Msg )
+newRoundGameStateAndCmd midRoundState =
     ( MidRound midRoundState
     , extractRound midRoundState |> .players |> .alive |> clearCanvasAndDrawSpawns
     )
 
 
-startLiveRound : List Config.PlayerConfig -> Random.Seed -> Set String -> ( MidRoundState, Random.Seed )
-startLiveRound playerConfigs seed pressedButtons =
-    startRoundHelper playerConfigs { seed = seed, pressedButtons = pressedButtons } [] |> Tuple.mapFirst Live
+prepareLiveRound : List Config.PlayerConfig -> Random.Seed -> Set String -> ( MidRoundState, Random.Seed )
+prepareLiveRound playerConfigs seed pressedButtons =
+    prepareRoundHelper playerConfigs { seed = seed, pressedButtons = pressedButtons } [] |> Tuple.mapFirst Live
 
 
-startReplayRound : List Config.PlayerConfig -> RoundInitialState -> List UserInteraction -> ( MidRoundState, Random.Seed )
-startReplayRound playerConfigs initialState reversedUserInteractions =
-    startRoundHelper playerConfigs initialState reversedUserInteractions |> Tuple.mapFirst (Replay { emulatedPressedButtons = initialState.pressedButtons })
+prepareReplayRound : List Config.PlayerConfig -> RoundInitialState -> List UserInteraction -> ( MidRoundState, Random.Seed )
+prepareReplayRound playerConfigs initialState reversedUserInteractions =
+    prepareRoundHelper playerConfigs initialState reversedUserInteractions |> Tuple.mapFirst (Replay { emulatedPressedButtons = initialState.pressedButtons })
 
 
-startRoundHelper : List Config.PlayerConfig -> RoundInitialState -> List UserInteraction -> ( Round, Random.Seed )
-startRoundHelper playerConfigs initialState reversedUserInteractions =
+prepareRoundHelper : List Config.PlayerConfig -> RoundInitialState -> List UserInteraction -> ( Round, Random.Seed )
+prepareRoundHelper playerConfigs initialState reversedUserInteractions =
     let
         ( thePlayers, newSeed ) =
             Random.step (generatePlayers playerConfigs) initialState.seed
@@ -589,15 +589,15 @@ update msg ({ pressedButtons } as model) =
                 PostRound finishedRound ->
                     case button of
                         Key "Space" ->
-                            startRoundWithModel model <|
-                                startLiveRound
+                            startRound model <|
+                                prepareLiveRound
                                     model.playerConfigs
                                     model.seed
                                     pressedButtons
 
                         Key "KeyR" ->
-                            startRoundWithModel model <|
-                                startReplayRound
+                            startRound model <|
+                                prepareReplayRound
                                     model.playerConfigs
                                     finishedRound.history.initialState
                                     finishedRound.history.reversedUserInteractions
