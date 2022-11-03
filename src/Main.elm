@@ -195,7 +195,13 @@ startRoundHelper playerConfigs initialState makeMidRoundState pressedButtons rev
       , gameState = MidRound <| makeMidRoundState round
       , seed = newSeed
       }
-    , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
+    , clearCanvasAndDrawSpawns thePlayers
+    )
+
+
+clearCanvasAndDrawSpawns : List Player -> Cmd Msg
+clearCanvasAndDrawSpawns thePlayers =
+    clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
         :: clear { width = Config.worldWidth, height = Config.worldHeight }
         :: (thePlayers
                 |> List.map
@@ -208,7 +214,6 @@ startRoundHelper playerConfigs initialState makeMidRoundState pressedButtons rev
                     )
            )
         |> Cmd.batch
-    )
 
 
 spawnArea : ( Position, Position )
