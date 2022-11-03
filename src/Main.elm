@@ -171,7 +171,7 @@ startReplayRound playerConfigs initialState pressedButtons reversedUserInteracti
     startRoundHelper playerConfigs initialState (Replay { emulatedPressedButtons = initialState.pressedButtons }) pressedButtons reversedUserInteractions
 
 
-startRoundHelper : List Config.PlayerConfig -> RoundInitialState -> (Round -> MidRoundState) -> Set String -> List UserInteraction -> ( Model, Cmd msg )
+startRoundHelper : List Config.PlayerConfig -> RoundInitialState -> (Round -> MidRoundState) -> Set String -> List UserInteraction -> ( Model, Cmd Msg )
 startRoundHelper playerConfigs initialState makeMidRoundState pressedButtons reversedUserInteractions =
     let
         ( thePlayers, newSeed ) =
