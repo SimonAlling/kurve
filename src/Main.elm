@@ -158,21 +158,47 @@ generatePlayer numberOfPlayers existingPositions config =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    startLiveRound Config.players (Random.initialSeed 1337) Set.empty
+    let
+        ( ( gameState, cmd ), seed ) =
+            Tuple.mapFirst startRoundGameStateAndCmd <| startLiveRound Config.players (Random.initialSeed 1337) Set.empty
+    in
+    ( { pressedButtons = Set.empty
+      , playerConfigs = Config.players
+      , gameState = gameState
+      , seed = seed
+      }
+    , cmd
+    )
 
 
-startLiveRound : List Config.PlayerConfig -> Random.Seed -> Set String -> ( Model, Cmd Msg )
+startRoundWithModel : Model -> ( MidRoundState, Random.Seed ) -> ( Model, Cmd Msg )
+startRoundWithModel model midRoundStateAndSeed =
+    let
+        ( ( gameState, cmd ), seed ) =
+            Tuple.mapFirst startRoundGameStateAndCmd midRoundStateAndSeed
+    in
+    ( { model | gameState = gameState, seed = seed }, cmd )
+
+
+startRoundGameStateAndCmd : MidRoundState -> ( GameState, Cmd Msg )
+startRoundGameStateAndCmd midRoundState =
+    ( MidRound midRoundState
+    , extractRound midRoundState |> .players |> .alive |> clearCanvasAndDrawSpawns
+    )
+
+
+startLiveRound : List Config.PlayerConfig -> Random.Seed -> Set String -> ( MidRoundState, Random.Seed )
 startLiveRound playerConfigs seed pressedButtons =
-    startRoundHelper playerConfigs { seed = seed, pressedButtons = pressedButtons } Live pressedButtons []
+    startRoundHelper playerConfigs { seed = seed, pressedButtons = pressedButtons } [] |> Tuple.mapFirst Live
 
 
-startReplayRound : List Config.PlayerConfig -> RoundInitialState -> Set String -> List UserInteraction -> ( Model, Cmd Msg )
-startReplayRound playerConfigs initialState pressedButtons reversedUserInteractions =
-    startRoundHelper playerConfigs initialState (Replay { emulatedPressedButtons = initialState.pressedButtons }) pressedButtons reversedUserInteractions
+startReplayRound : List Config.PlayerConfig -> RoundInitialState -> List UserInteraction -> ( MidRoundState, Random.Seed )
+startReplayRound playerConfigs initialState reversedUserInteractions =
+    startRoundHelper playerConfigs initialState reversedUserInteractions |> Tuple.mapFirst (Replay { emulatedPressedButtons = initialState.pressedButtons })
 
 
-startRoundHelper : List Config.PlayerConfig -> RoundInitialState -> (Round -> MidRoundState) -> Set String -> List UserInteraction -> ( Model, Cmd Msg )
-startRoundHelper playerConfigs initialState makeMidRoundState pressedButtons reversedUserInteractions =
+startRoundHelper : List Config.PlayerConfig -> RoundInitialState -> List UserInteraction -> ( Round, Random.Seed )
+startRoundHelper playerConfigs initialState reversedUserInteractions =
     let
         ( thePlayers, newSeed ) =
             Random.step (generatePlayers playerConfigs) initialState.seed
@@ -190,13 +216,7 @@ startRoundHelper playerConfigs initialState makeMidRoundState pressedButtons rev
             , tick = 0
             }
     in
-    ( { pressedButtons = pressedButtons
-      , playerConfigs = playerConfigs
-      , gameState = MidRound <| makeMidRoundState round
-      , seed = newSeed
-      }
-    , clearCanvasAndDrawSpawns thePlayers
-    )
+    ( round, newSeed )
 
 
 clearCanvasAndDrawSpawns : List Player -> Cmd Msg
@@ -569,14 +589,18 @@ update msg ({ pressedButtons } as model) =
                 PostRound finishedRound ->
                     case button of
                         Key "Space" ->
-                            startLiveRound model.playerConfigs model.seed pressedButtons
+                            startRoundWithModel model <|
+                                startLiveRound
+                                    model.playerConfigs
+                                    model.seed
+                                    pressedButtons
 
                         Key "KeyR" ->
-                            startReplayRound
-                                model.playerConfigs
-                                finishedRound.history.initialState
-                                pressedButtons
-                                finishedRound.history.reversedUserInteractions
+                            startRoundWithModel model <|
+                                startReplayRound
+                                    model.playerConfigs
+                                    finishedRound.history.initialState
+                                    finishedRound.history.reversedUserInteractions
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
