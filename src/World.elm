@@ -3,6 +3,7 @@ module World exposing
     , Pixel
     , Position
     , desiredDrawingPositions
+    , distanceToTicks
     , drawingPosition
     , fromBresenham
     , hitbox
@@ -10,10 +11,14 @@ module World exposing
     , toBresenham
     )
 
+import Config
 import List.Cartesian
 import RasterShapes
 import Set exposing (Set)
+import Types.Distance as Distance exposing (Distance(..))
+import Types.Speed as Speed exposing (Speed)
 import Types.Thickness as Thickness
+import Types.Tickrate as Tickrate
 
 
 type alias Position =
@@ -26,6 +31,11 @@ type alias DrawingPosition =
 
 type alias Pixel =
     ( Int, Int )
+
+
+distanceToTicks : Speed -> Distance -> Int
+distanceToTicks speed distance =
+    round <| Tickrate.toFloat Config.tickrate * Distance.toFloat distance / Speed.toFloat speed
 
 
 toBresenham : DrawingPosition -> RasterShapes.Position
