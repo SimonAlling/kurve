@@ -1,9 +1,9 @@
-port module Main exposing (main)
+module Main exposing (main)
 
 import Canvas exposing (bodyDrawingCmds, clearCanvasAndDrawSpawns, clearOverlay, headDrawingCmds)
 import Color exposing (Color)
 import Config
-import Input exposing (Button(..), ButtonDirection(..), UserInteraction, toStringSetControls, updatePressedButtons)
+import Input exposing (Button(..), ButtonDirection(..), UserInteraction, inputSubscriptions, toStringSetControls, updatePressedButtons)
 import Platform exposing (worker)
 import Random
 import Random.Extra as Random
@@ -17,18 +17,6 @@ import Types.Speed as Speed exposing (Speed(..))
 import Types.Thickness as Thickness exposing (Thickness(..))
 import Types.Tickrate as Tickrate exposing (Tickrate(..))
 import World exposing (DrawingPosition, Pixel, Position)
-
-
-port onKeydown : (String -> msg) -> Sub msg
-
-
-port onKeyup : (String -> msg) -> Sub msg
-
-
-port onMousedown : (Int -> msg) -> Sub msg
-
-
-port onMouseup : (Int -> msg) -> Sub msg
 
 
 type alias Model =
@@ -632,18 +620,15 @@ roundIsOver players =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.batch
-        [ case model.gameState of
+    Sub.batch <|
+        (case model.gameState of
             PostRound _ ->
                 Sub.none
 
             MidRound midRoundState ->
                 Time.every (1000 / Tickrate.toFloat Config.tickrate) (always <| Tick midRoundState)
-        , onKeydown (Key >> ButtonUsed Down)
-        , onKeyup (Key >> ButtonUsed Up)
-        , onMousedown (Mouse >> ButtonUsed Down)
-        , onMouseup (Mouse >> ButtonUsed Up)
-        ]
+        )
+            :: inputSubscriptions ButtonUsed
 
 
 main : Program () Model Msg
