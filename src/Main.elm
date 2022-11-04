@@ -171,7 +171,7 @@ init _ =
     )
 
 
-startRound : Model -> ( MidRoundState, Random.Seed ) -> ( Model, Cmd Msg )
+startRound : Model -> ( MidRoundState, Random.Seed ) -> ( Model, Cmd msg )
 startRound model midRoundStateAndSeed =
     let
         ( ( gameState, cmd ), seed ) =
@@ -180,7 +180,7 @@ startRound model midRoundStateAndSeed =
     ( { model | gameState = gameState, seed = seed }, cmd )
 
 
-newRoundGameStateAndCmd : MidRoundState -> ( GameState, Cmd Msg )
+newRoundGameStateAndCmd : MidRoundState -> ( GameState, Cmd msg )
 newRoundGameStateAndCmd midRoundState =
     ( MidRound midRoundState
     , extractRound midRoundState |> .players |> .alive |> clearCanvasAndDrawSpawns
@@ -219,7 +219,7 @@ prepareRoundHelper playerConfigs initialState reversedUserInteractions =
     ( round, newSeed )
 
 
-clearCanvasAndDrawSpawns : List Player -> Cmd Msg
+clearCanvasAndDrawSpawns : List Player -> Cmd msg
 clearCanvasAndDrawSpawns thePlayers =
     clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
         :: clear { width = Config.worldWidth, height = Config.worldHeight }
@@ -612,7 +612,7 @@ update msg ({ pressedButtons } as model) =
             ( handleUserInteraction Up key model, Cmd.none )
 
 
-bodyDrawingCmds : List ( Color, DrawingPosition ) -> List (Cmd Msg)
+bodyDrawingCmds : List ( Color, DrawingPosition ) -> List (Cmd msg)
 bodyDrawingCmds =
     List.map
         (\( color, position ) ->
@@ -624,7 +624,7 @@ bodyDrawingCmds =
         )
 
 
-headDrawingCmds : List Player -> List (Cmd Msg)
+headDrawingCmds : List Player -> List (Cmd msg)
 headDrawingCmds =
     List.map
         (\player ->
