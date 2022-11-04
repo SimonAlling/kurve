@@ -414,8 +414,8 @@ update msg ({ pressedButtons } as model) =
             )
 
         ButtonUsed Down button ->
-            case model.gameState of
-                Lobby ->
+            let
+                startNewRoundIfSpacePressed =
                     case button of
                         Key "Space" ->
                             startRound model <|
@@ -426,16 +426,13 @@ update msg ({ pressedButtons } as model) =
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
+            in
+            case model.gameState of
+                Lobby ->
+                    startNewRoundIfSpacePressed
 
                 PostRound finishedRound ->
                     case button of
-                        Key "Space" ->
-                            startRound model <|
-                                prepareLiveRound
-                                    model.playerConfigs
-                                    model.seed
-                                    pressedButtons
-
                         Key "KeyR" ->
                             startRound model <|
                                 prepareReplayRound
@@ -444,7 +441,7 @@ update msg ({ pressedButtons } as model) =
                                     finishedRound.history.reversedUserInteractions
 
                         _ ->
-                            ( handleUserInteraction Down button model, Cmd.none )
+                            startNewRoundIfSpacePressed
 
                 _ ->
                     ( handleUserInteraction Down button model, Cmd.none )
