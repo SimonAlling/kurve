@@ -41,6 +41,7 @@ type GameState
     = MidRound MidRoundState
     | PostRound Round
     | PreRound SpawnState MidRoundState
+    | Lobby
 
 
 type MidRoundState
@@ -74,16 +75,12 @@ type alias Players =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    let
-        ( ( gameState, cmd ), seed ) =
-            Tuple.mapFirst newRoundGameStateAndCmd <| prepareLiveRound Config.players (Random.initialSeed 1337) Set.empty
-    in
     ( { pressedButtons = Set.empty
       , playerConfigs = Config.players
-      , gameState = gameState
-      , seed = seed
+      , gameState = Lobby
+      , seed = Random.initialSeed 1337
       }
-    , cmd
+    , Cmd.none
     )
 
 
@@ -418,6 +415,18 @@ update msg ({ pressedButtons } as model) =
 
         ButtonUsed Down button ->
             case model.gameState of
+                Lobby ->
+                    case button of
+                        Key "Space" ->
+                            startRound model <|
+                                prepareLiveRound
+                                    model.playerConfigs
+                                    model.seed
+                                    pressedButtons
+
+                        _ ->
+                            ( handleUserInteraction Down button model, Cmd.none )
+
                 PostRound finishedRound ->
                     case button of
                         Key "Space" ->
@@ -494,6 +503,9 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch <|
         (case model.gameState of
+            Lobby ->
+                Sub.none
+
             PostRound _ ->
                 Sub.none
 
