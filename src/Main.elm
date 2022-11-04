@@ -1,5 +1,6 @@
 port module Main exposing (main)
 
+import Canvas exposing (bodyDrawingCmds, clearCanvasAndDrawSpawns, clearOverlay, headDrawingCmds)
 import Color exposing (Color)
 import Config
 import Input exposing (Button(..), ButtonDirection(..), UserInteraction, toStringSetControls, updatePressedButtons)
@@ -16,18 +17,6 @@ import Types.Speed as Speed exposing (Speed(..))
 import Types.Thickness as Thickness exposing (Thickness(..))
 import Types.Tickrate as Tickrate exposing (Tickrate(..))
 import World exposing (DrawingPosition, Pixel, Position)
-
-
-port render : { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
-
-
-port clear : { width : Int, height : Int } -> Cmd msg
-
-
-port renderOverlay : { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
-
-
-port clearOverlay : { width : Int, height : Int } -> Cmd msg
 
 
 port onKeydown : (String -> msg) -> Sub msg
@@ -217,23 +206,6 @@ prepareRoundHelper playerConfigs initialState reversedUserInteractions =
             }
     in
     ( round, newSeed )
-
-
-clearCanvasAndDrawSpawns : List Player -> Cmd msg
-clearCanvasAndDrawSpawns thePlayers =
-    clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
-        :: clear { width = Config.worldWidth, height = Config.worldHeight }
-        :: (thePlayers
-                |> List.map
-                    (\player ->
-                        render
-                            { position = World.drawingPosition Config.thickness player.position
-                            , thickness = Thickness.toInt Config.thickness
-                            , color = Color.toCssString player.color
-                            }
-                    )
-           )
-        |> Cmd.batch
 
 
 spawnArea : ( Position, Position )
@@ -610,30 +582,6 @@ update msg ({ pressedButtons } as model) =
 
         ButtonUsed Up key ->
             ( handleUserInteraction Up key model, Cmd.none )
-
-
-bodyDrawingCmds : List ( Color, DrawingPosition ) -> List (Cmd msg)
-bodyDrawingCmds =
-    List.map
-        (\( color, position ) ->
-            render
-                { position = position
-                , thickness = Thickness.toInt Config.thickness
-                , color = Color.toCssString color
-                }
-        )
-
-
-headDrawingCmds : List Player -> List (Cmd msg)
-headDrawingCmds =
-    List.map
-        (\player ->
-            renderOverlay
-                { position = World.drawingPosition Config.thickness player.position
-                , thickness = Thickness.toInt Config.thickness
-                , color = Color.toCssString player.color
-                }
-        )
 
 
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
