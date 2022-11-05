@@ -63,6 +63,18 @@ spawnProtectionAudacity =
     0.25
 
 
+{-| At each tick, the spawning player is toggled between visible and invisible.
+-}
+spawnFlickerTicksPerSecond : Float
+spawnFlickerTicksPerSecond =
+    20
+
+
+numberOfSpawnFlickerTicks : Int
+numberOfSpawnFlickerTicks =
+    5
+
+
 worldWidth : Int
 worldWidth =
     559

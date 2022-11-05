@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Canvas exposing (bodyDrawingCmds, clearEverything, clearOverlay, drawSpawns, headDrawingCmds)
+import Canvas exposing (bodyDrawingCmds, clearEverything, clearOverlay, drawSpawnIfAndOnlyIf, headDrawingCmds)
 import Color exposing (Color)
 import Config
 import Input exposing (Button(..), ButtonDirection(..), UserInteraction, inputSubscriptions, updatePressedButtons)
@@ -17,6 +17,7 @@ import Types.Player as Player exposing (Player)
 import Types.Speed as Speed exposing (Speed(..))
 import Types.Thickness as Thickness exposing (Thickness(..))
 import Types.Tickrate as Tickrate exposing (Tickrate(..))
+import Util exposing (isEven)
 import World exposing (DrawingPosition, Pixel, distanceToTicks)
 
 
@@ -39,11 +40,18 @@ type alias Round =
 type GameState
     = MidRound MidRoundState
     | PostRound Round
+    | PreRound SpawnState MidRoundState
 
 
 type MidRoundState
     = Live Round
     | Replay { emulatedPressedButtons : Set String } Round
+
+
+type alias SpawnState =
+    { playersLeft : List Player
+    , ticksLeft : Int
+    }
 
 
 type alias RoundInitialState =
@@ -89,12 +97,13 @@ startRound model midRoundStateAndSeed =
 
 
 newRoundGameStateAndCmd : MidRoundState -> ( GameState, Cmd msg )
-newRoundGameStateAndCmd midRoundState =
-    ( MidRound midRoundState
-    , Cmd.batch
-        [ clearEverything
-        , extractRound midRoundState |> .players |> .alive |> drawSpawns
-        ]
+newRoundGameStateAndCmd plannedMidRoundState =
+    ( PreRound
+        { playersLeft = extractRound plannedMidRoundState |> .players |> .alive
+        , ticksLeft = Config.numberOfSpawnFlickerTicks
+        }
+        plannedMidRoundState
+    , clearEverything
     )
 
 
@@ -140,6 +149,7 @@ computeDistanceBetweenCenters distanceBetweenEdges =
 type Msg
     = Tick MidRoundState
     | ButtonUsed ButtonDirection Button
+    | SpawnTick SpawnState MidRoundState
 
 
 evaluateMove : DrawingPosition -> List DrawingPosition -> Set Pixel -> Player.HoleStatus -> ( List DrawingPosition, Player.Fate )
@@ -287,9 +297,32 @@ extractRound s =
             round
 
 
+stepSpawnState : SpawnState -> ( MidRoundState -> GameState, Cmd msg )
+stepSpawnState { playersLeft, ticksLeft } =
+    case playersLeft of
+        [] ->
+            -- All players have spawned.
+            ( MidRound, Cmd.none )
+
+        spawning :: waiting ->
+            let
+                newSpawnState =
+                    if ticksLeft == 0 then
+                        { playersLeft = waiting, ticksLeft = Config.numberOfSpawnFlickerTicks }
+
+                    else
+                        { playersLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
+            in
+            ( PreRound newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ pressedButtons } as model) =
     case msg of
+        SpawnTick spawnState plannedMidRoundState ->
+            stepSpawnState spawnState
+                |> Tuple.mapFirst (\makeGameState -> { model | gameState = makeGameState plannedMidRoundState })
+
         Tick midRoundState ->
             let
                 currentRound =
@@ -426,7 +459,7 @@ handleUserInteraction direction button model =
                 Live currentRound ->
                     { modelWithNewPressedButtons | gameState = MidRound (Live <| recordUserInteraction direction button currentRound) }
 
-        PostRound _ ->
+        _ ->
             modelWithNewPressedButtons
 
 
@@ -463,6 +496,9 @@ subscriptions model =
         (case model.gameState of
             PostRound _ ->
                 Sub.none
+
+            PreRound spawnState plannedMidRoundState ->
+                Time.every (1000 / Config.spawnFlickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
             MidRound midRoundState ->
                 Time.every (1000 / Tickrate.toFloat Config.tickrate) (always <| Tick midRoundState)

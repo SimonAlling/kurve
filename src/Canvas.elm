@@ -1,4 +1,4 @@
-port module Canvas exposing (bodyDrawingCmds, clearEverything, clearOverlay, drawSpawns, headDrawingCmds)
+port module Canvas exposing (bodyDrawingCmds, clearEverything, clearOverlay, drawSpawnIfAndOnlyIf, headDrawingCmds)
 
 import Color exposing (Color)
 import Config
@@ -51,16 +51,26 @@ clearEverything =
         ]
 
 
-drawSpawns : List Player -> Cmd msg
-drawSpawns thePlayers =
-    (thePlayers
-        |> List.map
-            (\player ->
-                render
-                    { position = World.drawingPosition Config.thickness player.position
-                    , thickness = Thickness.toInt Config.thickness
-                    , color = Color.toCssString player.color
-                    }
-            )
-    )
-        |> Cmd.batch
+drawSpawnIfAndOnlyIf : Bool -> Player -> Cmd msg
+drawSpawnIfAndOnlyIf shouldBeVisible player =
+    let
+        thicknessAsInt =
+            Thickness.toInt Config.thickness
+
+        drawingPosition =
+            World.drawingPosition Config.thickness player.position
+    in
+    if shouldBeVisible then
+        render
+            { position = drawingPosition
+            , thickness = thicknessAsInt
+            , color = Color.toCssString player.color
+            }
+
+    else
+        clear
+            { x = drawingPosition.leftEdge
+            , y = drawingPosition.topEdge
+            , width = thicknessAsInt
+            , height = thicknessAsInt
+            }
