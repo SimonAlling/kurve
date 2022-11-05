@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Canvas exposing (bodyDrawingCmds, clearCanvasAndDrawSpawns, clearOverlay, headDrawingCmds)
+import Canvas exposing (bodyDrawingCmds, clearEverything, clearOverlay, drawSpawns, headDrawingCmds)
 import Color exposing (Color)
 import Config
 import Input exposing (Button(..), ButtonDirection(..), UserInteraction, inputSubscriptions, updatePressedButtons)
@@ -91,7 +91,10 @@ startRound model midRoundStateAndSeed =
 newRoundGameStateAndCmd : MidRoundState -> ( GameState, Cmd msg )
 newRoundGameStateAndCmd midRoundState =
     ( MidRound midRoundState
-    , extractRound midRoundState |> .players |> .alive |> clearCanvasAndDrawSpawns
+    , Cmd.batch
+        [ clearEverything
+        , extractRound midRoundState |> .players |> .alive |> drawSpawns
+        ]
     )
 
 

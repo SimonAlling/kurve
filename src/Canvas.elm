@@ -1,4 +1,4 @@
-port module Canvas exposing (bodyDrawingCmds, clearCanvasAndDrawSpawns, clearOverlay, headDrawingCmds)
+port module Canvas exposing (bodyDrawingCmds, clearEverything, clearOverlay, drawSpawns, headDrawingCmds)
 
 import Color exposing (Color)
 import Config
@@ -43,18 +43,24 @@ headDrawingCmds =
         )
 
 
-clearCanvasAndDrawSpawns : List Player -> Cmd msg
-clearCanvasAndDrawSpawns thePlayers =
-    clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
-        :: clear { width = Config.worldWidth, height = Config.worldHeight }
-        :: (thePlayers
-                |> List.map
-                    (\player ->
-                        render
-                            { position = World.drawingPosition Config.thickness player.position
-                            , thickness = Thickness.toInt Config.thickness
-                            , color = Color.toCssString player.color
-                            }
-                    )
-           )
+clearEverything : Cmd msg
+clearEverything =
+    Cmd.batch
+        [ clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
+        , clear { width = Config.worldWidth, height = Config.worldHeight }
+        ]
+
+
+drawSpawns : List Player -> Cmd msg
+drawSpawns thePlayers =
+    (thePlayers
+        |> List.map
+            (\player ->
+                render
+                    { position = World.drawingPosition Config.thickness player.position
+                    , thickness = Thickness.toInt Config.thickness
+                    , color = Color.toCssString player.color
+                    }
+            )
+    )
         |> Cmd.batch
