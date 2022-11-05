@@ -10,7 +10,7 @@ import World exposing (DrawingPosition)
 port render : { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
-port clear : { width : Int, height : Int } -> Cmd msg
+port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 
 
 port renderOverlay : { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
@@ -47,7 +47,7 @@ clearEverything : Cmd msg
 clearEverything =
     Cmd.batch
         [ clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
-        , clear { width = Config.worldWidth, height = Config.worldHeight }
+        , clear { x = 0, y = 0, width = Config.worldWidth, height = Config.worldHeight }
         ]
 
 

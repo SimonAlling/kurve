@@ -138,7 +138,7 @@
         })
 
         app.ports.clear.subscribe(data => {
-            renderer.clearRectangle(0, 0, data.width, data.height)
+            renderer.clearRectangle(data.x, data.y, data.width, data.height)
         })
 
         app.ports.renderOverlay.subscribe(data => {
