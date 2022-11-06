@@ -5,6 +5,7 @@
     "postinstall": "elm-tooling install",
     "sass-build": "sass --source-map src/css/:css/",
     "build": "elm-watch make --optimize",
+    "lint": "elm-format --validate src/",
     "watch": "run-pty % elm-watch hot % esbuild --serve --servedir=. % sass --watch --source-map src/css/:css/",
     "deploy": "git checkout master && git merge --no-ff -m \"Merge branch 'develop'\" develop && npm run build && git add -f js css && git commit -m \"Deploy\""
   },
