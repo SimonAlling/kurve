@@ -4,7 +4,7 @@
             "inputs": [
                 "src/Main.elm"
             ],
-            "output": "js/kurve.min.js"
+            "output": "build/ZATACKA.js"
         }
     }
 }
