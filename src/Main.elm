@@ -56,7 +56,8 @@ type alias SpawnState =
 
 
 type alias RoundInitialState =
-    { seed : Random.Seed
+    { seedAfterSpawn : Random.Seed
+    , spawnedPlayers : List Player
     , pressedButtons : Set String
     }
 
@@ -84,13 +85,13 @@ init _ =
     )
 
 
-startRound : Model -> ( MidRoundState, Random.Seed ) -> ( Model, Cmd msg )
-startRound model midRoundStateAndSeed =
+startRound : Model -> MidRoundState -> ( Model, Cmd msg )
+startRound model midRoundState =
     let
-        ( ( gameState, cmd ), seed ) =
-            Tuple.mapFirst newRoundGameStateAndCmd midRoundStateAndSeed
+        ( gameState, cmd ) =
+            newRoundGameStateAndCmd midRoundState
     in
-    ( { model | gameState = gameState, seed = seed }, cmd )
+    ( { model | gameState = gameState }, cmd )
 
 
 newRoundGameStateAndCmd : MidRoundState -> ( GameState, Cmd msg )
@@ -104,21 +105,25 @@ newRoundGameStateAndCmd plannedMidRoundState =
     )
 
 
-prepareLiveRound : List Config.PlayerConfig -> Random.Seed -> Set String -> ( MidRoundState, Random.Seed )
+prepareLiveRound : List Config.PlayerConfig -> Random.Seed -> Set String -> MidRoundState
 prepareLiveRound playerConfigs seed pressedButtons =
-    prepareRoundHelper playerConfigs { seed = seed, pressedButtons = pressedButtons } [] |> Tuple.mapFirst Live
-
-
-prepareReplayRound : List Config.PlayerConfig -> RoundInitialState -> List UserInteraction -> ( MidRoundState, Random.Seed )
-prepareReplayRound playerConfigs initialState reversedUserInteractions =
-    prepareRoundHelper playerConfigs initialState reversedUserInteractions |> Tuple.mapFirst (Replay { emulatedPressedButtons = initialState.pressedButtons })
-
-
-prepareRoundHelper : List Config.PlayerConfig -> RoundInitialState -> List UserInteraction -> ( Round, Random.Seed )
-prepareRoundHelper playerConfigs initialState reversedUserInteractions =
     let
-        ( thePlayers, newSeed ) =
-            Random.step (generatePlayers playerConfigs) initialState.seed
+        ( thePlayers, seedAfterSpawn ) =
+            Random.step (generatePlayers playerConfigs) seed
+    in
+    prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons } [] |> Live
+
+
+prepareReplayRound : RoundInitialState -> List UserInteraction -> MidRoundState
+prepareReplayRound initialState reversedUserInteractions =
+    prepareRoundHelper initialState reversedUserInteractions |> Replay { emulatedPressedButtons = initialState.pressedButtons }
+
+
+prepareRoundHelper : RoundInitialState -> List UserInteraction -> Round
+prepareRoundHelper initialState reversedUserInteractions =
+    let
+        thePlayers =
+            initialState.spawnedPlayers
 
         thickness =
             Config.thickness
@@ -133,7 +138,7 @@ prepareRoundHelper playerConfigs initialState reversedUserInteractions =
             , tick = 0
             }
     in
-    ( round, newSeed )
+    round
 
 
 {-| Takes the distance between the _edges_ of two drawn squares and returns the distance between their _centers_.
@@ -436,7 +441,6 @@ update msg ({ pressedButtons } as model) =
                         Key "KeyR" ->
                             startRound model <|
                                 prepareReplayRound
-                                    model.playerConfigs
                                     finishedRound.history.initialState
                                     finishedRound.history.reversedUserInteractions
 
