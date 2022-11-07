@@ -1,6 +1,6 @@
 module Spawn exposing (generateHoleSize, generateHoleSpacing, generatePlayers)
 
-import Config exposing (Config, HoleConfig, PlayerConfig)
+import Config exposing (Config, HoleConfig, KurveConfig, PlayerConfig, SpawnConfig, WorldConfig)
 import Input exposing (toStringSetControls)
 import Random
 import Random.Extra as Random
@@ -44,7 +44,7 @@ isTooCloseFor numberOfPlayers config point1 point2 =
             toFloat (Thickness.toInt config.kurves.thickness) + Radius.toFloat config.kurves.turningRadius * config.spawn.desiredMinimumDistanceTurningRadiusFactor
 
         ( ( left, top ), ( right, bottom ) ) =
-            spawnArea config
+            spawnArea config.spawn config.world
 
         availableArea =
             (right - left) * (bottom - top)
@@ -66,7 +66,7 @@ generatePlayer : Config -> Int -> List Position -> PlayerConfig -> Random.Genera
 generatePlayer config numberOfPlayers existingPositions playerConfig =
     let
         safeSpawnPosition =
-            generateSpawnPosition config |> Random.filter (isSafeNewPosition config numberOfPlayers existingPositions)
+            generateSpawnPosition config.spawn config.world |> Random.filter (isSafeNewPosition config numberOfPlayers existingPositions)
     in
     Random.map3
         (\generatedPosition generatedAngle generatedHoleStatus ->
@@ -79,30 +79,30 @@ generatePlayer config numberOfPlayers existingPositions playerConfig =
         )
         safeSpawnPosition
         generateSpawnAngle
-        (generateInitialHoleStatus config)
+        (generateInitialHoleStatus config.kurves)
 
 
-spawnArea : Config -> ( Position, Position )
-spawnArea config =
+spawnArea : SpawnConfig -> WorldConfig -> ( Position, Position )
+spawnArea { margin } { width, height } =
     let
         topLeft =
-            ( config.spawn.margin
-            , config.spawn.margin
+            ( margin
+            , margin
             )
 
         bottomRight =
-            ( toFloat config.world.width - config.spawn.margin
-            , toFloat config.world.height - config.spawn.margin
+            ( toFloat width - margin
+            , toFloat height - margin
             )
     in
     ( topLeft, bottomRight )
 
 
-generateSpawnPosition : Config -> Random.Generator Position
-generateSpawnPosition config =
+generateSpawnPosition : SpawnConfig -> WorldConfig -> Random.Generator Position
+generateSpawnPosition spawnConfig worldConfig =
     let
         ( ( left, top ), ( right, bottom ) ) =
-            spawnArea config
+            spawnArea spawnConfig worldConfig
     in
     Random.pair (Random.float left right) (Random.float top bottom)
 
@@ -122,6 +122,6 @@ generateHoleSize holeConfig =
     Distance.generate holeConfig.minSize holeConfig.maxSize
 
 
-generateInitialHoleStatus : Config -> Random.Generator Player.HoleStatus
-generateInitialHoleStatus config =
-    generateHoleSpacing config.kurves.holes |> Random.map (distanceToTicks config.kurves.tickrate config.kurves.speed >> Player.Unholy)
+generateInitialHoleStatus : KurveConfig -> Random.Generator Player.HoleStatus
+generateInitialHoleStatus { tickrate, speed, holes } =
+    generateHoleSpacing holes |> Random.map (distanceToTicks tickrate speed >> Player.Unholy)

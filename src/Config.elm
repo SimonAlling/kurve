@@ -1,4 +1,4 @@
-module Config exposing (Config, HoleConfig, PlayerConfig, config)
+module Config exposing (Config, HoleConfig, KurveConfig, PlayerConfig, SpawnConfig, WorldConfig, config)
 
 import Color exposing (Color)
 import Input exposing (Button(..))

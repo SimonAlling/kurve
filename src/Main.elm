@@ -222,7 +222,7 @@ updatePlayer pressedButtons occupiedPixels player =
             Speed.toFloat config.kurves.speed / Tickrate.toFloat config.kurves.tickrate
 
         newDirection =
-            Angle.add player.direction <| computeAngleChange config <| computeTurningState pressedButtons player
+            Angle.add player.direction <| computeAngleChange config.kurves <| computeTurningState pressedButtons player
 
         ( x, y ) =
             player.position
