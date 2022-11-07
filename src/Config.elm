@@ -10,14 +10,6 @@ import Types.Thickness exposing (Thickness(..))
 import Types.Tickrate exposing (Tickrate(..))
 
 
-type alias Config =
-    { kurves : KurveConfig
-    , spawn : SpawnConfig
-    , world : WorldConfig
-    , players : List PlayerConfig
-    }
-
-
 config : Config
 config =
     { kurves =
@@ -44,6 +36,41 @@ config =
         , height = 480
         }
     , players = players
+    }
+
+
+players : List PlayerConfig
+players =
+    let
+        rgb =
+            Color.rgb255
+    in
+    [ { color = rgb 255 40 0
+      , controls = ( [ Key "Digit1" ], [ Key "KeyQ" ] )
+      }
+    , { color = rgb 195 195 0
+      , controls = ( [ Key "ControlLeft", Key "KeyZ" ], [ Key "AltLeft", Key "KeyX" ] )
+      }
+    , { color = rgb 255 121 0
+      , controls = ( [ Key "KeyM" ], [ Key "Comma" ] )
+      }
+    , { color = rgb 0 203 0
+      , controls = ( [ Key "ArrowLeft" ], [ Key "ArrowDown" ] )
+      }
+    , { color = rgb 223 81 182
+      , controls = ( [ Key "NumpadDivide", Key "End", Key "PageDown" ], [ Key "NumpadMultiply", Key "PageUp" ] )
+      }
+    , { color = rgb 0 162 203
+      , controls = ( [ Mouse 0 ], [ Mouse 2 ] )
+      }
+    ]
+
+
+type alias Config =
+    { kurves : KurveConfig
+    , spawn : SpawnConfig
+    , world : WorldConfig
+    , players : List PlayerConfig
     }
 
 
@@ -83,30 +110,3 @@ type alias HoleConfig =
     , minSize : Distance
     , maxSize : Distance
     }
-
-
-players : List PlayerConfig
-players =
-    let
-        rgb =
-            Color.rgb255
-    in
-    [ { color = rgb 255 40 0
-      , controls = ( [ Key "Digit1" ], [ Key "KeyQ" ] )
-      }
-    , { color = rgb 195 195 0
-      , controls = ( [ Key "ControlLeft", Key "KeyZ" ], [ Key "AltLeft", Key "KeyX" ] )
-      }
-    , { color = rgb 255 121 0
-      , controls = ( [ Key "KeyM" ], [ Key "Comma" ] )
-      }
-    , { color = rgb 0 203 0
-      , controls = ( [ Key "ArrowLeft" ], [ Key "ArrowDown" ] )
-      }
-    , { color = rgb 223 81 182
-      , controls = ( [ Key "NumpadDivide", Key "End", Key "PageDown" ], [ Key "NumpadMultiply", Key "PageUp" ] )
-      }
-    , { color = rgb 0 162 203
-      , controls = ( [ Mouse 0 ], [ Mouse 2 ] )
-      }
-    ]
