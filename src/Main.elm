@@ -96,10 +96,10 @@ newRoundGameStateAndCmd : MidRoundState -> ( GameState, Cmd msg )
 newRoundGameStateAndCmd plannedMidRoundState =
     ( PreRound
         { playersLeft = extractRound plannedMidRoundState |> .players |> .alive
-        , ticksLeft = config.numberOfSpawnFlickerTicks
+        , ticksLeft = config.spawn.numberOfFlickerTicks
         }
         plannedMidRoundState
-    , clearEverything ( config.worldWidth, config.worldHeight )
+    , clearEverything ( config.world.width, config.world.height )
     )
 
 
@@ -124,7 +124,7 @@ prepareRoundHelper initialState reversedUserInteractions =
             initialState.spawnedPlayers
 
         thickness =
-            config.thickness
+            config.kurves.thickness
 
         round =
             { players = { alive = thePlayers, dead = [] }
@@ -143,7 +143,7 @@ prepareRoundHelper initialState reversedUserInteractions =
 -}
 computeDistanceBetweenCenters : Distance -> Distance
 computeDistanceBetweenCenters distanceBetweenEdges =
-    Distance <| Distance.toFloat distanceBetweenEdges + toFloat (Thickness.toInt config.thickness)
+    Distance <| Distance.toFloat distanceBetweenEdges + toFloat (Thickness.toInt config.kurves.thickness)
 
 
 type Msg
@@ -164,17 +164,17 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
                 current :: rest ->
                     let
                         theHitbox =
-                            World.hitbox config.thickness lastChecked current
+                            World.hitbox config.kurves.thickness lastChecked current
 
                         thickness =
-                            Thickness.toInt config.thickness
+                            Thickness.toInt config.kurves.thickness
 
                         drawsOutsideWorld =
                             List.any ((==) True)
                                 [ current.leftEdge < 0
                                 , current.topEdge < 0
-                                , current.leftEdge > config.worldWidth - thickness
-                                , current.topEdge > config.worldHeight - thickness
+                                , current.leftEdge > config.world.width - thickness
+                                , current.topEdge > config.world.height - thickness
                                 ]
 
                         dies =
@@ -219,7 +219,7 @@ updatePlayer : Set String -> Set Pixel -> Player -> ( List DrawingPosition, Rand
 updatePlayer pressedButtons occupiedPixels player =
     let
         distanceTraveledSinceLastTick =
-            Speed.toFloat config.speed / Tickrate.toFloat config.tickrate
+            Speed.toFloat config.kurves.speed / Tickrate.toFloat config.kurves.tickrate
 
         newDirection =
             Angle.add player.direction <| computeAngleChange config <| computeTurningState pressedButtons player
@@ -235,7 +235,7 @@ updatePlayer pressedButtons occupiedPixels player =
             )
 
         thickness =
-            config.thickness
+            config.kurves.thickness
 
         ( confirmedDrawingPositions, fate ) =
             evaluateMove
@@ -245,7 +245,7 @@ updatePlayer pressedButtons occupiedPixels player =
                 player.holeStatus
 
         newHoleStatusGenerator =
-            updateHoleStatus config.speed player.holeStatus
+            updateHoleStatus config.kurves.speed player.holeStatus
 
         newPlayer =
             newHoleStatusGenerator
@@ -268,13 +268,13 @@ updateHoleStatus : Speed -> Player.HoleStatus -> Random.Generator Player.HoleSta
 updateHoleStatus speed holeStatus =
     case holeStatus of
         Player.Holy 0 ->
-            generateHoleSpacing config.holes |> Random.map (distanceToTicks config.tickrate speed >> Player.Unholy)
+            generateHoleSpacing config.holes |> Random.map (distanceToTicks config.kurves.tickrate speed >> Player.Unholy)
 
         Player.Holy ticksLeft ->
             Random.constant <| Player.Holy (ticksLeft - 1)
 
         Player.Unholy 0 ->
-            generateHoleSize config.holes |> Random.map (computeDistanceBetweenCenters >> distanceToTicks config.tickrate speed >> Player.Holy)
+            generateHoleSize config.holes |> Random.map (computeDistanceBetweenCenters >> distanceToTicks config.kurves.tickrate speed >> Player.Holy)
 
         Player.Unholy ticksLeft ->
             Random.constant <| Player.Unholy (ticksLeft - 1)
@@ -308,12 +308,12 @@ stepSpawnState { playersLeft, ticksLeft } =
             let
                 newSpawnState =
                     if ticksLeft == 0 then
-                        { playersLeft = waiting, ticksLeft = config.numberOfSpawnFlickerTicks }
+                        { playersLeft = waiting, ticksLeft = config.spawn.numberOfFlickerTicks }
 
                     else
                         { playersLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
-            ( PreRound newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.thickness )
+            ( PreRound newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.kurves.thickness )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -351,7 +351,7 @@ update msg ({ pressedButtons } as model) =
 
                         occupiedPixelsAfterCheckingThisPlayer =
                             List.foldr
-                                (World.pixelsToOccupy config.thickness >> Set.union)
+                                (World.pixelsToOccupy config.kurves.thickness >> Set.union)
                                 occupiedPixels
                                 newPlayerDrawingPositions
 
@@ -410,9 +410,9 @@ update msg ({ pressedButtons } as model) =
                 | gameState = newGameState
                 , seed = newSeed
               }
-            , clearOverlay { width = config.worldWidth, height = config.worldHeight }
-                :: headDrawingCmds config.thickness newPlayers.alive
-                ++ bodyDrawingCmds config.thickness newColoredDrawingPositions
+            , clearOverlay { width = config.world.width, height = config.world.height }
+                :: headDrawingCmds config.kurves.thickness newPlayers.alive
+                ++ bodyDrawingCmds config.kurves.thickness newColoredDrawingPositions
                 |> Cmd.batch
             )
 
@@ -508,10 +508,10 @@ subscriptions model =
                 Sub.none
 
             PreRound spawnState plannedMidRoundState ->
-                Time.every (1000 / config.spawnFlickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
+                Time.every (1000 / config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
             MidRound midRoundState ->
-                Time.every (1000 / Tickrate.toFloat config.tickrate) (always <| Tick midRoundState)
+                Time.every (1000 / Tickrate.toFloat config.kurves.tickrate) (always <| Tick midRoundState)
         )
             :: inputSubscriptions ButtonUsed
 

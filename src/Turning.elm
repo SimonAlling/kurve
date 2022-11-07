@@ -51,4 +51,4 @@ computeTurningState pressedButtons player =
 
 computedAngleChange : Config -> Angle
 computedAngleChange config =
-    Angle (Speed.toFloat config.speed / (Tickrate.toFloat config.tickrate * Radius.toFloat config.turningRadius))
+    Angle (Speed.toFloat config.kurves.speed / (Tickrate.toFloat config.kurves.tickrate * Radius.toFloat config.kurves.turningRadius))

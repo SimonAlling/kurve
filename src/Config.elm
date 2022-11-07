@@ -11,17 +11,9 @@ import Types.Tickrate exposing (Tickrate(..))
 
 
 type alias Config =
-    { tickrate : Tickrate
-    , turningRadius : Radius
-    , speed : Speed
-    , thickness : Thickness
-    , spawnMargin : Float
-    , desiredMinimumSpawnDistanceTurningRadiusFactor : Float
-    , spawnProtectionAudacity : Float
-    , spawnFlickerTicksPerSecond : Float
-    , numberOfSpawnFlickerTicks : Int
-    , worldWidth : Int
-    , worldHeight : Int
+    { kurves : KurveConfig
+    , spawn : SpawnConfig
+    , world : WorldConfig
     , players : List PlayerConfig
     , holes : HoleConfig
     }
@@ -29,19 +21,48 @@ type alias Config =
 
 config : Config
 config =
-    { tickrate = tickrate
-    , turningRadius = turningRadius
-    , speed = speed
-    , thickness = thickness
-    , spawnMargin = spawnMargin
-    , desiredMinimumSpawnDistanceTurningRadiusFactor = desiredMinimumSpawnDistanceTurningRadiusFactor
-    , spawnProtectionAudacity = spawnProtectionAudacity
-    , spawnFlickerTicksPerSecond = spawnFlickerTicksPerSecond
-    , numberOfSpawnFlickerTicks = numberOfSpawnFlickerTicks
-    , worldWidth = worldWidth
-    , worldHeight = worldHeight
+    { kurves =
+        { tickrate = tickrate
+        , turningRadius = turningRadius
+        , speed = speed
+        , thickness = thickness
+        }
+    , spawn =
+        { margin = spawnMargin
+        , desiredMinimumDistanceTurningRadiusFactor = desiredMinimumSpawnDistanceTurningRadiusFactor
+        , protectionAudacity = spawnProtectionAudacity
+        , flickerTicksPerSecond = spawnFlickerTicksPerSecond
+        , numberOfFlickerTicks = numberOfSpawnFlickerTicks
+        }
+    , world =
+        { width = worldWidth
+        , height = worldHeight
+        }
     , players = players
     , holes = holes
+    }
+
+
+type alias KurveConfig =
+    { tickrate : Tickrate
+    , speed : Speed
+    , turningRadius : Radius
+    , thickness : Thickness
+    }
+
+
+type alias SpawnConfig =
+    { margin : Float
+    , desiredMinimumDistanceTurningRadiusFactor : Float
+    , protectionAudacity : Float
+    , flickerTicksPerSecond : Float
+    , numberOfFlickerTicks : Int
+    }
+
+
+type alias WorldConfig =
+    { width : Int
+    , height : Int
     }
 
 

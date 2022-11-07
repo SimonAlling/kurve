@@ -41,7 +41,7 @@ isTooCloseFor : Int -> Config -> Position -> Position -> Bool
 isTooCloseFor numberOfPlayers config point1 point2 =
     let
         desiredMinimumDistance =
-            toFloat (Thickness.toInt config.thickness) + Radius.toFloat config.turningRadius * config.desiredMinimumSpawnDistanceTurningRadiusFactor
+            toFloat (Thickness.toInt config.kurves.thickness) + Radius.toFloat config.kurves.turningRadius * config.spawn.desiredMinimumDistanceTurningRadiusFactor
 
         ( ( left, top ), ( right, bottom ) ) =
             spawnArea config
@@ -52,7 +52,7 @@ isTooCloseFor numberOfPlayers config point1 point2 =
         -- Derived from:
         -- audacity × total available area > number of players × ( max allowed minimum distance / 2 )² × pi
         maxAllowedMinimumDistance =
-            2 * sqrt (config.spawnProtectionAudacity * availableArea / (toFloat numberOfPlayers * pi))
+            2 * sqrt (config.spawn.protectionAudacity * availableArea / (toFloat numberOfPlayers * pi))
     in
     Distance.toFloat (distanceBetween point1 point2) < min desiredMinimumDistance maxAllowedMinimumDistance
 
@@ -86,13 +86,13 @@ spawnArea : Config -> ( Position, Position )
 spawnArea config =
     let
         topLeft =
-            ( config.spawnMargin
-            , config.spawnMargin
+            ( config.spawn.margin
+            , config.spawn.margin
             )
 
         bottomRight =
-            ( toFloat config.worldWidth - config.spawnMargin
-            , toFloat config.worldHeight - config.spawnMargin
+            ( toFloat config.world.width - config.spawn.margin
+            , toFloat config.world.height - config.spawn.margin
             )
     in
     ( topLeft, bottomRight )
@@ -124,4 +124,4 @@ generateHoleSize holeConfig =
 
 generateInitialHoleStatus : Config -> Random.Generator Player.HoleStatus
 generateInitialHoleStatus config =
-    generateHoleSpacing config.holes |> Random.map (distanceToTicks config.tickrate config.speed >> Player.Unholy)
+    generateHoleSpacing config.holes |> Random.map (distanceToTicks config.kurves.tickrate config.kurves.speed >> Player.Unholy)
