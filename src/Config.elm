@@ -22,24 +22,29 @@ type alias Config =
 config : Config
 config =
     { kurves =
-        { tickrate = tickrate
-        , turningRadius = turningRadius
-        , speed = speed
-        , thickness = thickness
+        { tickrate = Tickrate 60
+        , turningRadius = Radius 28.5
+        , speed = Speed 60
+        , thickness = Thickness 3
         }
     , spawn =
-        { margin = spawnMargin
-        , desiredMinimumDistanceTurningRadiusFactor = desiredMinimumSpawnDistanceTurningRadiusFactor
-        , protectionAudacity = spawnProtectionAudacity
-        , flickerTicksPerSecond = spawnFlickerTicksPerSecond
-        , numberOfFlickerTicks = numberOfSpawnFlickerTicks
+        { margin = 100 -- The minimum distance from the wall that a player can spawn.
+        , desiredMinimumDistanceTurningRadiusFactor = 1
+        , protectionAudacity = 0.25 -- Closer to 1 ⇔ less risk of spawn kills but higher risk of no solution
+        , flickerTicksPerSecond = 20 -- At each tick, the spawning player is toggled between visible and invisible.
+        , numberOfFlickerTicks = 5
         }
     , world =
-        { width = worldWidth
-        , height = worldHeight
+        { width = 559
+        , height = 480
         }
     , players = players
-    , holes = holes
+    , holes =
+        { minInterval = Distance 90
+        , maxInterval = Distance 300
+        , minSize = Distance 5
+        , maxSize = Distance 9
+        }
     }
 
 
@@ -80,67 +85,6 @@ type alias HoleConfig =
     }
 
 
-tickrate : Tickrate
-tickrate =
-    Tickrate 60
-
-
-turningRadius : Radius
-turningRadius =
-    Radius 28.5
-
-
-speed : Speed
-speed =
-    Speed 60
-
-
-thickness : Thickness
-thickness =
-    Thickness 3
-
-
-{-| The minimum distance from the wall that a player can spawn.
--}
-spawnMargin : Float
-spawnMargin =
-    100
-
-
-desiredMinimumSpawnDistanceTurningRadiusFactor : Float
-desiredMinimumSpawnDistanceTurningRadiusFactor =
-    1
-
-
-{-| Closer to 1 ⇔ less risk of spawn kills but higher risk of no solution
--}
-spawnProtectionAudacity : Float
-spawnProtectionAudacity =
-    0.25
-
-
-{-| At each tick, the spawning player is toggled between visible and invisible.
--}
-spawnFlickerTicksPerSecond : Float
-spawnFlickerTicksPerSecond =
-    20
-
-
-numberOfSpawnFlickerTicks : Int
-numberOfSpawnFlickerTicks =
-    5
-
-
-worldWidth : Int
-worldWidth =
-    559
-
-
-worldHeight : Int
-worldHeight =
-    480
-
-
 players : List PlayerConfig
 players =
     let
@@ -166,12 +110,3 @@ players =
       , controls = ( [ Mouse 0 ], [ Mouse 2 ] )
       }
     ]
-
-
-holes : HoleConfig
-holes =
-    { minInterval = Distance 90
-    , maxInterval = Distance 300
-    , minSize = Distance 5
-    , maxSize = Distance 9
-    }
