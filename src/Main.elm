@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Canvas exposing (bodyDrawingCmds, clearEverything, clearOverlay, drawSpawnIfAndOnlyIf, headDrawingCmds)
 import Color exposing (Color)
-import Config
+import Config exposing (config)
 import Input exposing (Button(..), ButtonDirection(..), UserInteraction, inputSubscriptions, updatePressedButtons)
 import Platform exposing (worker)
 import Random
@@ -23,7 +23,6 @@ import World exposing (DrawingPosition, Pixel, distanceToTicks)
 
 type alias Model =
     { pressedButtons : Set String
-    , playerConfigs : List Config.PlayerConfig
     , gameState : GameState
     , seed : Random.Seed
     }
@@ -77,7 +76,6 @@ type alias Players =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedButtons = Set.empty
-      , playerConfigs = Config.players
       , gameState = Lobby
       , seed = Random.initialSeed 1337
       }
@@ -98,18 +96,18 @@ newRoundGameStateAndCmd : MidRoundState -> ( GameState, Cmd msg )
 newRoundGameStateAndCmd plannedMidRoundState =
     ( PreRound
         { playersLeft = extractRound plannedMidRoundState |> .players |> .alive
-        , ticksLeft = Config.numberOfSpawnFlickerTicks
+        , ticksLeft = config.numberOfSpawnFlickerTicks
         }
         plannedMidRoundState
-    , clearEverything
+    , clearEverything ( config.worldWidth, config.worldHeight )
     )
 
 
-prepareLiveRound : List Config.PlayerConfig -> Random.Seed -> Set String -> MidRoundState
-prepareLiveRound playerConfigs seed pressedButtons =
+prepareLiveRound : Random.Seed -> Set String -> MidRoundState
+prepareLiveRound seed pressedButtons =
     let
         ( thePlayers, seedAfterSpawn ) =
-            Random.step (generatePlayers playerConfigs) seed
+            Random.step (generatePlayers config) seed
     in
     prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons } [] |> Live
 
@@ -126,7 +124,7 @@ prepareRoundHelper initialState reversedUserInteractions =
             initialState.spawnedPlayers
 
         thickness =
-            Config.thickness
+            config.thickness
 
         round =
             { players = { alive = thePlayers, dead = [] }
@@ -145,7 +143,7 @@ prepareRoundHelper initialState reversedUserInteractions =
 -}
 computeDistanceBetweenCenters : Distance -> Distance
 computeDistanceBetweenCenters distanceBetweenEdges =
-    Distance <| Distance.toFloat distanceBetweenEdges + toFloat (Thickness.toInt Config.thickness)
+    Distance <| Distance.toFloat distanceBetweenEdges + toFloat (Thickness.toInt config.thickness)
 
 
 type Msg
@@ -166,17 +164,17 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
                 current :: rest ->
                     let
                         theHitbox =
-                            World.hitbox Config.thickness lastChecked current
+                            World.hitbox config.thickness lastChecked current
 
                         thickness =
-                            Thickness.toInt Config.thickness
+                            Thickness.toInt config.thickness
 
                         drawsOutsideWorld =
                             List.any ((==) True)
                                 [ current.leftEdge < 0
                                 , current.topEdge < 0
-                                , current.leftEdge > Config.worldWidth - thickness
-                                , current.topEdge > Config.worldHeight - thickness
+                                , current.leftEdge > config.worldWidth - thickness
+                                , current.topEdge > config.worldHeight - thickness
                                 ]
 
                         dies =
@@ -221,10 +219,10 @@ updatePlayer : Set String -> Set Pixel -> Player -> ( List DrawingPosition, Rand
 updatePlayer pressedButtons occupiedPixels player =
     let
         distanceTraveledSinceLastTick =
-            Speed.toFloat Config.speed / Tickrate.toFloat Config.tickrate
+            Speed.toFloat config.speed / Tickrate.toFloat config.tickrate
 
         newDirection =
-            Angle.add player.direction <| computeAngleChange <| computeTurningState pressedButtons player
+            Angle.add player.direction <| computeAngleChange config <| computeTurningState pressedButtons player
 
         ( x, y ) =
             player.position
@@ -237,7 +235,7 @@ updatePlayer pressedButtons occupiedPixels player =
             )
 
         thickness =
-            Config.thickness
+            config.thickness
 
         ( confirmedDrawingPositions, fate ) =
             evaluateMove
@@ -247,7 +245,7 @@ updatePlayer pressedButtons occupiedPixels player =
                 player.holeStatus
 
         newHoleStatusGenerator =
-            updateHoleStatus Config.speed player.holeStatus
+            updateHoleStatus config.speed player.holeStatus
 
         newPlayer =
             newHoleStatusGenerator
@@ -270,13 +268,13 @@ updateHoleStatus : Speed -> Player.HoleStatus -> Random.Generator Player.HoleSta
 updateHoleStatus speed holeStatus =
     case holeStatus of
         Player.Holy 0 ->
-            generateHoleSpacing |> Random.map (distanceToTicks speed >> Player.Unholy)
+            generateHoleSpacing config.holes |> Random.map (distanceToTicks config.tickrate speed >> Player.Unholy)
 
         Player.Holy ticksLeft ->
             Random.constant <| Player.Holy (ticksLeft - 1)
 
         Player.Unholy 0 ->
-            generateHoleSize |> Random.map (computeDistanceBetweenCenters >> distanceToTicks speed >> Player.Holy)
+            generateHoleSize config.holes |> Random.map (computeDistanceBetweenCenters >> distanceToTicks config.tickrate speed >> Player.Holy)
 
         Player.Unholy ticksLeft ->
             Random.constant <| Player.Unholy (ticksLeft - 1)
@@ -310,12 +308,12 @@ stepSpawnState { playersLeft, ticksLeft } =
             let
                 newSpawnState =
                     if ticksLeft == 0 then
-                        { playersLeft = waiting, ticksLeft = Config.numberOfSpawnFlickerTicks }
+                        { playersLeft = waiting, ticksLeft = config.numberOfSpawnFlickerTicks }
 
                     else
                         { playersLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
-            ( PreRound newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning )
+            ( PreRound newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.thickness )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -353,7 +351,7 @@ update msg ({ pressedButtons } as model) =
 
                         occupiedPixelsAfterCheckingThisPlayer =
                             List.foldr
-                                (World.pixelsToOccupy Config.thickness >> Set.union)
+                                (World.pixelsToOccupy config.thickness >> Set.union)
                                 occupiedPixels
                                 newPlayerDrawingPositions
 
@@ -412,9 +410,9 @@ update msg ({ pressedButtons } as model) =
                 | gameState = newGameState
                 , seed = newSeed
               }
-            , clearOverlay { width = Config.worldWidth, height = Config.worldHeight }
-                :: headDrawingCmds newPlayers.alive
-                ++ bodyDrawingCmds newColoredDrawingPositions
+            , clearOverlay { width = config.worldWidth, height = config.worldHeight }
+                :: headDrawingCmds config.thickness newPlayers.alive
+                ++ bodyDrawingCmds config.thickness newColoredDrawingPositions
                 |> Cmd.batch
             )
 
@@ -425,7 +423,6 @@ update msg ({ pressedButtons } as model) =
                         Key "Space" ->
                             startRound model <|
                                 prepareLiveRound
-                                    model.playerConfigs
                                     model.seed
                                     pressedButtons
 
@@ -511,10 +508,10 @@ subscriptions model =
                 Sub.none
 
             PreRound spawnState plannedMidRoundState ->
-                Time.every (1000 / Config.spawnFlickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
+                Time.every (1000 / config.spawnFlickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
             MidRound midRoundState ->
-                Time.every (1000 / Tickrate.toFloat Config.tickrate) (always <| Tick midRoundState)
+                Time.every (1000 / Tickrate.toFloat config.tickrate) (always <| Tick midRoundState)
         )
             :: inputSubscriptions ButtonUsed
 

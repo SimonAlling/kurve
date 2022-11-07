@@ -1,4 +1,4 @@
-module Config exposing (..)
+module Config exposing (Config, HoleConfig, PlayerConfig, config)
 
 import Color exposing (Color)
 import Input exposing (Button(..))
@@ -8,6 +8,41 @@ import Types.Radius exposing (Radius(..))
 import Types.Speed exposing (Speed(..))
 import Types.Thickness exposing (Thickness(..))
 import Types.Tickrate exposing (Tickrate(..))
+
+
+type alias Config =
+    { tickrate : Tickrate
+    , turningRadius : Radius
+    , speed : Speed
+    , thickness : Thickness
+    , spawnMargin : Float
+    , desiredMinimumSpawnDistanceTurningRadiusFactor : Float
+    , spawnProtectionAudacity : Float
+    , spawnFlickerTicksPerSecond : Float
+    , numberOfSpawnFlickerTicks : Int
+    , worldWidth : Int
+    , worldHeight : Int
+    , players : List PlayerConfig
+    , holes : HoleConfig
+    }
+
+
+config : Config
+config =
+    { tickrate = tickrate
+    , turningRadius = turningRadius
+    , speed = speed
+    , thickness = thickness
+    , spawnMargin = spawnMargin
+    , desiredMinimumSpawnDistanceTurningRadiusFactor = desiredMinimumSpawnDistanceTurningRadiusFactor
+    , spawnProtectionAudacity = spawnProtectionAudacity
+    , spawnFlickerTicksPerSecond = spawnFlickerTicksPerSecond
+    , numberOfSpawnFlickerTicks = numberOfSpawnFlickerTicks
+    , worldWidth = worldWidth
+    , worldHeight = worldHeight
+    , players = players
+    , holes = holes
+    }
 
 
 type alias PlayerConfig =

@@ -1,6 +1,6 @@
 module Spawn exposing (generateHoleSize, generateHoleSpacing, generatePlayers)
 
-import Config
+import Config exposing (Config, HoleConfig, PlayerConfig)
 import Input exposing (toStringSetControls)
 import Random
 import Random.Extra as Random
@@ -12,39 +12,39 @@ import Types.Thickness as Thickness exposing (Thickness(..))
 import World exposing (Position, distanceToTicks)
 
 
-generatePlayers : List Config.PlayerConfig -> Random.Generator (List Player)
-generatePlayers configs =
+generatePlayers : Config -> Random.Generator (List Player)
+generatePlayers config =
     let
         numberOfPlayers =
-            List.length configs
+            List.length config.players
 
         generateNewAndPrepend : Config.PlayerConfig -> List Player -> Random.Generator (List Player)
-        generateNewAndPrepend config precedingPlayers =
-            generatePlayer numberOfPlayers (List.map .position precedingPlayers) config
+        generateNewAndPrepend playerConfig precedingPlayers =
+            generatePlayer config numberOfPlayers (List.map .position precedingPlayers) playerConfig
                 |> Random.map (\player -> player :: precedingPlayers)
 
         generateReversedPlayers =
             List.foldl
                 (Random.andThen << generateNewAndPrepend)
                 (Random.constant [])
-                configs
+                config.players
     in
     generateReversedPlayers |> Random.map List.reverse
 
 
-isSafeNewPosition : Int -> List Position -> Position -> Bool
-isSafeNewPosition numberOfPlayers existingPositions newPosition =
-    List.all (not << isTooCloseFor numberOfPlayers newPosition) existingPositions
+isSafeNewPosition : Config -> Int -> List Position -> Position -> Bool
+isSafeNewPosition config numberOfPlayers existingPositions newPosition =
+    List.all (not << isTooCloseFor numberOfPlayers config newPosition) existingPositions
 
 
-isTooCloseFor : Int -> Position -> Position -> Bool
-isTooCloseFor numberOfPlayers point1 point2 =
+isTooCloseFor : Int -> Config -> Position -> Position -> Bool
+isTooCloseFor numberOfPlayers config point1 point2 =
     let
         desiredMinimumDistance =
-            toFloat (Thickness.toInt Config.thickness) + Radius.toFloat Config.turningRadius * Config.desiredMinimumSpawnDistanceTurningRadiusFactor
+            toFloat (Thickness.toInt config.thickness) + Radius.toFloat config.turningRadius * config.desiredMinimumSpawnDistanceTurningRadiusFactor
 
         ( ( left, top ), ( right, bottom ) ) =
-            spawnArea
+            spawnArea config
 
         availableArea =
             (right - left) * (bottom - top)
@@ -52,7 +52,7 @@ isTooCloseFor numberOfPlayers point1 point2 =
         -- Derived from:
         -- audacity × total available area > number of players × ( max allowed minimum distance / 2 )² × pi
         maxAllowedMinimumDistance =
-            2 * sqrt (Config.spawnProtectionAudacity * availableArea / (toFloat numberOfPlayers * pi))
+            2 * sqrt (config.spawnProtectionAudacity * availableArea / (toFloat numberOfPlayers * pi))
     in
     Distance.toFloat (distanceBetween point1 point2) < min desiredMinimumDistance maxAllowedMinimumDistance
 
@@ -62,16 +62,16 @@ distanceBetween ( x1, y1 ) ( x2, y2 ) =
     Distance <| sqrt ((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
 
 
-generatePlayer : Int -> List Position -> Config.PlayerConfig -> Random.Generator Player
-generatePlayer numberOfPlayers existingPositions config =
+generatePlayer : Config -> Int -> List Position -> PlayerConfig -> Random.Generator Player
+generatePlayer config numberOfPlayers existingPositions playerConfig =
     let
         safeSpawnPosition =
-            generateSpawnPosition |> Random.filter (isSafeNewPosition numberOfPlayers existingPositions)
+            generateSpawnPosition config |> Random.filter (isSafeNewPosition config numberOfPlayers existingPositions)
     in
     Random.map3
         (\generatedPosition generatedAngle generatedHoleStatus ->
-            { color = config.color
-            , controls = toStringSetControls config.controls
+            { color = playerConfig.color
+            , controls = toStringSetControls playerConfig.controls
             , position = generatedPosition
             , direction = generatedAngle
             , holeStatus = generatedHoleStatus
@@ -79,30 +79,30 @@ generatePlayer numberOfPlayers existingPositions config =
         )
         safeSpawnPosition
         generateSpawnAngle
-        generateInitialHoleStatus
+        (generateInitialHoleStatus config)
 
 
-spawnArea : ( Position, Position )
-spawnArea =
+spawnArea : Config -> ( Position, Position )
+spawnArea config =
     let
         topLeft =
-            ( Config.spawnMargin
-            , Config.spawnMargin
+            ( config.spawnMargin
+            , config.spawnMargin
             )
 
         bottomRight =
-            ( toFloat Config.worldWidth - Config.spawnMargin
-            , toFloat Config.worldHeight - Config.spawnMargin
+            ( toFloat config.worldWidth - config.spawnMargin
+            , toFloat config.worldHeight - config.spawnMargin
             )
     in
     ( topLeft, bottomRight )
 
 
-generateSpawnPosition : Random.Generator Position
-generateSpawnPosition =
+generateSpawnPosition : Config -> Random.Generator Position
+generateSpawnPosition config =
     let
         ( ( left, top ), ( right, bottom ) ) =
-            spawnArea
+            spawnArea config
     in
     Random.pair (Random.float left right) (Random.float top bottom)
 
@@ -112,16 +112,16 @@ generateSpawnAngle =
     Random.float (-pi / 2) (pi / 2) |> Random.map Angle
 
 
-generateHoleSpacing : Random.Generator Distance
-generateHoleSpacing =
-    Distance.generate Config.holes.minInterval Config.holes.maxInterval
+generateHoleSpacing : HoleConfig -> Random.Generator Distance
+generateHoleSpacing holeConfig =
+    Distance.generate holeConfig.minInterval holeConfig.maxInterval
 
 
-generateHoleSize : Random.Generator Distance
-generateHoleSize =
-    Distance.generate Config.holes.minSize Config.holes.maxSize
+generateHoleSize : HoleConfig -> Random.Generator Distance
+generateHoleSize holeConfig =
+    Distance.generate holeConfig.minSize holeConfig.maxSize
 
 
-generateInitialHoleStatus : Random.Generator Player.HoleStatus
-generateInitialHoleStatus =
-    generateHoleSpacing |> Random.map (distanceToTicks Config.speed >> Player.Unholy)
+generateInitialHoleStatus : Config -> Random.Generator Player.HoleStatus
+generateInitialHoleStatus config =
+    generateHoleSpacing config.holes |> Random.map (distanceToTicks config.tickrate config.speed >> Player.Unholy)

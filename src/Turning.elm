@@ -1,6 +1,6 @@
 module Turning exposing (TurningState(..), computeAngleChange, computeTurningState)
 
-import Config
+import Config exposing (Config)
 import Set exposing (Set(..))
 import Types.Angle as Angle exposing (Angle(..))
 import Types.Player exposing (Player)
@@ -15,14 +15,14 @@ type TurningState
     | NotTurning
 
 
-computeAngleChange : TurningState -> Angle
-computeAngleChange turningState =
+computeAngleChange : Config -> TurningState -> Angle
+computeAngleChange config turningState =
     case turningState of
         TurningLeft ->
-            computedAngleChange
+            computedAngleChange config
 
         TurningRight ->
-            Angle.negate computedAngleChange
+            Angle.negate <| computedAngleChange config
 
         NotTurning ->
             Angle 0
@@ -49,6 +49,6 @@ computeTurningState pressedButtons player =
             NotTurning
 
 
-computedAngleChange : Angle
-computedAngleChange =
-    Angle (Speed.toFloat Config.speed / (Tickrate.toFloat Config.tickrate * Radius.toFloat Config.turningRadius))
+computedAngleChange : Config -> Angle
+computedAngleChange config =
+    Angle (Speed.toFloat config.speed / (Tickrate.toFloat config.tickrate * Radius.toFloat config.turningRadius))

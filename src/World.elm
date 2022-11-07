@@ -11,7 +11,6 @@ module World exposing
     , toBresenham
     )
 
-import Config
 import List.Cartesian
 import RasterShapes
 import Set exposing (Set)
@@ -33,9 +32,9 @@ type alias Pixel =
     ( Int, Int )
 
 
-distanceToTicks : Speed -> Distance -> Int
-distanceToTicks speed distance =
-    round <| Tickrate.toFloat Config.tickrate * Distance.toFloat distance / Speed.toFloat speed
+distanceToTicks : Tickrate.Tickrate -> Speed -> Distance -> Int
+distanceToTicks tickrate speed distance =
+    round <| Tickrate.toFloat tickrate * Distance.toFloat distance / Speed.toFloat speed
 
 
 toBresenham : DrawingPosition -> RasterShapes.Position
