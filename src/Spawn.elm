@@ -124,4 +124,4 @@ generateHoleSize holeConfig =
 
 generateInitialHoleStatus : Config -> Random.Generator Player.HoleStatus
 generateInitialHoleStatus config =
-    generateHoleSpacing config.holes |> Random.map (distanceToTicks config.kurves.tickrate config.kurves.speed >> Player.Unholy)
+    generateHoleSpacing config.kurves.holes |> Random.map (distanceToTicks config.kurves.tickrate config.kurves.speed >> Player.Unholy)

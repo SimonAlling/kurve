@@ -268,13 +268,13 @@ updateHoleStatus : Speed -> Player.HoleStatus -> Random.Generator Player.HoleSta
 updateHoleStatus speed holeStatus =
     case holeStatus of
         Player.Holy 0 ->
-            generateHoleSpacing config.holes |> Random.map (distanceToTicks config.kurves.tickrate speed >> Player.Unholy)
+            generateHoleSpacing config.kurves.holes |> Random.map (distanceToTicks config.kurves.tickrate speed >> Player.Unholy)
 
         Player.Holy ticksLeft ->
             Random.constant <| Player.Holy (ticksLeft - 1)
 
         Player.Unholy 0 ->
-            generateHoleSize config.holes |> Random.map (computeDistanceBetweenCenters >> distanceToTicks config.kurves.tickrate speed >> Player.Holy)
+            generateHoleSize config.kurves.holes |> Random.map (computeDistanceBetweenCenters >> distanceToTicks config.kurves.tickrate speed >> Player.Holy)
 
         Player.Unholy ticksLeft ->
             Random.constant <| Player.Unholy (ticksLeft - 1)

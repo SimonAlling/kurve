@@ -15,7 +15,6 @@ type alias Config =
     , spawn : SpawnConfig
     , world : WorldConfig
     , players : List PlayerConfig
-    , holes : HoleConfig
     }
 
 
@@ -26,6 +25,12 @@ config =
         , turningRadius = Radius 28.5
         , speed = Speed 60
         , thickness = Thickness 3
+        , holes =
+            { minInterval = Distance 90
+            , maxInterval = Distance 300
+            , minSize = Distance 5
+            , maxSize = Distance 9
+            }
         }
     , spawn =
         { margin = 100 -- The minimum distance from the wall that a player can spawn.
@@ -39,12 +44,6 @@ config =
         , height = 480
         }
     , players = players
-    , holes =
-        { minInterval = Distance 90
-        , maxInterval = Distance 300
-        , minSize = Distance 5
-        , maxSize = Distance 9
-        }
     }
 
 
@@ -53,6 +52,7 @@ type alias KurveConfig =
     , speed : Speed
     , turningRadius : Radius
     , thickness : Thickness
+    , holes : HoleConfig
     }
 
 
