@@ -1,6 +1,7 @@
 port module Input exposing (Button(..), ButtonDirection(..), UserInteraction, inputSubscriptions, toStringSetControls, updatePressedButtons)
 
 import Set exposing (Set(..))
+import Types.Tick exposing (Tick(..))
 
 
 port onKeydown : (String -> msg) -> Sub msg
@@ -25,7 +26,7 @@ inputSubscriptions makeMsg =
 
 
 type alias UserInteraction =
-    { happenedAfterTick : Int
+    { happenedAfterTick : Tick
     , direction : ButtonDirection
     , button : Button
     }

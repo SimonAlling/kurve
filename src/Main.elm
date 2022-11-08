@@ -16,6 +16,7 @@ import Types.Distance as Distance exposing (Distance(..))
 import Types.Player as Player exposing (Player)
 import Types.Speed as Speed exposing (Speed(..))
 import Types.Thickness as Thickness exposing (Thickness(..))
+import Types.Tick as Tick exposing (Tick(..))
 import Types.Tickrate as Tickrate exposing (Tickrate(..))
 import Util exposing (isEven)
 import World exposing (DrawingPosition, Pixel, distanceToTicks)
@@ -32,7 +33,7 @@ type alias Round =
     { players : Players
     , occupiedPixels : Set Pixel
     , history : RoundHistory
-    , tick : Int
+    , tick : Tick
     }
 
 
@@ -133,7 +134,7 @@ prepareRoundHelper initialState reversedUserInteractions =
                 { initialState = initialState
                 , reversedUserInteractions = reversedUserInteractions
                 }
-            , tick = 0
+            , tick = Tick 0
             }
     in
     round
@@ -280,7 +281,7 @@ updateHoleStatus speed holeStatus =
             Random.constant <| Player.Unholy (ticksLeft - 1)
 
 
-considerRecentButtonPresses : RoundHistory -> Int -> Set String -> Set String
+considerRecentButtonPresses : RoundHistory -> Tick -> Set String -> Set String
 considerRecentButtonPresses history previousTick previousPressedButtons =
     history.reversedUserInteractions
         |> List.filter (\k -> k.happenedAfterTick == previousTick)
@@ -391,7 +392,7 @@ update msg ({ pressedButtons } as model) =
                     { players = newPlayers
                     , occupiedPixels = newOccupiedPixels
                     , history = currentRound.history
-                    , tick = currentRound.tick + 1
+                    , tick = Tick.succ currentRound.tick
                     }
 
                 newGameState =
