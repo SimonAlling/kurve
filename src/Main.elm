@@ -147,7 +147,7 @@ computeDistanceBetweenCenters distanceBetweenEdges =
 
 
 type Msg
-    = Tick MidRoundState
+    = GameTick MidRoundState
     | ButtonUsed ButtonDirection Button
     | SpawnTick SpawnState MidRoundState
 
@@ -323,7 +323,7 @@ update msg ({ pressedButtons } as model) =
             stepSpawnState spawnState
                 |> Tuple.mapFirst (\makeGameState -> { model | gameState = makeGameState plannedMidRoundState })
 
-        Tick midRoundState ->
+        GameTick midRoundState ->
             let
                 currentRound =
                     extractRound midRoundState
@@ -511,7 +511,7 @@ subscriptions model =
                 Time.every (1000 / config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
             MidRound midRoundState ->
-                Time.every (1000 / Tickrate.toFloat config.kurves.tickrate) (always <| Tick midRoundState)
+                Time.every (1000 / Tickrate.toFloat config.kurves.tickrate) (always <| GameTick midRoundState)
         )
             :: inputSubscriptions ButtonUsed
 
