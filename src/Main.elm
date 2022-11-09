@@ -33,12 +33,11 @@ type alias Round =
     { players : Players
     , occupiedPixels : Set Pixel
     , history : RoundHistory
-    , tick : Tick
     }
 
 
 type GameState
-    = MidRound MidRoundState
+    = MidRound Tick MidRoundState
     | PostRound Round
     | PreRound SpawnState MidRoundState
     | Lobby
@@ -134,7 +133,6 @@ prepareRoundHelper initialState reversedUserInteractions =
                 { initialState = initialState
                 , reversedUserInteractions = reversedUserInteractions
                 }
-            , tick = Tick 0
             }
     in
     round
@@ -148,7 +146,7 @@ computeDistanceBetweenCenters distanceBetweenEdges =
 
 
 type Msg
-    = GameTick MidRoundState
+    = GameTick Tick MidRoundState
     | ButtonUsed ButtonDirection Button
     | SpawnTick SpawnState MidRoundState
 
@@ -282,9 +280,9 @@ updateHoleStatus speed holeStatus =
 
 
 considerRecentButtonPresses : RoundHistory -> Tick -> Set String -> Set String
-considerRecentButtonPresses history previousTick previousPressedButtons =
+considerRecentButtonPresses history tick previousPressedButtons =
     history.reversedUserInteractions
-        |> List.filter (\k -> k.happenedAfterTick == previousTick)
+        |> List.filter (\k -> k.happenedBeforeTick == tick)
         |> List.foldr (\k -> updatePressedButtons k.direction k.button) previousPressedButtons
 
 
@@ -303,7 +301,7 @@ stepSpawnState { playersLeft, ticksLeft } =
     case playersLeft of
         [] ->
             -- All players have spawned.
-            ( MidRound, Cmd.none )
+            ( MidRound <| Tick 0, Cmd.none )
 
         spawning :: waiting ->
             let
@@ -324,7 +322,7 @@ update msg ({ pressedButtons } as model) =
             stepSpawnState spawnState
                 |> Tuple.mapFirst (\makeGameState -> { model | gameState = makeGameState plannedMidRoundState })
 
-        GameTick midRoundState ->
+        GameTick tick midRoundState ->
             let
                 currentRound =
                     extractRound midRoundState
@@ -332,7 +330,7 @@ update msg ({ pressedButtons } as model) =
                 effectivePressedButtons =
                     case midRoundState of
                         Replay { emulatedPressedButtons } _ ->
-                            considerRecentButtonPresses currentRound.history currentRound.tick emulatedPressedButtons
+                            considerRecentButtonPresses currentRound.history tick emulatedPressedButtons
 
                         _ ->
                             pressedButtons
@@ -392,7 +390,6 @@ update msg ({ pressedButtons } as model) =
                     { players = newPlayers
                     , occupiedPixels = newOccupiedPixels
                     , history = currentRound.history
-                    , tick = Tick.succ currentRound.tick
                     }
 
                 newGameState =
@@ -402,10 +399,10 @@ update msg ({ pressedButtons } as model) =
                     else
                         case midRoundState of
                             Live _ ->
-                                MidRound <| Live newCurrentRound
+                                MidRound tick <| Live newCurrentRound
 
                             Replay _ _ ->
-                                MidRound <| Replay { emulatedPressedButtons = effectivePressedButtons } newCurrentRound
+                                MidRound tick <| Replay { emulatedPressedButtons = effectivePressedButtons } newCurrentRound
             in
             ( { model
                 | gameState = newGameState
@@ -459,25 +456,25 @@ handleUserInteraction direction button model =
             { model | pressedButtons = updatePressedButtons direction button model.pressedButtons }
     in
     case model.gameState of
-        MidRound midRoundState ->
+        MidRound lastTick midRoundState ->
             case midRoundState of
                 Replay _ _ ->
                     modelWithNewPressedButtons
 
                 Live currentRound ->
-                    { modelWithNewPressedButtons | gameState = MidRound (Live <| recordUserInteraction direction button currentRound) }
+                    { modelWithNewPressedButtons | gameState = MidRound lastTick (Live <| recordUserInteraction direction button lastTick currentRound) }
 
         _ ->
             modelWithNewPressedButtons
 
 
-recordUserInteraction : ButtonDirection -> Button -> Round -> Round
-recordUserInteraction direction button ({ history } as currentRound) =
+recordUserInteraction : ButtonDirection -> Button -> Tick -> Round -> Round
+recordUserInteraction direction button lastTick ({ history } as currentRound) =
     { currentRound
         | history =
             { history
                 | reversedUserInteractions =
-                    { happenedAfterTick = currentRound.tick
+                    { happenedBeforeTick = Tick.succ lastTick
                     , direction = direction
                     , button = button
                     }
@@ -511,8 +508,8 @@ subscriptions model =
             PreRound spawnState plannedMidRoundState ->
                 Time.every (1000 / config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
-            MidRound midRoundState ->
-                Time.every (1000 / Tickrate.toFloat config.kurves.tickrate) (always <| GameTick midRoundState)
+            MidRound lastTick midRoundState ->
+                Time.every (1000 / Tickrate.toFloat config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
         )
             :: inputSubscriptions ButtonUsed
 

@@ -26,7 +26,7 @@ inputSubscriptions makeMsg =
 
 
 type alias UserInteraction =
-    { happenedAfterTick : Tick
+    { happenedBeforeTick : Tick
     , direction : ButtonDirection
     , button : Button
     }
