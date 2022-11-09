@@ -45,7 +45,7 @@ type GameState
 
 type MidRoundState
     = Live Round
-    | Replay { emulatedPressedButtons : Set String } Round
+    | Replay Round
 
 
 type alias SpawnState =
@@ -71,6 +71,12 @@ type alias Players =
     { alive : List Player
     , dead : List Player
     }
+
+
+firstUpdateTick : Tick
+firstUpdateTick =
+    -- Any buttons already pressed at round start are treated as having been pressed right before this tick.
+    Tick.succ Tick.genesis
 
 
 init : () -> ( Model, Cmd Msg )
@@ -109,12 +115,14 @@ prepareLiveRound seed pressedButtons =
         ( thePlayers, seedAfterSpawn ) =
             Random.step (generatePlayers config) seed
     in
-    prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons } [] |> Live
+    prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons }
+        (Input.batch pressedButtons firstUpdateTick)
+        |> Live
 
 
 prepareReplayRound : RoundInitialState -> List UserInteraction -> MidRoundState
 prepareReplayRound initialState reversedUserInteractions =
-    prepareRoundHelper initialState reversedUserInteractions |> Replay { emulatedPressedButtons = initialState.pressedButtons }
+    prepareRoundHelper initialState reversedUserInteractions |> Replay
 
 
 prepareRoundHelper : RoundInitialState -> List UserInteraction -> Round
@@ -279,11 +287,11 @@ updateHoleStatus speed holeStatus =
             Random.constant <| Player.Unholy (ticksLeft - 1)
 
 
-considerRecentButtonPresses : RoundHistory -> Tick -> Set String -> Set String
-considerRecentButtonPresses history tick previousPressedButtons =
+considerPastButtonPresses : RoundHistory -> Tick -> Set String
+considerPastButtonPresses history tick =
     history.reversedUserInteractions
-        |> List.filter (\k -> k.happenedBeforeTick == tick)
-        |> List.foldr (\k -> updatePressedButtons k.direction k.button) previousPressedButtons
+        |> List.filter (\k -> Tick.toInt k.happenedBeforeTick <= Tick.toInt tick)
+        |> List.foldr (\k -> updatePressedButtons k.direction k.button) Set.empty
 
 
 extractRound : MidRoundState -> Round
@@ -292,7 +300,7 @@ extractRound s =
         Live round ->
             round
 
-        Replay _ round ->
+        Replay round ->
             round
 
 
@@ -328,12 +336,7 @@ update msg ({ pressedButtons } as model) =
                     extractRound midRoundState
 
                 effectivePressedButtons =
-                    case midRoundState of
-                        Replay { emulatedPressedButtons } _ ->
-                            considerRecentButtonPresses currentRound.history tick emulatedPressedButtons
-
-                        _ ->
-                            pressedButtons
+                    considerPastButtonPresses currentRound.history tick
 
                 checkIndividualPlayer :
                     Player
@@ -401,8 +404,8 @@ update msg ({ pressedButtons } as model) =
                             Live _ ->
                                 MidRound tick <| Live newCurrentRound
 
-                            Replay _ _ ->
-                                MidRound tick <| Replay { emulatedPressedButtons = effectivePressedButtons } newCurrentRound
+                            Replay _ ->
+                                MidRound tick <| Replay newCurrentRound
             in
             ( { model
                 | gameState = newGameState
@@ -458,11 +461,19 @@ handleUserInteraction direction button model =
     case model.gameState of
         MidRound lastTick midRoundState ->
             case midRoundState of
-                Replay _ _ ->
+                Replay _ ->
                     modelWithNewPressedButtons
 
                 Live currentRound ->
                     { modelWithNewPressedButtons | gameState = MidRound lastTick (Live <| recordUserInteraction direction button lastTick currentRound) }
+
+        PreRound spawnState plannedMidRoundState ->
+            case plannedMidRoundState of
+                Replay _ ->
+                    modelWithNewPressedButtons
+
+                Live currentRound ->
+                    { modelWithNewPressedButtons | gameState = PreRound spawnState (Live <| recordUserInteraction direction button firstUpdateTick currentRound) }
 
         _ ->
             modelWithNewPressedButtons

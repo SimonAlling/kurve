@@ -1,4 +1,4 @@
-module Types.Tick exposing (Tick, genesis, succ)
+module Types.Tick exposing (Tick, genesis, succ, toInt)
 
 
 type Tick
@@ -15,3 +15,8 @@ genesis =
 succ : Tick -> Tick
 succ (Tick n) =
     Tick (n + 1)
+
+
+toInt : Tick -> Int
+toInt (Tick n) =
+    n
