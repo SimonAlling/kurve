@@ -455,18 +455,21 @@ update msg ({ pressedButtons } as model) =
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
 handleUserInteraction direction button model =
     let
-        modelWithNewPressedButtons =
-            { model | pressedButtons = updatePressedButtons direction button model.pressedButtons }
+        newGameState =
+            case model.gameState of
+                MidRound lastTick (Live currentRound) ->
+                    MidRound lastTick (Live <| recordUserInteraction direction button lastTick currentRound)
+
+                PreRound spawnState (Live currentRound) ->
+                    PreRound spawnState (Live <| recordUserInteraction direction button firstUpdateTick currentRound)
+
+                _ ->
+                    model.gameState
     in
-    case model.gameState of
-        MidRound lastTick (Live currentRound) ->
-            { modelWithNewPressedButtons | gameState = MidRound lastTick (Live <| recordUserInteraction direction button lastTick currentRound) }
-
-        PreRound spawnState (Live currentRound) ->
-            { modelWithNewPressedButtons | gameState = PreRound spawnState (Live <| recordUserInteraction direction button firstUpdateTick currentRound) }
-
-        _ ->
-            modelWithNewPressedButtons
+    { model
+        | pressedButtons = updatePressedButtons direction button model.pressedButtons
+        , gameState = newGameState
+    }
 
 
 recordUserInteraction : ButtonDirection -> Button -> Tick -> Round -> Round
