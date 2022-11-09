@@ -459,21 +459,11 @@ handleUserInteraction direction button model =
             { model | pressedButtons = updatePressedButtons direction button model.pressedButtons }
     in
     case model.gameState of
-        MidRound lastTick midRoundState ->
-            case midRoundState of
-                Replay _ ->
-                    modelWithNewPressedButtons
+        MidRound lastTick (Live currentRound) ->
+            { modelWithNewPressedButtons | gameState = MidRound lastTick (Live <| recordUserInteraction direction button lastTick currentRound) }
 
-                Live currentRound ->
-                    { modelWithNewPressedButtons | gameState = MidRound lastTick (Live <| recordUserInteraction direction button lastTick currentRound) }
-
-        PreRound spawnState plannedMidRoundState ->
-            case plannedMidRoundState of
-                Replay _ ->
-                    modelWithNewPressedButtons
-
-                Live currentRound ->
-                    { modelWithNewPressedButtons | gameState = PreRound spawnState (Live <| recordUserInteraction direction button firstUpdateTick currentRound) }
+        PreRound spawnState (Live currentRound) ->
+            { modelWithNewPressedButtons | gameState = PreRound spawnState (Live <| recordUserInteraction direction button firstUpdateTick currentRound) }
 
         _ ->
             modelWithNewPressedButtons
