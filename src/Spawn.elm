@@ -78,7 +78,7 @@ generatePlayer config numberOfPlayers existingPositions playerConfig =
             }
         )
         safeSpawnPosition
-        generateSpawnAngle
+        (generateSpawnAngle config.spawn.angleInterval)
         (generateInitialHoleStatus config.kurves)
 
 
@@ -107,9 +107,9 @@ generateSpawnPosition spawnConfig worldConfig =
     Random.pair (Random.float left right) (Random.float top bottom)
 
 
-generateSpawnAngle : Random.Generator Angle
-generateSpawnAngle =
-    Random.float (-pi / 2) (pi / 2) |> Random.map Angle
+generateSpawnAngle : ( Float, Float ) -> Random.Generator Angle
+generateSpawnAngle ( min, max ) =
+    Random.float min max |> Random.map Angle
 
 
 generateHoleSpacing : HoleConfig -> Random.Generator Distance
