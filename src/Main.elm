@@ -301,7 +301,7 @@ stepSpawnState { playersLeft, ticksLeft } =
     case playersLeft of
         [] ->
             -- All players have spawned.
-            ( MidRound <| Tick 0, Cmd.none )
+            ( MidRound <| Tick.genesis, Cmd.none )
 
         spawning :: waiting ->
             let
