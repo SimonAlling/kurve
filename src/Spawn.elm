@@ -7,6 +7,7 @@ import Random.Extra as Random
 import Types.Angle exposing (Angle(..))
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Player as Player exposing (Player)
+import Types.PlayerId exposing (PlayerId(..))
 import Types.Radius as Radius exposing (Radius(..))
 import Types.Thickness as Thickness exposing (Thickness(..))
 import World exposing (Position, distanceToTicks)
@@ -20,7 +21,11 @@ generatePlayers config =
 
         generateNewAndPrepend : Config.PlayerConfig -> List Player -> Random.Generator (List Player)
         generateNewAndPrepend playerConfig precedingPlayers =
-            generatePlayer config numberOfPlayers (List.map (.state >> .position) precedingPlayers) playerConfig
+            let
+                id =
+                    PlayerId <| List.length precedingPlayers
+            in
+            generatePlayer config id numberOfPlayers (List.map (.state >> .position) precedingPlayers) playerConfig
                 |> Random.map (\player -> player :: precedingPlayers)
 
         generateReversedPlayers =
@@ -62,8 +67,8 @@ distanceBetween ( x1, y1 ) ( x2, y2 ) =
     Distance <| sqrt ((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
 
 
-generatePlayer : Config -> Int -> List Position -> PlayerConfig -> Random.Generator Player
-generatePlayer config numberOfPlayers existingPositions playerConfig =
+generatePlayer : Config -> PlayerId -> Int -> List Position -> PlayerConfig -> Random.Generator Player
+generatePlayer config id numberOfPlayers existingPositions playerConfig =
     let
         safeSpawnPosition =
             generateSpawnPosition config.spawn config.world |> Random.filter (isSafeNewPosition config numberOfPlayers existingPositions)
@@ -71,6 +76,7 @@ generatePlayer config numberOfPlayers existingPositions playerConfig =
     Random.map3
         (\generatedPosition generatedAngle generatedHoleStatus ->
             { color = playerConfig.color
+            , id = id
             , controls = toStringSetControls playerConfig.controls
             , state =
                 { position = generatedPosition

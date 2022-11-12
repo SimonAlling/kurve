@@ -3,11 +3,13 @@ module Types.Player exposing (Fate(..), HoleStatus(..), Player)
 import Color exposing (Color)
 import Set exposing (Set(..))
 import Types.Angle exposing (Angle(..))
+import Types.PlayerId exposing (PlayerId(..))
 import World exposing (Position)
 
 
 type alias Player =
     { color : Color
+    , id : PlayerId
     , controls : ( Set String, Set String ) -- `Set` is exactly what we want here; `String` is not, but since Elm doesn't support user-defined typeclass instances, we have to make do with a type that already is `comparable`.
     , state : State
     }
