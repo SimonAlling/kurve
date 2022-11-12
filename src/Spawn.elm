@@ -75,14 +75,18 @@ generatePlayer config id numberOfPlayers existingPositions playerConfig =
     in
     Random.map3
         (\generatedPosition generatedAngle generatedHoleStatus ->
+            let
+                state =
+                    { position = generatedPosition
+                    , direction = generatedAngle
+                    , holeStatus = generatedHoleStatus
+                    }
+            in
             { color = playerConfig.color
             , id = id
             , controls = toStringSetControls playerConfig.controls
-            , state =
-                { position = generatedPosition
-                , direction = generatedAngle
-                , holeStatus = generatedHoleStatus
-                }
+            , state = state
+            , stateAtSpawn = state
             }
         )
         safeSpawnPosition

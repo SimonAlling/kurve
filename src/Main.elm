@@ -14,6 +14,7 @@ import Turning exposing (computeAngleChange, computeTurningState)
 import Types.Angle as Angle exposing (Angle(..))
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Player as Player exposing (Player)
+import Types.PlayerId as PlayerId
 import Types.Speed as Speed exposing (Speed(..))
 import Types.Thickness as Thickness exposing (Thickness(..))
 import Types.Tick as Tick exposing (Tick(..))
@@ -441,7 +442,7 @@ update msg ({ pressedButtons } as model) =
                         Key "KeyR" ->
                             startRound model <|
                                 prepareReplayRound
-                                    finishedRound.history.initialState
+                                    (initialStateForReplaying finishedRound)
                                     finishedRound.history.reversedUserInteractions
 
                         _ ->
@@ -452,6 +453,23 @@ update msg ({ pressedButtons } as model) =
 
         ButtonUsed Up key ->
             ( handleUserInteraction Up key model, Cmd.none )
+
+
+initialStateForReplaying : Round -> RoundInitialState
+initialStateForReplaying round =
+    let
+        initialState =
+            round.history.initialState
+
+        thePlayers =
+            round.players.alive ++ round.players.dead
+    in
+    { initialState | spawnedPlayers = thePlayers |> List.map Player.reset |> sortPlayers }
+
+
+sortPlayers : List Player -> List Player
+sortPlayers =
+    List.sortBy (.id >> PlayerId.toInt)
 
 
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
