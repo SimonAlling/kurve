@@ -1,4 +1,4 @@
-module Turning exposing (TurningState(..), computeAngleChange, computeTurningState)
+module Turning exposing (computeAngleChange, computeTurningState)
 
 import Config exposing (KurveConfig)
 import Set exposing (Set(..))
@@ -7,12 +7,7 @@ import Types.Player exposing (Player)
 import Types.Radius as Radius exposing (Radius(..))
 import Types.Speed as Speed exposing (Speed(..))
 import Types.Tickrate as Tickrate exposing (Tickrate(..))
-
-
-type TurningState
-    = TurningLeft
-    | TurningRight
-    | NotTurning
+import Types.TurningState exposing (TurningState(..))
 
 
 computeAngleChange : KurveConfig -> TurningState -> Angle
