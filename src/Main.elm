@@ -136,7 +136,7 @@ prepareRoundHelper initialState reversedUserInteractions =
 
         round =
             { players = { alive = thePlayers, dead = [] }
-            , occupiedPixels = List.foldr (.position >> World.drawingPosition thickness >> World.pixelsToOccupy thickness >> Set.union) Set.empty thePlayers
+            , occupiedPixels = List.foldr (.state >> .position >> World.drawingPosition thickness >> World.pixelsToOccupy thickness >> Set.union) Set.empty thePlayers
             , history =
                 { initialState = initialState
                 , reversedUserInteractions = reversedUserInteractions
@@ -229,10 +229,10 @@ updatePlayer pressedButtons occupiedPixels player =
             Speed.toFloat config.kurves.speed / Tickrate.toFloat config.kurves.tickrate
 
         newDirection =
-            Angle.add player.direction <| computeAngleChange config.kurves <| computeTurningState pressedButtons player
+            Angle.add player.state.direction <| computeAngleChange config.kurves <| computeTurningState pressedButtons player
 
         ( x, y ) =
-            player.position
+            player.state.position
 
         newPosition =
             ( x + distanceTraveledSinceLastTick * Angle.cos newDirection
@@ -246,24 +246,26 @@ updatePlayer pressedButtons occupiedPixels player =
 
         ( confirmedDrawingPositions, fate ) =
             evaluateMove
-                (World.drawingPosition thickness player.position)
-                (World.desiredDrawingPositions thickness player.position newPosition)
+                (World.drawingPosition thickness player.state.position)
+                (World.desiredDrawingPositions thickness player.state.position newPosition)
                 occupiedPixels
-                player.holeStatus
+                player.state.holeStatus
 
         newHoleStatusGenerator =
-            updateHoleStatus config.kurves.speed player.holeStatus
+            updateHoleStatus config.kurves.speed player.state.holeStatus
 
-        newPlayer =
+        newPlayerState =
             newHoleStatusGenerator
                 |> Random.map
                     (\newHoleStatus ->
-                        { player
-                            | position = newPosition
-                            , direction = newDirection
-                            , holeStatus = newHoleStatus
+                        { position = newPosition
+                        , direction = newDirection
+                        , holeStatus = newHoleStatus
                         }
                     )
+
+        newPlayer =
+            newPlayerState |> Random.map (\s -> { player | state = s })
     in
     ( confirmedDrawingPositions
     , newPlayer

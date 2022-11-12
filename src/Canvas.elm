@@ -35,7 +35,7 @@ headDrawingCmds thickness =
     List.map
         (\player ->
             renderOverlay
-                { position = World.drawingPosition thickness player.position
+                { position = World.drawingPosition thickness player.state.position
                 , thickness = Thickness.toInt thickness
                 , color = Color.toCssString player.color
                 }
@@ -57,7 +57,7 @@ drawSpawnIfAndOnlyIf shouldBeVisible player thickness =
             Thickness.toInt thickness
 
         drawingPosition =
-            World.drawingPosition thickness player.position
+            World.drawingPosition thickness player.state.position
     in
     if shouldBeVisible then
         render

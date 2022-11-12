@@ -20,7 +20,7 @@ generatePlayers config =
 
         generateNewAndPrepend : Config.PlayerConfig -> List Player -> Random.Generator (List Player)
         generateNewAndPrepend playerConfig precedingPlayers =
-            generatePlayer config numberOfPlayers (List.map .position precedingPlayers) playerConfig
+            generatePlayer config numberOfPlayers (List.map (.state >> .position) precedingPlayers) playerConfig
                 |> Random.map (\player -> player :: precedingPlayers)
 
         generateReversedPlayers =
@@ -72,9 +72,11 @@ generatePlayer config numberOfPlayers existingPositions playerConfig =
         (\generatedPosition generatedAngle generatedHoleStatus ->
             { color = playerConfig.color
             , controls = toStringSetControls playerConfig.controls
-            , position = generatedPosition
-            , direction = generatedAngle
-            , holeStatus = generatedHoleStatus
+            , state =
+                { position = generatedPosition
+                , direction = generatedAngle
+                , holeStatus = generatedHoleStatus
+                }
             }
         )
         safeSpawnPosition
