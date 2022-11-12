@@ -19,6 +19,7 @@ import Types.Speed as Speed exposing (Speed(..))
 import Types.Thickness as Thickness exposing (Thickness(..))
 import Types.Tick as Tick exposing (Tick(..))
 import Types.Tickrate as Tickrate exposing (Tickrate(..))
+import Types.TurningState exposing (TurningState)
 import Util exposing (isEven)
 import World exposing (DrawingPosition, Pixel, distanceToTicks)
 
@@ -223,14 +224,14 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
 
-updatePlayer : Set String -> Set Pixel -> Player -> ( List DrawingPosition, Random.Generator Player, Player.Fate )
-updatePlayer pressedButtons occupiedPixels player =
+updatePlayer : TurningState -> Set Pixel -> Player -> ( List DrawingPosition, Random.Generator Player, Player.Fate )
+updatePlayer turningState occupiedPixels player =
     let
         distanceTraveledSinceLastTick =
             Speed.toFloat config.kurves.speed / Tickrate.toFloat config.kurves.tickrate
 
         newDirection =
-            Angle.add player.state.direction <| computeAngleChange config.kurves <| computeTurningState pressedButtons player
+            Angle.add player.state.direction <| computeAngleChange config.kurves turningState
 
         ( x, y ) =
             player.state.position
@@ -351,8 +352,11 @@ update msg ({ pressedButtons } as model) =
                         )
                 checkIndividualPlayer player ( checkedPlayersGenerator, occupiedPixels, coloredDrawingPositions ) =
                     let
+                        turningState =
+                            computeTurningState effectivePressedButtons player
+
                         ( newPlayerDrawingPositions, checkedPlayerGenerator, fate ) =
-                            updatePlayer effectivePressedButtons occupiedPixels player
+                            updatePlayer turningState occupiedPixels player
 
                         occupiedPixelsAfterCheckingThisPlayer =
                             List.foldr
