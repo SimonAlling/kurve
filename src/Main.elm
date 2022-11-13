@@ -117,14 +117,14 @@ prepareLiveRound seed pressedButtons =
         ( thePlayers, seedAfterSpawn ) =
             Random.step (generatePlayers config) seed
     in
-    prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons }
-        (Input.batch pressedButtons firstUpdateTick)
-        |> Live
+    Live <|
+        prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons } (Input.batch pressedButtons firstUpdateTick)
 
 
 prepareReplayRound : RoundInitialState -> List UserInteraction -> MidRoundState
 prepareReplayRound initialState reversedUserInteractions =
-    prepareRoundHelper initialState reversedUserInteractions |> Replay
+    Replay <|
+        prepareRoundHelper initialState reversedUserInteractions
 
 
 prepareRoundHelper : RoundInitialState -> List UserInteraction -> Round
