@@ -38,6 +38,11 @@ type alias Round =
     }
 
 
+modifyHistory : (RoundHistory -> RoundHistory) -> Round -> Round
+modifyHistory f round =
+    { round | history = f round.history }
+
+
 type GameState
     = MidRound Tick MidRoundState
     | PostRound Round
@@ -90,6 +95,11 @@ type alias RoundHistory =
     { initialState : RoundInitialState
     , reversedUserInteractions : List UserInteraction
     }
+
+
+modifyReversedUserInteractions : (List UserInteraction -> List UserInteraction) -> RoundHistory -> RoundHistory
+modifyReversedUserInteractions f history =
+    { history | reversedUserInteractions = f history.reversedUserInteractions }
 
 
 type alias Players =
@@ -531,18 +541,17 @@ handleUserInteraction direction button model =
 
 
 recordUserInteraction : ButtonDirection -> Button -> Tick -> Round -> Round
-recordUserInteraction direction button lastTick ({ history } as currentRound) =
-    { currentRound
-        | history =
-            { history
-                | reversedUserInteractions =
+recordUserInteraction direction button lastTick currentRound =
+    currentRound
+        |> modifyHistory
+            (modifyReversedUserInteractions
+                ((::)
                     { happenedBeforeTick = Tick.succ lastTick
                     , direction = direction
                     , button = button
                     }
-                        :: history.reversedUserInteractions
-            }
-    }
+                )
+            )
 
 
 roundIsOver : Players -> Bool
