@@ -507,20 +507,26 @@ sortPlayers =
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
 handleUserInteraction direction button model =
     let
-        newGameState =
-            case model.gameState of
-                (MidRound lastTick (Live _)) as gameState ->
-                    modifyMidRoundState (modifyRound (recordUserInteraction direction button lastTick)) gameState
+        newPressedButtons =
+            updatePressedButtons direction button model.pressedButtons
 
-                (PreRound _ (Live _)) as gameState ->
-                    modifyMidRoundState (modifyRound (recordUserInteraction direction button firstUpdateTick)) gameState
+        howToModifyRound =
+            case model.gameState of
+                MidRound lastTick (Live _) ->
+                    recordInteractionBefore lastTick
+
+                PreRound _ (Live _) ->
+                    recordInteractionBefore firstUpdateTick
 
                 _ ->
-                    model.gameState
+                    identity
+
+        recordInteractionBefore tick =
+            recordUserInteraction direction button tick
     in
     { model
-        | pressedButtons = updatePressedButtons direction button model.pressedButtons
-        , gameState = newGameState
+        | pressedButtons = newPressedButtons
+        , gameState = modifyMidRoundState (modifyRound howToModifyRound) model.gameState
     }
 
 
