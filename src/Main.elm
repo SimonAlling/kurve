@@ -75,6 +75,16 @@ type alias Players =
     }
 
 
+modifyAlive : (List Player -> List Player) -> Players -> Players
+modifyAlive f players =
+    { players | alive = f players.alive }
+
+
+modifyDead : (List Player -> List Player) -> Players -> Players
+modifyDead f players =
+    { players | dead = f players.dead }
+
+
 firstUpdateTick : Tick
 firstUpdateTick =
     -- Any buttons already pressed at round start are treated as having been pressed right before this tick.
@@ -368,13 +378,13 @@ update msg ({ pressedButtons } as model) =
                             coloredDrawingPositions ++ List.map (Tuple.pair player.color) newPlayerDrawingPositions
 
                         playersAfterCheckingThisPlayer : Player -> Players -> Players
-                        playersAfterCheckingThisPlayer checkedPlayer checkedPlayers =
+                        playersAfterCheckingThisPlayer checkedPlayer =
                             case fate of
                                 Player.Dies ->
-                                    { checkedPlayers | dead = checkedPlayer :: checkedPlayers.dead }
+                                    modifyDead ((::) checkedPlayer)
 
                                 Player.Lives ->
-                                    { checkedPlayers | alive = checkedPlayer :: checkedPlayers.alive }
+                                    modifyAlive ((::) checkedPlayer)
                     in
                     ( Random.map2 playersAfterCheckingThisPlayer checkedPlayerGenerator checkedPlayersGenerator
                     , occupiedPixelsAfterCheckingThisPlayer
