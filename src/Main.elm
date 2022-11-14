@@ -45,9 +45,32 @@ type GameState
     | Lobby
 
 
+modifyMidRoundState : (MidRoundState -> MidRoundState) -> GameState -> GameState
+modifyMidRoundState f gameState =
+    case gameState of
+        MidRound t midRoundState ->
+            MidRound t <| f midRoundState
+
+        PreRound s midRoundState ->
+            PreRound s <| f midRoundState
+
+        _ ->
+            gameState
+
+
 type MidRoundState
     = Live Round
     | Replay Round
+
+
+modifyRound : (Round -> Round) -> MidRoundState -> MidRoundState
+modifyRound f midRoundState =
+    case midRoundState of
+        Live round ->
+            Live <| f round
+
+        Replay round ->
+            Replay <| f round
 
 
 type alias SpawnState =
@@ -417,12 +440,7 @@ update msg ({ pressedButtons } as model) =
                         PostRound newCurrentRound
 
                     else
-                        case midRoundState of
-                            Live _ ->
-                                MidRound tick <| Live newCurrentRound
-
-                            Replay _ ->
-                                MidRound tick <| Replay newCurrentRound
+                        MidRound tick <| modifyRound (always newCurrentRound) midRoundState
             in
             ( { model
                 | gameState = newGameState
@@ -491,11 +509,11 @@ handleUserInteraction direction button model =
     let
         newGameState =
             case model.gameState of
-                MidRound lastTick (Live currentRound) ->
-                    MidRound lastTick (Live <| recordUserInteraction direction button lastTick currentRound)
+                (MidRound lastTick (Live _)) as gameState ->
+                    modifyMidRoundState (modifyRound (recordUserInteraction direction button lastTick)) gameState
 
-                PreRound spawnState (Live currentRound) ->
-                    PreRound spawnState (Live <| recordUserInteraction direction button firstUpdateTick currentRound)
+                (PreRound _ (Live _)) as gameState ->
+                    modifyMidRoundState (modifyRound (recordUserInteraction direction button firstUpdateTick)) gameState
 
                 _ ->
                     model.gameState
