@@ -3,17 +3,17 @@ module Main exposing (main)
 import Canvas exposing (bodyDrawingCmds, clearEverything, clearOverlay, drawSpawnIfAndOnlyIf, headDrawingCmds)
 import Color exposing (Color)
 import Config exposing (config)
-import Input exposing (Button(..), ButtonDirection(..), UserInteraction, inputSubscriptions, updatePressedButtons)
+import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Platform exposing (worker)
 import Random
 import Random.Extra as Random
 import Set exposing (Set(..))
 import Spawn exposing (generateHoleSize, generateHoleSpacing, generatePlayers)
 import Time
-import Turning exposing (computeAngleChange, computeTurningState)
+import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle(..))
 import Types.Distance as Distance exposing (Distance(..))
-import Types.Player as Player exposing (Player)
+import Types.Player as Player exposing (Player, UserInteraction(..), modifyReversedInteractions)
 import Types.PlayerId as PlayerId
 import Types.Speed as Speed exposing (Speed(..))
 import Types.Thickness as Thickness exposing (Thickness(..))
@@ -36,11 +36,6 @@ type alias Round =
     , occupiedPixels : Set Pixel
     , history : RoundHistory
     }
-
-
-modifyHistory : (RoundHistory -> RoundHistory) -> Round -> Round
-modifyHistory f round =
-    { round | history = f round.history }
 
 
 type GameState
@@ -93,19 +88,18 @@ type alias RoundInitialState =
 
 type alias RoundHistory =
     { initialState : RoundInitialState
-    , reversedUserInteractions : List UserInteraction
     }
-
-
-modifyReversedUserInteractions : (List UserInteraction -> List UserInteraction) -> RoundHistory -> RoundHistory
-modifyReversedUserInteractions f history =
-    { history | reversedUserInteractions = f history.reversedUserInteractions }
 
 
 type alias Players =
     { alive : List Player
     , dead : List Player
     }
+
+
+modifyPlayers : (Players -> Players) -> Round -> Round
+modifyPlayers f round =
+    { round | players = f round.players }
 
 
 modifyAlive : (List Player -> List Player) -> Players -> Players
@@ -157,21 +151,24 @@ newRoundGameStateAndCmd plannedMidRoundState =
 prepareLiveRound : Random.Seed -> Set String -> MidRoundState
 prepareLiveRound seed pressedButtons =
     let
+        recordInitialInteractions =
+            List.map (recordUserInteraction pressedButtons firstUpdateTick)
+
         ( thePlayers, seedAfterSpawn ) =
-            Random.step (generatePlayers config) seed
+            Random.step (generatePlayers config) seed |> Tuple.mapFirst recordInitialInteractions
     in
     Live <|
-        prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons } (Input.batch pressedButtons firstUpdateTick)
+        prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons }
 
 
-prepareReplayRound : RoundInitialState -> List UserInteraction -> MidRoundState
-prepareReplayRound initialState reversedUserInteractions =
+prepareReplayRound : RoundInitialState -> MidRoundState
+prepareReplayRound initialState =
     Replay <|
-        prepareRoundHelper initialState reversedUserInteractions
+        prepareRoundHelper initialState
 
 
-prepareRoundHelper : RoundInitialState -> List UserInteraction -> Round
-prepareRoundHelper initialState reversedUserInteractions =
+prepareRoundHelper : RoundInitialState -> Round
+prepareRoundHelper initialState =
     let
         thePlayers =
             initialState.spawnedPlayers
@@ -184,7 +181,6 @@ prepareRoundHelper initialState reversedUserInteractions =
             , occupiedPixels = List.foldr (.state >> .position >> World.drawingPosition thickness >> World.pixelsToOccupy thickness >> Set.union) Set.empty thePlayers
             , history =
                 { initialState = initialState
-                , reversedUserInteractions = reversedUserInteractions
                 }
             }
     in
@@ -334,13 +330,6 @@ updateHoleStatus speed holeStatus =
             Random.constant <| Player.Unholy (ticksLeft - 1)
 
 
-considerPastButtonPresses : RoundHistory -> Tick -> Set String
-considerPastButtonPresses history tick =
-    history.reversedUserInteractions
-        |> List.filter (\k -> Tick.toInt k.happenedBeforeTick <= Tick.toInt tick)
-        |> List.foldr (\k -> updatePressedButtons k.direction k.button) Set.empty
-
-
 extractRound : MidRoundState -> Round
 extractRound s =
     case s of
@@ -382,9 +371,6 @@ update msg ({ pressedButtons } as model) =
                 currentRound =
                     extractRound midRoundState
 
-                effectivePressedButtons =
-                    considerPastButtonPresses currentRound.history tick
-
                 checkIndividualPlayer :
                     Player
                     -> ( Random.Generator Players, Set World.Pixel, List ( Color, DrawingPosition ) )
@@ -396,7 +382,7 @@ update msg ({ pressedButtons } as model) =
                 checkIndividualPlayer player ( checkedPlayersGenerator, occupiedPixels, coloredDrawingPositions ) =
                     let
                         turningState =
-                            computeTurningState effectivePressedButtons player
+                            turningStateFromHistory tick player
 
                         ( newPlayerDrawingPositions, checkedPlayerGenerator, fate ) =
                             updatePlayer turningState occupiedPixels player
@@ -485,7 +471,6 @@ update msg ({ pressedButtons } as model) =
                             startRound model <|
                                 prepareReplayRound
                                     (initialStateForReplaying finishedRound)
-                                    finishedRound.history.reversedUserInteractions
 
                         _ ->
                             startNewRoundIfSpacePressed
@@ -532,7 +517,7 @@ handleUserInteraction direction button model =
                     identity
 
         recordInteractionBefore tick =
-            recordUserInteraction direction button tick
+            modifyPlayers <| modifyAlive <| List.map (recordUserInteraction newPressedButtons tick)
     in
     { model
         | pressedButtons = newPressedButtons
@@ -540,18 +525,13 @@ handleUserInteraction direction button model =
     }
 
 
-recordUserInteraction : ButtonDirection -> Button -> Tick -> Round -> Round
-recordUserInteraction direction button nextTick currentRound =
-    currentRound
-        |> modifyHistory
-            (modifyReversedUserInteractions
-                ((::)
-                    { happenedBeforeTick = nextTick
-                    , direction = direction
-                    , button = button
-                    }
-                )
-            )
+recordUserInteraction : Set String -> Tick -> Player -> Player
+recordUserInteraction pressedButtons nextTick player =
+    let
+        newTurningState =
+            computeTurningState pressedButtons player
+    in
+    modifyReversedInteractions ((::) (HappenedBefore nextTick newTurningState)) player
 
 
 roundIsOver : Players -> Bool

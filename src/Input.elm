@@ -1,4 +1,4 @@
-port module Input exposing (Button(..), ButtonDirection(..), UserInteraction, batch, inputSubscriptions, stringToButton, toStringSetControls, updatePressedButtons)
+port module Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, stringToButton, toStringSetControls, updatePressedButtons)
 
 import Set exposing (Set(..))
 import Types.Tick exposing (Tick(..))
@@ -25,13 +25,6 @@ inputSubscriptions makeMsg =
     ]
 
 
-type alias UserInteraction =
-    { happenedBeforeTick : Tick
-    , direction : ButtonDirection
-    , button : Button
-    }
-
-
 type ButtonDirection
     = Up
     | Down
@@ -47,21 +40,6 @@ updatePressedButtons direction =
                 Up ->
                     Set.remove
            )
-
-
-batch : Set String -> Tick -> List UserInteraction
-batch pressedButtons tick =
-    let
-        parseAndPrepend : String -> List UserInteraction -> List UserInteraction
-        parseAndPrepend string interactions =
-            case stringToButton string of
-                Just button ->
-                    { happenedBeforeTick = tick, direction = Down, button = button } :: interactions
-
-                Nothing ->
-                    interactions
-    in
-    Set.foldl parseAndPrepend [] pressedButtons
 
 
 type Button

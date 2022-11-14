@@ -87,6 +87,7 @@ generatePlayer config id numberOfPlayers existingPositions playerConfig =
             , controls = toStringSetControls playerConfig.controls
             , state = state
             , stateAtSpawn = state
+            , reversedInteractions = []
             }
         )
         safeSpawnPosition

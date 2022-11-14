@@ -1,11 +1,12 @@
-module Turning exposing (computeAngleChange, computeTurningState)
+module Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 
 import Config exposing (KurveConfig)
 import Set exposing (Set(..))
 import Types.Angle as Angle exposing (Angle(..))
-import Types.Player exposing (Player)
+import Types.Player exposing (Player, UserInteraction(..))
 import Types.Radius as Radius exposing (Radius(..))
 import Types.Speed as Speed exposing (Speed(..))
+import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate exposing (Tickrate(..))
 import Types.TurningState exposing (TurningState(..))
 
@@ -47,3 +48,22 @@ computeTurningState pressedButtons player =
 computedAngleChange : KurveConfig -> Angle
 computedAngleChange { tickrate, turningRadius, speed } =
     Angle (Speed.toFloat speed / (Tickrate.toFloat tickrate * Radius.toFloat turningRadius))
+
+
+turningStateFromHistory : Tick -> Player -> TurningState
+turningStateFromHistory currentTick player =
+    newestFromBefore currentTick player.reversedInteractions
+
+
+newestFromBefore : Tick -> List UserInteraction -> TurningState
+newestFromBefore currentTick reversedInteractions =
+    case reversedInteractions of
+        [] ->
+            NotTurning
+
+        (HappenedBefore tick turningState) :: rest ->
+            if Tick.toInt tick <= Tick.toInt currentTick then
+                turningState
+
+            else
+                newestFromBefore currentTick rest
