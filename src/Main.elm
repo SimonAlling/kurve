@@ -523,7 +523,7 @@ handleUserInteraction direction button model =
         howToModifyRound =
             case model.gameState of
                 MidRound lastTick (Live _) ->
-                    recordInteractionBefore lastTick
+                    recordInteractionBefore (Tick.succ lastTick)
 
                 PreRound _ (Live _) ->
                     recordInteractionBefore firstUpdateTick
@@ -541,12 +541,12 @@ handleUserInteraction direction button model =
 
 
 recordUserInteraction : ButtonDirection -> Button -> Tick -> Round -> Round
-recordUserInteraction direction button lastTick currentRound =
+recordUserInteraction direction button nextTick currentRound =
     currentRound
         |> modifyHistory
             (modifyReversedUserInteractions
                 ((::)
-                    { happenedBeforeTick = Tick.succ lastTick
+                    { happenedBeforeTick = nextTick
                     , direction = direction
                     , button = button
                     }
