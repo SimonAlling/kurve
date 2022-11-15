@@ -1,7 +1,6 @@
 port module Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, stringToButton, toStringSetControls, updatePressedButtons)
 
-import Set exposing (Set(..))
-import Types.Tick exposing (Tick(..))
+import Set exposing (Set)
 
 
 port onKeydown : (String -> msg) -> Sub msg

@@ -8,8 +8,8 @@ import Types.Angle exposing (Angle(..))
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Player as Player exposing (Player)
 import Types.PlayerId exposing (PlayerId(..))
-import Types.Radius as Radius exposing (Radius(..))
-import Types.Thickness as Thickness exposing (Thickness(..))
+import Types.Radius as Radius
+import Types.Thickness as Thickness
 import World exposing (Position, distanceToTicks)
 
 

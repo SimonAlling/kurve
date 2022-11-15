@@ -1,13 +1,13 @@
 module Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 
 import Config exposing (KurveConfig)
-import Set exposing (Set(..))
+import Set exposing (Set)
 import Types.Angle as Angle exposing (Angle(..))
 import Types.Player exposing (Player, UserInteraction(..))
-import Types.Radius as Radius exposing (Radius(..))
-import Types.Speed as Speed exposing (Speed(..))
+import Types.Radius as Radius
+import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
-import Types.Tickrate as Tickrate exposing (Tickrate(..))
+import Types.Tickrate as Tickrate
 import Types.TurningState exposing (TurningState(..))
 
 

@@ -14,7 +14,7 @@ module World exposing
 import List.Cartesian
 import RasterShapes
 import Set exposing (Set)
-import Types.Distance as Distance exposing (Distance(..))
+import Types.Distance as Distance exposing (Distance)
 import Types.Speed as Speed exposing (Speed)
 import Types.Thickness as Thickness
 import Types.Tickrate as Tickrate

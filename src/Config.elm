@@ -2,7 +2,6 @@ module Config exposing (Config, HoleConfig, KurveConfig, PlayerConfig, SpawnConf
 
 import Color exposing (Color)
 import Input exposing (Button(..))
-import Types.Angle exposing (Angle(..))
 import Types.Distance exposing (Distance(..))
 import Types.Radius exposing (Radius(..))
 import Types.Speed exposing (Speed(..))

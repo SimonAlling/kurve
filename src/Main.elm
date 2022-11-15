@@ -7,14 +7,13 @@ import Game exposing (GameState(..), MidRoundState(..), SpawnState, extractRound
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Platform exposing (worker)
 import Random
-import Random.Extra as Random
 import Round exposing (Players, initialStateForReplaying, modifyAlive, modifyDead, modifyPlayers, roundIsOver)
-import Set exposing (Set(..))
+import Set exposing (Set)
 import Time
 import Turning exposing (turningStateFromHistory)
-import Types.Player as Player exposing (Player, UserInteraction(..))
-import Types.Tick as Tick exposing (Tick(..))
-import Types.Tickrate as Tickrate exposing (Tickrate(..))
+import Types.Player as Player exposing (Player)
+import Types.Tick as Tick exposing (Tick)
+import Types.Tickrate as Tickrate
 import Util exposing (isEven)
 import World exposing (DrawingPosition)
 

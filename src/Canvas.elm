@@ -2,7 +2,7 @@ port module Canvas exposing (bodyDrawingCmds, clearEverything, clearOverlay, dra
 
 import Color exposing (Color)
 import Types.Player exposing (Player)
-import Types.Thickness as Thickness exposing (Thickness(..))
+import Types.Thickness as Thickness exposing (Thickness)
 import World exposing (DrawingPosition)
 
 

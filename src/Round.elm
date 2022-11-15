@@ -1,7 +1,7 @@
 module Round exposing (Players, Round, RoundHistory, RoundInitialState, initialStateForReplaying, modifyAlive, modifyDead, modifyPlayers, roundIsOver)
 
 import Random
-import Set exposing (Set(..))
+import Set exposing (Set)
 import Types.Player as Player exposing (Player)
 import Types.PlayerId as PlayerId
 import World exposing (Pixel)
