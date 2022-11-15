@@ -7,6 +7,7 @@ import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, upda
 import Platform exposing (worker)
 import Random
 import Random.Extra as Random
+import Round exposing (Players, Round, RoundInitialState, initialStateForReplaying, modifyAlive, modifyDead, modifyPlayers, roundIsOver)
 import Set exposing (Set(..))
 import Spawn exposing (generateHoleSize, generateHoleSpacing, generatePlayers)
 import Time
@@ -14,7 +15,6 @@ import Turning exposing (computeAngleChange, computeTurningState, turningStateFr
 import Types.Angle as Angle exposing (Angle(..))
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Player as Player exposing (Player, UserInteraction(..), modifyReversedInteractions)
-import Types.PlayerId as PlayerId
 import Types.Speed as Speed exposing (Speed(..))
 import Types.Thickness as Thickness exposing (Thickness(..))
 import Types.Tick as Tick exposing (Tick(..))
@@ -27,14 +27,6 @@ import World exposing (DrawingPosition, Pixel, distanceToTicks)
 type alias Model =
     { pressedButtons : Set String
     , gameState : GameState
-    }
-
-
-type alias Round =
-    { players : Players
-    , occupiedPixels : Set Pixel
-    , history : RoundHistory
-    , seed : Random.Seed
     }
 
 
@@ -77,39 +69,6 @@ type alias SpawnState =
     { playersLeft : List Player
     , ticksLeft : Int
     }
-
-
-type alias RoundInitialState =
-    { seedAfterSpawn : Random.Seed
-    , spawnedPlayers : List Player
-    , pressedButtons : Set String
-    }
-
-
-type alias RoundHistory =
-    { initialState : RoundInitialState
-    }
-
-
-type alias Players =
-    { alive : List Player
-    , dead : List Player
-    }
-
-
-modifyPlayers : (Players -> Players) -> Round -> Round
-modifyPlayers f round =
-    { round | players = f round.players }
-
-
-modifyAlive : (List Player -> List Player) -> Players -> Players
-modifyAlive f players =
-    { players | alive = f players.alive }
-
-
-modifyDead : (List Player -> List Player) -> Players -> Players
-modifyDead f players =
-    { players | dead = f players.dead }
 
 
 firstUpdateTick : Tick
@@ -473,23 +432,6 @@ update msg ({ pressedButtons } as model) =
             ( handleUserInteraction Up key model, Cmd.none )
 
 
-initialStateForReplaying : Round -> RoundInitialState
-initialStateForReplaying round =
-    let
-        initialState =
-            round.history.initialState
-
-        thePlayers =
-            round.players.alive ++ round.players.dead
-    in
-    { initialState | spawnedPlayers = thePlayers |> List.map Player.reset |> sortPlayers }
-
-
-sortPlayers : List Player -> List Player
-sortPlayers =
-    List.sortBy (.id >> PlayerId.toInt)
-
-
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
 handleUserInteraction direction button model =
     let
@@ -523,18 +465,6 @@ recordUserInteraction pressedButtons nextTick player =
             computeTurningState pressedButtons player
     in
     modifyReversedInteractions ((::) (HappenedBefore nextTick newTurningState)) player
-
-
-roundIsOver : Players -> Bool
-roundIsOver players =
-    let
-        someoneHasWonInMultiPlayer =
-            List.length players.alive == 1 && not (List.isEmpty players.dead)
-
-        playerHasDiedInSinglePlayer =
-            List.isEmpty players.alive
-    in
-    someoneHasWonInMultiPlayer || playerHasDiedInSinglePlayer
 
 
 subscriptions : Model -> Sub Msg
