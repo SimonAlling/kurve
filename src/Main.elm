@@ -156,14 +156,12 @@ prepareLiveRound seed pressedButtons =
         ( thePlayers, seedAfterSpawn ) =
             Random.step (generatePlayers config) seed |> Tuple.mapFirst recordInitialInteractions
     in
-    Live <|
-        prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons }
+    Live <| prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons }
 
 
 prepareReplayRound : RoundInitialState -> MidRoundState
 prepareReplayRound initialState =
-    Replay <|
-        prepareRoundHelper initialState
+    Replay <| prepareRoundHelper initialState
 
 
 prepareRoundHelper : RoundInitialState -> Round
@@ -439,9 +437,7 @@ update msg ({ pressedButtons } as model) =
                     else
                         MidRound tick <| modifyRound (always newCurrentRound) midRoundState
             in
-            ( { model
-                | gameState = newGameState
-              }
+            ( { model | gameState = newGameState }
             , clearOverlay { width = config.world.width, height = config.world.height }
                 :: headDrawingCmds config.kurves.thickness newPlayers.alive
                 ++ bodyDrawingCmds config.kurves.thickness newColoredDrawingPositions
@@ -453,10 +449,7 @@ update msg ({ pressedButtons } as model) =
                 startNewRoundIfSpacePressed seed =
                     case button of
                         Key "Space" ->
-                            startRound model <|
-                                prepareLiveRound
-                                    seed
-                                    pressedButtons
+                            startRound model <| prepareLiveRound seed pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
@@ -468,9 +461,7 @@ update msg ({ pressedButtons } as model) =
                 PostRound finishedRound ->
                     case button of
                         Key "KeyR" ->
-                            startRound model <|
-                                prepareReplayRound
-                                    (initialStateForReplaying finishedRound)
+                            startRound model <| prepareReplayRound (initialStateForReplaying finishedRound)
 
                         _ ->
                             startNewRoundIfSpacePressed finishedRound.seed
