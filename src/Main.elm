@@ -27,7 +27,6 @@ import World exposing (DrawingPosition, Pixel, distanceToTicks)
 type alias Model =
     { pressedButtons : Set String
     , gameState : GameState
-    , seed : Random.Seed
     }
 
 
@@ -35,6 +34,7 @@ type alias Round =
     { players : Players
     , occupiedPixels : Set Pixel
     , history : RoundHistory
+    , seed : Random.Seed
     }
 
 
@@ -42,7 +42,7 @@ type GameState
     = MidRound Tick MidRoundState
     | PostRound Round
     | PreRound SpawnState MidRoundState
-    | Lobby
+    | Lobby Random.Seed
 
 
 modifyMidRoundState : (MidRoundState -> MidRoundState) -> GameState -> GameState
@@ -121,8 +121,7 @@ firstUpdateTick =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedButtons = Set.empty
-      , gameState = Lobby
-      , seed = Random.initialSeed 1337
+      , gameState = Lobby (Random.initialSeed 1337)
       }
     , Cmd.none
     )
@@ -182,6 +181,7 @@ prepareRoundHelper initialState =
             , history =
                 { initialState = initialState
                 }
+            , seed = initialState.seedAfterSpawn
             }
     in
     round
@@ -423,12 +423,13 @@ update msg ({ pressedButtons } as model) =
                         currentRound.players.alive
 
                 ( newPlayers, newSeed ) =
-                    Random.step newPlayersGenerator model.seed
+                    Random.step newPlayersGenerator currentRound.seed
 
                 newCurrentRound =
                     { players = newPlayers
                     , occupiedPixels = newOccupiedPixels
                     , history = currentRound.history
+                    , seed = newSeed
                     }
 
                 newGameState =
@@ -440,7 +441,6 @@ update msg ({ pressedButtons } as model) =
             in
             ( { model
                 | gameState = newGameState
-                , seed = newSeed
               }
             , clearOverlay { width = config.world.width, height = config.world.height }
                 :: headDrawingCmds config.kurves.thickness newPlayers.alive
@@ -450,20 +450,20 @@ update msg ({ pressedButtons } as model) =
 
         ButtonUsed Down button ->
             let
-                startNewRoundIfSpacePressed =
+                startNewRoundIfSpacePressed seed =
                     case button of
                         Key "Space" ->
                             startRound model <|
                                 prepareLiveRound
-                                    model.seed
+                                    seed
                                     pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
             in
             case model.gameState of
-                Lobby ->
-                    startNewRoundIfSpacePressed
+                Lobby seed ->
+                    startNewRoundIfSpacePressed seed
 
                 PostRound finishedRound ->
                     case button of
@@ -473,7 +473,7 @@ update msg ({ pressedButtons } as model) =
                                     (initialStateForReplaying finishedRound)
 
                         _ ->
-                            startNewRoundIfSpacePressed
+                            startNewRoundIfSpacePressed finishedRound.seed
 
                 _ ->
                     ( handleUserInteraction Down button model, Cmd.none )
@@ -550,7 +550,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch <|
         (case model.gameState of
-            Lobby ->
+            Lobby _ ->
                 Sub.none
 
             PostRound _ ->
