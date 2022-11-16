@@ -1,4 +1,4 @@
-module Util exposing (..)
+module Util exposing (isEven)
 
 
 isEven : Int -> Bool
