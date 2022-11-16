@@ -13,6 +13,7 @@ when inside the directory containing this file.
 
 import NoConfusingPrefixOperator
 import NoExposingEverything
+import NoImportingEverything
 import NoMissingTypeAnnotation
 import NoPrematureLetComputation
 import NoUnused.CustomTypeConstructorArgs
@@ -29,6 +30,7 @@ config : List Rule
 config =
     [ NoConfusingPrefixOperator.rule
     , NoExposingEverything.rule
+    , NoImportingEverything.rule []
     , NoMissingTypeAnnotation.rule
     , NoPrematureLetComputation.rule
     , NoUnused.CustomTypeConstructors.rule []
