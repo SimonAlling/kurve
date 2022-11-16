@@ -1,9 +1,9 @@
 module Types.Player exposing (Fate(..), HoleStatus(..), Player, UserInteraction(..), modifyReversedInteractions, reset)
 
 import Color exposing (Color)
-import Set exposing (Set(..))
-import Types.Angle exposing (Angle(..))
-import Types.PlayerId exposing (PlayerId(..))
+import Set exposing (Set)
+import Types.Angle exposing (Angle)
+import Types.PlayerId exposing (PlayerId)
 import Types.Tick exposing (Tick)
 import Types.TurningState exposing (TurningState)
 import World exposing (Position)

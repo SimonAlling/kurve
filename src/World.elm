@@ -5,10 +5,8 @@ module World exposing
     , desiredDrawingPositions
     , distanceToTicks
     , drawingPosition
-    , fromBresenham
     , hitbox
     , pixelsToOccupy
-    , toBresenham
     )
 
 import List.Cartesian

@@ -1,4 +1,4 @@
-port module Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, stringToButton, toStringSetControls, updatePressedButtons)
+port module Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, toStringSetControls, updatePressedButtons)
 
 import Set exposing (Set)
 
@@ -54,18 +54,6 @@ buttonToString button =
 
         Mouse buttonNumber ->
             "Mouse" ++ String.fromInt buttonNumber
-
-
-{-| Designed to decode values encoded by `buttonToString`, nothing else.
--}
-stringToButton : String -> Maybe Button
-stringToButton string =
-    case String.toList string of
-        'M' :: 'o' :: 'u' :: 's' :: 'e' :: rest ->
-            rest |> String.fromList |> String.toInt |> Maybe.map Mouse
-
-        _ ->
-            string |> Key |> Just
 
 
 toStringSetControls : ( List Button, List Button ) -> ( Set String, Set String )
