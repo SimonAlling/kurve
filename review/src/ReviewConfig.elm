@@ -11,6 +11,7 @@ when inside the directory containing this file.
 
 -}
 
+import NoMissingTypeAnnotation
 import NoUnused.CustomTypeConstructorArgs
 import NoUnused.CustomTypeConstructors
 import NoUnused.Dependencies
@@ -20,10 +21,10 @@ import NoUnused.Patterns
 import NoUnused.Variables
 import Review.Rule exposing (Rule)
 
-
 config : List Rule
 config =
-    [ NoUnused.CustomTypeConstructors.rule []
+    [ NoMissingTypeAnnotation.rule
+    , NoUnused.CustomTypeConstructors.rule []
     , NoUnused.CustomTypeConstructorArgs.rule
     , NoUnused.Dependencies.rule
     , NoUnused.Exports.rule
