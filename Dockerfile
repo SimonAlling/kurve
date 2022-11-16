@@ -8,6 +8,8 @@ RUN npm ci
 
 COPY elm.json .
 COPY elm-watch.json .
+COPY review review
 COPY src src
 RUN npm run lint
 RUN npm run build
+RUN npm run review
