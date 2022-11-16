@@ -12,6 +12,7 @@ when inside the directory containing this file.
 -}
 
 import NoMissingTypeAnnotation
+import NoPrematureLetComputation
 import NoUnused.CustomTypeConstructorArgs
 import NoUnused.CustomTypeConstructors
 import NoUnused.Dependencies
@@ -25,6 +26,7 @@ import Simplify
 config : List Rule
 config =
     [ NoMissingTypeAnnotation.rule
+    , NoPrematureLetComputation.rule
     , NoUnused.CustomTypeConstructors.rule []
     , NoUnused.CustomTypeConstructorArgs.rule
     , NoUnused.Dependencies.rule
