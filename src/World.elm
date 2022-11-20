@@ -58,12 +58,15 @@ edgeOfSquare thickness xOrY =
 pixelsToOccupy : Thickness.Thickness -> DrawingPosition -> Set Pixel
 pixelsToOccupy thickness { leftEdge, topEdge } =
     let
+        rangeFrom : Int -> List Int
         rangeFrom start =
             List.range start (start + Thickness.toInt thickness - 1)
 
+        xs : List Int
         xs =
             rangeFrom leftEdge
 
+        ys : List Int
         ys =
             rangeFrom topEdge
     in
@@ -86,20 +89,25 @@ desiredDrawingPositions thickness position1 position2 =
 hitbox : Thickness.Thickness -> DrawingPosition -> DrawingPosition -> Set Pixel
 hitbox thickness oldPosition newPosition =
     let
+        is45DegreeDraw : Bool
         is45DegreeDraw =
             oldPosition.leftEdge /= newPosition.leftEdge && oldPosition.topEdge /= newPosition.topEdge
 
+        oldPixels : Set Pixel
         oldPixels =
             pixelsToOccupy thickness oldPosition
 
+        newPixels : Set Pixel
         newPixels =
             pixelsToOccupy thickness newPosition
     in
     if is45DegreeDraw then
         let
+            oldXs : Set Int
             oldXs =
                 Set.map Tuple.first oldPixels
 
+            oldYs : Set Int
             oldYs =
                 Set.map Tuple.second oldPixels
         in

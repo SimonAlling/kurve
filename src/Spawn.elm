@@ -16,18 +16,21 @@ import World exposing (Position, distanceToTicks)
 generatePlayers : Config -> Random.Generator (List Player)
 generatePlayers config =
     let
+        numberOfPlayers : Int
         numberOfPlayers =
             List.length config.players
 
         generateNewAndPrepend : Config.PlayerConfig -> List Player -> Random.Generator (List Player)
         generateNewAndPrepend playerConfig precedingPlayers =
             let
+                id : PlayerId
                 id =
                     PlayerId <| List.length precedingPlayers
             in
             generatePlayer config id numberOfPlayers (List.map (.state >> .position) precedingPlayers) playerConfig
                 |> Random.map (\player -> player :: precedingPlayers)
 
+        generateReversedPlayers : Random.Generator (List Player)
         generateReversedPlayers =
             List.foldl
                 (Random.andThen << generateNewAndPrepend)
@@ -45,17 +48,20 @@ isSafeNewPosition config numberOfPlayers existingPositions newPosition =
 isTooCloseFor : Int -> Config -> Position -> Position -> Bool
 isTooCloseFor numberOfPlayers config point1 point2 =
     let
+        desiredMinimumDistance : Float
         desiredMinimumDistance =
             toFloat (Thickness.toInt config.kurves.thickness) + Radius.toFloat config.kurves.turningRadius * config.spawn.desiredMinimumDistanceTurningRadiusFactor
 
         ( ( left, top ), ( right, bottom ) ) =
             spawnArea config.spawn config.world
 
+        availableArea : Float
         availableArea =
             (right - left) * (bottom - top)
 
         -- Derived from:
         -- audacity × total available area > number of players × ( max allowed minimum distance / 2 )² × pi
+        maxAllowedMinimumDistance : Float
         maxAllowedMinimumDistance =
             2 * sqrt (config.spawn.protectionAudacity * availableArea / (toFloat numberOfPlayers * pi))
     in
@@ -70,12 +76,14 @@ distanceBetween ( x1, y1 ) ( x2, y2 ) =
 generatePlayer : Config -> PlayerId -> Int -> List Position -> PlayerConfig -> Random.Generator Player
 generatePlayer config id numberOfPlayers existingPositions playerConfig =
     let
+        safeSpawnPosition : Random.Generator Position
         safeSpawnPosition =
             generateSpawnPosition config.spawn config.world |> Random.filter (isSafeNewPosition config numberOfPlayers existingPositions)
     in
     Random.map3
         (\generatedPosition generatedAngle generatedHoleStatus ->
             let
+                state : Player.State
                 state =
                     { position = generatedPosition
                     , direction = generatedAngle
@@ -98,11 +106,13 @@ generatePlayer config id numberOfPlayers existingPositions playerConfig =
 spawnArea : SpawnConfig -> WorldConfig -> ( Position, Position )
 spawnArea { margin } { width, height } =
     let
+        topLeft : ( Float, Float )
         topLeft =
             ( margin
             , margin
             )
 
+        bottomRight : ( Float, Float )
         bottomRight =
             ( toFloat width - margin
             , toFloat height - margin

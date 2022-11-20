@@ -30,6 +30,7 @@ computeTurningState pressedButtons player =
         ( leftButtons, rightButtons ) =
             player.controls
 
+        someIsPressed : Set String -> Bool
         someIsPressed =
             Set.intersect pressedButtons >> Set.isEmpty >> not
     in

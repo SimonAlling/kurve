@@ -14,7 +14,7 @@ import Types.Thickness as Thickness
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Types.TurningState exposing (TurningState)
-import World exposing (DrawingPosition, Pixel, distanceToTicks)
+import World exposing (DrawingPosition, Pixel, Position, distanceToTicks)
 
 
 type GameState
@@ -77,6 +77,7 @@ firstUpdateTick =
 prepareLiveRound : Random.Seed -> Set String -> MidRoundState
 prepareLiveRound seed pressedButtons =
     let
+        recordInitialInteractions : List Player -> List Player
         recordInitialInteractions =
             List.map (recordUserInteraction pressedButtons firstUpdateTick)
 
@@ -94,12 +95,15 @@ prepareReplayRound initialState =
 prepareRoundHelper : RoundInitialState -> Round
 prepareRoundHelper initialState =
     let
+        thePlayers : List Player
         thePlayers =
             initialState.spawnedPlayers
 
+        thickness : Thickness.Thickness
         thickness =
             config.kurves.thickness
 
+        round : Round
         round =
             { players = { alive = thePlayers, dead = [] }
             , occupiedPixels = List.foldr (.state >> .position >> World.drawingPosition thickness >> World.pixelsToOccupy thickness >> Set.union) Set.empty thePlayers
@@ -130,12 +134,15 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
 
                 current :: rest ->
                     let
+                        theHitbox : Set Pixel
                         theHitbox =
                             World.hitbox config.kurves.thickness lastChecked current
 
+                        thickness : Int
                         thickness =
                             Thickness.toInt config.kurves.thickness
 
+                        drawsOutsideWorld : Bool
                         drawsOutsideWorld =
                             List.any ((==) True)
                                 [ current.leftEdge < 0
@@ -144,6 +151,7 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
                                 , current.topEdge > config.world.height - thickness
                                 ]
 
+                        dies : Bool
                         dies =
                             drawsOutsideWorld || (not <| Set.isEmpty <| Set.intersect theHitbox occupiedPixels)
                     in
@@ -153,6 +161,7 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
                     else
                         checkPositions (current :: checked) current rest
 
+        isHoly : Bool
         isHoly =
             case holeStatus of
                 Player.Holy _ ->
@@ -164,6 +173,7 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
         ( checkedPositionsReversed, evaluatedStatus ) =
             checkPositions [] startingPoint positionsToCheck
 
+        positionsToDraw : List DrawingPosition
         positionsToDraw =
             if isHoly then
                 case evaluatedStatus of
@@ -185,15 +195,18 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
 updatePlayer : TurningState -> Set Pixel -> Player -> ( List DrawingPosition, Random.Generator Player, Player.Fate )
 updatePlayer turningState occupiedPixels player =
     let
+        distanceTraveledSinceLastTick : Float
         distanceTraveledSinceLastTick =
             Speed.toFloat config.kurves.speed / Tickrate.toFloat config.kurves.tickrate
 
+        newDirection : Angle.Angle
         newDirection =
             Angle.add player.state.direction <| computeAngleChange config.kurves turningState
 
         ( x, y ) =
             player.state.position
 
+        newPosition : Position
         newPosition =
             ( x + distanceTraveledSinceLastTick * Angle.cos newDirection
             , -- The coordinate system is traditionally "flipped" (wrt standard math) such that the Y axis points downwards.
@@ -201,6 +214,7 @@ updatePlayer turningState occupiedPixels player =
               y - distanceTraveledSinceLastTick * Angle.sin newDirection
             )
 
+        thickness : Thickness.Thickness
         thickness =
             config.kurves.thickness
 
@@ -211,9 +225,11 @@ updatePlayer turningState occupiedPixels player =
                 occupiedPixels
                 player.state.holeStatus
 
+        newHoleStatusGenerator : Random.Generator Player.HoleStatus
         newHoleStatusGenerator =
             updateHoleStatus config.kurves.speed player.state.holeStatus
 
+        newPlayerState : Random.Generator Player.State
         newPlayerState =
             newHoleStatusGenerator
                 |> Random.map
@@ -224,6 +240,7 @@ updatePlayer turningState occupiedPixels player =
                         }
                     )
 
+        newPlayer : Random.Generator Player
         newPlayer =
             newPlayerState |> Random.map (\s -> { player | state = s })
     in
@@ -252,6 +269,7 @@ updateHoleStatus speed holeStatus =
 recordUserInteraction : Set String -> Tick -> Player -> Player
 recordUserInteraction pressedButtons nextTick player =
     let
+        newTurningState : TurningState
         newTurningState =
             computeTurningState pressedButtons player
     in

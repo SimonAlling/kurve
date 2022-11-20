@@ -15,6 +15,7 @@ import NoConfusingPrefixOperator
 import NoExposingEverything
 import NoImportingEverything
 import NoMissingTypeAnnotation
+import NoMissingTypeAnnotationInLetIn
 import NoPrematureLetComputation
 import NoUnused.CustomTypeConstructorArgs
 import NoUnused.CustomTypeConstructors
@@ -32,6 +33,7 @@ config =
     , NoExposingEverything.rule
     , NoImportingEverything.rule []
     , NoMissingTypeAnnotation.rule
+    , NoMissingTypeAnnotationInLetIn.rule
     , NoPrematureLetComputation.rule
     , NoUnused.CustomTypeConstructors.rule []
     , NoUnused.CustomTypeConstructorArgs.rule

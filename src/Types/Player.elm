@@ -1,4 +1,4 @@
-module Types.Player exposing (Fate(..), HoleStatus(..), Player, UserInteraction(..), modifyReversedInteractions, reset)
+module Types.Player exposing (Fate(..), HoleStatus(..), Player, State, UserInteraction(..), modifyReversedInteractions, reset)
 
 import Color exposing (Color)
 import Set exposing (Set)

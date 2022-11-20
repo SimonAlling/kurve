@@ -53,9 +53,11 @@ clearEverything ( worldWidth, worldHeight ) =
 drawSpawnIfAndOnlyIf : Bool -> Player -> Thickness -> Cmd msg
 drawSpawnIfAndOnlyIf shouldBeVisible player thickness =
     let
+        thicknessAsInt : Int
         thicknessAsInt =
             Thickness.toInt thickness
 
+        drawingPosition : DrawingPosition
         drawingPosition =
             World.drawingPosition thickness player.state.position
     in

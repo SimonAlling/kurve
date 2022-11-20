@@ -51,9 +51,11 @@ modifyDead f players =
 roundIsOver : Players -> Bool
 roundIsOver players =
     let
+        someoneHasWonInMultiPlayer : Bool
         someoneHasWonInMultiPlayer =
             List.length players.alive == 1 && not (List.isEmpty players.dead)
 
+        playerHasDiedInSinglePlayer : Bool
         playerHasDiedInSinglePlayer =
             List.isEmpty players.alive
     in
@@ -63,9 +65,11 @@ roundIsOver players =
 initialStateForReplaying : Round -> RoundInitialState
 initialStateForReplaying round =
     let
+        initialState : RoundInitialState
         initialState =
             round.history.initialState
 
+        thePlayers : List Player
         thePlayers =
             round.players.alive ++ round.players.dead
     in

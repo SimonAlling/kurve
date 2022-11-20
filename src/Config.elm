@@ -42,6 +42,7 @@ config =
 players : List PlayerConfig
 players =
     let
+        rgb : Int -> Int -> Int -> Color
         rgb =
             Color.rgb255
     in

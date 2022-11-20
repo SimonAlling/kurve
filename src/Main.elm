@@ -7,15 +7,16 @@ import Game exposing (GameState(..), MidRoundState(..), SpawnState, extractRound
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Platform exposing (worker)
 import Random
-import Round exposing (Players, initialStateForReplaying, modifyAlive, modifyDead, modifyPlayers, roundIsOver)
+import Round exposing (Players, Round, initialStateForReplaying, modifyAlive, modifyDead, modifyPlayers, roundIsOver)
 import Set exposing (Set)
 import Time
 import Turning exposing (turningStateFromHistory)
 import Types.Player as Player exposing (Player)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
+import Types.TurningState exposing (TurningState)
 import Util exposing (isEven)
-import World exposing (DrawingPosition)
+import World exposing (DrawingPosition, Pixel)
 
 
 type alias Model =
@@ -68,6 +69,7 @@ stepSpawnState { playersLeft, ticksLeft } =
 
         spawning :: waiting ->
             let
+                newSpawnState : SpawnState
                 newSpawnState =
                     if ticksLeft == 0 then
                         { playersLeft = waiting, ticksLeft = config.spawn.numberOfFlickerTicks }
@@ -87,6 +89,7 @@ update msg ({ pressedButtons } as model) =
 
         GameTick tick midRoundState ->
             let
+                currentRound : Round
                 currentRound =
                     extractRound midRoundState
 
@@ -100,18 +103,21 @@ update msg ({ pressedButtons } as model) =
                         )
                 checkIndividualPlayer player ( checkedPlayersGenerator, occupiedPixels, coloredDrawingPositions ) =
                     let
+                        turningState : TurningState
                         turningState =
                             turningStateFromHistory tick player
 
                         ( newPlayerDrawingPositions, checkedPlayerGenerator, fate ) =
                             updatePlayer turningState occupiedPixels player
 
+                        occupiedPixelsAfterCheckingThisPlayer : Set Pixel
                         occupiedPixelsAfterCheckingThisPlayer =
                             List.foldr
                                 (World.pixelsToOccupy config.kurves.thickness >> Set.union)
                                 occupiedPixels
                                 newPlayerDrawingPositions
 
+                        coloredDrawingPositionsAfterCheckingThisPlayer : List ( Color, DrawingPosition )
                         coloredDrawingPositionsAfterCheckingThisPlayer =
                             coloredDrawingPositions ++ List.map (Tuple.pair player.color) newPlayerDrawingPositions
 
@@ -144,6 +150,7 @@ update msg ({ pressedButtons } as model) =
                 ( newPlayers, newSeed ) =
                     Random.step newPlayersGenerator currentRound.seed
 
+                newCurrentRound : Round
                 newCurrentRound =
                     { players = newPlayers
                     , occupiedPixels = newOccupiedPixels
@@ -151,6 +158,7 @@ update msg ({ pressedButtons } as model) =
                     , seed = newSeed
                     }
 
+                newGameState : GameState
                 newGameState =
                     if roundIsOver newPlayers then
                         PostRound newCurrentRound
@@ -167,6 +175,7 @@ update msg ({ pressedButtons } as model) =
 
         ButtonUsed Down button ->
             let
+                startNewRoundIfSpacePressed : Random.Seed -> ( Model, Cmd msg )
                 startNewRoundIfSpacePressed seed =
                     case button of
                         Key "Space" ->
@@ -197,9 +206,11 @@ update msg ({ pressedButtons } as model) =
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
 handleUserInteraction direction button model =
     let
+        newPressedButtons : Set String
         newPressedButtons =
             updatePressedButtons direction button model.pressedButtons
 
+        howToModifyRound : Round -> Round
         howToModifyRound =
             case model.gameState of
                 MidRound lastTick (Live _) ->
@@ -211,6 +222,7 @@ handleUserInteraction direction button model =
                 _ ->
                     identity
 
+        recordInteractionBefore : Tick -> Round -> Round
         recordInteractionBefore tick =
             modifyPlayers <| modifyAlive <| List.map (recordUserInteraction newPressedButtons tick)
     in
