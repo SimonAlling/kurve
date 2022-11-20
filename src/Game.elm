@@ -1,4 +1,4 @@
-module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, extractRound, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, updatePlayer)
+module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, updatePlayer)
 
 import Config exposing (config)
 import Random
@@ -44,11 +44,6 @@ type alias MidRoundState =
 type MidRoundStateVariant
     = Live
     | Replay
-
-
-extractRound : MidRoundState -> Round
-extractRound =
-    Tuple.second
 
 
 modifyRound : (Round -> Round) -> MidRoundState -> MidRoundState

@@ -3,7 +3,7 @@ module Main exposing (main)
 import Canvas exposing (bodyDrawingCmds, clearEverything, clearOverlay, drawSpawnIfAndOnlyIf, headDrawingCmds)
 import Color exposing (Color)
 import Config exposing (config)
-import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, extractRound, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, updatePlayer)
+import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, updatePlayer)
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Platform exposing (worker)
 import Random
@@ -87,12 +87,8 @@ update msg ({ pressedButtons } as model) =
             stepSpawnState spawnState
                 |> Tuple.mapFirst (\makeGameState -> { model | gameState = makeGameState plannedMidRoundState })
 
-        GameTick tick midRoundState ->
+        GameTick tick (( _, currentRound ) as midRoundState) ->
             let
-                currentRound : Round
-                currentRound =
-                    extractRound midRoundState
-
                 checkIndividualPlayer :
                     Player
                     -> ( Random.Generator Players, Set World.Pixel, List ( Color, DrawingPosition ) )
