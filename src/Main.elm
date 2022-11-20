@@ -3,7 +3,7 @@ module Main exposing (main)
 import Canvas exposing (bodyDrawingCmds, clearEverything, clearOverlay, drawSpawnIfAndOnlyIf, headDrawingCmds)
 import Color exposing (Color)
 import Config exposing (config)
-import Game exposing (GameState(..), MidRoundState(..), SpawnState, extractRound, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, updatePlayer)
+import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, extractRound, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, updatePlayer)
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Platform exposing (worker)
 import Random
@@ -46,7 +46,7 @@ startRound model midRoundState =
 newRoundGameStateAndCmd : MidRoundState -> ( GameState, Cmd msg )
 newRoundGameStateAndCmd plannedMidRoundState =
     ( PreRound
-        { playersLeft = extractRound plannedMidRoundState |> .players |> .alive
+        { playersLeft = Tuple.second plannedMidRoundState |> .players |> .alive
         , ticksLeft = config.spawn.numberOfFlickerTicks
         }
         plannedMidRoundState
@@ -213,10 +213,10 @@ handleUserInteraction direction button model =
         howToModifyRound : Round -> Round
         howToModifyRound =
             case model.gameState of
-                MidRound lastTick (Live _) ->
+                MidRound lastTick ( Live, _ ) ->
                     recordInteractionBefore (Tick.succ lastTick)
 
-                PreRound _ (Live _) ->
+                PreRound _ ( Live, _ ) ->
                     recordInteractionBefore firstUpdateTick
 
                 _ ->

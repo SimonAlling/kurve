@@ -1,4 +1,4 @@
-module Game exposing (GameState(..), MidRoundState(..), SpawnState, extractRound, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, updatePlayer)
+module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, extractRound, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, updatePlayer)
 
 import Config exposing (config)
 import Random
@@ -37,29 +37,23 @@ modifyMidRoundState f gameState =
             gameState
 
 
-type MidRoundState
-    = Live Round
-    | Replay Round
+type alias MidRoundState =
+    ( MidRoundStateVariant, Round )
+
+
+type MidRoundStateVariant
+    = Live
+    | Replay
 
 
 extractRound : MidRoundState -> Round
-extractRound s =
-    case s of
-        Live round ->
-            round
-
-        Replay round ->
-            round
+extractRound =
+    Tuple.second
 
 
 modifyRound : (Round -> Round) -> MidRoundState -> MidRoundState
-modifyRound f midRoundState =
-    case midRoundState of
-        Live round ->
-            Live <| f round
-
-        Replay round ->
-            Replay <| f round
+modifyRound =
+    Tuple.mapSecond
 
 
 type alias SpawnState =
@@ -84,12 +78,12 @@ prepareLiveRound seed pressedButtons =
         ( thePlayers, seedAfterSpawn ) =
             Random.step (generatePlayers config) seed |> Tuple.mapFirst recordInitialInteractions
     in
-    Live <| prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons }
+    ( Live, prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons } )
 
 
 prepareReplayRound : RoundInitialState -> MidRoundState
 prepareReplayRound initialState =
-    Replay <| prepareRoundHelper initialState
+    ( Replay, prepareRoundHelper initialState )
 
 
 prepareRoundHelper : RoundInitialState -> Round
