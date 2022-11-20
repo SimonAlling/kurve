@@ -1,11 +1,12 @@
-module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, updatePlayer)
+module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualPlayer, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 
+import Color exposing (Color)
 import Config exposing (config)
 import Random
-import Round exposing (Round, RoundInitialState)
+import Round exposing (Players, Round, RoundInitialState, modifyAlive, modifyDead)
 import Set exposing (Set)
 import Spawn exposing (generateHoleSize, generateHoleSpacing, generatePlayers)
-import Turning exposing (computeAngleChange, computeTurningState)
+import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Player as Player exposing (Player, UserInteraction(..), modifyReversedInteractions)
@@ -110,6 +111,50 @@ prepareRoundHelper initialState =
 computeDistanceBetweenCenters : Distance -> Distance
 computeDistanceBetweenCenters distanceBetweenEdges =
     Distance <| Distance.toFloat distanceBetweenEdges + toFloat (Thickness.toInt config.kurves.thickness)
+
+
+checkIndividualPlayer :
+    Tick
+    -> Player
+    -> ( Random.Generator Players, Set World.Pixel, List ( Color, DrawingPosition ) )
+    ->
+        ( Random.Generator Players
+        , Set World.Pixel
+        , List ( Color, DrawingPosition )
+        )
+checkIndividualPlayer tick player ( checkedPlayersGenerator, occupiedPixels, coloredDrawingPositions ) =
+    let
+        turningState : TurningState
+        turningState =
+            turningStateFromHistory tick player
+
+        ( newPlayerDrawingPositions, checkedPlayerGenerator, fate ) =
+            updatePlayer turningState occupiedPixels player
+
+        occupiedPixelsAfterCheckingThisPlayer : Set Pixel
+        occupiedPixelsAfterCheckingThisPlayer =
+            List.foldr
+                (World.pixelsToOccupy config.kurves.thickness >> Set.union)
+                occupiedPixels
+                newPlayerDrawingPositions
+
+        coloredDrawingPositionsAfterCheckingThisPlayer : List ( Color, DrawingPosition )
+        coloredDrawingPositionsAfterCheckingThisPlayer =
+            coloredDrawingPositions ++ List.map (Tuple.pair player.color) newPlayerDrawingPositions
+
+        playersAfterCheckingThisPlayer : Player -> Players -> Players
+        playersAfterCheckingThisPlayer checkedPlayer =
+            case fate of
+                Player.Dies ->
+                    modifyDead ((::) checkedPlayer)
+
+                Player.Lives ->
+                    modifyAlive ((::) checkedPlayer)
+    in
+    ( Random.map2 playersAfterCheckingThisPlayer checkedPlayerGenerator checkedPlayersGenerator
+    , occupiedPixelsAfterCheckingThisPlayer
+    , coloredDrawingPositionsAfterCheckingThisPlayer
+    )
 
 
 evaluateMove : DrawingPosition -> List DrawingPosition -> Set Pixel -> Player.HoleStatus -> ( List DrawingPosition, Player.Fate )

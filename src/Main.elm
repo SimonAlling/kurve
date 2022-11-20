@@ -1,22 +1,17 @@
 module Main exposing (main)
 
 import Canvas exposing (bodyDrawingCmds, clearEverything, clearOverlay, drawSpawnIfAndOnlyIf, headDrawingCmds)
-import Color exposing (Color)
 import Config exposing (config)
-import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, updatePlayer)
+import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualPlayer, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Platform exposing (worker)
 import Random
-import Round exposing (Players, Round, initialStateForReplaying, modifyAlive, modifyDead, modifyPlayers, roundIsOver)
+import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyPlayers, roundIsOver)
 import Set exposing (Set)
 import Time
-import Turning exposing (turningStateFromHistory)
-import Types.Player as Player exposing (Player)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
-import Types.TurningState exposing (TurningState)
 import Util exposing (isEven)
-import World exposing (DrawingPosition, Pixel)
 
 
 type alias Model =
@@ -89,51 +84,9 @@ update msg ({ pressedButtons } as model) =
 
         GameTick tick (( _, currentRound ) as midRoundState) ->
             let
-                checkIndividualPlayer :
-                    Player
-                    -> ( Random.Generator Players, Set World.Pixel, List ( Color, DrawingPosition ) )
-                    ->
-                        ( Random.Generator Players
-                        , Set World.Pixel
-                        , List ( Color, DrawingPosition )
-                        )
-                checkIndividualPlayer player ( checkedPlayersGenerator, occupiedPixels, coloredDrawingPositions ) =
-                    let
-                        turningState : TurningState
-                        turningState =
-                            turningStateFromHistory tick player
-
-                        ( newPlayerDrawingPositions, checkedPlayerGenerator, fate ) =
-                            updatePlayer turningState occupiedPixels player
-
-                        occupiedPixelsAfterCheckingThisPlayer : Set Pixel
-                        occupiedPixelsAfterCheckingThisPlayer =
-                            List.foldr
-                                (World.pixelsToOccupy config.kurves.thickness >> Set.union)
-                                occupiedPixels
-                                newPlayerDrawingPositions
-
-                        coloredDrawingPositionsAfterCheckingThisPlayer : List ( Color, DrawingPosition )
-                        coloredDrawingPositionsAfterCheckingThisPlayer =
-                            coloredDrawingPositions ++ List.map (Tuple.pair player.color) newPlayerDrawingPositions
-
-                        playersAfterCheckingThisPlayer : Player -> Players -> Players
-                        playersAfterCheckingThisPlayer checkedPlayer =
-                            case fate of
-                                Player.Dies ->
-                                    modifyDead ((::) checkedPlayer)
-
-                                Player.Lives ->
-                                    modifyAlive ((::) checkedPlayer)
-                    in
-                    ( Random.map2 playersAfterCheckingThisPlayer checkedPlayerGenerator checkedPlayersGenerator
-                    , occupiedPixelsAfterCheckingThisPlayer
-                    , coloredDrawingPositionsAfterCheckingThisPlayer
-                    )
-
                 ( newPlayersGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
                     List.foldr
-                        checkIndividualPlayer
+                        (checkIndividualPlayer tick)
                         ( Random.constant
                             { alive = [] -- We start with the empty list because the new one we'll create may not include all the players from the old one.
                             , dead = currentRound.players.dead -- Dead players, however, will not spring to life again.
