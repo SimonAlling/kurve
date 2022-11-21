@@ -1,4 +1,4 @@
-import { byID, KEY, isProceedKey, isHTMLElement, PLATFORM } from "./lib/utilities.js";
+import { byID, KEY, isHTMLElement, PLATFORM } from "./lib/utilities.js";
 import STRINGS from "./strings.js";
 import TEXT from "./locales/Zatacka.en_US.js";
 

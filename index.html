@@ -11,10 +11,10 @@
     <meta name="description" content="A clone of the classic DOS game from 1995 that runs in the browser." />
     <meta name="keywords" content="Achtung, Kurve, Zatacka, KONEC, HRY, HTML, JavaScript, DOS" />
 
-    <meta property="og:url"                content="http://kurve.se" />
-    <meta property="og:title"              content="Achtung, die Kurve!" />
-    <meta property="og:description"        content="A clone of the classic DOS game from 1995 that runs in the browser." />
-    <meta property="og:image"              content="http://kurve.se/resources/kurve-share.png" />
+    <meta property="og:url" content="http://kurve.se" />
+    <meta property="og:title" content="Achtung, die Kurve!" />
+    <meta property="og:description" content="A clone of the classic DOS game from 1995 that runs in the browser." />
+    <meta property="og:image" content="http://kurve.se/resources/kurve-share.png" />
 
     <link rel="stylesheet" href="css/Zatacka.css" />
     <link rel="stylesheet" href="css/kurve.se.css" />
@@ -27,7 +27,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="resources/icon/apple-icon-144x144.png" />
     <link rel="apple-touch-icon" sizes="152x152" href="resources/icon/apple-icon-152x152.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="resources/icon/apple-icon-180x180.png" />
-    <link rel="icon" type="image/png" sizes="192x192"  href="resources/icon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="resources/icon/android-icon-192x192.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="resources/icon/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="96x96" href="resources/icon/favicon-96x96.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="resources/icon/favicon-16x16.png" />
@@ -41,12 +41,6 @@
 <body class="body">
 
     <h1>Achtung, die Kurve!</h1>
-    <div id="fatalError_UA" class="fatalError">
-        <div>
-            <p>Your browser is not supported.</p>
-            <p class="fatalErrorExtraInfo">Please use <a href="https://google.com/chrome/" title="Google Chrome">Chrome&nbsp;49+</a>, <a href="https://getfirefox.com" title="Mozilla Firefox">Firefox&nbsp;45+</a>, or another modern browser.</p>
-        </div>
-    </div>
     <noscript>
         <div id="fatalError_JS" class="fatalError">
             <div>
@@ -77,8 +71,7 @@
         <img src="resources/kurve-icons.png" />
     </div>
 
-    <script src="js/SupportChecks.js"></script>
-    <script src="js/splashscreen.min.js"></script>
+    <script type="module" src="src/js/SplashScreen.js"></script>
 
 </body>
 

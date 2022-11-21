@@ -1,0 +1,10 @@
+{
+    "targets": {
+        "zatacka": {
+            "inputs": [
+                "src/Main.elm"
+            ],
+            "output": "build/ZATACKA.js"
+        }
+    }
+}

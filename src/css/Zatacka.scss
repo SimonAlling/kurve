@@ -262,16 +262,13 @@ button:hover {
     display: none !important;
 }
 
-#fatalError_UA {
-    display: none;
-}
-
 #lobby, #KONEC_HRY, #canvas_main {
     background-color: black;
     overflow: hidden;
 }
 
 #lobby {
+    display: none;
     padding-left: 81px;
     padding-top: 50px;
     padding-bottom: 130px; /* 130 = 480 - 7 * 50, where 50 is the total height of each player's controls and 7 is 6 players plus 1 for margin */
