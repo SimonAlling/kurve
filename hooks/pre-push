@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# From Git's sample pre-push hook:
+# > Information about the commits which are being pushed is supplied as lines to the standard input in the form:
+# >
+# >   <local ref> <local sha1> <remote ref> <remote sha1>
+
+set -eu
+
+branch_name_to_protect="main"
+
+if ! output=$(git status --porcelain) || [ -n "$output" ]; then
+    echo "⚠️  Dirty working tree."
+    git status
+    exit 1
+fi
+
+while read local_ref local_sha remote_ref remote_sha; do
+    if [ "$remote_ref" = "refs/heads/$branch_name_to_protect" ]; then
+        for commit in $(git log --pretty="%H" "$remote_sha..$local_sha"); do
+            if git -c advice.detachedHead=false checkout "$commit"; then
+                if ! docker build .; then
+                    echo "⚠️  Commit $commit seems problematic. Please rebase and fix it or use 'git push --no-verify' to override."
+                    git checkout "$branch_name_to_protect"
+                    exit 1
+                fi
+            fi
+        done
+    fi
+done
+
+git checkout "$branch_name_to_protect"
+exit 0

@@ -3,10 +3,11 @@
   "description": "Achtung, die Kurve! in JavaScript",
   "scripts": {
     "postinstall": "elm-tooling install",
+    "install-hooks": "cp hooks/* .git/hooks",
     "sass-build": "sass --source-map src/css/:css/",
     "build": "elm-watch make --optimize",
     "lint": "elm-format --validate src/ && elm-review",
-    "watch": "run-pty % elm-watch hot % esbuild --serve --servedir=. % sass --watch --source-map src/css/:css/",
+    "watch": "npm run install-hooks && run-pty % elm-watch hot % esbuild --serve --servedir=. % sass --watch --source-map src/css/:css/",
     "deploy": "git checkout master && git merge --no-ff -m \"Merge branch 'develop'\" develop && npm run build && git add -f js css && git commit -m \"Deploy\""
   },
   "author": "Simon Alling",
