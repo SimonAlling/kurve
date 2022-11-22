@@ -40,26 +40,14 @@
 <body id="ZATACKA" class="body">
 
     <h1>Achtung, die Kurve!</h1>
-    <div id="wrapper">
-        <aside id="left" class="canvasHeight"></aside>
-        <div id="border4" class="border">
-            <div id="border3" class="border">
-                <div id="border2" class="border">
-                    <div id="border1" class="border">
-                        <canvas id="canvas_main" width="559" height="480"></canvas>
-                        <canvas id="canvas_overlay" width="559" height="480" class="overlay"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="elm-node"></div>
 
     <script src="./build/ZATACKA.js"></script>
     <script type="module">
         import { Renderer } from "./src/js/Renderer.js"
 
+        const app = Elm.Main.init({ node: document.getElementById("elm-node") })
         const renderer = new Renderer(canvas_main, canvas_overlay)
-        const app = Elm.Main.init()
 
         app.ports.render.subscribe(data => {
             renderer.drawSquare(data.position.leftEdge, data.position.topEdge, data.thickness, data.color)

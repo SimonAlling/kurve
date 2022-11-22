@@ -1,10 +1,12 @@
 module Main exposing (main)
 
+import Browser
 import Canvas exposing (bodyDrawingCmds, clearEverything, clearOverlay, drawSpawnIfAndOnlyIf, headDrawingCmds)
 import Config exposing (config)
 import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualPlayer, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+import Html exposing (Html, canvas, div)
+import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
-import Platform exposing (worker)
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyPlayers, roundIsOver)
 import Set exposing (Set)
@@ -200,10 +202,52 @@ subscriptions model =
             :: inputSubscriptions ButtonUsed
 
 
+view : Model -> Html Msg
+view _ =
+    div
+        [ Attr.id "wrapper"
+        ]
+        [ div
+            [ Attr.id "border4"
+            , Attr.class "border"
+            ]
+            [ div
+                [ Attr.id "border3"
+                , Attr.class "border"
+                ]
+                [ div
+                    [ Attr.id "border2"
+                    , Attr.class "border"
+                    ]
+                    [ div
+                        [ Attr.id "border1"
+                        , Attr.class "border"
+                        ]
+                        [ canvas
+                            [ Attr.id "canvas_main"
+                            , Attr.width 559
+                            , Attr.height 480
+                            ]
+                            []
+                        , canvas
+                            [ Attr.id "canvas_overlay"
+                            , Attr.width 559
+                            , Attr.height 480
+                            , Attr.class "overlay"
+                            ]
+                            []
+                        ]
+                    ]
+                ]
+            ]
+        ]
+
+
 main : Program () Model Msg
 main =
-    worker
+    Browser.element
         { init = init
         , update = update
         , subscriptions = subscriptions
+        , view = view
         }
