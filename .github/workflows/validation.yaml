@@ -1,0 +1,16 @@
+name: Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validation:
+    name: PR Validation Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build Docker image
+        run: |
+          docker build .
