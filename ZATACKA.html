@@ -62,7 +62,7 @@
         })
 
         app.ports.clearOverlay.subscribe(data => {
-            renderer.clearRectangle_overlay(0, 0, data.width, data.height)
+            renderer.clearRectangle_overlay(data.x, data.y, data.width, data.height)
         })
 
         document.addEventListener("keydown", event => {

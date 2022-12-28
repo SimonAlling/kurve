@@ -15,7 +15,7 @@ port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 port renderOverlay : { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
-port clearOverlay : { width : Int, height : Int } -> Cmd msg
+port clearOverlay : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 
 
 bodyDrawingCmds : Thickness -> List ( Color, DrawingPosition ) -> List (Cmd msg)
@@ -45,7 +45,7 @@ headDrawingCmds thickness =
 clearEverything : ( Int, Int ) -> Cmd msg
 clearEverything ( worldWidth, worldHeight ) =
     Cmd.batch
-        [ clearOverlay { width = worldWidth, height = worldHeight }
+        [ clearOverlay { x = 0, y = 0, width = worldWidth, height = worldHeight }
         , clear { x = 0, y = 0, width = worldWidth, height = worldHeight }
         ]
 
