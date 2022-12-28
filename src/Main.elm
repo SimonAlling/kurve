@@ -118,7 +118,7 @@ update msg ({ pressedButtons } as model) =
                         MidRound tick <| modifyRound (always newCurrentRound) midRoundState
             in
             ( { model | gameState = newGameState }
-            , clearOverlay { width = config.world.width, height = config.world.height }
+            , clearOverlay { x = 0, y = 0, width = config.world.width, height = config.world.height }
                 :: headDrawingCmds config.kurves.thickness newPlayers.alive
                 ++ bodyDrawingCmds config.kurves.thickness newColoredDrawingPositions
                 |> Cmd.batch
