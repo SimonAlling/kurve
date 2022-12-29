@@ -7,7 +7,7 @@ import Random.Extra as Random
 import Types.Angle exposing (Angle(..))
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Player as Player exposing (Player)
-import Types.PlayerId exposing (PlayerId(..))
+import Types.PlayerId exposing (PlayerId)
 import Types.Radius as Radius
 import Types.Thickness as Thickness
 import World exposing (Position, distanceToTicks)
@@ -25,7 +25,7 @@ generatePlayers config playerConfigs =
             let
                 id : PlayerId
                 id =
-                    PlayerId <| List.length precedingPlayers
+                    List.length precedingPlayers
             in
             generatePlayer config id numberOfPlayers (List.map (.state >> .position) precedingPlayers) playerConfig
                 |> Random.map (\player -> player :: precedingPlayers)
