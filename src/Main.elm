@@ -203,7 +203,7 @@ subscriptions model =
 
 
 view : Model -> Html Msg
-view _ =
+view model =
     div
         [ Attr.id "wrapper"
         ]
@@ -236,11 +236,25 @@ view _ =
                             , Attr.class "overlay"
                             ]
                             []
+                        , case model.gameState of
+                            Lobby _ ->
+                                lobby
+
+                            _ ->
+                                Html.text ""
                         ]
                     ]
                 ]
             ]
         ]
+
+
+lobby : Html msg
+lobby =
+    div
+        [ Attr.id "lobby"
+        ]
+        [ Html.text "Press Space to start" ]
 
 
 main : Program () Model Msg
