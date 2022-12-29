@@ -7,11 +7,11 @@ import Round exposing (Players, Round, RoundInitialState, modifyAlive, modifyDea
 import Set exposing (Set)
 import Spawn exposing (generateHoleSize, generateHoleSpacing, generatePlayers)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
-import Types.Angle as Angle
+import Types.Angle as Angle exposing (Angle)
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Player as Player exposing (Player, UserInteraction(..), modifyReversedInteractions)
 import Types.Speed as Speed exposing (Speed)
-import Types.Thickness as Thickness
+import Types.Thickness as Thickness exposing (Thickness)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Types.TurningState exposing (TurningState)
@@ -89,7 +89,7 @@ prepareRoundHelper initialState =
         thePlayers =
             initialState.spawnedPlayers
 
-        thickness : Thickness.Thickness
+        thickness : Thickness
         thickness =
             config.kurves.thickness
 
@@ -233,7 +233,7 @@ updatePlayer turningState occupiedPixels player =
         distanceTraveledSinceLastTick =
             Speed.toFloat config.kurves.speed / Tickrate.toFloat config.kurves.tickrate
 
-        newDirection : Angle.Angle
+        newDirection : Angle
         newDirection =
             Angle.add player.state.direction <| computeAngleChange config.kurves turningState
 
@@ -248,7 +248,7 @@ updatePlayer turningState occupiedPixels player =
               y - distanceTraveledSinceLastTick * Angle.sin newDirection
             )
 
-        thickness : Thickness.Thickness
+        thickness : Thickness
         thickness =
             config.kurves.thickness
 

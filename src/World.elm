@@ -14,8 +14,8 @@ import RasterShapes
 import Set exposing (Set)
 import Types.Distance as Distance exposing (Distance)
 import Types.Speed as Speed exposing (Speed)
-import Types.Thickness as Thickness
-import Types.Tickrate as Tickrate
+import Types.Thickness as Thickness exposing (Thickness)
+import Types.Tickrate as Tickrate exposing (Tickrate)
 
 
 type alias Position =
@@ -30,7 +30,7 @@ type alias Pixel =
     ( Int, Int )
 
 
-distanceToTicks : Tickrate.Tickrate -> Speed -> Distance -> Int
+distanceToTicks : Tickrate -> Speed -> Distance -> Int
 distanceToTicks tickrate speed distance =
     round <| Tickrate.toFloat tickrate * Distance.toFloat distance / Speed.toFloat speed
 
@@ -45,17 +45,17 @@ fromBresenham { x, y } =
     { leftEdge = x, topEdge = y }
 
 
-drawingPosition : Thickness.Thickness -> Position -> DrawingPosition
+drawingPosition : Thickness -> Position -> DrawingPosition
 drawingPosition thickness ( x, y ) =
     { leftEdge = edgeOfSquare thickness x, topEdge = edgeOfSquare thickness y }
 
 
-edgeOfSquare : Thickness.Thickness -> Float -> Int
+edgeOfSquare : Thickness -> Float -> Int
 edgeOfSquare thickness xOrY =
     round (xOrY - (toFloat (Thickness.toInt thickness) / 2))
 
 
-pixelsToOccupy : Thickness.Thickness -> DrawingPosition -> Set Pixel
+pixelsToOccupy : Thickness -> DrawingPosition -> Set Pixel
 pixelsToOccupy thickness { leftEdge, topEdge } =
     let
         rangeFrom : Int -> List Int
@@ -74,7 +74,7 @@ pixelsToOccupy thickness { leftEdge, topEdge } =
         |> Set.fromList
 
 
-desiredDrawingPositions : Thickness.Thickness -> Position -> Position -> List DrawingPosition
+desiredDrawingPositions : Thickness -> Position -> Position -> List DrawingPosition
 desiredDrawingPositions thickness position1 position2 =
     RasterShapes.line
         (drawingPosition thickness position1 |> toBresenham)
@@ -86,7 +86,7 @@ desiredDrawingPositions thickness position1 position2 =
         |> List.map fromBresenham
 
 
-hitbox : Thickness.Thickness -> DrawingPosition -> DrawingPosition -> Set Pixel
+hitbox : Thickness -> DrawingPosition -> DrawingPosition -> Set Pixel
 hitbox thickness oldPosition newPosition =
     let
         is45DegreeDraw : Bool
