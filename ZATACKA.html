@@ -50,7 +50,9 @@
         const renderer = new Renderer(canvas_main, canvas_overlay)
 
         app.ports.render.subscribe(data => {
-            renderer.drawSquare(data.position.leftEdge, data.position.topEdge, data.thickness, data.color)
+            for (const square of data) {
+                renderer.drawSquare(square.position.leftEdge, square.position.topEdge, square.thickness, square.color)
+            }
         })
 
         app.ports.clear.subscribe(data => {
@@ -58,7 +60,9 @@
         })
 
         app.ports.renderOverlay.subscribe(data => {
-            renderer.drawSquare_overlay(data.position.leftEdge, data.position.topEdge, data.thickness, data.color)
+            for (const square of data) {
+                renderer.drawSquare_overlay(square.position.leftEdge, square.position.topEdge, square.thickness, square.color)
+            }
         })
 
         app.ports.clearOverlay.subscribe(data => {

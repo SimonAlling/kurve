@@ -1,4 +1,4 @@
-port module Canvas exposing (bodyDrawingCmds, clearEverything, clearOverlay, drawSpawnIfAndOnlyIf, headDrawingCmds)
+port module Canvas exposing (bodyDrawingCmd, clearEverything, clearOverlay, drawSpawnIfAndOnlyIf, headDrawingCmd)
 
 import Color exposing (Color)
 import Types.Player exposing (Player)
@@ -6,40 +6,40 @@ import Types.Thickness as Thickness exposing (Thickness)
 import World exposing (DrawingPosition)
 
 
-port render : { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
+port render : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
 port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 
 
-port renderOverlay : { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
+port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
 port clearOverlay : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 
 
-bodyDrawingCmds : Thickness -> List ( Color, DrawingPosition ) -> List (Cmd msg)
-bodyDrawingCmds thickness =
-    List.map
-        (\( color, position ) ->
-            render
+bodyDrawingCmd : Thickness -> List ( Color, DrawingPosition ) -> Cmd msg
+bodyDrawingCmd thickness =
+    render
+        << List.map
+            (\( color, position ) ->
                 { position = position
                 , thickness = Thickness.toInt thickness
                 , color = Color.toCssString color
                 }
-        )
+            )
 
 
-headDrawingCmds : Thickness -> List Player -> List (Cmd msg)
-headDrawingCmds thickness =
-    List.map
-        (\player ->
-            renderOverlay
+headDrawingCmd : Thickness -> List Player -> Cmd msg
+headDrawingCmd thickness =
+    renderOverlay
+        << List.map
+            (\player ->
                 { position = World.drawingPosition thickness player.state.position
                 , thickness = Thickness.toInt thickness
                 , color = Color.toCssString player.color
                 }
-        )
+            )
 
 
 clearEverything : ( Int, Int ) -> Cmd msg
@@ -62,11 +62,12 @@ drawSpawnIfAndOnlyIf shouldBeVisible player thickness =
             World.drawingPosition thickness player.state.position
     in
     if shouldBeVisible then
-        render
-            { position = drawingPosition
-            , thickness = thicknessAsInt
-            , color = Color.toCssString player.color
-            }
+        render <|
+            List.singleton
+                { position = drawingPosition
+                , thickness = thicknessAsInt
+                , color = Color.toCssString player.color
+                }
 
     else
         clear
