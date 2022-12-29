@@ -1,7 +1,7 @@
 module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualPlayer, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 
 import Color exposing (Color)
-import Config exposing (config)
+import Config exposing (Config, KurveConfig)
 import Random
 import Round exposing (Players, Round, RoundInitialState, modifyAlive, modifyDead)
 import Set exposing (Set)
@@ -10,7 +10,7 @@ import Turning exposing (computeAngleChange, computeTurningState, turningStateFr
 import Types.Angle as Angle exposing (Angle)
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Player as Player exposing (Player, UserInteraction(..), modifyReversedInteractions)
-import Types.Speed as Speed exposing (Speed)
+import Types.Speed as Speed
 import Types.Thickness as Thickness exposing (Thickness)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -64,8 +64,8 @@ firstUpdateTick =
     Tick.succ Tick.genesis
 
 
-prepareLiveRound : Random.Seed -> Set String -> MidRoundState
-prepareLiveRound seed pressedButtons =
+prepareLiveRound : Config -> Random.Seed -> Set String -> MidRoundState
+prepareLiveRound config seed pressedButtons =
     let
         recordInitialInteractions : List Player -> List Player
         recordInitialInteractions =
@@ -74,16 +74,16 @@ prepareLiveRound seed pressedButtons =
         ( thePlayers, seedAfterSpawn ) =
             Random.step (generatePlayers config) seed |> Tuple.mapFirst recordInitialInteractions
     in
-    ( Live, prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons } )
+    ( Live, prepareRoundHelper config { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons } )
 
 
-prepareReplayRound : RoundInitialState -> MidRoundState
-prepareReplayRound initialState =
-    ( Replay, prepareRoundHelper initialState )
+prepareReplayRound : Config -> RoundInitialState -> MidRoundState
+prepareReplayRound config initialState =
+    ( Replay, prepareRoundHelper config initialState )
 
 
-prepareRoundHelper : RoundInitialState -> Round
-prepareRoundHelper initialState =
+prepareRoundHelper : Config -> RoundInitialState -> Round
+prepareRoundHelper config initialState =
     let
         thePlayers : List Player
         thePlayers =
@@ -108,13 +108,14 @@ prepareRoundHelper initialState =
 
 {-| Takes the distance between the _edges_ of two drawn squares and returns the distance between their _centers_.
 -}
-computeDistanceBetweenCenters : Distance -> Distance
-computeDistanceBetweenCenters distanceBetweenEdges =
-    Distance <| Distance.toFloat distanceBetweenEdges + toFloat (Thickness.toInt config.kurves.thickness)
+computeDistanceBetweenCenters : Thickness -> Distance -> Distance
+computeDistanceBetweenCenters thickness distanceBetweenEdges =
+    Distance <| Distance.toFloat distanceBetweenEdges + toFloat (Thickness.toInt thickness)
 
 
 checkIndividualPlayer :
-    Tick
+    Config
+    -> Tick
     -> Player
     -> ( Random.Generator Players, Set World.Pixel, List ( Color, DrawingPosition ) )
     ->
@@ -122,14 +123,14 @@ checkIndividualPlayer :
         , Set World.Pixel
         , List ( Color, DrawingPosition )
         )
-checkIndividualPlayer tick player ( checkedPlayersGenerator, occupiedPixels, coloredDrawingPositions ) =
+checkIndividualPlayer config tick player ( checkedPlayersGenerator, occupiedPixels, coloredDrawingPositions ) =
     let
         turningState : TurningState
         turningState =
             turningStateFromHistory tick player
 
         ( newPlayerDrawingPositions, checkedPlayerGenerator, fate ) =
-            updatePlayer turningState occupiedPixels player
+            updatePlayer config turningState occupiedPixels player
 
         occupiedPixelsAfterCheckingThisPlayer : Set Pixel
         occupiedPixelsAfterCheckingThisPlayer =
@@ -157,8 +158,8 @@ checkIndividualPlayer tick player ( checkedPlayersGenerator, occupiedPixels, col
     )
 
 
-evaluateMove : DrawingPosition -> List DrawingPosition -> Set Pixel -> Player.HoleStatus -> ( List DrawingPosition, Player.Fate )
-evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
+evaluateMove : Config -> DrawingPosition -> List DrawingPosition -> Set Pixel -> Player.HoleStatus -> ( List DrawingPosition, Player.Fate )
+evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
     let
         checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Player.Fate )
         checkPositions checked lastChecked remaining =
@@ -226,8 +227,8 @@ evaluateMove startingPoint positionsToCheck occupiedPixels holeStatus =
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
 
-updatePlayer : TurningState -> Set Pixel -> Player -> ( List DrawingPosition, Random.Generator Player, Player.Fate )
-updatePlayer turningState occupiedPixels player =
+updatePlayer : Config -> TurningState -> Set Pixel -> Player -> ( List DrawingPosition, Random.Generator Player, Player.Fate )
+updatePlayer config turningState occupiedPixels player =
     let
         distanceTraveledSinceLastTick : Float
         distanceTraveledSinceLastTick =
@@ -254,6 +255,7 @@ updatePlayer turningState occupiedPixels player =
 
         ( confirmedDrawingPositions, fate ) =
             evaluateMove
+                config
                 (World.drawingPosition thickness player.state.position)
                 (World.desiredDrawingPositions thickness player.state.position newPosition)
                 occupiedPixels
@@ -261,7 +263,7 @@ updatePlayer turningState occupiedPixels player =
 
         newHoleStatusGenerator : Random.Generator Player.HoleStatus
         newHoleStatusGenerator =
-            updateHoleStatus config.kurves.speed player.state.holeStatus
+            updateHoleStatus config.kurves player.state.holeStatus
 
         newPlayerState : Random.Generator Player.State
         newPlayerState =
@@ -284,17 +286,17 @@ updatePlayer turningState occupiedPixels player =
     )
 
 
-updateHoleStatus : Speed -> Player.HoleStatus -> Random.Generator Player.HoleStatus
-updateHoleStatus speed holeStatus =
+updateHoleStatus : KurveConfig -> Player.HoleStatus -> Random.Generator Player.HoleStatus
+updateHoleStatus kurveConfig holeStatus =
     case holeStatus of
         Player.Holy 0 ->
-            generateHoleSpacing config.kurves.holes |> Random.map (distanceToTicks config.kurves.tickrate speed >> Player.Unholy)
+            generateHoleSpacing kurveConfig.holes |> Random.map (distanceToTicks kurveConfig.tickrate kurveConfig.speed >> Player.Unholy)
 
         Player.Holy ticksLeft ->
             Random.constant <| Player.Holy (ticksLeft - 1)
 
         Player.Unholy 0 ->
-            generateHoleSize config.kurves.holes |> Random.map (computeDistanceBetweenCenters >> distanceToTicks config.kurves.tickrate speed >> Player.Holy)
+            generateHoleSize kurveConfig.holes |> Random.map (computeDistanceBetweenCenters kurveConfig.thickness >> distanceToTicks kurveConfig.tickrate kurveConfig.speed >> Player.Holy)
 
         Player.Unholy ticksLeft ->
             Random.constant <| Player.Unholy (ticksLeft - 1)

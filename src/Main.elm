@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
-import Config exposing (config)
+import Config exposing (Config)
 import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualPlayer, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
@@ -19,6 +19,7 @@ import Util exposing (isEven)
 type alias Model =
     { pressedButtons : Set String
     , gameState : GameState
+    , config : Config
     }
 
 
@@ -26,6 +27,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedButtons = Set.empty
       , gameState = Lobby (Random.initialSeed 1337)
+      , config = Config.default
       }
     , Cmd.none
     )
@@ -35,13 +37,13 @@ startRound : Model -> MidRoundState -> ( Model, Cmd msg )
 startRound model midRoundState =
     let
         ( gameState, cmd ) =
-            newRoundGameStateAndCmd midRoundState
+            newRoundGameStateAndCmd model.config midRoundState
     in
     ( { model | gameState = gameState }, cmd )
 
 
-newRoundGameStateAndCmd : MidRoundState -> ( GameState, Cmd msg )
-newRoundGameStateAndCmd plannedMidRoundState =
+newRoundGameStateAndCmd : Config -> MidRoundState -> ( GameState, Cmd msg )
+newRoundGameStateAndCmd config plannedMidRoundState =
     ( PreRound
         { playersLeft = Tuple.second plannedMidRoundState |> .players |> .alive
         , ticksLeft = config.spawn.numberOfFlickerTicks
@@ -57,8 +59,8 @@ type Msg
     | SpawnTick SpawnState MidRoundState
 
 
-stepSpawnState : SpawnState -> ( MidRoundState -> GameState, Cmd msg )
-stepSpawnState { playersLeft, ticksLeft } =
+stepSpawnState : Config -> SpawnState -> ( MidRoundState -> GameState, Cmd msg )
+stepSpawnState config { playersLeft, ticksLeft } =
     case playersLeft of
         [] ->
             -- All players have spawned.
@@ -81,14 +83,14 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ pressedButtons } as model) =
     case msg of
         SpawnTick spawnState plannedMidRoundState ->
-            stepSpawnState spawnState
+            stepSpawnState model.config spawnState
                 |> Tuple.mapFirst (\makeGameState -> { model | gameState = makeGameState plannedMidRoundState })
 
         GameTick tick (( _, currentRound ) as midRoundState) ->
             let
                 ( newPlayersGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
                     List.foldr
-                        (checkIndividualPlayer tick)
+                        (checkIndividualPlayer model.config tick)
                         ( Random.constant
                             { alive = [] -- We start with the empty list because the new one we'll create may not include all the players from the old one.
                             , dead = currentRound.players.dead -- Dead players, however, will not spring to life again.
@@ -118,8 +120,8 @@ update msg ({ pressedButtons } as model) =
                         MidRound tick <| modifyRound (always newCurrentRound) midRoundState
             in
             ( { model | gameState = newGameState }
-            , [ headDrawingCmd config.kurves.thickness newPlayers.alive
-              , bodyDrawingCmd config.kurves.thickness newColoredDrawingPositions
+            , [ headDrawingCmd model.config.kurves.thickness newPlayers.alive
+              , bodyDrawingCmd model.config.kurves.thickness newColoredDrawingPositions
               ]
                 |> Cmd.batch
             )
@@ -130,7 +132,7 @@ update msg ({ pressedButtons } as model) =
                 startNewRoundIfSpacePressed seed =
                     case button of
                         Key "Space" ->
-                            startRound model <| prepareLiveRound seed pressedButtons
+                            startRound model <| prepareLiveRound model.config seed pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
@@ -142,7 +144,7 @@ update msg ({ pressedButtons } as model) =
                 PostRound finishedRound ->
                     case button of
                         Key "KeyR" ->
-                            startRound model <| prepareReplayRound (initialStateForReplaying finishedRound)
+                            startRound model <| prepareReplayRound model.config (initialStateForReplaying finishedRound)
 
                         _ ->
                             startNewRoundIfSpacePressed finishedRound.seed
@@ -194,10 +196,10 @@ subscriptions model =
                 Sub.none
 
             PreRound spawnState plannedMidRoundState ->
-                Time.every (1000 / config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
+                Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
             MidRound lastTick midRoundState ->
-                Time.every (1000 / Tickrate.toFloat config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
+                Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
         )
             :: inputSubscriptions ButtonUsed
 
