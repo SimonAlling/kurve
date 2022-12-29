@@ -1,4 +1,4 @@
-module Config exposing (Config, HoleConfig, KurveConfig, PlayerConfig, SpawnConfig, WorldConfig, config)
+module Config exposing (Config, HoleConfig, KurveConfig, PlayerConfig, SpawnConfig, WorldConfig, default)
 
 import Color exposing (Color)
 import Input exposing (Button(..))
@@ -9,8 +9,8 @@ import Types.Thickness exposing (Thickness(..))
 import Types.Tickrate exposing (Tickrate(..))
 
 
-config : Config
-config =
+default : Config
+default =
     { kurves =
         { tickrate = Tickrate 60
         , turningRadius = Radius 28.5
