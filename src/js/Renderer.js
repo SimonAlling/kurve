@@ -15,18 +15,8 @@ export function Renderer(mainCanvas, overlayCanvas) {
         context.clearRect(left, top, width, height);
     }
 
-    function _setSize(canvas, width, height) {
-        canvas.width = width;
-        canvas.height = height;
-    }
-
 
     // PUBLIC API:
-
-    function setSize(width, height) {
-        _setSize(mainCanvas   , width, height);
-        _setSize(overlayCanvas, width, height);
-    }
 
     // Main canvas:
 
@@ -58,7 +48,6 @@ export function Renderer(mainCanvas, overlayCanvas) {
         clearRectangle,
         drawSquare_overlay,
         clearRectangle_overlay,
-        setSize
     };
 
 }
