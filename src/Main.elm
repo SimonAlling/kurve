@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Browser
-import Canvas exposing (bodyDrawingCmd, clearEverything, clearOverlay, drawSpawnIfAndOnlyIf, headDrawingCmd)
+import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Config exposing (config)
 import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualPlayer, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Html exposing (Html, canvas, div)
@@ -118,8 +118,7 @@ update msg ({ pressedButtons } as model) =
                         MidRound tick <| modifyRound (always newCurrentRound) midRoundState
             in
             ( { model | gameState = newGameState }
-            , [ clearOverlay { x = 0, y = 0, width = config.world.width, height = config.world.height }
-              , headDrawingCmd config.kurves.thickness newPlayers.alive
+            , [ headDrawingCmd config.kurves.thickness newPlayers.alive
               , bodyDrawingCmd config.kurves.thickness newColoredDrawingPositions
               ]
                 |> Cmd.batch

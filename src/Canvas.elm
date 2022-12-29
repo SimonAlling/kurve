@@ -1,4 +1,4 @@
-port module Canvas exposing (bodyDrawingCmd, clearEverything, clearOverlay, drawSpawnIfAndOnlyIf, headDrawingCmd)
+port module Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 
 import Color exposing (Color)
 import Types.Player exposing (Player)
@@ -13,9 +13,6 @@ port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 
 
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
-
-
-port clearOverlay : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 
 
 bodyDrawingCmd : Thickness -> List ( Color, DrawingPosition ) -> Cmd msg
@@ -45,7 +42,7 @@ headDrawingCmd thickness =
 clearEverything : ( Int, Int ) -> Cmd msg
 clearEverything ( worldWidth, worldHeight ) =
     Cmd.batch
-        [ clearOverlay { x = 0, y = 0, width = worldWidth, height = worldHeight }
+        [ renderOverlay []
         , clear { x = 0, y = 0, width = worldWidth, height = worldHeight }
         ]
 
