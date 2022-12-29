@@ -60,13 +60,10 @@
         })
 
         app.ports.renderOverlay.subscribe(data => {
+            renderer.clearRectangle_overlay(0, 0, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
             for (const square of data) {
                 renderer.drawSquare_overlay(square.position.leftEdge, square.position.topEdge, square.thickness, square.color)
             }
-        })
-
-        app.ports.clearOverlay.subscribe(data => {
-            renderer.clearRectangle_overlay(data.x, data.y, data.width, data.height)
         })
 
         document.addEventListener("keydown", event => {
