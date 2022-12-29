@@ -1,4 +1,4 @@
-module Config exposing (Config, HoleConfig, KurveConfig, PlayerConfig, SpawnConfig, WorldConfig, default)
+module Config exposing (Config, HoleConfig, KurveConfig, PlayerConfig, SpawnConfig, WorldConfig, default, players)
 
 import Color exposing (Color)
 import Input exposing (Button(..))
@@ -35,7 +35,6 @@ default =
         { width = 559
         , height = 480
         }
-    , players = players
     }
 
 
@@ -71,7 +70,6 @@ type alias Config =
     { kurves : KurveConfig
     , spawn : SpawnConfig
     , world : WorldConfig
-    , players : List PlayerConfig
     }
 
 
