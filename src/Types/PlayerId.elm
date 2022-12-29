@@ -1,10 +1,5 @@
-module Types.PlayerId exposing (PlayerId(..), toInt)
+module Types.PlayerId exposing (PlayerId)
 
 
-type PlayerId
-    = PlayerId Int
-
-
-toInt : PlayerId -> Int
-toInt (PlayerId n) =
-    n
+type alias PlayerId =
+    Int
