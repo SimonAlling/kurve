@@ -57,19 +57,19 @@
             context.clearRect(x, y, width, height)
         }
 
-        app.ports.render.subscribe(data => {
-            for (const square of data) {
+        app.ports.render.subscribe(squares => {
+            for (const square of squares) {
                 drawSquare(context_main, square)
             }
         })
 
-        app.ports.clear.subscribe(data => {
-            clearRectangle(context_main, data)
+        app.ports.clear.subscribe(rectangle => {
+            clearRectangle(context_main, rectangle)
         })
 
-        app.ports.renderOverlay.subscribe(data => {
+        app.ports.renderOverlay.subscribe(squares => {
             clearRectangle(context_overlay, { x: 0, y: 0, width: Number.MAX_SAFE_INTEGER, height: Number.MAX_SAFE_INTEGER })
-            for (const square of data) {
+            for (const square of squares) {
                 drawSquare(context_overlay, square)
             }
         })
