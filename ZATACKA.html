@@ -44,25 +44,33 @@
 
     <script src="./build/ZATACKA.js"></script>
     <script type="module">
-        import { Renderer } from "./src/js/Renderer.js"
-
         const app = Elm.Main.init({ node: document.getElementById("elm-node") })
-        const renderer = new Renderer(canvas_main, canvas_overlay)
+        const context_main = canvas_main.getContext("2d")
+        const context_overlay = canvas_overlay.getContext("2d")
+
+        function drawSquare(context, { position: { leftEdge, topEdge }, thickness, color }) {
+            context.fillStyle = color
+            context.fillRect(leftEdge, topEdge, thickness, thickness)
+        }
+
+        function clearRectangle(context, { x, y, width, height }) {
+            context.clearRect(x, y, width, height)
+        }
 
         app.ports.render.subscribe(data => {
             for (const square of data) {
-                renderer.drawSquare(square.position.leftEdge, square.position.topEdge, square.thickness, square.color)
+                drawSquare(context_main, square)
             }
         })
 
         app.ports.clear.subscribe(data => {
-            renderer.clearRectangle(data.x, data.y, data.width, data.height)
+            clearRectangle(context_main, data)
         })
 
         app.ports.renderOverlay.subscribe(data => {
-            renderer.clearRectangle_overlay(0, 0, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+            clearRectangle(context_overlay, { x: 0, y: 0, width: Number.MAX_SAFE_INTEGER, height: Number.MAX_SAFE_INTEGER })
             for (const square of data) {
-                renderer.drawSquare_overlay(square.position.leftEdge, square.position.topEdge, square.thickness, square.color)
+                drawSquare(context_overlay, square)
             }
         })
 
