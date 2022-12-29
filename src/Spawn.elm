@@ -13,12 +13,12 @@ import Types.Thickness as Thickness
 import World exposing (Position, distanceToTicks)
 
 
-generatePlayers : Config -> Random.Generator (List Player)
-generatePlayers config =
+generatePlayers : Config -> List PlayerConfig -> Random.Generator (List Player)
+generatePlayers config playerConfigs =
     let
         numberOfPlayers : Int
         numberOfPlayers =
-            List.length config.players
+            List.length playerConfigs
 
         generateNewAndPrepend : Config.PlayerConfig -> List Player -> Random.Generator (List Player)
         generateNewAndPrepend playerConfig precedingPlayers =
@@ -35,7 +35,7 @@ generatePlayers config =
             List.foldl
                 (Random.andThen << generateNewAndPrepend)
                 (Random.constant [])
-                config.players
+                playerConfigs
     in
     generateReversedPlayers |> Random.map List.reverse
 
