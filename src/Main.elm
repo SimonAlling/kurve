@@ -25,10 +25,14 @@ type alias Model =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedButtons = Set.empty
-      , gameState = Lobby (Random.initialSeed 1337)
+      , gameState = Lobby ourInitialSeed
       }
     , Cmd.none
     )
+
+
+ourInitialSeed =
+    Random.initialSeed 1337
 
 
 startRound : Model -> MidRoundState -> ( Model, Cmd msg )
@@ -197,7 +201,7 @@ subscriptions model =
                 Time.every (1000 / config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
             MidRound lastTick midRoundState ->
-                Time.every (1000 / Tickrate.toFloat config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
+                Time.every (30000 / Tickrate.toFloat config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
         )
             :: inputSubscriptions ButtonUsed
 
