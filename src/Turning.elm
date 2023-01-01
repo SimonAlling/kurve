@@ -3,7 +3,7 @@ module Turning exposing (computeAngleChange, computeTurningState, turningStateFr
 import Config exposing (KurveConfig)
 import Set exposing (Set)
 import Types.Angle as Angle exposing (Angle(..))
-import Types.Player exposing (Player, UserInteraction(..))
+import Types.Kurve exposing (Kurve, UserInteraction(..))
 import Types.Radius as Radius
 import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
@@ -24,11 +24,11 @@ computeAngleChange kurveConfig turningState =
             Angle 0
 
 
-computeTurningState : Set String -> Player -> TurningState
-computeTurningState pressedButtons player =
+computeTurningState : Set String -> Kurve -> TurningState
+computeTurningState pressedButtons kurve =
     let
         ( leftButtons, rightButtons ) =
-            player.controls
+            kurve.controls
 
         someIsPressed : Set String -> Bool
         someIsPressed =
@@ -51,9 +51,9 @@ computedAngleChange { tickrate, turningRadius, speed } =
     Angle (Speed.toFloat speed / (Tickrate.toFloat tickrate * Radius.toFloat turningRadius))
 
 
-turningStateFromHistory : Tick -> Player -> TurningState
-turningStateFromHistory currentTick player =
-    newestFromBefore currentTick player.reversedInteractions
+turningStateFromHistory : Tick -> Kurve -> TurningState
+turningStateFromHistory currentTick kurve =
+    newestFromBefore currentTick kurve.reversedInteractions
 
 
 newestFromBefore : Tick -> List UserInteraction -> TurningState

@@ -1,7 +1,7 @@
 port module Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 
 import Color exposing (Color)
-import Types.Player exposing (Player)
+import Types.Kurve exposing (Kurve)
 import Types.Thickness as Thickness exposing (Thickness)
 import World exposing (DrawingPosition)
 
@@ -27,14 +27,14 @@ bodyDrawingCmd thickness =
             )
 
 
-headDrawingCmd : Thickness -> List Player -> Cmd msg
+headDrawingCmd : Thickness -> List Kurve -> Cmd msg
 headDrawingCmd thickness =
     renderOverlay
         << List.map
-            (\player ->
-                { position = World.drawingPosition thickness player.state.position
+            (\kurve ->
+                { position = World.drawingPosition thickness kurve.state.position
                 , thickness = Thickness.toInt thickness
-                , color = Color.toCssString player.color
+                , color = Color.toCssString kurve.color
                 }
             )
 
@@ -47,8 +47,8 @@ clearEverything ( worldWidth, worldHeight ) =
         ]
 
 
-drawSpawnIfAndOnlyIf : Bool -> Player -> Thickness -> Cmd msg
-drawSpawnIfAndOnlyIf shouldBeVisible player thickness =
+drawSpawnIfAndOnlyIf : Bool -> Kurve -> Thickness -> Cmd msg
+drawSpawnIfAndOnlyIf shouldBeVisible kurve thickness =
     let
         thicknessAsInt : Int
         thicknessAsInt =
@@ -56,14 +56,14 @@ drawSpawnIfAndOnlyIf shouldBeVisible player thickness =
 
         drawingPosition : DrawingPosition
         drawingPosition =
-            World.drawingPosition thickness player.state.position
+            World.drawingPosition thickness kurve.state.position
     in
     if shouldBeVisible then
         render <|
             List.singleton
                 { position = drawingPosition
                 , thickness = thicknessAsInt
-                , color = Color.toCssString player.color
+                , color = Color.toCssString kurve.color
                 }
 
     else

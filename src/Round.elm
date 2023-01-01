@@ -1,22 +1,22 @@
-module Round exposing (Players, Round, RoundHistory, RoundInitialState, initialStateForReplaying, modifyAlive, modifyDead, modifyPlayers, roundIsOver)
+module Round exposing (Kurves, Round, RoundHistory, RoundInitialState, initialStateForReplaying, modifyAlive, modifyDead, modifyKurves, roundIsOver)
 
 import Random
 import Set exposing (Set)
-import Types.Player as Player exposing (Player)
+import Types.Kurve as Kurve exposing (Kurve)
 import World exposing (Pixel)
 
 
 type alias Round =
-    { players : Players
+    { kurves : Kurves
     , occupiedPixels : Set Pixel
     , history : RoundHistory
     , seed : Random.Seed
     }
 
 
-type alias Players =
-    { alive : List Player
-    , dead : List Player
+type alias Kurves =
+    { alive : List Kurve
+    , dead : List Kurve
     }
 
 
@@ -27,36 +27,36 @@ type alias RoundHistory =
 
 type alias RoundInitialState =
     { seedAfterSpawn : Random.Seed
-    , spawnedPlayers : List Player
+    , spawnedKurves : List Kurve
     , pressedButtons : Set String
     }
 
 
-modifyPlayers : (Players -> Players) -> Round -> Round
-modifyPlayers f round =
-    { round | players = f round.players }
+modifyKurves : (Kurves -> Kurves) -> Round -> Round
+modifyKurves f round =
+    { round | kurves = f round.kurves }
 
 
-modifyAlive : (List Player -> List Player) -> Players -> Players
-modifyAlive f players =
-    { players | alive = f players.alive }
+modifyAlive : (List Kurve -> List Kurve) -> Kurves -> Kurves
+modifyAlive f kurves =
+    { kurves | alive = f kurves.alive }
 
 
-modifyDead : (List Player -> List Player) -> Players -> Players
-modifyDead f players =
-    { players | dead = f players.dead }
+modifyDead : (List Kurve -> List Kurve) -> Kurves -> Kurves
+modifyDead f kurves =
+    { kurves | dead = f kurves.dead }
 
 
-roundIsOver : Players -> Bool
-roundIsOver players =
+roundIsOver : Kurves -> Bool
+roundIsOver kurves =
     let
         someoneHasWonInMultiPlayer : Bool
         someoneHasWonInMultiPlayer =
-            List.length players.alive == 1 && not (List.isEmpty players.dead)
+            List.length kurves.alive == 1 && not (List.isEmpty kurves.dead)
 
         playerHasDiedInSinglePlayer : Bool
         playerHasDiedInSinglePlayer =
-            List.isEmpty players.alive
+            List.isEmpty kurves.alive
     in
     someoneHasWonInMultiPlayer || playerHasDiedInSinglePlayer
 
@@ -68,13 +68,13 @@ initialStateForReplaying round =
         initialState =
             round.history.initialState
 
-        thePlayers : List Player
-        thePlayers =
-            round.players.alive ++ round.players.dead
+        theKurves : List Kurve
+        theKurves =
+            round.kurves.alive ++ round.kurves.dead
     in
-    { initialState | spawnedPlayers = thePlayers |> List.map Player.reset |> sortPlayers }
+    { initialState | spawnedKurves = theKurves |> List.map Kurve.reset |> sortKurves }
 
 
-sortPlayers : List Player -> List Player
-sortPlayers =
+sortKurves : List Kurve -> List Kurve
+sortKurves =
     List.sortBy .id

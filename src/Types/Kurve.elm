@@ -1,4 +1,4 @@
-module Types.Player exposing (Fate(..), HoleStatus(..), Player, State, UserInteraction(..), modifyReversedInteractions, reset)
+module Types.Kurve exposing (Fate(..), HoleStatus(..), Kurve, State, UserInteraction(..), modifyReversedInteractions, reset)
 
 import Color exposing (Color)
 import Set exposing (Set)
@@ -9,7 +9,7 @@ import Types.TurningState exposing (TurningState)
 import World exposing (Position)
 
 
-type alias Player =
+type alias Kurve =
     { color : Color
     , id : PlayerId
     , controls : ( Set String, Set String ) -- `Set` is exactly what we want here; `String` is not, but since Elm doesn't support user-defined typeclass instances, we have to make do with a type that already is `comparable`.
@@ -23,9 +23,9 @@ type UserInteraction
     = HappenedBefore Tick TurningState
 
 
-modifyReversedInteractions : (List UserInteraction -> List UserInteraction) -> Player -> Player
-modifyReversedInteractions f player =
-    { player | reversedInteractions = f player.reversedInteractions }
+modifyReversedInteractions : (List UserInteraction -> List UserInteraction) -> Kurve -> Kurve
+modifyReversedInteractions f kurve =
+    { kurve | reversedInteractions = f kurve.reversedInteractions }
 
 
 type alias State =
@@ -47,6 +47,6 @@ type HoleStatus
     | Holy Int
 
 
-reset : Player -> Player
-reset player =
-    { player | state = player.stateAtSpawn }
+reset : Kurve -> Kurve
+reset kurve =
+    { kurve | state = kurve.stateAtSpawn }
