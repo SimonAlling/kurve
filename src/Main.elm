@@ -129,27 +129,25 @@ update msg ({ pressedButtons } as model) =
             )
 
         ButtonUsed Down button ->
-            let
-                startNewRoundIfSpacePressed : Random.Seed -> ( Model, Cmd msg )
-                startNewRoundIfSpacePressed seed =
+            case model.gameState of
+                Lobby seed ->
                     case button of
                         Key "Space" ->
                             startRound model <| prepareLiveRound model.config seed model.playerConfigs pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
-            in
-            case model.gameState of
-                Lobby seed ->
-                    startNewRoundIfSpacePressed seed
 
                 PostRound finishedRound ->
                     case button of
                         Key "KeyR" ->
                             startRound model <| prepareReplayRound model.config (initialStateForReplaying finishedRound)
 
+                        Key "Space" ->
+                            startRound model <| prepareLiveRound model.config finishedRound.seed model.playerConfigs pressedButtons
+
                         _ ->
-                            startNewRoundIfSpacePressed finishedRound.seed
+                            ( handleUserInteraction Down button model, Cmd.none )
 
                 _ ->
                     ( handleUserInteraction Down button model, Cmd.none )
