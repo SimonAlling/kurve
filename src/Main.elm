@@ -3,12 +3,12 @@ module Main exposing (main)
 import Browser
 import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Config exposing (Config, PlayerConfig)
-import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualPlayer, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Random
-import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyPlayers, roundIsOver)
+import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves, roundIsOver)
 import Set exposing (Set)
 import Time
 import Types.Tick as Tick exposing (Tick)
@@ -47,7 +47,7 @@ startRound model midRoundState =
 newRoundGameStateAndCmd : Config -> MidRoundState -> ( GameState, Cmd msg )
 newRoundGameStateAndCmd config plannedMidRoundState =
     ( PreRound
-        { playersLeft = Tuple.second plannedMidRoundState |> .players |> .alive
+        { kurvesLeft = Tuple.second plannedMidRoundState |> .kurves |> .alive
         , ticksLeft = config.spawn.numberOfFlickerTicks
         }
         plannedMidRoundState
@@ -62,10 +62,10 @@ type Msg
 
 
 stepSpawnState : Config -> SpawnState -> ( MidRoundState -> GameState, Cmd msg )
-stepSpawnState config { playersLeft, ticksLeft } =
-    case playersLeft of
+stepSpawnState config { kurvesLeft, ticksLeft } =
+    case kurvesLeft of
         [] ->
-            -- All players have spawned.
+            -- All Kurves have spawned.
             ( MidRound <| Tick.genesis, Cmd.none )
 
         spawning :: waiting ->
@@ -73,10 +73,10 @@ stepSpawnState config { playersLeft, ticksLeft } =
                 newSpawnState : SpawnState
                 newSpawnState =
                     if ticksLeft == 0 then
-                        { playersLeft = waiting, ticksLeft = config.spawn.numberOfFlickerTicks }
+                        { kurvesLeft = waiting, ticksLeft = config.spawn.numberOfFlickerTicks }
 
                     else
-                        { playersLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
+                        { kurvesLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
             ( PreRound newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.kurves.thickness )
 
@@ -90,24 +90,24 @@ update msg ({ pressedButtons } as model) =
 
         GameTick tick (( _, currentRound ) as midRoundState) ->
             let
-                ( newPlayersGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
+                ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
                     List.foldr
-                        (checkIndividualPlayer model.config tick)
+                        (checkIndividualKurve model.config tick)
                         ( Random.constant
-                            { alive = [] -- We start with the empty list because the new one we'll create may not include all the players from the old one.
-                            , dead = currentRound.players.dead -- Dead players, however, will not spring to life again.
+                            { alive = [] -- We start with the empty list because the new one we'll create may not include all the Kurves from the old one.
+                            , dead = currentRound.kurves.dead -- Dead Kurves, however, will not spring to life again.
                             }
                         , currentRound.occupiedPixels
                         , []
                         )
-                        currentRound.players.alive
+                        currentRound.kurves.alive
 
-                ( newPlayers, newSeed ) =
-                    Random.step newPlayersGenerator currentRound.seed
+                ( newKurves, newSeed ) =
+                    Random.step newKurvesGenerator currentRound.seed
 
                 newCurrentRound : Round
                 newCurrentRound =
-                    { players = newPlayers
+                    { kurves = newKurves
                     , occupiedPixels = newOccupiedPixels
                     , history = currentRound.history
                     , seed = newSeed
@@ -115,14 +115,14 @@ update msg ({ pressedButtons } as model) =
 
                 newGameState : GameState
                 newGameState =
-                    if roundIsOver newPlayers then
+                    if roundIsOver newKurves then
                         PostRound newCurrentRound
 
                     else
                         MidRound tick <| modifyRound (always newCurrentRound) midRoundState
             in
             ( { model | gameState = newGameState }
-            , [ headDrawingCmd model.config.kurves.thickness newPlayers.alive
+            , [ headDrawingCmd model.config.kurves.thickness newKurves.alive
               , bodyDrawingCmd model.config.kurves.thickness newColoredDrawingPositions
               ]
                 |> Cmd.batch
@@ -177,7 +177,7 @@ handleUserInteraction direction button model =
 
         recordInteractionBefore : Tick -> Round -> Round
         recordInteractionBefore tick =
-            modifyPlayers <| modifyAlive <| List.map (recordUserInteraction newPressedButtons tick)
+            modifyKurves <| modifyAlive <| List.map (recordUserInteraction newPressedButtons tick)
     in
     { model
         | pressedButtons = newPressedButtons

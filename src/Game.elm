@@ -1,15 +1,15 @@
-module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualPlayer, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 
 import Color exposing (Color)
 import Config exposing (Config, KurveConfig, PlayerConfig)
 import Random
-import Round exposing (Players, Round, RoundInitialState, modifyAlive, modifyDead)
+import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead)
 import Set exposing (Set)
-import Spawn exposing (generateHoleSize, generateHoleSpacing, generatePlayers)
+import Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle)
 import Types.Distance as Distance exposing (Distance(..))
-import Types.Player as Player exposing (Player, UserInteraction(..), modifyReversedInteractions)
+import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..), modifyReversedInteractions)
 import Types.Speed as Speed
 import Types.Thickness as Thickness exposing (Thickness)
 import Types.Tick as Tick exposing (Tick)
@@ -53,7 +53,7 @@ modifyRound =
 
 
 type alias SpawnState =
-    { playersLeft : List Player
+    { kurvesLeft : List Kurve
     , ticksLeft : Int
     }
 
@@ -67,14 +67,14 @@ firstUpdateTick =
 prepareLiveRound : Config -> Random.Seed -> List PlayerConfig -> Set String -> MidRoundState
 prepareLiveRound config seed playerConfigs pressedButtons =
     let
-        recordInitialInteractions : List Player -> List Player
+        recordInitialInteractions : List Kurve -> List Kurve
         recordInitialInteractions =
             List.map (recordUserInteraction pressedButtons firstUpdateTick)
 
-        ( thePlayers, seedAfterSpawn ) =
-            Random.step (generatePlayers config playerConfigs) seed |> Tuple.mapFirst recordInitialInteractions
+        ( theKurves, seedAfterSpawn ) =
+            Random.step (generateKurves config playerConfigs) seed |> Tuple.mapFirst recordInitialInteractions
     in
-    ( Live, prepareRoundHelper config { seedAfterSpawn = seedAfterSpawn, spawnedPlayers = thePlayers, pressedButtons = pressedButtons } )
+    ( Live, prepareRoundHelper config { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves, pressedButtons = pressedButtons } )
 
 
 prepareReplayRound : Config -> RoundInitialState -> MidRoundState
@@ -85,9 +85,9 @@ prepareReplayRound config initialState =
 prepareRoundHelper : Config -> RoundInitialState -> Round
 prepareRoundHelper config initialState =
     let
-        thePlayers : List Player
-        thePlayers =
-            initialState.spawnedPlayers
+        theKurves : List Kurve
+        theKurves =
+            initialState.spawnedKurves
 
         thickness : Thickness
         thickness =
@@ -95,8 +95,8 @@ prepareRoundHelper config initialState =
 
         round : Round
         round =
-            { players = { alive = thePlayers, dead = [] }
-            , occupiedPixels = List.foldr (.state >> .position >> World.drawingPosition thickness >> World.pixelsToOccupy thickness >> Set.union) Set.empty thePlayers
+            { kurves = { alive = theKurves, dead = [] }
+            , occupiedPixels = List.foldr (.state >> .position >> World.drawingPosition thickness >> World.pixelsToOccupy thickness >> Set.union) Set.empty theKurves
             , history =
                 { initialState = initialState
                 }
@@ -113,59 +113,59 @@ computeDistanceBetweenCenters thickness distanceBetweenEdges =
     Distance <| Distance.toFloat distanceBetweenEdges + toFloat (Thickness.toInt thickness)
 
 
-checkIndividualPlayer :
+checkIndividualKurve :
     Config
     -> Tick
-    -> Player
-    -> ( Random.Generator Players, Set World.Pixel, List ( Color, DrawingPosition ) )
+    -> Kurve
+    -> ( Random.Generator Kurves, Set World.Pixel, List ( Color, DrawingPosition ) )
     ->
-        ( Random.Generator Players
+        ( Random.Generator Kurves
         , Set World.Pixel
         , List ( Color, DrawingPosition )
         )
-checkIndividualPlayer config tick player ( checkedPlayersGenerator, occupiedPixels, coloredDrawingPositions ) =
+checkIndividualKurve config tick kurve ( checkedKurvesGenerator, occupiedPixels, coloredDrawingPositions ) =
     let
         turningState : TurningState
         turningState =
-            turningStateFromHistory tick player
+            turningStateFromHistory tick kurve
 
-        ( newPlayerDrawingPositions, checkedPlayerGenerator, fate ) =
-            updatePlayer config turningState occupiedPixels player
+        ( newKurveDrawingPositions, checkedKurveGenerator, fate ) =
+            updateKurve config turningState occupiedPixels kurve
 
-        occupiedPixelsAfterCheckingThisPlayer : Set Pixel
-        occupiedPixelsAfterCheckingThisPlayer =
+        occupiedPixelsAfterCheckingThisKurve : Set Pixel
+        occupiedPixelsAfterCheckingThisKurve =
             List.foldr
                 (World.pixelsToOccupy config.kurves.thickness >> Set.union)
                 occupiedPixels
-                newPlayerDrawingPositions
+                newKurveDrawingPositions
 
-        coloredDrawingPositionsAfterCheckingThisPlayer : List ( Color, DrawingPosition )
-        coloredDrawingPositionsAfterCheckingThisPlayer =
-            coloredDrawingPositions ++ List.map (Tuple.pair player.color) newPlayerDrawingPositions
+        coloredDrawingPositionsAfterCheckingThisKurve : List ( Color, DrawingPosition )
+        coloredDrawingPositionsAfterCheckingThisKurve =
+            coloredDrawingPositions ++ List.map (Tuple.pair kurve.color) newKurveDrawingPositions
 
-        playersAfterCheckingThisPlayer : Player -> Players -> Players
-        playersAfterCheckingThisPlayer checkedPlayer =
+        kurvesAfterCheckingThisKurve : Kurve -> Kurves -> Kurves
+        kurvesAfterCheckingThisKurve checkedKurve =
             case fate of
-                Player.Dies ->
-                    modifyDead ((::) checkedPlayer)
+                Kurve.Dies ->
+                    modifyDead ((::) checkedKurve)
 
-                Player.Lives ->
-                    modifyAlive ((::) checkedPlayer)
+                Kurve.Lives ->
+                    modifyAlive ((::) checkedKurve)
     in
-    ( Random.map2 playersAfterCheckingThisPlayer checkedPlayerGenerator checkedPlayersGenerator
-    , occupiedPixelsAfterCheckingThisPlayer
-    , coloredDrawingPositionsAfterCheckingThisPlayer
+    ( Random.map2 kurvesAfterCheckingThisKurve checkedKurveGenerator checkedKurvesGenerator
+    , occupiedPixelsAfterCheckingThisKurve
+    , coloredDrawingPositionsAfterCheckingThisKurve
     )
 
 
-evaluateMove : Config -> DrawingPosition -> List DrawingPosition -> Set Pixel -> Player.HoleStatus -> ( List DrawingPosition, Player.Fate )
+evaluateMove : Config -> DrawingPosition -> List DrawingPosition -> Set Pixel -> Kurve.HoleStatus -> ( List DrawingPosition, Kurve.Fate )
 evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
     let
-        checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Player.Fate )
+        checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Kurve.Fate )
         checkPositions checked lastChecked remaining =
             case remaining of
                 [] ->
-                    ( checked, Player.Lives )
+                    ( checked, Kurve.Lives )
 
                 current :: rest ->
                     let
@@ -191,7 +191,7 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
                             drawsOutsideWorld || (not <| Set.isEmpty <| Set.intersect theHitbox occupiedPixels)
                     in
                     if dies then
-                        ( checked, Player.Dies )
+                        ( checked, Kurve.Dies )
 
                     else
                         checkPositions (current :: checked) current rest
@@ -199,10 +199,10 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
         isHoly : Bool
         isHoly =
             case holeStatus of
-                Player.Holy _ ->
+                Kurve.Holy _ ->
                     True
 
-                Player.Unholy _ ->
+                Kurve.Unholy _ ->
                     False
 
         ( checkedPositionsReversed, evaluatedStatus ) =
@@ -212,13 +212,13 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
         positionsToDraw =
             if isHoly then
                 case evaluatedStatus of
-                    Player.Lives ->
+                    Kurve.Lives ->
                         []
 
-                    Player.Dies ->
-                        -- The player's head must always be drawn when they die, even if they are in the middle of a hole.
-                        -- If the player couldn't draw at all in this tick, then the last position where the player could draw before dying (and therefore the one to draw to represent the player's death) is this tick's starting point.
-                        -- Otherwise, the last position where the player could draw is the last checked position before death occurred.
+                    Kurve.Dies ->
+                        -- The Kurve's head must always be drawn when they die, even if they are in the middle of a hole.
+                        -- If the Kurve couldn't draw at all in this tick, then the last position where the Kurve could draw before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
+                        -- Otherwise, the last position where the Kurve could draw is the last checked position before death occurred.
                         List.singleton <| Maybe.withDefault startingPoint <| List.head checkedPositionsReversed
 
             else
@@ -227,8 +227,8 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
 
-updatePlayer : Config -> TurningState -> Set Pixel -> Player -> ( List DrawingPosition, Random.Generator Player, Player.Fate )
-updatePlayer config turningState occupiedPixels player =
+updateKurve : Config -> TurningState -> Set Pixel -> Kurve -> ( List DrawingPosition, Random.Generator Kurve, Kurve.Fate )
+updateKurve config turningState occupiedPixels kurve =
     let
         distanceTraveledSinceLastTick : Float
         distanceTraveledSinceLastTick =
@@ -236,10 +236,10 @@ updatePlayer config turningState occupiedPixels player =
 
         newDirection : Angle
         newDirection =
-            Angle.add player.state.direction <| computeAngleChange config.kurves turningState
+            Angle.add kurve.state.direction <| computeAngleChange config.kurves turningState
 
         ( x, y ) =
-            player.state.position
+            kurve.state.position
 
         newPosition : Position
         newPosition =
@@ -256,17 +256,17 @@ updatePlayer config turningState occupiedPixels player =
         ( confirmedDrawingPositions, fate ) =
             evaluateMove
                 config
-                (World.drawingPosition thickness player.state.position)
-                (World.desiredDrawingPositions thickness player.state.position newPosition)
+                (World.drawingPosition thickness kurve.state.position)
+                (World.desiredDrawingPositions thickness kurve.state.position newPosition)
                 occupiedPixels
-                player.state.holeStatus
+                kurve.state.holeStatus
 
-        newHoleStatusGenerator : Random.Generator Player.HoleStatus
+        newHoleStatusGenerator : Random.Generator Kurve.HoleStatus
         newHoleStatusGenerator =
-            updateHoleStatus config.kurves player.state.holeStatus
+            updateHoleStatus config.kurves kurve.state.holeStatus
 
-        newPlayerState : Random.Generator Player.State
-        newPlayerState =
+        newKurveState : Random.Generator Kurve.State
+        newKurveState =
             newHoleStatusGenerator
                 |> Random.map
                     (\newHoleStatus ->
@@ -276,37 +276,37 @@ updatePlayer config turningState occupiedPixels player =
                         }
                     )
 
-        newPlayer : Random.Generator Player
-        newPlayer =
-            newPlayerState |> Random.map (\s -> { player | state = s })
+        newKurve : Random.Generator Kurve
+        newKurve =
+            newKurveState |> Random.map (\s -> { kurve | state = s })
     in
     ( confirmedDrawingPositions
-    , newPlayer
+    , newKurve
     , fate
     )
 
 
-updateHoleStatus : KurveConfig -> Player.HoleStatus -> Random.Generator Player.HoleStatus
+updateHoleStatus : KurveConfig -> Kurve.HoleStatus -> Random.Generator Kurve.HoleStatus
 updateHoleStatus kurveConfig holeStatus =
     case holeStatus of
-        Player.Holy 0 ->
-            generateHoleSpacing kurveConfig.holes |> Random.map (distanceToTicks kurveConfig.tickrate kurveConfig.speed >> Player.Unholy)
+        Kurve.Holy 0 ->
+            generateHoleSpacing kurveConfig.holes |> Random.map (distanceToTicks kurveConfig.tickrate kurveConfig.speed >> Kurve.Unholy)
 
-        Player.Holy ticksLeft ->
-            Random.constant <| Player.Holy (ticksLeft - 1)
+        Kurve.Holy ticksLeft ->
+            Random.constant <| Kurve.Holy (ticksLeft - 1)
 
-        Player.Unholy 0 ->
-            generateHoleSize kurveConfig.holes |> Random.map (computeDistanceBetweenCenters kurveConfig.thickness >> distanceToTicks kurveConfig.tickrate kurveConfig.speed >> Player.Holy)
+        Kurve.Unholy 0 ->
+            generateHoleSize kurveConfig.holes |> Random.map (computeDistanceBetweenCenters kurveConfig.thickness >> distanceToTicks kurveConfig.tickrate kurveConfig.speed >> Kurve.Holy)
 
-        Player.Unholy ticksLeft ->
-            Random.constant <| Player.Unholy (ticksLeft - 1)
+        Kurve.Unholy ticksLeft ->
+            Random.constant <| Kurve.Unholy (ticksLeft - 1)
 
 
-recordUserInteraction : Set String -> Tick -> Player -> Player
-recordUserInteraction pressedButtons nextTick player =
+recordUserInteraction : Set String -> Tick -> Kurve -> Kurve
+recordUserInteraction pressedButtons nextTick kurve =
     let
         newTurningState : TurningState
         newTurningState =
-            computeTurningState pressedButtons player
+            computeTurningState pressedButtons kurve
     in
-    modifyReversedInteractions ((::) (HappenedBefore nextTick newTurningState)) player
+    modifyReversedInteractions ((::) (HappenedBefore nextTick newTurningState)) kurve

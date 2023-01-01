@@ -24,10 +24,10 @@ default =
             }
         }
     , spawn =
-        { margin = 100 -- The minimum distance from the wall that a player can spawn.
+        { margin = 100 -- The minimum distance from the wall that a Kurve can spawn.
         , desiredMinimumDistanceTurningRadiusFactor = 1
         , protectionAudacity = 0.25 -- Closer to 1 ⇔ less risk of spawn kills but higher risk of no solution
-        , flickerTicksPerSecond = 20 -- At each tick, the spawning player is toggled between visible and invisible.
+        , flickerTicksPerSecond = 20 -- At each tick, the spawning Kurve is toggled between visible and invisible.
         , numberOfFlickerTicks = 5
         , angleInterval = ( -pi / 2, pi / 2 )
         }
