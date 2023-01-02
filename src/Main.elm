@@ -8,7 +8,7 @@ import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), Sp
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
-import Players exposing (AllPlayers, handlePlayerJoiningOrLeaving, initialPlayers, participating)
+import Players exposing (AllPlayers, initialPlayers, participating)
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves, roundIsOver)
 import Set exposing (Set)
@@ -138,7 +138,7 @@ update msg ({ pressedButtons } as model) =
                             startRound model <| prepareLiveRound model.config seed (participating model.players) pressedButtons
 
                         _ ->
-                            ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, Cmd.none )
+                            ( handleUserInteraction Down button model, Cmd.none )
 
                 PostRound finishedRound ->
                     case button of

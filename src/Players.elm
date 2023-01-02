@@ -1,4 +1,4 @@
-module Players exposing (AllPlayers, ParticipatingPlayers, handlePlayerJoiningOrLeaving, initialPlayers, participating)
+module Players exposing (AllPlayers, ParticipatingPlayers, initialPlayers, participating)
 
 import Color exposing (Color)
 import Dict exposing (Dict)
@@ -14,31 +14,6 @@ type alias AllPlayers =
 
 type alias ParticipatingPlayers =
     Dict PlayerId Player
-
-
-handlePlayerJoiningOrLeaving : Button -> AllPlayers -> AllPlayers
-handlePlayerJoiningOrLeaving button =
-    Dict.map
-        (\_ ( player, status ) ->
-            let
-                ( leftButtons, rightButtons ) =
-                    player.controls
-
-                newStatus : PlayerStatus
-                newStatus =
-                    case ( List.member button leftButtons, List.member button rightButtons ) of
-                        ( True, False ) ->
-                            Participating
-
-                        ( False, True ) ->
-                            NotParticipating
-
-                        _ ->
-                            -- This case either represents that the pressed button isn't used by the player in question at all, or the absurd scenario that it's used by said player for turning _both_ left and right.
-                            status
-            in
-            ( player, newStatus )
-        )
 
 
 participating : AllPlayers -> ParticipatingPlayers
