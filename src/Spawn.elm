@@ -1,6 +1,6 @@
 module Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
 
-import Config exposing (Config, HoleConfig, KurveConfig, PlayerConfig, SpawnConfig, WorldConfig)
+import Config exposing (Config, HoleConfig, KurveConfig, Player, SpawnConfig, WorldConfig)
 import Input exposing (toStringSetControls)
 import Random
 import Random.Extra as Random
@@ -13,21 +13,21 @@ import Types.Thickness as Thickness
 import World exposing (Position, distanceToTicks)
 
 
-generateKurves : Config -> List PlayerConfig -> Random.Generator (List Kurve)
-generateKurves config playerConfigs =
+generateKurves : Config -> List Player -> Random.Generator (List Kurve)
+generateKurves config players =
     let
         numberOfPlayers : Int
         numberOfPlayers =
-            List.length playerConfigs
+            List.length players
 
-        generateNewAndPrepend : Config.PlayerConfig -> List Kurve -> Random.Generator (List Kurve)
-        generateNewAndPrepend playerConfig precedingKurves =
+        generateNewAndPrepend : Config.Player -> List Kurve -> Random.Generator (List Kurve)
+        generateNewAndPrepend player precedingKurves =
             let
                 id : PlayerId
                 id =
                     List.length precedingKurves
             in
-            generateKurve config id numberOfPlayers (List.map (.state >> .position) precedingKurves) playerConfig
+            generateKurve config id numberOfPlayers (List.map (.state >> .position) precedingKurves) player
                 |> Random.map (\kurve -> kurve :: precedingKurves)
 
         generateReversedKurves : Random.Generator (List Kurve)
@@ -35,7 +35,7 @@ generateKurves config playerConfigs =
             List.foldl
                 (Random.andThen << generateNewAndPrepend)
                 (Random.constant [])
-                playerConfigs
+                players
     in
     generateReversedKurves |> Random.map List.reverse
 
@@ -73,8 +73,8 @@ distanceBetween ( x1, y1 ) ( x2, y2 ) =
     Distance <| sqrt ((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
 
 
-generateKurve : Config -> PlayerId -> Int -> List Position -> PlayerConfig -> Random.Generator Kurve
-generateKurve config id numberOfPlayers existingPositions playerConfig =
+generateKurve : Config -> PlayerId -> Int -> List Position -> Player -> Random.Generator Kurve
+generateKurve config id numberOfPlayers existingPositions player =
     let
         safeSpawnPosition : Random.Generator Position
         safeSpawnPosition =
@@ -90,9 +90,9 @@ generateKurve config id numberOfPlayers existingPositions playerConfig =
                     , holeStatus = generatedHoleStatus
                     }
             in
-            { color = playerConfig.color
+            { color = player.color
             , id = id
-            , controls = toStringSetControls playerConfig.controls
+            , controls = toStringSetControls player.controls
             , state = state
             , stateAtSpawn = state
             , reversedInteractions = []

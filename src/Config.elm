@@ -1,4 +1,4 @@
-module Config exposing (Config, HoleConfig, KurveConfig, PlayerConfig, SpawnConfig, WorldConfig, default, players)
+module Config exposing (Config, HoleConfig, KurveConfig, Player, SpawnConfig, WorldConfig, default, players)
 
 import Color exposing (Color)
 import Input exposing (Button(..))
@@ -38,7 +38,7 @@ default =
     }
 
 
-players : List PlayerConfig
+players : List Player
 players =
     let
         rgb : Int -> Int -> Int -> Color
@@ -98,7 +98,7 @@ type alias WorldConfig =
     }
 
 
-type alias PlayerConfig =
+type alias Player =
     { color : Color
     , controls : ( List Button, List Button )
     }

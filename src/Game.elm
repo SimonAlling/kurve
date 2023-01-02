@@ -1,7 +1,7 @@
 module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 
 import Color exposing (Color)
-import Config exposing (Config, KurveConfig, PlayerConfig)
+import Config exposing (Config, KurveConfig, Player)
 import Random
 import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead)
 import Set exposing (Set)
@@ -64,15 +64,15 @@ firstUpdateTick =
     Tick.succ Tick.genesis
 
 
-prepareLiveRound : Config -> Random.Seed -> List PlayerConfig -> Set String -> MidRoundState
-prepareLiveRound config seed playerConfigs pressedButtons =
+prepareLiveRound : Config -> Random.Seed -> List Player -> Set String -> MidRoundState
+prepareLiveRound config seed players pressedButtons =
     let
         recordInitialInteractions : List Kurve -> List Kurve
         recordInitialInteractions =
             List.map (recordUserInteraction pressedButtons firstUpdateTick)
 
         ( theKurves, seedAfterSpawn ) =
-            Random.step (generateKurves config playerConfigs) seed |> Tuple.mapFirst recordInitialInteractions
+            Random.step (generateKurves config players) seed |> Tuple.mapFirst recordInitialInteractions
     in
     ( Live, prepareRoundHelper config { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves, pressedButtons = pressedButtons } )
 

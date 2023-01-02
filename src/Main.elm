@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
-import Config exposing (Config, PlayerConfig)
+import Config exposing (Config, Player)
 import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
@@ -20,7 +20,7 @@ type alias Model =
     { pressedButtons : Set String
     , gameState : GameState
     , config : Config
-    , playerConfigs : List PlayerConfig
+    , players : List Player
     }
 
 
@@ -29,7 +29,7 @@ init _ =
     ( { pressedButtons = Set.empty
       , gameState = Lobby (Random.initialSeed 1337)
       , config = Config.default
-      , playerConfigs = Config.players
+      , players = Config.players
       }
     , Cmd.none
     )
@@ -133,7 +133,7 @@ update msg ({ pressedButtons } as model) =
                 Lobby seed ->
                     case button of
                         Key "Space" ->
-                            startRound model <| prepareLiveRound model.config seed model.playerConfigs pressedButtons
+                            startRound model <| prepareLiveRound model.config seed model.players pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
@@ -144,7 +144,7 @@ update msg ({ pressedButtons } as model) =
                             startRound model <| prepareReplayRound model.config (initialStateForReplaying finishedRound)
 
                         Key "Space" ->
-                            startRound model <| prepareLiveRound model.config finishedRound.seed model.playerConfigs pressedButtons
+                            startRound model <| prepareLiveRound model.config finishedRound.seed model.players pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
