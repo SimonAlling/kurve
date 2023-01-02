@@ -1,7 +1,7 @@
 module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 
 import Color exposing (Color)
-import Config exposing (Config, KurveConfig, Player)
+import Config exposing (Config, KurveConfig)
 import Random
 import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead)
 import Set exposing (Set)
@@ -10,6 +10,7 @@ import Turning exposing (computeAngleChange, computeTurningState, turningStateFr
 import Types.Angle as Angle exposing (Angle)
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..), modifyReversedInteractions)
+import Types.Player exposing (Player)
 import Types.Speed as Speed
 import Types.Thickness as Thickness exposing (Thickness)
 import Types.Tick as Tick exposing (Tick)

@@ -2,15 +2,17 @@ module Main exposing (main)
 
 import Browser
 import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
-import Config exposing (Config, Player)
+import Config exposing (Config)
 import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
+import Players exposing (players)
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves, roundIsOver)
 import Set exposing (Set)
 import Time
+import Types.Player exposing (Player)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Util exposing (isEven)
@@ -29,7 +31,7 @@ init _ =
     ( { pressedButtons = Set.empty
       , gameState = Lobby (Random.initialSeed 1337)
       , config = Config.default
-      , players = Config.players
+      , players = players
       }
     , Cmd.none
     )
