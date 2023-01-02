@@ -33,7 +33,17 @@ participating =
 
 initialPlayers : AllPlayers
 initialPlayers =
-    players |> List.indexedMap (\id player -> ( id, ( player, Participating ) )) |> Dict.fromList
+    let
+        status : Int -> PlayerStatus
+        status id =
+            -- Dummy conditional expression demonstrating that players could be non-participating.
+            if id >= 0 then
+                Participating
+
+            else
+                NotParticipating
+    in
+    players |> List.indexedMap (\id player -> ( id, ( player, status id ) )) |> Dict.fromList
 
 
 players : List Player
