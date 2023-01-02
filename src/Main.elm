@@ -3,6 +3,7 @@ module Main exposing (main)
 import Browser
 import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Config exposing (Config)
+import GUI.Lobby exposing (lobby)
 import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
@@ -251,14 +252,6 @@ view model =
                 ]
             ]
         ]
-
-
-lobby : Html msg
-lobby =
-    div
-        [ Attr.id "lobby"
-        ]
-        [ Html.text "Press Space to start" ]
 
 
 main : Program () Model Msg
