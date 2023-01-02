@@ -2,6 +2,7 @@ module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), Sp
 
 import Color exposing (Color)
 import Config exposing (Config, KurveConfig)
+import Players exposing (ParticipatingPlayers)
 import Random
 import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead)
 import Set exposing (Set)
@@ -10,7 +11,6 @@ import Turning exposing (computeAngleChange, computeTurningState, turningStateFr
 import Types.Angle as Angle exposing (Angle)
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..), modifyReversedInteractions)
-import Types.Player exposing (Player)
 import Types.Speed as Speed
 import Types.Thickness as Thickness exposing (Thickness)
 import Types.Tick as Tick exposing (Tick)
@@ -65,7 +65,7 @@ firstUpdateTick =
     Tick.succ Tick.genesis
 
 
-prepareLiveRound : Config -> Random.Seed -> List Player -> Set String -> MidRoundState
+prepareLiveRound : Config -> Random.Seed -> ParticipatingPlayers -> Set String -> MidRoundState
 prepareLiveRound config seed players pressedButtons =
     let
         recordInitialInteractions : List Kurve -> List Kurve

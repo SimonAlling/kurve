@@ -1,8 +1,37 @@
-module Players exposing (players)
+module Players exposing (AllPlayers, ParticipatingPlayers, initialPlayers, participating)
 
 import Color exposing (Color)
 import Input exposing (Button(..))
 import Types.Player exposing (Player)
+import Types.PlayerStatus exposing (PlayerStatus(..))
+
+
+type alias AllPlayers =
+    List ( Player, PlayerStatus )
+
+
+type alias ParticipatingPlayers =
+    List Player
+
+
+participating : AllPlayers -> ParticipatingPlayers
+participating =
+    List.filter (Tuple.second >> (==) Participating) >> List.map Tuple.first
+
+
+initialPlayers : AllPlayers
+initialPlayers =
+    let
+        status : Int -> PlayerStatus
+        status id =
+            -- Dummy conditional expression demonstrating that players could be non-participating.
+            if id >= 0 then
+                Participating
+
+            else
+                NotParticipating
+    in
+    players |> List.indexedMap (\id player -> ( player, status id ))
 
 
 players : List Player

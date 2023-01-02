@@ -2,6 +2,7 @@ module Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
 
 import Config exposing (Config, HoleConfig, KurveConfig, SpawnConfig, WorldConfig)
 import Input exposing (toStringSetControls)
+import Players exposing (ParticipatingPlayers)
 import Random
 import Random.Extra as Random
 import Types.Angle exposing (Angle(..))
@@ -14,7 +15,7 @@ import Types.Thickness as Thickness
 import World exposing (Position, distanceToTicks)
 
 
-generateKurves : Config -> List Player -> Random.Generator (List Kurve)
+generateKurves : Config -> ParticipatingPlayers -> Random.Generator (List Kurve)
 generateKurves config players =
     let
         numberOfPlayers : Int
