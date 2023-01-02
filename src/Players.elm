@@ -1,8 +1,64 @@
-module Players exposing (players)
+module Players exposing (AllPlayers, ParticipatingPlayers, handlePlayerJoiningOrLeaving, initialPlayers, participating)
 
 import Color exposing (Color)
+import Dict exposing (Dict)
 import Input exposing (Button(..))
 import Types.Player exposing (Player)
+import Types.PlayerId exposing (PlayerId)
+import Types.PlayerStatus exposing (PlayerStatus(..))
+
+
+type alias AllPlayers =
+    Dict PlayerId ( Player, PlayerStatus )
+
+
+type alias ParticipatingPlayers =
+    Dict PlayerId Player
+
+
+handlePlayerJoiningOrLeaving : Button -> AllPlayers -> AllPlayers
+handlePlayerJoiningOrLeaving button =
+    Dict.map
+        (\_ ( player, status ) ->
+            let
+                ( leftButtons, rightButtons ) =
+                    player.controls
+
+                newStatus : PlayerStatus
+                newStatus =
+                    case ( List.member button leftButtons, List.member button rightButtons ) of
+                        ( True, False ) ->
+                            Participating
+
+                        ( False, True ) ->
+                            NotParticipating
+
+                        _ ->
+                            -- This case either represents that the pressed button isn't used by the player in question at all, or the absurd scenario that it's used by said player for turning _both_ left and right.
+                            status
+            in
+            ( player, newStatus )
+        )
+
+
+participating : AllPlayers -> ParticipatingPlayers
+participating =
+    let
+        includeIfParticipating : PlayerId -> ( Player, PlayerStatus ) -> ParticipatingPlayers -> ParticipatingPlayers
+        includeIfParticipating id ( player, status ) =
+            case status of
+                Participating ->
+                    Dict.insert id player
+
+                NotParticipating ->
+                    identity
+    in
+    Dict.foldl includeIfParticipating Dict.empty
+
+
+initialPlayers : AllPlayers
+initialPlayers =
+    players |> List.indexedMap (\id player -> ( id, ( player, Participating ) )) |> Dict.fromList
 
 
 players : List Player

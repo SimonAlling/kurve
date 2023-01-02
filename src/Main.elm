@@ -8,12 +8,11 @@ import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), Sp
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
-import Players exposing (players)
+import Players exposing (AllPlayers, handlePlayerJoiningOrLeaving, initialPlayers, participating)
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves, roundIsOver)
 import Set exposing (Set)
 import Time
-import Types.Player exposing (Player)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Util exposing (isEven)
@@ -23,7 +22,7 @@ type alias Model =
     { pressedButtons : Set String
     , gameState : GameState
     , config : Config
-    , players : List Player
+    , players : AllPlayers
     }
 
 
@@ -32,7 +31,7 @@ init _ =
     ( { pressedButtons = Set.empty
       , gameState = Lobby (Random.initialSeed 1337)
       , config = Config.default
-      , players = players
+      , players = initialPlayers
       }
     , Cmd.none
     )
@@ -136,10 +135,10 @@ update msg ({ pressedButtons } as model) =
                 Lobby seed ->
                     case button of
                         Key "Space" ->
-                            startRound model <| prepareLiveRound model.config seed model.players pressedButtons
+                            startRound model <| prepareLiveRound model.config seed (participating model.players) pressedButtons
 
                         _ ->
-                            ( handleUserInteraction Down button model, Cmd.none )
+                            ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, Cmd.none )
 
                 PostRound finishedRound ->
                     case button of
@@ -147,7 +146,7 @@ update msg ({ pressedButtons } as model) =
                             startRound model <| prepareReplayRound model.config (initialStateForReplaying finishedRound)
 
                         Key "Space" ->
-                            startRound model <| prepareLiveRound model.config finishedRound.seed model.players pressedButtons
+                            startRound model <| prepareLiveRound model.config finishedRound.seed (participating model.players) pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
