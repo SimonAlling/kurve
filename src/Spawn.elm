@@ -1,7 +1,6 @@
 module Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
 
 import Config exposing (Config, HoleConfig, KurveConfig, SpawnConfig, WorldConfig)
-import Dict
 import Input exposing (toStringSetControls)
 import Players exposing (ParticipatingPlayers)
 import Random
@@ -13,7 +12,6 @@ import Types.Player exposing (Player)
 import Types.PlayerId exposing (PlayerId)
 import Types.Radius as Radius
 import Types.Thickness as Thickness
-import Util exposing (curry)
 import World exposing (Position, distanceToTicks)
 
 
@@ -22,17 +20,22 @@ generateKurves config players =
     let
         numberOfPlayers : Int
         numberOfPlayers =
-            Dict.size players
+            List.length players
 
-        generateNewAndPrepend : ( PlayerId, Player ) -> List Kurve -> Random.Generator (List Kurve)
-        generateNewAndPrepend ( id, player ) precedingKurves =
+        generateNewAndPrepend : Player -> List Kurve -> Random.Generator (List Kurve)
+        generateNewAndPrepend player precedingKurves =
+            let
+                id : PlayerId
+                id =
+                    List.length precedingKurves
+            in
             generateKurve config id numberOfPlayers (List.map (.state >> .position) precedingKurves) player
                 |> Random.map (\kurve -> kurve :: precedingKurves)
 
         generateReversedKurves : Random.Generator (List Kurve)
         generateReversedKurves =
-            Dict.foldl
-                (curry (Random.andThen << generateNewAndPrepend))
+            List.foldl
+                (Random.andThen << generateNewAndPrepend)
                 (Random.constant [])
                 players
     in

@@ -1,34 +1,22 @@
 module Players exposing (AllPlayers, ParticipatingPlayers, initialPlayers, participating)
 
 import Color exposing (Color)
-import Dict exposing (Dict)
 import Input exposing (Button(..))
 import Types.Player exposing (Player)
-import Types.PlayerId exposing (PlayerId)
 import Types.PlayerStatus exposing (PlayerStatus(..))
 
 
 type alias AllPlayers =
-    Dict PlayerId ( Player, PlayerStatus )
+    List ( Player, PlayerStatus )
 
 
 type alias ParticipatingPlayers =
-    Dict PlayerId Player
+    List Player
 
 
 participating : AllPlayers -> ParticipatingPlayers
 participating =
-    let
-        includeIfParticipating : PlayerId -> ( Player, PlayerStatus ) -> ParticipatingPlayers -> ParticipatingPlayers
-        includeIfParticipating id ( player, status ) =
-            case status of
-                Participating ->
-                    Dict.insert id player
-
-                NotParticipating ->
-                    identity
-    in
-    Dict.foldl includeIfParticipating Dict.empty
+    List.filter (Tuple.second >> (==) Participating) >> List.map Tuple.first
 
 
 initialPlayers : AllPlayers
@@ -43,7 +31,7 @@ initialPlayers =
             else
                 NotParticipating
     in
-    players |> List.indexedMap (\id player -> ( id, ( player, status id ) )) |> Dict.fromList
+    players |> List.indexedMap (\id player -> ( player, status id ))
 
 
 players : List Player

@@ -1,9 +1,4 @@
-module Util exposing (curry, isEven)
-
-
-curry : (( a, b ) -> c) -> a -> b -> c
-curry f a b =
-    f ( a, b )
+module Util exposing (isEven)
 
 
 isEven : Int -> Bool
