@@ -1,12 +1,13 @@
 module Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
 
-import Config exposing (Config, HoleConfig, KurveConfig, Player, SpawnConfig, WorldConfig)
+import Config exposing (Config, HoleConfig, KurveConfig, SpawnConfig, WorldConfig)
 import Input exposing (toStringSetControls)
 import Random
 import Random.Extra as Random
 import Types.Angle exposing (Angle(..))
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Kurve as Kurve exposing (Kurve)
+import Types.Player exposing (Player)
 import Types.PlayerId exposing (PlayerId)
 import Types.Radius as Radius
 import Types.Thickness as Thickness
@@ -20,7 +21,7 @@ generateKurves config players =
         numberOfPlayers =
             List.length players
 
-        generateNewAndPrepend : Config.Player -> List Kurve -> Random.Generator (List Kurve)
+        generateNewAndPrepend : Player -> List Kurve -> Random.Generator (List Kurve)
         generateNewAndPrepend player precedingKurves =
             let
                 id : PlayerId
