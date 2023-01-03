@@ -1,4 +1,4 @@
-module Game exposing (AppState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyGameState, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 
 import Color exposing (Color)
 import Config exposing (Config, KurveConfig)
@@ -17,22 +17,6 @@ import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Types.TurningState exposing (TurningState)
 import World exposing (DrawingPosition, Pixel, Position, distanceToTicks)
-
-
-type AppState
-    = InGame GameState
-    | Lobby Random.Seed
-    | GameOver Random.Seed
-
-
-modifyGameState : (GameState -> GameState) -> AppState -> AppState
-modifyGameState f appState =
-    case appState of
-        InGame gameState ->
-            InGame <| f gameState
-
-        _ ->
-            appState
 
 
 type GameState
