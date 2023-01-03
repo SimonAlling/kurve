@@ -59,14 +59,28 @@ a:hover, a:focus, a:active {
     border-color: #616161;
 }
 
+$scoreboardWidth: 77px;
+
 #border4 {
     border-color: #515151;
+    margin-left: (
+        $scoreboardWidth // Keeps the canvas horizontally centered.
+        - 1px // Makes the total width of the wrapper even, so it can be trivially centered when in fullscreen. (Monitors are assumed to always have an even width in pixels.)
+    );
 }
 
 .overlay {
     left: 0;
     position: absolute;
     top: 0;
+}
+
+.largeDigit {
+    width: 28px;
+    height: 43px;
+    display: inline-block;
+    -webkit-mask-image: url("../resources/digits-large.png");
+    mask-image: url("../resources/digits-large.png");
 }
 
 #lobby {
@@ -102,6 +116,16 @@ a:hover, a:focus, a:active {
             -webkit-mask-image: $maskImage;
             mask-image: $maskImage;
         }
+    }
+}
+
+#scoreboard {
+    width: $scoreboardWidth;
+    box-sizing: border-box;
+    padding: 20px 12px 0 9px;
+
+    .scoreboardEntry {
+        height: 80px;
     }
 }
 

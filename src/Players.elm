@@ -1,11 +1,13 @@
-module Players exposing (AllPlayers, ParticipatingPlayers, atLeastOneIsParticipating, handlePlayerJoiningOrLeaving, initialPlayers, participating)
+module Players exposing (AllPlayers, ParticipatingPlayers, atLeastOneIsParticipating, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
 
 import Color exposing (Color)
 import Dict exposing (Dict)
 import Input exposing (Button(..))
+import Round exposing (Round)
 import Types.Player exposing (Player)
 import Types.PlayerId exposing (PlayerId)
 import Types.PlayerStatus exposing (PlayerStatus(..))
+import Types.Score exposing (Score(..))
 
 
 type alias AllPlayers =
@@ -13,7 +15,7 @@ type alias AllPlayers =
 
 
 type alias ParticipatingPlayers =
-    Dict PlayerId Player
+    Dict PlayerId ( Player, Score )
 
 
 handlePlayerJoiningOrLeaving : Button -> AllPlayers -> AllPlayers
@@ -28,7 +30,7 @@ handlePlayerJoiningOrLeaving button =
                 newStatus =
                     case ( List.member button leftButtons, List.member button rightButtons ) of
                         ( True, False ) ->
-                            Participating
+                            Participating (Score 0)
 
                         ( False, True ) ->
                             NotParticipating
@@ -47,8 +49,8 @@ participating =
         includeIfParticipating : PlayerId -> ( Player, PlayerStatus ) -> ParticipatingPlayers -> ParticipatingPlayers
         includeIfParticipating id ( player, status ) =
             case status of
-                Participating ->
-                    Dict.insert id player
+                Participating score ->
+                    Dict.insert id ( player, score )
 
                 NotParticipating ->
                     identity
@@ -59,6 +61,23 @@ participating =
 atLeastOneIsParticipating : AllPlayers -> Bool
 atLeastOneIsParticipating =
     participating >> Dict.isEmpty >> not
+
+
+{-| Merges the results from the given (ongoing or finished) round with the existing ones. Players are assumed to be represented in both sets of results.
+-}
+includeResultsFrom : Round -> AllPlayers -> AllPlayers
+includeResultsFrom round =
+    Dict.map (\id -> Tuple.mapSecond (Dict.get id (Round.scores round) |> combineScores))
+
+
+combineScores : Maybe Score -> PlayerStatus -> PlayerStatus
+combineScores scoreInRound status =
+    case ( status, scoreInRound ) of
+        ( Participating (Score fromBefore), Just (Score inRound) ) ->
+            Participating <| Score <| fromBefore + inRound
+
+        _ ->
+            NotParticipating
 
 
 initialPlayers : AllPlayers
