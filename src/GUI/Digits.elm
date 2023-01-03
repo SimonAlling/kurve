@@ -1,4 +1,4 @@
-module GUI.Digits exposing (large)
+module GUI.Digits exposing (large, small)
 
 import Color exposing (Color)
 import Html exposing (Html, div)
@@ -7,11 +7,17 @@ import Html.Attributes as Attr
 
 type Size
     = Large
+    | Small
 
 
 large : Color -> Int -> List (Html msg)
 large =
     digits Large
+
+
+small : Color -> Int -> List (Html msg)
+small =
+    digits Small
 
 
 type Digit
@@ -40,6 +46,9 @@ digit size color (Digit n) =
             case size of
                 Large ->
                     ( "largeDigit", 28 )
+
+                Small ->
+                    ( "smallDigit", 16 )
 
         maskPosition : String
         maskPosition =

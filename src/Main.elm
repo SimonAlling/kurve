@@ -277,7 +277,7 @@ view model =
                                 lobby model.players
 
                             GameOver _ ->
-                                endScreen
+                                endScreen model.players
 
                             _ ->
                                 Html.text ""
