@@ -32,7 +32,7 @@ generateKurves config players =
         generateReversedKurves : Random.Generator (List Kurve)
         generateReversedKurves =
             Dict.foldl
-                (curry (Random.andThen << generateNewAndPrepend))
+                (\id ( player, _ ) -> curry (Random.andThen << generateNewAndPrepend) id player)
                 (Random.constant [])
                 players
     in

@@ -43,7 +43,7 @@ playerEntry ( id, ( player, status ) ) =
             , Attr.style "background-color" backgroundColor
             , Attr.style "visibility"
                 (case status of
-                    Participating ->
+                    Participating _ ->
                         "visible"
 
                     NotParticipating ->

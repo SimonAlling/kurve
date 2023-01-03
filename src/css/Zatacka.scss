@@ -61,12 +61,21 @@ a:hover, a:focus, a:active {
 
 #border4 {
     border-color: #515151;
+    margin-left: 76px;
 }
 
 .overlay {
     left: 0;
     position: absolute;
     top: 0;
+}
+
+.largeDigit {
+    width: 28px;
+    height: 43px;
+    display: inline-block;
+    -webkit-mask-image: url("../resources/digits-large.png");
+    mask-image: url("../resources/digits-large.png");
 }
 
 #lobby {
@@ -102,6 +111,16 @@ a:hover, a:focus, a:active {
             -webkit-mask-image: $maskImage;
             mask-image: $maskImage;
         }
+    }
+}
+
+#scoreboard {
+    width: 77px;
+    box-sizing: border-box;
+    padding: 20px 12px 0 9px;
+
+    .scoreboardEntry {
+        height: 80px;
     }
 }
 

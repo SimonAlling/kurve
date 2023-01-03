@@ -1,8 +1,11 @@
-module Round exposing (Kurves, Round, RoundHistory, RoundInitialState, initialStateForReplaying, modifyAlive, modifyDead, modifyKurves, roundIsOver)
+module Round exposing (Kurves, Round, RoundHistory, RoundInitialState, initialStateForReplaying, modifyAlive, modifyDead, modifyKurves, roundIsOver, scores)
 
+import Dict exposing (Dict)
 import Random
 import Set exposing (Set)
 import Types.Kurve as Kurve exposing (Kurve)
+import Types.PlayerId exposing (PlayerId)
+import Types.Score exposing (Score(..))
 import World exposing (Pixel)
 
 
@@ -73,6 +76,20 @@ initialStateForReplaying round =
             round.kurves.alive ++ round.kurves.dead
     in
     { initialState | spawnedKurves = theKurves |> List.map Kurve.reset |> sortKurves }
+
+
+scores : Round -> Dict PlayerId Score
+scores { kurves } =
+    let
+        scoresOfDead : List ( Score, Kurve )
+        scoresOfDead =
+            List.indexedMap (Score >> Tuple.pair) (List.reverse kurves.dead)
+
+        scoresOfAlive : List ( Score, Kurve )
+        scoresOfAlive =
+            List.map (Tuple.pair (Score <| List.length kurves.dead)) kurves.alive
+    in
+    scoresOfDead ++ scoresOfAlive |> List.foldl (\( score, kurve ) -> Dict.insert kurve.id score) Dict.empty
 
 
 sortKurves : List Kurve -> List Kurve
