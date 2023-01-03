@@ -56,7 +56,7 @@ newRoundGameStateAndCmd config plannedMidRoundState =
         , ticksLeft = config.spawn.numberOfFlickerTicks
         }
         plannedMidRoundState
-    , clearEverything ( config.world.width, config.world.height )
+    , clearEverything
     )
 
 
@@ -183,12 +183,12 @@ update msg ({ pressedButtons } as model) =
 
 gameOver : Random.Seed -> Model -> ( Model, Cmd msg )
 gameOver seed model =
-    ( { model | appState = GameOver seed }, clearEverything ( model.config.world.width, model.config.world.height ) )
+    ( { model | appState = GameOver seed }, clearEverything )
 
 
 returnToLobby : Random.Seed -> Model -> ( Model, Cmd msg )
 returnToLobby seed model =
-    ( { model | appState = Lobby seed, players = everyoneLeaves model.players }, clearEverything ( model.config.world.width, model.config.world.height ) )
+    ( { model | appState = Lobby seed, players = everyoneLeaves model.players }, clearEverything )
 
 
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model

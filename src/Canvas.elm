@@ -3,6 +3,7 @@ port module Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnly
 import Color exposing (Color)
 import Types.Kurve exposing (Kurve)
 import Types.Thickness as Thickness exposing (Thickness)
+import Util exposing (maxSafeInteger)
 import World exposing (DrawingPosition)
 
 
@@ -39,11 +40,11 @@ headDrawingCmd thickness =
             )
 
 
-clearEverything : ( Int, Int ) -> Cmd msg
-clearEverything ( worldWidth, worldHeight ) =
+clearEverything : Cmd msg
+clearEverything =
     Cmd.batch
         [ renderOverlay []
-        , clear { x = 0, y = 0, width = worldWidth, height = worldHeight }
+        , clear { x = 0, y = 0, width = maxSafeInteger, height = maxSafeInteger }
         ]
 
 
