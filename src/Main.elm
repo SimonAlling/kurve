@@ -1,12 +1,13 @@
 module Main exposing (main)
 
+import App exposing (AppState(..), modifyGameState)
 import Browser
 import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Config exposing (Config)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
 import GUI.Scoreboard exposing (scoreboard)
-import Game exposing (AppState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyGameState, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)

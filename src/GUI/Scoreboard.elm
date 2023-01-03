@@ -1,8 +1,9 @@
 module GUI.Scoreboard exposing (scoreboard)
 
+import App exposing (AppState(..))
 import Dict
 import GUI.Digits
-import Game exposing (AppState(..), GameState(..))
+import Game exposing (GameState(..))
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Players exposing (AllPlayers, includeResultsFrom, participating)
