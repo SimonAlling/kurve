@@ -147,6 +147,9 @@ update msg ({ pressedButtons } as model) =
                         Key "KeyR" ->
                             startRound model <| prepareReplayRound model.config (initialStateForReplaying finishedRound)
 
+                        Key "Escape" ->
+                            returnToLobby finishedRound.seed model
+
                         Key "Space" ->
                             let
                                 newModel : Model
@@ -184,7 +187,7 @@ gameOver seed model =
 
 returnToLobby : Random.Seed -> Model -> ( Model, Cmd msg )
 returnToLobby seed model =
-    ( { model | gameState = Lobby seed, players = everyoneLeaves model.players }, Cmd.none )
+    ( { model | gameState = Lobby seed, players = everyoneLeaves model.players }, clearEverything ( model.config.world.width, model.config.world.height ) )
 
 
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
