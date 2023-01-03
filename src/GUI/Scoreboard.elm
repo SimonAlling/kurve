@@ -2,7 +2,7 @@ module GUI.Scoreboard exposing (scoreboard)
 
 import Dict
 import GUI.Digits
-import Game exposing (GameState(..))
+import Game exposing (AppState(..), GameState(..))
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Players exposing (AllPlayers, includeResultsFrom, participating)
@@ -12,23 +12,23 @@ import Types.PlayerStatus exposing (PlayerStatus(..))
 import Types.Score exposing (Score(..))
 
 
-scoreboard : GameState -> AllPlayers -> Html msg
-scoreboard gameState players =
+scoreboard : AppState -> AllPlayers -> Html msg
+scoreboard appState players =
     div
         [ Attr.id "scoreboard"
         , Attr.class "canvasHeight"
         ]
-        (case gameState of
+        (case appState of
             Lobby _ ->
                 []
 
-            PreRound _ ( _, round ) ->
+            InGame (PreRound _ ( _, round )) ->
                 content players round
 
-            MidRound _ ( _, round ) ->
+            InGame (MidRound _ ( _, round )) ->
                 content players round
 
-            PostRound round ->
+            InGame (PostRound round) ->
                 content players round
 
             GameOver _ ->

@@ -6,7 +6,7 @@ import Config exposing (Config)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
 import GUI.Scoreboard exposing (scoreboard)
-import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+import Game exposing (AppState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyGameState, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
@@ -22,7 +22,7 @@ import Util exposing (isEven)
 
 type alias Model =
     { pressedButtons : Set String
-    , gameState : GameState
+    , appState : AppState
     , config : Config
     , players : AllPlayers
     }
@@ -31,7 +31,7 @@ type alias Model =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedButtons = Set.empty
-      , gameState = Lobby (Random.initialSeed 1337)
+      , appState = Lobby (Random.initialSeed 1337)
       , config = Config.default
       , players = initialPlayers
       }
@@ -45,7 +45,7 @@ startRound model midRoundState =
         ( gameState, cmd ) =
             newRoundGameStateAndCmd model.config midRoundState
     in
-    ( { model | gameState = gameState }, cmd )
+    ( { model | appState = InGame gameState }, cmd )
 
 
 newRoundGameStateAndCmd : Config -> MidRoundState -> ( GameState, Cmd msg )
@@ -90,7 +90,7 @@ update msg ({ pressedButtons } as model) =
     case msg of
         SpawnTick spawnState plannedMidRoundState ->
             stepSpawnState model.config spawnState
-                |> Tuple.mapFirst (\makeGameState -> { model | gameState = makeGameState plannedMidRoundState })
+                |> Tuple.mapFirst (\makeGameState -> { model | appState = InGame <| makeGameState plannedMidRoundState })
 
         GameTick tick (( _, currentRound ) as midRoundState) ->
             let
@@ -125,7 +125,7 @@ update msg ({ pressedButtons } as model) =
                     else
                         MidRound tick <| modifyRound (always newCurrentRound) midRoundState
             in
-            ( { model | gameState = newGameState }
+            ( { model | appState = InGame newGameState }
             , [ headDrawingCmd model.config.kurves.thickness newKurves.alive
               , bodyDrawingCmd model.config.kurves.thickness newColoredDrawingPositions
               ]
@@ -133,7 +133,7 @@ update msg ({ pressedButtons } as model) =
             )
 
         ButtonUsed Down button ->
-            case model.gameState of
+            case model.appState of
                 Lobby seed ->
                     case ( button, atLeastOneIsParticipating model.players ) of
                         ( Key "Space", True ) ->
@@ -142,7 +142,7 @@ update msg ({ pressedButtons } as model) =
                         _ ->
                             ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, Cmd.none )
 
-                PostRound finishedRound ->
+                InGame (PostRound finishedRound) ->
                     case button of
                         Key "KeyR" ->
                             startRound model <| prepareReplayRound model.config (initialStateForReplaying finishedRound)
@@ -182,12 +182,12 @@ update msg ({ pressedButtons } as model) =
 
 gameOver : Random.Seed -> Model -> ( Model, Cmd msg )
 gameOver seed model =
-    ( { model | gameState = GameOver seed }, clearEverything ( model.config.world.width, model.config.world.height ) )
+    ( { model | appState = GameOver seed }, clearEverything ( model.config.world.width, model.config.world.height ) )
 
 
 returnToLobby : Random.Seed -> Model -> ( Model, Cmd msg )
 returnToLobby seed model =
-    ( { model | gameState = Lobby seed, players = everyoneLeaves model.players }, clearEverything ( model.config.world.width, model.config.world.height ) )
+    ( { model | appState = Lobby seed, players = everyoneLeaves model.players }, clearEverything ( model.config.world.width, model.config.world.height ) )
 
 
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
@@ -199,11 +199,11 @@ handleUserInteraction direction button model =
 
         howToModifyRound : Round -> Round
         howToModifyRound =
-            case model.gameState of
-                MidRound lastTick ( Live, _ ) ->
+            case model.appState of
+                InGame (MidRound lastTick ( Live, _ )) ->
                     recordInteractionBefore (Tick.succ lastTick)
 
-                PreRound _ ( Live, _ ) ->
+                InGame (PreRound _ ( Live, _ )) ->
                     recordInteractionBefore firstUpdateTick
 
                 _ ->
@@ -215,24 +215,24 @@ handleUserInteraction direction button model =
     in
     { model
         | pressedButtons = newPressedButtons
-        , gameState = modifyMidRoundState (modifyRound howToModifyRound) model.gameState
+        , appState = modifyGameState (modifyMidRoundState (modifyRound howToModifyRound)) model.appState
     }
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch <|
-        (case model.gameState of
+        (case model.appState of
             Lobby _ ->
                 Sub.none
 
-            PostRound _ ->
+            InGame (PostRound _) ->
                 Sub.none
 
-            PreRound spawnState plannedMidRoundState ->
+            InGame (PreRound spawnState plannedMidRoundState) ->
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
-            MidRound lastTick midRoundState ->
+            InGame (MidRound lastTick midRoundState) ->
                 Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
 
             GameOver _ ->
@@ -275,7 +275,7 @@ view model =
                             , Attr.class "overlay"
                             ]
                             []
-                        , case model.gameState of
+                        , case model.appState of
                             Lobby _ ->
                                 lobby model.players
 
@@ -288,7 +288,7 @@ view model =
                     ]
                 ]
             ]
-        , scoreboard model.gameState model.players
+        , scoreboard model.appState model.players
         ]
 
 
