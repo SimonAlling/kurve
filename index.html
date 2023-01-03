@@ -17,7 +17,6 @@
     <meta property="og:image" content="http://kurve.se/resources/kurve-share.png" />
 
     <link rel="stylesheet" href="css/Zatacka.css" />
-    <link rel="stylesheet" href="css/kurve.se.css" />
     <link rel="apple-touch-icon" sizes="57x57" href="resources/icon/apple-icon-57x57.png" />
     <link rel="apple-touch-icon" sizes="60x60" href="resources/icon/apple-icon-60x60.png" />
     <link rel="apple-touch-icon" sizes="72x72" href="resources/icon/apple-icon-72x72.png" />
@@ -38,20 +37,72 @@
 
 </head>
 
-<body class="body">
+<body id="ZATACKA" class="body">
 
     <h1>Achtung, die Kurve!</h1>
-    <div id="wrapper">
-        <main>
-            <p id="start-hint">Loading…</p>
-            <p id="fullscreen-hint"></p>
-            <footer>
-                <a href="http://github.com/SimonAlling/kurve">Source Code</a>
-            </footer>
-        </main>
-    </div>
+    <div id="elm-node"></div>
 
-    <script type="module" src="src/js/SplashScreen.js"></script>
+    <script src="./build/ZATACKA.js"></script>
+    <script>
+        const app = Elm.Main.init({ node: document.getElementById("elm-node") })
+        const context_main = document.getElementById("canvas_main").getContext("2d")
+        const context_overlay = document.getElementById("canvas_overlay").getContext("2d")
+
+        function drawSquare(context, { position: { leftEdge, topEdge }, thickness, color }) {
+            context.fillStyle = color
+            context.fillRect(leftEdge, topEdge, thickness, thickness)
+        }
+
+        function clearRectangle(context, { x, y, width, height }) {
+            context.clearRect(x, y, width, height)
+        }
+
+        app.ports.render.subscribe(squares => {
+            for (const square of squares) {
+                drawSquare(context_main, square)
+            }
+        })
+
+        app.ports.clear.subscribe(rectangle => {
+            clearRectangle(context_main, rectangle)
+        })
+
+        app.ports.renderOverlay.subscribe(squares => {
+            clearRectangle(context_overlay, { x: 0, y: 0, width: Number.MAX_SAFE_INTEGER, height: Number.MAX_SAFE_INTEGER })
+            for (const square of squares) {
+                drawSquare(context_overlay, square)
+            }
+        })
+
+        document.addEventListener("keydown", event => {
+            const isDeveloperCommand = (
+                ["F5", "F12"].includes(event.key)
+                ||
+                (event.ctrlKey && event.key === "r") // Ctrl + R
+                ||
+                (event.metaKey && event.key === "r") // Cmd + R on macOS 👀
+            )
+            if (!isDeveloperCommand) {
+                event.preventDefault()
+            }
+            if (!event.repeat) {
+                app.ports.onKeydown.send(event.code)
+            }
+        })
+        document.addEventListener("keyup", event => {
+            // Traditionally we never prevented default on keyup.
+            app.ports.onKeyup.send(event.code)
+        })
+        document.addEventListener("mousedown", event => {
+            app.ports.onMousedown.send(event.button)
+        })
+        document.addEventListener("mouseup", event => {
+            app.ports.onMouseup.send(event.button)
+        })
+        document.addEventListener("contextmenu", event => {
+            event.preventDefault()
+        });
+    </script>
 
 </body>
 
