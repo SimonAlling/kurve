@@ -45,8 +45,8 @@
     <script src="./build/ZATACKA.js"></script>
     <script>
         const app = Elm.Main.init({ node: document.getElementById("elm-node") })
-        const context_main = canvas_main.getContext("2d")
-        const context_overlay = canvas_overlay.getContext("2d")
+        const context_main = document.getElementById("canvas_main").getContext("2d")
+        const context_overlay = document.getElementById("canvas_overlay").getContext("2d")
 
         function drawSquare(context, { position: { leftEdge, topEdge }, thickness, color }) {
             context.fillStyle = color
