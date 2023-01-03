@@ -8,7 +8,7 @@ import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), Sp
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
-import Players exposing (AllPlayers, initialPlayers, participating)
+import Players exposing (AllPlayers, atLeastOneIsParticipating, handlePlayerJoiningOrLeaving, initialPlayers, participating)
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves, roundIsOver)
 import Set exposing (Set)
@@ -133,12 +133,12 @@ update msg ({ pressedButtons } as model) =
         ButtonUsed Down button ->
             case model.gameState of
                 Lobby seed ->
-                    case button of
-                        Key "Space" ->
+                    case ( button, atLeastOneIsParticipating model.players ) of
+                        ( Key "Space", True ) ->
                             startRound model <| prepareLiveRound model.config seed (participating model.players) pressedButtons
 
                         _ ->
-                            ( handleUserInteraction Down button model, Cmd.none )
+                            ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, Cmd.none )
 
                 PostRound finishedRound ->
                     case button of
@@ -242,7 +242,7 @@ view model =
                             []
                         , case model.gameState of
                             Lobby _ ->
-                                lobby
+                                lobby model.players
 
                             _ ->
                                 Html.text ""
