@@ -30,6 +30,9 @@ scoreboard gameState players =
 
             PostRound round ->
                 content players round
+
+            GameOver _ ->
+                []
         )
 
 

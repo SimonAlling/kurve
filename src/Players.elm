@@ -1,4 +1,4 @@
-module Players exposing (AllPlayers, ParticipatingPlayers, atLeastOneIsParticipating, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
+module Players exposing (AllPlayers, ParticipatingPlayers, atLeastOneIsParticipating, everyoneLeaves, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
 
 import Color exposing (Color)
 import Dict exposing (Dict)
@@ -41,6 +41,11 @@ handlePlayerJoiningOrLeaving button =
             in
             ( player, newStatus )
         )
+
+
+everyoneLeaves : AllPlayers -> AllPlayers
+everyoneLeaves =
+    Dict.map (always (Tuple.mapSecond (always NotParticipating)))
 
 
 participating : AllPlayers -> ParticipatingPlayers
