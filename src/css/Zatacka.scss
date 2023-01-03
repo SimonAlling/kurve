@@ -71,11 +71,38 @@ a:hover, a:focus, a:active {
 
 #lobby {
     position: absolute;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 100%;
     height: 100%;
+    padding-top: 50px;
+    padding-left: 81px;
+    box-sizing: border-box;
+
+    .playerEntry {
+        width: 100%;
+        height: 50px;
+
+        > div {
+            height: 100%;
+            display: inline-block;
+            $maskRepeat: no-repeat;
+            -webkit-mask-repeat: $maskRepeat;
+            mask-repeat: $maskRepeat;
+        }
+
+        .controls {
+            width: 160px;
+            $maskPosition: 1px 0;
+            -webkit-mask-position: $maskPosition;
+            mask-position: $maskPosition;
+        }
+
+        .ready {
+            width: 80px;
+            $maskImage: url("../resources/ready.png");
+            -webkit-mask-image: $maskImage;
+            mask-image: $maskImage;
+        }
+    }
 }
 
 #canvas_main {
