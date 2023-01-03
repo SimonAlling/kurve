@@ -1,13 +1,13 @@
 module App exposing (AppState(..), modifyGameState)
 
 import Game exposing (GameState)
+import Menu exposing (MenuState)
 import Random
 
 
 type AppState
     = InGame GameState
-    | Lobby Random.Seed
-    | GameOver Random.Seed
+    | InMenu MenuState Random.Seed
 
 
 modifyGameState : (GameState -> GameState) -> AppState -> AppState
