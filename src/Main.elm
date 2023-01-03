@@ -3,13 +3,14 @@ module Main exposing (main)
 import Browser
 import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Config exposing (Config)
+import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
 import GUI.Scoreboard exposing (scoreboard)
 import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
-import Players exposing (AllPlayers, atLeastOneIsParticipating, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
+import Players exposing (AllPlayers, atLeastOneIsParticipating, everyoneLeaves, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves, roundIsOver)
 import Set exposing (Set)
@@ -152,7 +153,19 @@ update msg ({ pressedButtons } as model) =
                                 newModel =
                                     { model | players = includeResultsFrom finishedRound model.players }
                             in
-                            startRound newModel <| prepareLiveRound newModel.config finishedRound.seed (participating newModel.players) pressedButtons
+                            if newModel.config.game.isGameOver (participating newModel.players) then
+                                gameOver finishedRound.seed newModel
+
+                            else
+                                startRound newModel <| prepareLiveRound newModel.config finishedRound.seed (participating newModel.players) pressedButtons
+
+                        _ ->
+                            ( handleUserInteraction Down button model, Cmd.none )
+
+                GameOver seed ->
+                    case button of
+                        Key "Space" ->
+                            returnToLobby seed model
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
@@ -162,6 +175,16 @@ update msg ({ pressedButtons } as model) =
 
         ButtonUsed Up key ->
             ( handleUserInteraction Up key model, Cmd.none )
+
+
+gameOver : Random.Seed -> Model -> ( Model, Cmd msg )
+gameOver seed model =
+    ( { model | gameState = GameOver seed }, clearEverything ( model.config.world.width, model.config.world.height ) )
+
+
+returnToLobby : Random.Seed -> Model -> ( Model, Cmd msg )
+returnToLobby seed model =
+    ( { model | gameState = Lobby seed, players = everyoneLeaves model.players }, Cmd.none )
 
 
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
@@ -208,6 +231,9 @@ subscriptions model =
 
             MidRound lastTick midRoundState ->
                 Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
+
+            GameOver _ ->
+                Sub.none
         )
             :: inputSubscriptions ButtonUsed
 
@@ -249,6 +275,9 @@ view model =
                         , case model.gameState of
                             Lobby _ ->
                                 lobby model.players
+
+                            GameOver _ ->
+                                endScreen
 
                             _ ->
                                 Html.text ""

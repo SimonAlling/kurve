@@ -24,6 +24,7 @@ type GameState
     | PostRound Round
     | PreRound SpawnState MidRoundState
     | Lobby Random.Seed
+    | GameOver Random.Seed
 
 
 modifyMidRoundState : (MidRoundState -> MidRoundState) -> GameState -> GameState
