@@ -62,13 +62,14 @@ a:hover, a:focus, a:active {
 $canvasWidth: 559px;
 $borderWidth: 4px;
 $scoreboardWidth: 77px;
+$leftMargin: (
+    $scoreboardWidth // Keeps the canvas horizontally centered.
+    - 1px // Makes the total width of the wrapper even, so it can be trivially centered when in fullscreen. (Monitors are assumed to always have an even width in pixels.)
+);
 
 #border4 {
     border-color: #515151;
-    margin-left: (
-        $scoreboardWidth // Keeps the canvas horizontally centered.
-        - 1px // Makes the total width of the wrapper even, so it can be trivially centered when in fullscreen. (Monitors are assumed to always have an even width in pixels.)
-    );
+    margin-left: $leftMargin;
 }
 
 $minWidthForCenteredCanvas: (
