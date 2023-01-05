@@ -16,4 +16,4 @@ The Elm remake is not yet released, but you can play the legacy JavaScript versi
 * **Online:**  Go to [kurve.se](http://kurve.se).
 * **Locally:** [Download the game](/SimonAlling/kurve/archive/master.zip) and open `ZATACKA.html` in your browser.
 
-The game will automatically scale itself up as much as possible; fullscreen is recommended for the best experience.
+Fullscreen is recommended for the best experience.
