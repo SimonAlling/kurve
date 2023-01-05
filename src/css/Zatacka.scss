@@ -74,7 +74,7 @@ $leftMargin: (
 
 $minWidthForCenteredCanvas: (
     // The canvas should typically be centered, but not at the expense of scoreboard visibility.
-    $scoreboardWidth + $borderWidth + $canvasWidth + $borderWidth + $scoreboardWidth
+    $leftMargin + $borderWidth + $canvasWidth + $borderWidth + $scoreboardWidth
 );
 
 @media (max-width: $minWidthForCenteredCanvas) {
