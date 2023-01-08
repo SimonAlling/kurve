@@ -2,5 +2,6 @@ module Menu exposing (MenuState(..))
 
 
 type MenuState
-    = Lobby
+    = SplashScreen
+    | Lobby
     | GameOver

@@ -7,6 +7,7 @@ import Config exposing (Config)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
 import GUI.Scoreboard exposing (scoreboard)
+import GUI.SplashScreen exposing (splashScreen)
 import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
@@ -33,7 +34,7 @@ type alias Model =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedButtons = Set.empty
-      , appState = InMenu Lobby (Random.initialSeed 1337)
+      , appState = InMenu SplashScreen (Random.initialSeed 1337)
       , config = Config.default
       , players = initialPlayers
       }
@@ -136,6 +137,14 @@ update msg ({ pressedButtons } as model) =
 
         ButtonUsed Down button ->
             case model.appState of
+                InMenu SplashScreen seed ->
+                    case button of
+                        Key "Space" ->
+                            goToLobby seed model
+
+                        _ ->
+                            ( handleUserInteraction Down button model, Cmd.none )
+
                 InMenu Lobby seed ->
                     case ( button, atLeastOneIsParticipating model.players ) of
                         ( Key "Space", True ) ->
@@ -161,7 +170,7 @@ update msg ({ pressedButtons } as model) =
                         Key "Escape" ->
                             -- Quitting after the final round is not allowed in the original game.
                             if not gameIsOver then
-                                returnToLobby finishedRound.seed model
+                                goToLobby finishedRound.seed model
 
                             else
                                 ( handleUserInteraction Down button model, Cmd.none )
@@ -179,7 +188,7 @@ update msg ({ pressedButtons } as model) =
                 InMenu GameOver seed ->
                     case button of
                         Key "Space" ->
-                            returnToLobby seed model
+                            goToLobby seed model
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
@@ -196,8 +205,8 @@ gameOver seed model =
     ( { model | appState = InMenu GameOver seed }, Cmd.none )
 
 
-returnToLobby : Random.Seed -> Model -> ( Model, Cmd msg )
-returnToLobby seed model =
+goToLobby : Random.Seed -> Model -> ( Model, Cmd msg )
+goToLobby seed model =
     ( { model | appState = InMenu Lobby seed, players = everyoneLeaves model.players }, Cmd.none )
 
 
@@ -234,6 +243,9 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch <|
         (case model.appState of
+            InMenu SplashScreen _ ->
+                Sub.none
+
             InMenu Lobby _ ->
                 Sub.none
 
@@ -260,6 +272,9 @@ view model =
 
         InMenu GameOver _ ->
             elmRoot [] [ endScreen model.players ]
+
+        InMenu SplashScreen _ ->
+            elmRoot [] [ splashScreen ]
 
         InGame gameState ->
             elmRoot
