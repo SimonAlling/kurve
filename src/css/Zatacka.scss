@@ -78,13 +78,13 @@ $minWidthForCenteredCanvas: (
 );
 
 @media (max-width: $minWidthForCenteredCanvas) {
-    body#ZATACKA.body {
+    body {
         justify-content: flex-end; // Prioritizes visible scoreboard over centered canvas.
     }
 }
 
 @media (min-width: $minWidthForCenteredCanvas) {
-    body#ZATACKA.body {
+    body {
         justify-content: center;
     }
 }
