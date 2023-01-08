@@ -12,11 +12,16 @@ html, body {
 
 body {
     background-color: #3C3C3C;
-    display: flex;
-    align-items: center;
     overflow: hidden;
     color: white;
     font-size: 12px;
+}
+
+#elm-root {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
 }
 
 h1 {
@@ -70,13 +75,13 @@ $minWidthForCenteredCanvas: (
 );
 
 @media (max-width: $minWidthForCenteredCanvas) {
-    body {
+    #elm-root {
         justify-content: flex-end; // Prioritizes visible scoreboard over centered canvas.
     }
 }
 
 @media (min-width: $minWidthForCenteredCanvas) {
-    body {
+    #elm-root {
         justify-content: center;
     }
 }
