@@ -47,7 +47,8 @@
         const app = Elm.Main.init({ node: document.getElementById("elm-node") })
 
         function getCanvasContext(id) {
-            return document.getElementById(id).getContext("2d")
+            const canvas = document.getElementById(id)
+            return canvas === null ? null : canvas.getContext("2d")
         }
 
         function drawSquare(context, { position: { leftEdge, topEdge }, thickness, color }) {
@@ -55,8 +56,10 @@
             context.fillRect(leftEdge, topEdge, thickness, thickness)
         }
 
-        function clearRectangle(context, { x, y, width, height }) {
-            context.clearRect(x, y, width, height)
+        function clearRectangleIfCanvasExists(context, { x, y, width, height }) {
+            if (context !== null) {
+                context.clearRect(x, y, width, height)
+            }
         }
 
         app.ports.render.subscribe(squares => {
@@ -68,12 +71,12 @@
 
         app.ports.clear.subscribe(rectangle => {
             const context_main = getCanvasContext("canvas_main")
-            clearRectangle(context_main, rectangle)
+            clearRectangleIfCanvasExists(context_main, rectangle)
         })
 
         app.ports.renderOverlay.subscribe(squares => {
             const context_overlay = getCanvasContext("canvas_overlay")
-            clearRectangle(context_overlay, { x: 0, y: 0, width: Number.MAX_SAFE_INTEGER, height: Number.MAX_SAFE_INTEGER })
+            clearRectangleIfCanvasExists(context_overlay, { x: 0, y: 0, width: Number.MAX_SAFE_INTEGER, height: Number.MAX_SAFE_INTEGER })
             for (const square of squares) {
                 drawSquare(context_overlay, square)
             }

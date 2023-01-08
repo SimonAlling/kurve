@@ -49,6 +49,9 @@ $leftMargin: (
 );
 
 #border {
+    width: $canvasWidth;
+    height: 480px;
+    background-color: black;
     display: flex; /* to prevent weird extra space at the bottom */
     position: relative; /* to allow absolute positioning of descendants*/
     box-shadow: (
@@ -101,7 +104,6 @@ $minWidthForCenteredCanvas: (
 }
 
 #lobby {
-    position: absolute;
     width: 100%;
     height: 100%;
     padding-top: 50px;
@@ -147,7 +149,7 @@ $minWidthForCenteredCanvas: (
 }
 
 #endScreen {
-    position: absolute;
+    position: relative;
     width: 100%;
     height: 100%;
 
