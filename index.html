@@ -45,8 +45,10 @@
     <script src="./build/ZATACKA.js"></script>
     <script>
         const app = Elm.Main.init({ node: document.getElementById("elm-node") })
-        const context_main = document.getElementById("canvas_main").getContext("2d")
-        const context_overlay = document.getElementById("canvas_overlay").getContext("2d")
+
+        function getCanvasContext(id) {
+            return document.getElementById(id).getContext("2d")
+        }
 
         function drawSquare(context, { position: { leftEdge, topEdge }, thickness, color }) {
             context.fillStyle = color
@@ -58,16 +60,19 @@
         }
 
         app.ports.render.subscribe(squares => {
+            const context_main = getCanvasContext("canvas_main")
             for (const square of squares) {
                 drawSquare(context_main, square)
             }
         })
 
         app.ports.clear.subscribe(rectangle => {
+            const context_main = getCanvasContext("canvas_main")
             clearRectangle(context_main, rectangle)
         })
 
         app.ports.renderOverlay.subscribe(squares => {
+            const context_overlay = getCanvasContext("canvas_overlay")
             clearRectangle(context_overlay, { x: 0, y: 0, width: Number.MAX_SAFE_INTEGER, height: Number.MAX_SAFE_INTEGER })
             for (const square of squares) {
                 drawSquare(context_overlay, square)
