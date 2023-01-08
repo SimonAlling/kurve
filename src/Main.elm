@@ -245,37 +245,44 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div
-        [ Attr.id "wrapper"
-        ]
+    elmRoot
         [ div
-            [ Attr.id "border"
+            [ Attr.id "wrapper"
             ]
-            (case model.appState of
-                InMenu Lobby _ ->
-                    [ lobby model.players ]
+            [ div
+                [ Attr.id "border"
+                ]
+                (case model.appState of
+                    InMenu Lobby _ ->
+                        [ lobby model.players ]
 
-                InMenu GameOver _ ->
-                    [ endScreen model.players ]
+                    InMenu GameOver _ ->
+                        [ endScreen model.players ]
 
-                _ ->
-                    [ canvas
-                        [ Attr.id "canvas_main"
-                        , Attr.width 559
-                        , Attr.height 480
+                    _ ->
+                        [ canvas
+                            [ Attr.id "canvas_main"
+                            , Attr.width 559
+                            , Attr.height 480
+                            ]
+                            []
+                        , canvas
+                            [ Attr.id "canvas_overlay"
+                            , Attr.width 559
+                            , Attr.height 480
+                            , Attr.class "overlay"
+                            ]
+                            []
                         ]
-                        []
-                    , canvas
-                        [ Attr.id "canvas_overlay"
-                        , Attr.width 559
-                        , Attr.height 480
-                        , Attr.class "overlay"
-                        ]
-                        []
-                    ]
-            )
+                )
+            ]
         , scoreboard model.appState model.players
         ]
+
+
+elmRoot : List (Html msg) -> Html msg
+elmRoot =
+    div [ Attr.id "elm-root" ]
 
 
 main : Program () Model Msg
