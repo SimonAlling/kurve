@@ -3,6 +3,7 @@ module Main exposing (main)
 import App exposing (AppState(..), modifyGameState)
 import Browser
 import Config exposing (Config)
+import Dict
 import Drawing exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
@@ -17,6 +18,7 @@ import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves, roundIsOver)
 import Set exposing (Set)
 import Time
+import Types.Score exposing (Score(..))
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Util exposing (isEven)
@@ -33,7 +35,7 @@ type alias Model =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedButtons = Set.empty
-      , appState = InMenu Lobby (Random.initialSeed 1337)
+      , appState = InGame <| MidRound Tick.genesis <| prepareLiveRound Config.default (Random.initialSeed 1337) (Dict.map (\_ ( p, _ ) -> ( p, Score 0 )) initialPlayers) Set.empty
       , config = Config.default
       , players = initialPlayers
       }
