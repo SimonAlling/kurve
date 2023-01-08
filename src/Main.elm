@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
+import Canvas exposing (rect, shapes)
 import Config exposing (Config)
 import Dict
 import Drawing exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
@@ -247,18 +248,30 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
+    let
+        pixelToRenderable ( x, y ) =
+            rect ( toFloat x, toFloat y ) 1 1
+
+        renderable =
+            case model.appState of
+                InGame gameState ->
+                    case gameState of
+                        MidRound _ ( _, { occupiedPixels } ) ->
+                            shapes [] (occupiedPixels |> Set.toList |> List.map pixelToRenderable)
+
+                        _ ->
+                            shapes [] []
+
+                InMenu _ _ ->
+                    shapes [] []
+    in
     div
         [ Attr.id "wrapper"
         ]
         [ div
             [ Attr.id "border"
             ]
-            [ canvas
-                [ Attr.id "canvas_main"
-                , Attr.width 559
-                , Attr.height 480
-                ]
-                []
+            [ Canvas.toHtml ( 559, 480 ) [] [ renderable ]
             , canvas
                 [ Attr.id "canvas_overlay"
                 , Attr.width 559
