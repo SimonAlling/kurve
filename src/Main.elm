@@ -35,7 +35,7 @@ type alias Model =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedButtons = Set.empty
-      , appState = InGame <| MidRound Tick.genesis <| prepareLiveRound Config.default (Random.initialSeed 1337) (Dict.map (\_ ( p, _ ) -> ( p, Score 0 )) initialPlayers) Set.empty
+      , appState = InGame <| MidRound Tick.genesis <| prepareLiveRound Config.default (Random.initialSeed 1337) (Dict.map (\_ ( p, _ ) -> ( p, Score 0 )) initialPlayers |> Dict.filter (\k _ -> k == 3)) Set.empty
       , config = Config.default
       , players = initialPlayers
       }
