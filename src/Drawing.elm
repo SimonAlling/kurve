@@ -1,4 +1,4 @@
-port module Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
+port module Drawing exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 
 import Color exposing (Color)
 import Types.Kurve exposing (Kurve)

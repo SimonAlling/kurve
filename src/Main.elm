@@ -2,8 +2,8 @@ module Main exposing (main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
-import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Config exposing (Config)
+import Drawing exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
 import GUI.Scoreboard exposing (scoreboard)
