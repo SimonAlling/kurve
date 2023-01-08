@@ -251,29 +251,29 @@ view model =
         [ div
             [ Attr.id "border"
             ]
-            [ canvas
-                [ Attr.id "canvas_main"
-                , Attr.width 559
-                , Attr.height 480
-                ]
-                []
-            , canvas
-                [ Attr.id "canvas_overlay"
-                , Attr.width 559
-                , Attr.height 480
-                , Attr.class "overlay"
-                ]
-                []
-            , case model.appState of
+            (case model.appState of
                 InMenu Lobby _ ->
-                    lobby model.players
+                    [ lobby model.players ]
 
                 InMenu GameOver _ ->
-                    endScreen model.players
+                    [ endScreen model.players ]
 
                 _ ->
-                    Html.text ""
-            ]
+                    [ canvas
+                        [ Attr.id "canvas_main"
+                        , Attr.width 559
+                        , Attr.height 480
+                        ]
+                        []
+                    , canvas
+                        [ Attr.id "canvas_overlay"
+                        , Attr.width 559
+                        , Attr.height 480
+                        , Attr.class "overlay"
+                        ]
+                        []
+                    ]
+            )
         , scoreboard model.appState model.players
         ]
 
