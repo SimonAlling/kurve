@@ -248,46 +248,30 @@ view model =
         [ Attr.id "wrapper"
         ]
         [ div
-            [ Attr.id "border4"
-            , Attr.class "border"
+            [ Attr.id "border"
             ]
-            [ div
-                [ Attr.id "border3"
-                , Attr.class "border"
+            [ canvas
+                [ Attr.id "canvas_main"
+                , Attr.width 559
+                , Attr.height 480
                 ]
-                [ div
-                    [ Attr.id "border2"
-                    , Attr.class "border"
-                    ]
-                    [ div
-                        [ Attr.id "border1"
-                        , Attr.class "border"
-                        ]
-                        [ canvas
-                            [ Attr.id "canvas_main"
-                            , Attr.width 559
-                            , Attr.height 480
-                            ]
-                            []
-                        , canvas
-                            [ Attr.id "canvas_overlay"
-                            , Attr.width 559
-                            , Attr.height 480
-                            , Attr.class "overlay"
-                            ]
-                            []
-                        , case model.appState of
-                            Lobby _ ->
-                                lobby model.players
-
-                            GameOver _ ->
-                                endScreen model.players
-
-                            _ ->
-                                Html.text ""
-                        ]
-                    ]
+                []
+            , canvas
+                [ Attr.id "canvas_overlay"
+                , Attr.width 559
+                , Attr.height 480
+                , Attr.class "overlay"
                 ]
+                []
+            , case model.appState of
+                Lobby _ ->
+                    lobby model.players
+
+                GameOver _ ->
+                    endScreen model.players
+
+                _ ->
+                    Html.text ""
             ]
         , scoreboard model.appState model.players
         ]

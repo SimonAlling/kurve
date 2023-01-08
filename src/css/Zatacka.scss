@@ -40,25 +40,6 @@ a:hover, a:focus, a:active {
     user-select: none;
 }
 
-.border {
-    border-style: solid;
-    border-width: 1px;
-    display: flex; /* to prevent weird extra space at the bottom */
-}
-
-#border1 {
-    border-color: #828282;
-    position: relative; /* to allow absolute positioning of descendants*/
-}
-
-#border2 {
-    border-color: #717171;
-}
-
-#border3 {
-    border-color: #616161;
-}
-
 $canvasWidth: 559px;
 $borderWidth: 4px;
 $scoreboardWidth: 77px;
@@ -67,9 +48,17 @@ $leftMargin: (
     - 1px // Makes the total width of the wrapper even, so it can be trivially centered when in fullscreen. (Monitors are assumed to always have an even width in pixels.)
 );
 
-#border4 {
-    border-color: #515151;
-    margin-left: $leftMargin;
+#border {
+    display: flex; /* to prevent weird extra space at the bottom */
+    position: relative; /* to allow absolute positioning of descendants*/
+    box-shadow: (
+        0 0 0 1px #828282,
+        0 0 0 2px #717171,
+        0 0 0 3px #616161,
+        0 0 0 4px #515151,
+    );
+    margin: $borderWidth;
+    margin-left: $leftMargin + $borderWidth;
 }
 
 $minWidthForCenteredCanvas: (
