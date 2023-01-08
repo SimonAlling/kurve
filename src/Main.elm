@@ -11,6 +11,7 @@ import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), Sp
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
+import Menu exposing (MenuState(..))
 import Players exposing (AllPlayers, atLeastOneIsParticipating, everyoneLeaves, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves, roundIsOver)
@@ -32,7 +33,7 @@ type alias Model =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedButtons = Set.empty
-      , appState = Lobby (Random.initialSeed 1337)
+      , appState = InMenu Lobby (Random.initialSeed 1337)
       , config = Config.default
       , players = initialPlayers
       }
@@ -135,7 +136,7 @@ update msg ({ pressedButtons } as model) =
 
         ButtonUsed Down button ->
             case model.appState of
-                Lobby seed ->
+                InMenu Lobby seed ->
                     case ( button, atLeastOneIsParticipating model.players ) of
                         ( Key "Space", True ) ->
                             startRound model <| prepareLiveRound model.config seed (participating model.players) pressedButtons
@@ -166,7 +167,7 @@ update msg ({ pressedButtons } as model) =
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
 
-                GameOver seed ->
+                InMenu GameOver seed ->
                     case button of
                         Key "Space" ->
                             returnToLobby seed model
@@ -183,12 +184,12 @@ update msg ({ pressedButtons } as model) =
 
 gameOver : Random.Seed -> Model -> ( Model, Cmd msg )
 gameOver seed model =
-    ( { model | appState = GameOver seed }, clearEverything )
+    ( { model | appState = InMenu GameOver seed }, clearEverything )
 
 
 returnToLobby : Random.Seed -> Model -> ( Model, Cmd msg )
 returnToLobby seed model =
-    ( { model | appState = Lobby seed, players = everyoneLeaves model.players }, clearEverything )
+    ( { model | appState = InMenu Lobby seed, players = everyoneLeaves model.players }, clearEverything )
 
 
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
@@ -224,7 +225,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch <|
         (case model.appState of
-            Lobby _ ->
+            InMenu Lobby _ ->
                 Sub.none
 
             InGame (PostRound _) ->
@@ -236,7 +237,7 @@ subscriptions model =
             InGame (MidRound lastTick midRoundState) ->
                 Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
 
-            GameOver _ ->
+            InMenu GameOver _ ->
                 Sub.none
         )
             :: inputSubscriptions ButtonUsed
@@ -264,10 +265,10 @@ view model =
                 ]
                 []
             , case model.appState of
-                Lobby _ ->
+                InMenu Lobby _ ->
                     lobby model.players
 
-                GameOver _ ->
+                InMenu GameOver _ ->
                     endScreen model.players
 
                 _ ->

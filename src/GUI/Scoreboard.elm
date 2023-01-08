@@ -6,6 +6,7 @@ import GUI.Digits
 import Game exposing (GameState(..))
 import Html exposing (Html, div)
 import Html.Attributes as Attr
+import Menu exposing (MenuState(..))
 import Players exposing (AllPlayers, includeResultsFrom, participating)
 import Round exposing (Round)
 import Types.Player exposing (Player)
@@ -20,7 +21,7 @@ scoreboard appState players =
         , Attr.class "canvasHeight"
         ]
         (case appState of
-            Lobby _ ->
+            InMenu Lobby _ ->
                 []
 
             InGame (PreRound _ ( _, round )) ->
@@ -32,7 +33,7 @@ scoreboard appState players =
             InGame (PostRound round) ->
                 content players round
 
-            GameOver _ ->
+            InMenu GameOver _ ->
                 []
         )
 
