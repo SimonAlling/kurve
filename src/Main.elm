@@ -145,24 +145,33 @@ update msg ({ pressedButtons } as model) =
                             ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, Cmd.none )
 
                 InGame (PostRound finishedRound) ->
+                    let
+                        modelWithUpdatedScores : Model
+                        modelWithUpdatedScores =
+                            { model | players = includeResultsFrom finishedRound model.players }
+
+                        gameIsOver : Bool
+                        gameIsOver =
+                            modelWithUpdatedScores.config.game.isGameOver (participating modelWithUpdatedScores.players)
+                    in
                     case button of
                         Key "KeyR" ->
                             startRound model <| prepareReplayRound model.config (initialStateForReplaying finishedRound)
 
                         Key "Escape" ->
-                            returnToLobby finishedRound.seed model
-
-                        Key "Space" ->
-                            let
-                                newModel : Model
-                                newModel =
-                                    { model | players = includeResultsFrom finishedRound model.players }
-                            in
-                            if newModel.config.game.isGameOver (participating newModel.players) then
-                                gameOver finishedRound.seed newModel
+                            -- Quitting after the final round is not allowed in the original game.
+                            if not gameIsOver then
+                                returnToLobby finishedRound.seed model
 
                             else
-                                startRound newModel <| prepareLiveRound newModel.config finishedRound.seed (participating newModel.players) pressedButtons
+                                ( handleUserInteraction Down button model, Cmd.none )
+
+                        Key "Space" ->
+                            if gameIsOver then
+                                gameOver finishedRound.seed modelWithUpdatedScores
+
+                            else
+                                startRound modelWithUpdatedScores <| prepareLiveRound modelWithUpdatedScores.config finishedRound.seed (participating modelWithUpdatedScores.players) pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
