@@ -146,13 +146,13 @@ update msg ({ pressedButtons } as model) =
 
                 InGame (PostRound finishedRound) ->
                     let
-                        modelWithUpdatedScores : Model
-                        modelWithUpdatedScores =
+                        newModel : Model
+                        newModel =
                             { model | players = includeResultsFrom finishedRound model.players }
 
                         gameIsOver : Bool
                         gameIsOver =
-                            modelWithUpdatedScores.config.game.isGameOver (participating modelWithUpdatedScores.players)
+                            newModel.config.game.isGameOver (participating newModel.players)
                     in
                     case button of
                         Key "KeyR" ->
@@ -168,10 +168,10 @@ update msg ({ pressedButtons } as model) =
 
                         Key "Space" ->
                             if gameIsOver then
-                                gameOver finishedRound.seed modelWithUpdatedScores
+                                gameOver finishedRound.seed newModel
 
                             else
-                                startRound modelWithUpdatedScores <| prepareLiveRound modelWithUpdatedScores.config finishedRound.seed (participating modelWithUpdatedScores.players) pressedButtons
+                                startRound newModel <| prepareLiveRound newModel.config finishedRound.seed (participating newModel.players) pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
