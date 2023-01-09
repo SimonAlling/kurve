@@ -245,21 +245,23 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    elmRoot
-        [ div
-            [ Attr.id "wrapper"
-            ]
-            [ div
-                [ Attr.id "border"
+    case model.appState of
+        InMenu Lobby _ ->
+            elmRoot [] [ lobby model.players ]
+
+        InMenu GameOver _ ->
+            elmRoot [] [ endScreen model.players ]
+
+        InGame gameState ->
+            elmRoot
+                [ Attr.class "in-game"
                 ]
-                (case model.appState of
-                    InMenu Lobby _ ->
-                        [ lobby model.players ]
-
-                    InMenu GameOver _ ->
-                        [ endScreen model.players ]
-
-                    _ ->
+                [ div
+                    [ Attr.id "wrapper"
+                    ]
+                    [ div
+                        [ Attr.id "border"
+                        ]
                         [ canvas
                             [ Attr.id "canvas_main"
                             , Attr.width 559
@@ -274,15 +276,14 @@ view model =
                             ]
                             []
                         ]
-                )
-            ]
-        , scoreboard model.appState model.players
-        ]
+                    , scoreboard gameState model.players
+                    ]
+                ]
 
 
-elmRoot : List (Html msg) -> Html msg
-elmRoot =
-    div [ Attr.id "elm-root" ]
+elmRoot : List (Html.Attribute msg) -> List (Html msg) -> Html msg
+elmRoot attrs =
+    div (Attr.id "elm-root" :: attrs)
 
 
 main : Program () Model Msg
