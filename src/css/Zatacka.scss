@@ -118,6 +118,12 @@ $minWidthForCenteredCanvas: (
     mask-image: url("../resources/digits-small.png");
 }
 
+#splashScreen {
+    width: $nativeWidth;
+    height: $nativeHeight;
+    background-image: url("../resources/splash.png");
+}
+
 #lobby {
     width: $nativeWidth;
     height: $nativeHeight;
