@@ -193,12 +193,12 @@ update msg ({ pressedButtons } as model) =
 
 gameOver : Random.Seed -> Model -> ( Model, Cmd msg )
 gameOver seed model =
-    ( { model | appState = InMenu GameOver seed }, clearEverything )
+    ( { model | appState = InMenu GameOver seed }, Cmd.none )
 
 
 returnToLobby : Random.Seed -> Model -> ( Model, Cmd msg )
 returnToLobby seed model =
-    ( { model | appState = InMenu Lobby seed, players = everyoneLeaves model.players }, clearEverything )
+    ( { model | appState = InMenu Lobby seed, players = everyoneLeaves model.players }, Cmd.none )
 
 
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
