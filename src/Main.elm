@@ -145,20 +145,29 @@ update msg ({ pressedButtons } as model) =
                             ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, Cmd.none )
 
                 InGame (PostRound finishedRound) ->
+                    let
+                        newModel : Model
+                        newModel =
+                            { model | players = includeResultsFrom finishedRound model.players }
+
+                        gameIsOver : Bool
+                        gameIsOver =
+                            newModel.config.game.isGameOver (participating newModel.players)
+                    in
                     case button of
                         Key "KeyR" ->
                             startRound model <| prepareReplayRound model.config (initialStateForReplaying finishedRound)
 
                         Key "Escape" ->
-                            returnToLobby finishedRound.seed model
+                            -- Quitting after the final round is not allowed in the original game.
+                            if not gameIsOver then
+                                returnToLobby finishedRound.seed model
+
+                            else
+                                ( handleUserInteraction Down button model, Cmd.none )
 
                         Key "Space" ->
-                            let
-                                newModel : Model
-                                newModel =
-                                    { model | players = includeResultsFrom finishedRound model.players }
-                            in
-                            if newModel.config.game.isGameOver (participating newModel.players) then
+                            if gameIsOver then
                                 gameOver finishedRound.seed newModel
 
                             else
