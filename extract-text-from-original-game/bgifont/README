@@ -1,0 +1,248 @@
+
+
+             WELCOME TO THE BGI TOOLKIT VERSION 1.0
+             --------------------------------------
+
+
+TABLE OF CONTENTS
+-----------------
+  1. Introduction
+  2. Borland No-Nonsense License Statement!
+  3. Important Tips
+  4. File Listing
+
+
+1. INTRODUCTION
+---------------
+  The BGI Toolkit includes the following major features:
+    o a BGI Font Editor (FE.EXE) to use to develop your own fonts
+    o a set of fonts which include the full IBM character set
+    o a package for developing your own BGI device drivers
+    o a BGI driver for VGA 320x200 256 color mode
+    o a BGI driver for Hercules Monographics and InColor card
+
+
+2. BORLAND NO-NONSENSE LICENSE STATEMENT!
+-----------------------------------------
+This software is protected by both United States copyright law
+and international treaty provisions. You must treat this software
+just like a book, except that you may copy it onto a computer to
+be used and you may make archival copies of the software for the
+sole purpose of backing up our software and protecting your
+investment from loss.
+
+By saying "just like a book," Borland means, for example, that
+this software may be used by any number of people, and may be
+freely moved from one computer location to another, so long as
+there is no possibility of it being used at one location or on
+one computer while it is being used at another. Just like a book
+cannot be read by two different people in two different places at
+the same time, neither can the software be used by two different
+people in two different places at the same time (unless, of
+course, Borland's copyright is being violated).
+
+The BGI Toolbox includes various support files that contain code
+routines, device drivers, and other encoded hardware and font
+information used by the runtime library of a Turbo Language
+compiler. You may use these proprietary Borland files with the
+programs you create with Turbo Language compilers for your own
+personal use. In addition, if the programs you write and compile
+using a Turbo Language compiler make use of these support files,
+you may distribute these support files in combination with these
+programs, provided you do not use, give away, or sell the support
+files separately, and all copies of your programs bear a valid
+copyright notice. By copyright notice, we mean either your own
+copyright notice or the statement "Created Using" followed by the
+name of the applicable Turbo Language compiler or the BGI Toolbox
+and Borland's copyright notice for the compiler or the BGI
+Toolbox.
+
+This statement shall be construed, interpreted and governed by the
+laws of the State of California, and any action hereunder shall
+be brought only in California. Use, duplication or disclosure by
+the U.S. Government of the software and documentation shall be
+subject to restricted rights (under DFARS 52.227-7013) applicable
+to commercial computer software. All rights not specifically
+granted in this statement are reserved by Borland.
+
+"AS IS" DISCLAIMER OF WARRANTIES
+--------------------------------
+Use of the software is at the user's risk and Borland is
+providing the Toolbox "AS IS." Borland specifically disclaims all
+warranties, express or implied, including but not limited to, any
+implied warranty of merchantability or fitness for particular
+purpose. Borland shall not be liable for any damages, including
+but not limited to, the loss of profit, data, or use of the
+software, or special, incidental or consequential damages or
+other similar claims, even if Borland has been specifically
+advised of the possibility of such damages. In no event will
+Borland's liability for any damages to you or any other person
+ever exceed the price you paid for this copy of the software,
+regardless of any form of the claim. Some states do not allow the
+exclusion of incidental or consequential damages, so some of the
+above may not apply to you.
+
+Borland specifically disclaims all warranties and is unable to
+provide a limited warranty for this product.
+
+NO TELEPHONE TECHNICAL SUPPORT AVAILABLE
+----------------------------------------
+This software is not supported by Borland. Nevertheless, if you have
+any questions, Borland or its users may be able to assist you via
+an electronic bulletin board, such as Borland's special interest
+group on Compuserve (Borland SIG) or on the Borland Roundtable on
+GEnie (Borland RT).
+
+The Hercules BGI driver and documentation was provided by
+Hercules Computer Technology.  Please confer with Hercules for
+more information about these files.
+
+
+3. IMPORTANT TIPS
+-----------------
+  o Read FE.DOC for documentation on the font editor.
+  o If you plan to start a font from scratch, be sure to read
+    section 7 of FE.DOC.
+  o Read BGI.DOC for documentation on how to build a device driver.
+  o Font Editor (FE.EXE) requires:
+    - EGA (or VGA) with at least 128K video memory
+    - Microsoft-compatible Mouse
+  o Device Driver Builder's Kit (BGIDRV.ARC)
+    - Requirements:
+        Turbo C Version 2.0
+        TASM
+    - How to build demo driver DEBUG.BGI:
+      (1) Set paths to the directories in which TASM and Turbo C
+          reside, e.g.,
+
+               PATH=C:\TC;C:\TASM;
+
+      (2) Set up configuration file TURBOC.CFG.
+            Specify your INCLUDE and LIB directories in your
+            configuration file like this:
+
+              -IC:\TC\INCLUDE
+              -LC:\TC\LIB
+
+      (3) Modify TLINK statement in either MAKEFILE or BUILD.BAT.
+            If your TURBO C library is in directory C:\TC\LIB,
+            make sure the tlink statement is
+
+               "tlink debvect+debug,debug,debug, C:\TC\LIB\cs /m/s;"
+
+      (4) Type "BUILD" or "MAKE" to generate DEBUG.BGI.
+            BUILD.BAT is a batch file that builds DEBUG.BGI.
+            MAKE.EXE, a utility program on the Turbo C and
+            Turbo Pascal utility disks, reads the MAKEFILE
+            and makes DEBUG.BGI.
+
+    - How to use the customized driver:
+        You cannot use RegisterBGIDriver to install your
+        customized driver; use InstallUserDriver instead.
+
+        An autodetection function is passed to InstallUserDriver,
+        which returns the desired graphics mode.  Now if you use
+        autodetection with InitGraph, it will detect your custom
+        driver and the mode specified in the autodetection
+        function passed to InstallUserDriver.
+
+        For example,
+
+          {$F+}
+          function MyMode : integer;
+          {$F-}
+          begin
+            MyMode := 3;
+          end;
+
+          begin
+
+            ...
+
+            GraphDriver := InstallUserDriver ('DEBUG',@MyMode);
+            GraphDriver := Detect;
+            InitGraph(GraphDriver,GraphMode,'');
+
+            ...
+
+          end.
+
+        (For an example in C refer to DEBDEMO.C.)
+
+
+  o To run the demo programs in VGA256.ARC you need:
+    - VGA graphics card
+    - Turbo Pascal 5.0 (to run demo program)
+
+
+
+4. FILE LISTING
+---------------
+
+  BGIDRV    ARC -- Packed file that contains files to build custom
+                   BGI drivers:
+
+    BGI     DOC -- Documentation on how to create a BGI driver
+    BH      C   -- Source to program that writes the header
+                   portion of the BGI device driver
+    BH      EXE -- Program that writes the header portion of
+                   the BGI device driver
+    BUILD   BAT -- Batch file for building DEBUG.BGI
+    DEBDEMO C   -- Source for demo program using DEBUG.BGI
+    DEBDEMO EXE -- Program for testing DEBUG.BGI
+    DEBUG   BGI -- Sample BGI driver
+    DEBUG   C   -- Source to sample device driver (DEBUG.BGI)
+    DEBVECT ASM -- Defines the vector table for DEBUG.BGI
+    DEVICE  INC -- Defines important structures/macros for the
+                   BGI driver interface
+    EXETOBIN EXE-- Borland's version of EXE2BIN.EXE
+    F_DEBUG OBJ -- Far Model Object code for DEBUG.BGI
+    MAKEFILE    -- Sample makefile for building DEBUG.BGI
+    N_DEBUG OBJ -- Near Model Object code for DEBUG.BGI
+
+
+  BGIFNT    ARC -- Packed file that contains the font editing
+                   package:
+
+    DFONT   C   -- Source to program that displays font
+                   information
+    DFONT   EXE -- Program to display font information
+    FE      DOC -- Font Editor documentation
+    FE      EXE -- Font Editor
+    FONT    H   -- Header file for DFONT.C
+
+
+  FONTS     ARC -- Package file that contains a collection of
+                   fonts:
+
+    EURO    CHR -- EuroStyle font character set
+    GOTH    CHR -- Gothic font character set
+    LCOM    CHR -- Complex font character set
+    LITT    CHR -- Small font character set
+    SANS    CHR -- Sans serif font character set
+    SCRI    CHR -- Script font character set
+    SIMP    CHR -- Simple font character set
+    TRIP    CHR -- Triplex font character set
+    TSCR    CHR -- Triplex Script font character set
+
+
+  VGA256    ARC -- VGA256 driver and sample program
+
+    HSI     PAS -- Source for sample Pascal program using
+                   VGA256.BGI
+    VGADEMO PAS -- Modified version of BGIDEMO which uses the
+                   VGA256.BGI driver
+    VGA256  BGI -- Sample driver for a VGA video card
+
+
+  HERC      ARC -- Hercules Monochrome and Incolor driver
+
+    HERC    BGI -- Driver from Hercules Computer Technology for
+                   the Monochrome and InColor graphic cards.
+    HERCBGI DOC -- Documentation file for Hercules driver
+    BGIDEMO C   -- C BGI demo program modified for Hercules
+    BGIDEMO PAS -- Pascal BGI demo program modified for Hercules
+
+
+  README        -- This file!
+

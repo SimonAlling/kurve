@@ -1,0 +1,881 @@
+
+                               FE
+
+                      A Stroke Font Editor
+
+
+
+            Copyright (c) 1988,89 Borland International
+
+
+                           Revision 1
+
+                            09/29/88
+
+
+
+
+
+1. Introduction
+===============
+
+Stroke fonts define characters as a sequence of lines (strokes), as opposed
+to bitmap fonts that define characters as a matrix of dots.
+
+The advantage of stroke fonts is that they can be scaled to arbitrary sizes
+and still maintain full resolution. Bitmap fonts are made for a specific dot
+size and do not scale gracefully. For example, if you had a bitmap font for
+a 72 dot-per-inch (DPI) dot matrix printer and quadrupled the dots in height
+and width to use on a 300 DPI laser printer, you would simply get an
+enlargement of the jagged edges inherently present in the 72 DPI font.
+
+Stroke fonts, on the other hand, are not converted to dots until the
+desired size and resolution of the output device is known. So, if you
+wanted to put stroke fonts on a 300 DPI laser printer, the dots that make up
+the strokes would be printed at 300 DPI.
+
+
+2. System Requirements
+======================
+
+2.1 Required Hardware
+=====================
+
+The Font Editor (FE) runs on IBM PCs, PC/XTs, PC/ATs, and most compatibles.
+
+FE requires a mouse that supports the Microsoft External Mouse Driver
+Interface. This includes the Microsoft, Mouse Systems, and
+Logitec mice. (If you'll be using some other mouse, consult your
+owner's manual.) The mouse driver must be installed into memory prior
+to starting the FE; typically, this is accomplished by installing the
+driver as a DOS device driver from your CONFIG.SYS file. Consult your mouse
+documentation for details about installing the mouse driver.
+
+FE also requires an IBM Enhanced Graphics Adapter (EGA), or compatible, and
+a color display. The graphics adapter card must have at least 128K of
+display RAM installed.
+
+
+2.2. Optional Hardware
+======================
+
+FE supports hardcopy output to one of the following Hewlett-Packard
+plotters.
+
+        HP 7470
+        HP 7475 (8 1/2 x 11 paper only)
+        HP 7440 (Color Pro)
+
+When using a serial port mouse and using a plotter, two serial ports are
+required. Be careful to select the correct port for the plotter before
+allowing FE to set the parameters on the serial port.
+
+You'll need Hewlett-Packard's standard cable for interfacing a Hewlett-
+Packard plotter to an IBM PC; the part number is HP 17255D.
+
+
+3. General Capabilities
+=======================
+
+FE edits Borland stroke fonts (files with the .CHR extension shipped with
+Turbo C and Turbo Pascal). You can read in fonts, edit individual
+characters, preview characters onscreen (and optionally on a plotter), and
+save the resulting font back to disk.
+
+
+4. FE Display
+=============
+
+The FE screen is divided into four major areas, each of which is explained
+here. Since these areas react slightly differently with the mouse, we'll
+talk about mouse use first.
+
+
+4.1 Mouse Conventions
+=====================
+
+There are two major operations you'll perform with the mouse when using FE.
+A "click" is a quick press-and-release of the mouse button when the cursor
+is positioned on some object. This "selects" the object.
+
+A "drag" is a press, hold, and move operation used to slide objects or
+define areas. When sliding objects, the object sticks to the mouse cursor
+after a button is depressed and stays with the cursor until the button is
+released.
+
+FE makes no distinction between the left and right mouse buttons; they are
+completely equivalent.
+
+
+    4.1.2 Defining Areas
+    ====================
+
+    When defining an area, the location where a mouse button is depressed
+    defines one corner of a rectangle. The diagonally opposite corner is
+    defined by where the button is released. So when you are defining a
+    rectangle, one corner is defined (and cannot be changed) when the
+    mouse button goes down. The other corner can be changed while you
+    continue to hold the button down and move the mouse.
+
+
+    4.1.3 In the Character Window
+    =============================
+
+    When the mouse pointer is in the character window, you'll find that it
+    moves jerkily. This is because the pointer is restricted to only those
+    grid intersection points where strokes can start and stop. These grid
+    points will be closer together or farther apart, depending on how
+    "Zoomed In" you are. These points will be visible if you use the Grid
+    command under Window.
+
+
+    4.1.4 Escape From Plotting
+    ==========================
+
+    Pressing the mouse button during a plotting operation terminates the
+    plotter dump. Therefore, you may have to hold the mouse down for a few
+    seconds until the status of the button is read. Plotting may continue
+    for a time (as long as a minute on some plotters) because the plotter
+    continues to obey drawing commands in its internal buffer.
+
+
+4.2. The Character Window
+=========================
+
+The character window is the large rectangular area on the left half of
+the screen where character editing takes place. FE shows you the strokes
+that comprise a character, and you may add or delete strokes to a character
+by manipulating the mouse in this window.
+
+Strokes are added or deleted by moving the mouse cursor to the desired
+starting point, pressing the button, and dragging to the desired endpoint.
+If no stroke connected these points previously, then a new stroke is added;
+if one did, then it is deleted.
+
+If you wish the stroke to bend (in effect making multiple strokes), you
+must release and press the mouse button to end a stroke and start another
+stroke.
+
+Again, drawing a line where there was none before will add a stroke to the
+character definition. Drawing a line on top of an existing line erases
+that line from the character definition.
+
+Combinations of adding and deleting strokes can be performed with a single
+line. For example, drawing a line on the middle part of an existing line
+causes the middle part to be erased and leave two lines corresponding
+to the two end parts that were not drawn upon.
+
+There is a small triangle along the baseline labeled with a 'b' on the left
+end. This marker shows where the next character will start and controls
+the intercharacter spacing. This width can be changed by dragging the
+intercharacter spacing triangle to a new position.
+
+
+4.3. The Menu
+=============
+
+The menu bar is the line of text at the top of the screen. Items in the
+menu are selected by a mouse click.
+
+Some items in the menu perform a single function and, when the function is
+completed, display the same menu; examples of this are Load and Save. Other
+items display a new menu that always contains an item labeled Exit. Clicking
+the Exit item returns you to the your last menu location; Edit is an
+example.
+
+The Quit item in the main menu returns you to DOS. If you've made changes
+to the font, you'll be asked whether you want to save them before quitting.
+
+
+4.4. The Character Selector
+===========================
+
+The character selector is the large rectangular area on the right of
+the screen containing a display of all the characters in IBM's extended
+ASCII character set. Clicking on a character within this box changes the
+current working character.
+
+The characters shown in green have strokes defined for them. The
+characters shown in red have no stroke definition yet. The character
+currently being edited is shown in either bright red or bright green,
+depending upon whether it has strokes defined.
+
+Additions or deletions to the current character are never applied until
+you indicate to add the new strokes. If you have made changes to the
+current character, you're prompted whether the new strokes are to be added
+(or subtracted) from the current character when you click on a character in
+the character selector window. If you click on Yes, the character definition
+will be updated. If you click on No, the new strokes will be discarded.
+
+Alternatively, you may reclick on the current character simply to force an
+update from time to time.
+
+
+4.5. The Small Character
+========================
+
+For at-a-glance information, the area in the lower right-hand corner of
+the screen displays a small version of the current character; nothing is
+selectable here.
+
+
+4.6. The Update Selector Box
+============================
+
+This box appears on the right-hand side of the screen, above the character
+selector window and below the menu area. While editing a character, the
+changes made to a character are saved in a edit buffer. To make the edits
+permanent, the user must use the mouse to select the Update area. This
+writes the edit buffer to the actual character. If you've made changes to
+a character without updating the edit buffer, then you'll be prompted
+to update the character when you select a new character.
+
+!!!!! NOTE !!!!!
+
+The edit actions on characters only affect the character data, not the
+edit buffer; for example, when you add several lines to a character
+but don't update the character. If you select edit and move the character,
+only the information in the character buffer is affected. The new lines
+added to the character will not be moved. This applies to all edit
+functions, including move, flip, flop, reverse, shift, cut, and copy.
+
+
+5. Editing Tools
+================
+
+This section briefly describes the editing tools available in FE. The
+next section, "Command Reference," provides complete command descriptions.
+
+
+5.1. Single Strokes
+===================
+
+Single strokes can be added or deleted from a character by moving the mouse
+cursor into the character window and performing a drag operation between
+the grid points where the stroke should be added or deleted.
+
+As you drag the mouse, you'll notice the line being drawn. The start point
+begins where you first pressed the mouse button; the endpoint follows the
+mouse cursor. This process is known as "rubber banding" a line because the
+line appears to be a rubber band that stretches or shrinks to follow the
+cursor.
+
+Strokes can be deleted by drawing over existing strokes.
+
+Note that if you move the mouse cursor outside the character while rubber
+banding a line, the stroke will be "canceled."
+
+
+5.2. Groups of Strokes
+======================
+
+Groups of strokes can be manipulated as a single object using the Edit,
+Clipboard commands. Many characters share the same stroke groups. For
+example, the strokes that define the left-hand part of a 'c' will probably
+be the same as those in the left-hand part of a 'd.'
+
+The tools available in the Clipboard menu allow you to select a group of
+strokes from a character and use them again in that character or another
+character. Cut and Copy move a group of characters into a holding buffer
+(the Clipboard). Cut removes the strokes from the current character, while
+Copy leaves the originals undisturbed.
+
+You can determine the characters to go onto the Clipboard by rubber banding
+a rectangle around the strokes. Both endpoints of a given stroke must be
+completely inside the rectangle in order to be selected for a Cut or Copy.
+
+You can paste the strokes in the Clipboard into a character by selecting
+Paste. The contents of the Clipboard are drawn in the character window.
+You may move the strokes with a dragging operation.
+
+Paste doesn't empty the Clipboard; the next paste operation will find the
+same strokes. Cut and Copy always change the contents of the Clipboard.
+Delete operates like Cut except that the Deleted strokes do not go onto
+the Clipboard, they are just discarded. Move is similar to a combined Cut
+and Paste operation except that the contents of the Clipboard are not
+altered.
+
+You may also Flip the contents of the Clipboard using the commands under
+Edit, Flip. These may be used to flip the Clipboard contents upside down
+(along a horizontal axis), or right and left (along a vertical axis).
+
+
+5.3. Whole Characters
+=====================
+
+There are some special techniques for manipulating whole characters.
+
+CopyChar, under the Edit menu, allows you to copy from one character within
+a single font to another.
+
+Flip, under the Edit menu, allows you to flip a character upside down, or
+right and left, or both by using both commands.
+
+Shift, under the Edit menu, allows you to move a whole character right,
+left, up, or down.
+
+For example, the characters, b, d, p, and q are usually just flipped
+versions of one another. You can draw one and use CopyChar and Flip to
+make the other three.
+
+
+5.4. Whole Fonts
+================
+
+The commands under Global allow you to perform operations on the entire
+font. These are primarily concerned with intercharacter spacing. Usually,
+these commands are used as a part of the final editing process of a font.
+
+LeftSpace moves every character in the font so that its leftmost part
+is the specified distance from the dark solid vertical line in the
+character window.
+
+RghtSpace sets the character spacing marker of every character in the
+font so that it is the specified distance from rightmost part of the
+character.
+
+BaseLine shifts every character up or down by the same amount so that
+the base line corresponds to zero.
+
+Copy allows you to select another font and copy characters from it into
+the font on which you are currently working. Many characters will not
+change from one font to another, such as the graphics characters. This
+command allows you to copy them.
+
+
+6. Command Reference
+====================
+
+This section describes each command/function in detail.
+
+
+6.1. Load
+=========
+
+The Load command loads an existing font file into FE. A large rectangle
+will be drawn on the screen that contains two mouse-sensitive areas: the
+the file selector area and the file prompt line.
+
+Clicking on the file prompt line allows you to enter a new file name
+for loading. This prompt may include a new path. You will be warned if the
+file name entered does not exist. If you confirm that the file does not
+exist, the file will be created and will become the default output file
+when the font is saved.
+
+The file selector area contains a list of all of the files on the current
+drive and in the current directory that have the extension .CHR. As you
+move the mouse cursor over these, you'll see them appear on the file prompt
+line. Clicking on one of these names will select the name as the current
+file to load.
+
+
+6.2. Show
+=========
+
+The tools under Show simply display how your font looks. They do not
+change the font.
+
+
+    6.2.1. Font
+    ===========
+
+    This tool shows all of the currently defined characters on the
+    monitor. This is useful to do a quick check of the intercharacter
+    spacing. Overlapping characters or gaps between characters indicate
+    improper intercharacter spacing.
+
+
+    6.2.2. String
+    =============
+
+    This tool allows you to type the characters that you want to display;
+    For instance, this can be useful when you want to display two special
+    characters together to determine appearance and spacing.
+
+    When the current line becomes full, you'll automatically go to the next
+    line. You can also press the Enter key to force a new line.
+
+    The display will not scroll when you reach the bottom; you must press
+    the Esc key to get out of String mode.
+
+
+    6.2.3. Plotter
+    ==============
+
+    This tool draws the current font on an HP plotter. Refer to the
+    section entitled "Optional Hardware" for a discussion about con-
+    necting the plotter.
+
+    When you select this tool, you're asked if the plotter is COM1 or
+    COM2. Then the serial port on the PC must be configured to communicate
+    with the plotter. You can either let FE set the serial port to 9600
+    baud, even parity, 7 data bits, and 1 stop bit, in which case the DIP
+    switches on your plotter must be set this way, or you can skip this
+    step.
+
+    If you do not let FE initialize the serial port, then you must have
+    previously issued the DOS mode command prior to starting FE to match
+    your plotter's switch settings.
+
+    If you're using a serial mouse, be careful not to choose the serial
+    port to which your mouse is connected.
+
+    Finally, you'll be asked whether you want to plot to the plotter. Have
+    the paper loaded and the plotter ready before selecting yes.
+
+    If you start plotting and want to stop before all your plotting is
+    complete, press and hold down a mouse button until the screen clears.
+
+    Your plotter output will be labeled with the name of the file from
+    which it came, and the page number. In the case of multiple page
+    plots, FE will stop at the end of each page to allow you to load a new
+    piece of paper.
+
+
+    6.2.4. Exit
+    ===========
+
+    This choice returns you to the main menu.
+
+6.3. Global
+===========
+
+The commands under Global operate on an entire font, unlike many of the
+other commands that operate on a single character or stroke.
+
+
+    6.3.1. LeftSpace
+    ================
+
+    The LeftSpace choice adjusts the space between the leftmost part of a
+    character and the vertical guide line shown in the character window.
+    Typically, this should be set to zero for all fonts so that an
+    application that mixes fonts will maintain character spacing between a
+    font change.
+
+    6.3.2. RghtSpace
+    ================
+
+    The RghtSpace choice adjusts the character width mark of all the
+    characters to the desired value. The character width value set for
+    each character is the number selected from the menu, plus the rightmost
+    stroke of the character. Therefore this choice gives uniform
+    intercharacter spacing to a proportionally spaced font.
+
+    Typically, you'll use this to prpoportionally space the entire font.
+    Some characters are "fixed up" individually, such as the numeric 
+    characters and the graphics character symbols; these may all get the
+    same total width so that they line up in columns.
+
+
+    6.3.3. BaseLine
+    ===============
+
+    The BaseLine choice adjusts each character in the font upward or
+    downward by the same amount. Use this choice for each font so that
+    all fonts refer to the same base line value. Thus, an application-
+    switching font will not have the baseline of the new font shifted up
+    or down from the previous font.
+
+
+    6.3.4. Copy
+    ===========
+
+    Global Copy allows you to copy characters from a different font file.
+    You will be asked to select a source font file, just like when using
+    Load.
+
+    Once you've selected a source font file, you'll see two character
+    selector boxes on the screen. The left box corresponds to the source
+    font file that you just selected. The right box corresponds to the font
+    on which you are currently working.
+
+    You can copy a character by clicking on the character you want from
+    the source character box and then clicking on the character to which
+    it should be copied in the destination character box.
+
+    When you've finished, you select Done in the menu area.
+
+
+    6.3.5. Exit
+    ===========
+
+    This choice returns you to the main menu.
+
+
+6.4. Edit
+=========
+
+    The tools under Edit are for editing whole characters or groups of
+    strokes. The Clipboard function under this heading are of particular
+    importance.
+
+
+    6.4.1. CopyChar
+    ===============
+
+    This tool allows you to do intrafont copying of characters. Selecting
+    this tool prompts you to select the source character and then the
+    destination character.
+
+    If a character already exists where you selected the destination
+    character, then you'll be asked if that character should be replaced.
+
+
+    6.4.2. Flip
+    ===========
+
+    This tool flips either the current character or the contents of the
+    Clipboard.
+
+    Characters are flipped within the space that they occupy. For
+    example, if a character only occupied the lower portion of its
+    character cell, then the result of flipping it vertically will only
+    occupy the lower portion of the character cell. You can use the Shift
+    tool to change this if it's not what you want.
+
+    Note that you won't see the results of flipping the Clipboard until you
+    paste from the Clipboard.
+
+
+    6.4.3. Shift
+    ============
+
+    This tool shifts a character one dot in any direction. It does not
+    modify the intercharacter spacing.
+
+
+    6.4.4. ShowAlso
+    ===============
+
+    This tool lets you superimpose another character over the one on which
+    you are currently working. This character stays drawn until you select
+    Update or change the current character.
+
+
+    6.4.5. Clipboard
+    ================
+
+    The Clipboard contains all the tools for working on groups of strokes.
+    Cut, Copy, and Paste work by reading and writing a temporary storage
+    area called the Clipboard. Move and Delete do not use the Clipboard.
+
+    Strokes are selected from the current character by rubber banding a
+    rectangle around them. One corner of the rectangle is defined by
+    where you press a mouse button. The diagonally opposite corner is
+    defined by where you release the mouse button.
+
+    Both endpoints of the stroke must be completely within the rectangle
+    in order to be selected.
+
+    For the Move and Paste options, when a region has been defined, the
+    strokes contained in the region are copied within the window to the
+    right of the character width marker. The upper left corner of the
+    strokes become attached to the mouse cursor when you press a mouse
+    button. They stay attached until you release the mouse button.
+
+
+    6.4.5.1. Cut
+    ============
+
+    Cut removes the selected strokes from the current character and places
+    them on the Clipboard. The previous contents of the Clipboard are
+    lost.
+
+
+    6.4.5.2. Copy
+    =============
+
+    Copy copies the selected strokes from the current character to the
+    Clipboard. The current character is not changed. The previous contents
+    of the Clipboard are lost.
+
+
+    6.4.5.3. Paste
+    ==============
+
+    Paste copies the contents of the Clipboard to the current character.
+    The contents of the Clipboard are not changed.
+
+
+    6.4.5.4. Move
+    =============
+
+    Move moves the selected strokes to a new location. The contents of the
+    Clipboard are not changed. This is equivalent to a Cut and Paste
+    except that the contents of the Clipboard are not changed.
+
+
+    6.4.5.5. Delete
+    ===============
+
+    Delete cuts the selected strokes from the current character. This is
+    equivalent to a Cut except that the contents of the Clipboard are not
+    changed.
+
+
+    6.4.5.6. Exit
+    =============
+
+    This choice returns you to the Edit menu.
+
+
+    6.4.6. Exit
+    ===========
+
+    This choice returns you to the main menu.
+
+
+6.5. Save
+=========
+
+The Save command stores the current font data to an output file. The Save
+menu draws a large rectangle on the screen that contains two mouse-
+sensitive areas: the file selector area and the file prompt line.
+
+Clicking on the file prompt line allows you to enter a new file name
+for saving. This prompt may include a new path. You'll be warned if the
+file name entered does not exist. If you confirm that the file does not
+exist, the file will be created.
+
+The file selector area contains a list of all of the files on the current
+drive and in the current directory that have the extension .CHR. As you
+move the mouse cursor over these you see them appear on the file
+prompt line. Clicking on one of these names selects the name as the
+current destination file.
+
+
+6.6. Window
+===========
+
+All of the tools under Window control how the character editing window is
+displayed. These tools don't change the characters, only the way that
+they are displayed. All of the values herein are set automatically when
+you load a font file.
+
+You'll need to set these values if you start with a new font file, that is,
+bypass Load.
+
+
+    6.6.1. Zoom Out
+    ===============
+
+    This tool reduces the magnification used to display the character
+    in the character editing window.
+
+    The magnification is automatically set to show all characters in the
+    character window as large as possible when the font file is loaded.
+
+
+    6.6.2. Zoom In
+    ==============
+
+    This tool increases the magnification used to display the character
+    in the character editing window.
+
+    The magnification is automatically set to show all characters in the
+    character window as large as possible when the font file is loaded.
+
+    You can increase the magnification set by Load so that the characters
+    are larger than the window. Parts of characters that would be outside
+    the window are clipped to the window limits.
+
+    You may want to do this while working on lowercase letters or the
+    strokes that make up the serif of a serif font.
+
+
+    6.6.3. Origin
+    =============
+
+    This tool allows you to position the origin guide line anywhere within
+    the character editing window.
+
+    For most fonts, this is drawn underneath the baseline guide line and
+    won't be visible, however, it is still movable.
+
+    To work on descending strokes, move toward the top of the window and
+    zoom in. To work on uppercase letters, move this to the bottom of the
+    window.
+
+
+    6.6.4. d-ht
+    ===========
+
+    This tool positions the descender height guide line in the character
+    editing window. It has no effect on the character, its edits, or
+    display of the character in the window; it's simply for your
+    convenience.
+
+
+    6.6.5. b-ht
+    ===========
+
+    This tool positions the baseline height guide line in the character
+    editing window. It has no effect on the character, its edits, or
+    display of the character in the window; it's simply for your
+    convenience.
+
+
+    6.6.6. x-ht
+    ===========
+
+    This tool positions the x-height guide line in the character editing
+    window. It has no effect on the character, its edits, or display of the
+    character in the window; it's simply for your convenience.
+
+
+    6.6.7. c-ht
+    ===========
+
+    This tool positions the character height guide line in the character
+    editing window. It has no effect on the character, its edits, or
+    display of the character in the window; it's simply for your
+    convenience.
+
+
+    6.6.8. ShowMovs
+    ===============
+
+    This tool shows each move, draw, draw, ...  sequence in a different
+    color so that you can see how the character stroke is created.
+
+    Don't use turning this option on when drawing in the character
+    editing window; the results are not favorable. 
+
+    This option defaults to off.
+
+
+    6.6.9. Grid
+    ===========
+
+    This tool shows the grid of points in the character being editing on
+    which strokes begin and end.
+
+    This option defaults to on.
+
+
+    6.6.10. Exit
+    ============
+
+    This choice returns you to the main menu.
+
+
+6.7. Quit
+=========
+
+This choice returns you to DOS; you will be asked if you want to save any
+edits.
+
+
+
+
+7.  Beginning a New Font from Scratch
+=====================================
+
+There are a few considerations for the user who wishes to start a new font
+from scratch. To begin a new font, start FE and select a new font file name.
+The screen shows a character window without any characters defined. The
+four global parameters for the font are determined automatically by the font
+editor when a file is loaded or saved. These parameters are the Base
+Height, the Capital Height, the Descender Height, and the Lowercase Height
+(or x Height). The values for these are determined by examining the
+characters a typographer would use to determine the same information.
+
+Capital Height:
+  This value is determined by examining the E Ligature character (144
+  decimal). This is the tallest of the European characters. If this
+  character is undefined, the capital M is used as the capital height.
+  If neither of these characters are defined, the value will default to
+  40 (of a maximum of +/-64).
+
+Base Height:
+  This value is determined by examining the E Ligature or the Capital
+  M. This value is used as the origin for the other three dimensions.
+  If neither of these characters are defined, the value will default to
+  0 (of a maximum of +/-64).
+
+Descender Height:
+  This value is determined be examining the lowercase 'q' letter. If
+  the lowercase 'q' is undefined, the value will default to -7 (of a
+  maximum of +/-64).
+
+LowerCase Height (or x Height):
+  This value is determined by examining the lowercase 'x' letter. If
+  the lowercase 'x' is undefined, the value will default to the Capital
+  Height divided by two.
+
+
+To define the size and placement of the characters in the font, it is best
+to define the 'M', 'q', 'x', and E Ligature (if desired) as the first
+characters. The next time the font is loaded, the character dimensions will
+be used to define the size and placement of the character window for the
+font.
+
+
+
+
+                           Appendix 1
+
+                     BGI Stroke File Format
+
+The structure of Borland .CHR (stroke) files is as follows:
+
+;  offset 0h is a Borland header:
+;
+        HeaderSize      equ     080h
+        DataSize        equ     (size of font file)
+        descr           equ     "Triplex font"
+        fname           equ     "TRIP"
+        MajorVersion    equ     1
+        MinorVersion    equ     0
+
+        db      'PK',8,8
+        db      'BGI ',descr,'  V'
+        db      MajorVersion+'0'
+        db      (MinorVersion / 10)+'0',(MinorVersion mod 10)+'0'
+        db      ' - 19 October 1987',0DH,0AH
+        db      'Copyright (c) 1987 Borland International', 0dh,0ah
+        db      0,1ah                           ; null & ctrl-Z = end
+
+        dw      HeaderSize                      ; size of header
+        db      fname                           ; font name
+        dw      DataSize                        ; font file size
+        db      MajorVersion,MinorVersion       ; version #'s
+        db      1,0                             ; minimal version #'s
+
+        db      (HeaderSize - $) DUP (0)        ; pad out to header size
+
+At offset 80h starts data for the file:
+
+;               80h     '+'  flags stroke file type
+;               81h-82h  number chars in font file (n)
+;               83h      undefined
+;               84h      ASCII value of first char in file
+;               85h-86h  offset to stroke definitions (8+3n)
+;               87h      scan flag (normally 0)
+;               88h      distance from origin to top of capital
+;               89h      distance from origin to baseline
+;               90h      distance from origin to bottom descender
+;               91h-95h  undefined
+;               96h      offsets to individual character definitions
+;               96h+2n   width table (one word per character)
+;               96h+3n   start of character definitions
+;
+The individual character definitions consist of a variable number of words
+describing the operations required to render a character. Each word
+consists of an (x,y) coordinate pair and a two-bit opcode, encoded as shown
+here:
+
+Byte 1          7   6   5   4   3   2   1   0     bit #
+               op1  <seven bit signed X coord>
+
+Byte 2          7   6   5   4   3   2   1   0     bit #
+               op2  <seven bit signed Y coord>
+
+
+          Opcodes
+
+        op1=0  op2=0  End of character definition.
+        op1=1  op2=0  Move the pointer to (x,y)
+        op1=1  op2=1  Draw from current pointer to (x,y)
+
