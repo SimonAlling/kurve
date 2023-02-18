@@ -1,4 +1,4 @@
-module GUI.Digits exposing (TextProps, large, small)
+module GUI.Digits exposing (large, small)
 
 import Color exposing (Color)
 import GUI.Font exposing (Font(..))
@@ -7,47 +7,44 @@ import Html.Attributes as Attr
 
 
 large : Color -> Int -> List (Html msg)
-large color =
-    digits { font = GUI.Font.bgiStroked28x43, color = color, sizeMultiplier = 1 }
+large =
+    digits (Scaled 1 GUI.Font.bgiStroked28x43)
 
 
 small : Color -> Int -> List (Html msg)
-small color =
-    digits { font = GUI.Font.bgiDefault8x8, color = color, sizeMultiplier = 2 }
+small =
+    digits (Scaled 2 GUI.Font.bgiDefault8x8)
 
 
-digits : TextProps -> Int -> List (Html msg)
-digits textProps =
-    String.fromInt >> text textProps
+digits : ScaledFont -> Color -> Int -> List (Html msg)
+digits fontAndSize color =
+    String.fromInt >> text fontAndSize color
 
 
-type alias TextProps =
-    { font : Font, sizeMultiplier : Int, color : Color }
+type ScaledFont
+    = Scaled Int Font
 
 
-text : TextProps -> String -> List (Html msg)
-text textProps =
-    String.toList >> List.map (char textProps)
+text : ScaledFont -> Color -> String -> List (Html msg)
+text fontAndSize color =
+    String.toList >> List.map (char fontAndSize color)
 
 
-char : TextProps -> Char -> Html msg
-char { font, sizeMultiplier, color } c =
+char : ScaledFont -> Color -> Char -> Html msg
+char (Scaled sizeMultiplier (Font font)) color c =
     let
-        (Font fontProperties) =
-            font
-
         scaledFontWidth =
-            fontProperties.width * sizeMultiplier
+            font.width * sizeMultiplier
 
         scaledFontHeight =
-            fontProperties.height * sizeMultiplier
+            font.height * sizeMultiplier
 
         cssSize n =
             String.fromInt n ++ "px"
 
         maskImage : String
         maskImage =
-            "url(\"../resources/fonts/" ++ fontProperties.resourceName ++ ".png\")"
+            "url(\"../resources/fonts/" ++ font.resourceName ++ ".png\")"
 
         maskPosition : String
         maskPosition =
