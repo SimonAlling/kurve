@@ -20,44 +20,65 @@ small =
     digits Small
 
 
-type Digit
-    = Digit Int
-
-
-fromChar : Char -> Maybe Digit
-fromChar =
-    String.fromChar >> String.toInt >> Maybe.map Digit
-
-
-digitsFromInt : Int -> List Digit
-digitsFromInt =
-    String.fromInt >> String.toList >> List.filterMap fromChar
-
-
 digits : Size -> Color -> Int -> List (Html msg)
-digits size color =
-    digitsFromInt >> List.map (digit size color)
+digits _ color =
+    String.fromInt >> text color
 
 
-digit : Size -> Color -> Digit -> Html msg
-digit size color (Digit n) =
+text : Color -> String -> List (Html msg)
+text color =
+    String.toList >> List.map (char color)
+
+
+char : Color -> Char -> Html msg
+char color c =
     let
-        ( class, width ) =
-            case size of
-                Large ->
-                    ( "largeDigit", 28 )
+        width =
+            8
 
-                Small ->
-                    ( "smallDigit", 16 )
+        size =
+            String.fromInt width ++ "px"
 
         maskPosition : String
         maskPosition =
-            String.fromInt (n * width * -1) ++ "px 0"
+            String.fromInt (Char.toCode c * width * -1) ++ "px 0"
     in
     div
-        [ Attr.class class
+        [ Attr.class "character"
         , Attr.style "background-color" <| Color.toCssString color
         , Attr.style "-webkit-mask-position" maskPosition
         , Attr.style "mask-position" maskPosition
+        , Attr.style "width" size
+        , Attr.style "height" size
         ]
         []
+
+
+
+-- fontToString : Font -> String
+-- fontToString f =
+--     case f of
+--         BGIDefault8x8 ->
+--             "bgi-default-8x8"
+-- type Font
+--     = BGIDefault8x8
+-- digit : Size -> Color -> Digit -> Html msg
+-- digit size color (Digit n) =
+--     let
+--         ( class, width ) =
+--             case size of
+--                 Large ->
+--                     ( "largeDigit", 28 )
+--                 Small ->
+--                     ( "smallDigit", 16 )
+--         maskPosition : String
+--         maskPosition =
+--             String.fromInt (n * width * -1) ++ "px 0"
+--     in
+--     div
+--         [ Attr.class class
+--         , Attr.style "background-color" <| Color.toCssString color
+--         , Attr.style "-webkit-mask-position" maskPosition
+--         , Attr.style "mask-position" maskPosition
+--         ]
+--         []
