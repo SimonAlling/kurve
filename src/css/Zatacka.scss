@@ -143,23 +143,11 @@ $minWidthForCenteredCanvas: (
         > div {
             height: 100%;
             display: inline-block;
-            $maskRepeat: no-repeat;
-            -webkit-mask-repeat: $maskRepeat;
-            mask-repeat: $maskRepeat;
+            vertical-align: top;
         }
 
         .controls {
             width: 160px;
-            $maskPosition: 1px 0;
-            -webkit-mask-position: $maskPosition;
-            mask-position: $maskPosition;
-        }
-
-        .ready {
-            width: 80px;
-            $maskImage: url("../resources/ready.png");
-            -webkit-mask-image: $maskImage;
-            mask-image: $maskImage;
         }
     }
 }
