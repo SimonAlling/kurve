@@ -1,7 +1,7 @@
 module GUI.Digits exposing (large, small)
 
 import Color exposing (Color)
-import GUI.Fonts exposing (Font(..))
+import GUI.Fonts
 import GUI.Text
 import Html exposing (Html)
 
