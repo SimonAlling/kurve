@@ -34,7 +34,7 @@ type alias Model =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedButtons = Set.empty
-      , appState = InMenu GameOver (Random.initialSeed 1337)
+      , appState = InMenu Lobby (Random.initialSeed 1337)
       , config = Config.default
       , players = initialPlayers
       }
