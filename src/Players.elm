@@ -87,7 +87,7 @@ combineScores scoreInRound status =
 
 initialPlayers : AllPlayers
 initialPlayers =
-    players |> List.indexedMap (\id player -> ( id, ( player, Participating (Score 58) ) )) |> Dict.fromList
+    players |> List.indexedMap (\id player -> ( id, ( player, Participating (Score 123564) ) )) |> Dict.fromList
 
 
 players : List Player

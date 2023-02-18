@@ -1,4 +1,4 @@
-module GUI.Font exposing (Font(..), bgiDefault8x8, bgiStroked28x43)
+module GUI.Fonts exposing (Font(..), bgiDefault8x8, bgiStroked28x43)
 
 
 type Font

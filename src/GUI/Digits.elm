@@ -1,19 +1,19 @@
 module GUI.Digits exposing (large, small)
 
 import Color exposing (Color)
-import GUI.Font exposing (Font(..))
+import GUI.Fonts exposing (Font(..))
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 
 
 large : Color -> Int -> List (Html msg)
 large =
-    digits (Scaled 1 GUI.Font.bgiStroked28x43)
+    digits (Scaled 1 GUI.Fonts.bgiStroked28x43)
 
 
 small : Color -> Int -> List (Html msg)
 small =
-    digits (Scaled 2 GUI.Font.bgiDefault8x8)
+    digits (Scaled 2 GUI.Fonts.bgiDefault8x8)
 
 
 digits : ScaledFont -> Color -> Int -> List (Html msg)
