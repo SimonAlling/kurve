@@ -11,8 +11,8 @@ type ScaledFont
 
 
 string : ScaledFont -> Color -> String -> List (Html msg)
-string fontAndSize color =
-    String.toList >> List.map (char fontAndSize color)
+string scaledFont color =
+    String.toList >> List.map (char scaledFont color)
 
 
 char : ScaledFont -> Color -> Char -> Html msg

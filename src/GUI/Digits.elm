@@ -24,7 +24,7 @@ small =
 digits : Size -> Color -> Int -> List (Html msg)
 digits size color =
     let
-        fontAndSize =
+        scaledFont =
             case size of
                 Large ->
                     Scaled 1 GUI.Fonts.bgiStroked28x43
@@ -32,4 +32,4 @@ digits size color =
                 Small ->
                     Scaled 2 GUI.Fonts.bgiDefault8x8
     in
-    String.fromInt >> GUI.Text.string fontAndSize color
+    String.fromInt >> GUI.Text.string scaledFont color
