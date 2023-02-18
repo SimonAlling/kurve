@@ -1,4 +1,4 @@
-module GUI.Text exposing (ScaledFont(..), string)
+module GUI.Text exposing (string)
 
 import Color exposing (Color)
 import GUI.Fonts exposing (Font(..))
@@ -6,17 +6,13 @@ import Html exposing (Html, div)
 import Html.Attributes as Attr
 
 
-type ScaledFont
-    = Scaled Int Font
+string : Font -> Int -> Color -> String -> List (Html msg)
+string font sizeMultiplier color =
+    String.toList >> List.map (char font sizeMultiplier color)
 
 
-string : ScaledFont -> Color -> String -> List (Html msg)
-string scaledFont color =
-    String.toList >> List.map (char scaledFont color)
-
-
-char : ScaledFont -> Color -> Char -> Html msg
-char (Scaled sizeMultiplier (Font font)) color c =
+char : Font -> Int -> Color -> Char -> Html msg
+char (Font font) sizeMultiplier color c =
     let
         scaledFontWidth =
             font.width * sizeMultiplier

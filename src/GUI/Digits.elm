@@ -2,7 +2,7 @@ module GUI.Digits exposing (large, small)
 
 import Color exposing (Color)
 import GUI.Fonts exposing (Font(..))
-import GUI.Text exposing (ScaledFont(..))
+import GUI.Text
 import Html exposing (Html)
 
 
@@ -24,12 +24,12 @@ small =
 digits : Size -> Color -> Int -> List (Html msg)
 digits size color =
     let
-        scaledFont =
+        ( font, sizeMultiplier ) =
             case size of
                 Large ->
-                    Scaled 1 GUI.Fonts.bgiStroked28x43
+                    ( GUI.Fonts.bgiStroked28x43, 1 )
 
                 Small ->
-                    Scaled 2 GUI.Fonts.bgiDefault8x8
+                    ( GUI.Fonts.bgiDefault8x8, 2 )
     in
-    String.fromInt >> GUI.Text.string scaledFont color
+    String.fromInt >> GUI.Text.string font sizeMultiplier color
