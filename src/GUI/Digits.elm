@@ -61,26 +61,3 @@ char (Scaled sizeMultiplier (Font font)) color c =
         , Attr.style "height" (cssSize scaledFontHeight)
         ]
         []
-
-
-
--- digit : Size -> Color -> Digit -> Html msg
--- digit size color (Digit n) =
---     let
---         ( class, width ) =
---             case size of
---                 Large ->
---                     ( "largeDigit", 28 )
---                 Small ->
---                     ( "smallDigit", 16 )
---         maskPosition : String
---         maskPosition =
---             String.fromInt (n * width * -1) ++ "px 0"
---     in
---     div
---         [ Attr.class class
---         , Attr.style "background-color" <| Color.toCssString color
---         , Attr.style "-webkit-mask-position" maskPosition
---         , Attr.style "mask-position" maskPosition
---         ]
---         []
