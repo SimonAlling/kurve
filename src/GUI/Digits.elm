@@ -3,7 +3,6 @@ module GUI.Digits exposing (large, small)
 import Color exposing (Color)
 import Html exposing (Html, div)
 import Html.Attributes as Attr
-import Random exposing (int)
 
 
 large : Color -> Int -> List (Html msg)
@@ -45,12 +44,6 @@ char { font, sizeMultiplier, color } c =
         cssSize n =
             String.fromInt n ++ "px"
 
-        cssWidth =
-            cssSize scaledFontWidth
-
-        cssHeight =
-            cssSize scaledFontHeight
-
         maskImage : String
         maskImage =
             "url(\"../resources/fonts/" ++ theFontProps.resourceName ++ ".png\")"
@@ -66,8 +59,8 @@ char { font, sizeMultiplier, color } c =
         , Attr.style "mask-image" maskImage
         , Attr.style "-webkit-mask-position" maskPosition
         , Attr.style "mask-position" maskPosition
-        , Attr.style "width" cssWidth
-        , Attr.style "height" cssHeight
+        , Attr.style "width" (cssSize scaledFontWidth)
+        , Attr.style "height" (cssSize scaledFontHeight)
         ]
         []
 
