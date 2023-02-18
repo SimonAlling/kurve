@@ -3,65 +3,95 @@ module GUI.Digits exposing (large, small)
 import Color exposing (Color)
 import Html exposing (Html, div)
 import Html.Attributes as Attr
-
-
-type Size
-    = Large
-    | Small
+import Random exposing (int)
 
 
 large : Color -> Int -> List (Html msg)
-large =
-    digits Large
+large color =
+    digits { font = DenStora, color = color, sizeMultiplier = 1 }
 
 
 small : Color -> Int -> List (Html msg)
-small =
-    digits Small
+small color =
+    digits { font = BGIDefault8x8, color = color, sizeMultiplier = 2 }
 
 
-digits : Size -> Color -> Int -> List (Html msg)
-digits _ color =
-    String.fromInt >> text color
+digits : TextProps -> Int -> List (Html msg)
+digits textProps =
+    String.fromInt >> text textProps
 
 
-text : Color -> String -> List (Html msg)
-text color =
-    String.toList >> List.map (char color)
+type alias TextProps =
+    { font : Font, sizeMultiplier : Int, color : Color }
 
 
-char : Color -> Char -> Html msg
-char color c =
+text : TextProps -> String -> List (Html msg)
+text textProps =
+    String.toList >> List.map (char textProps)
+
+
+char : TextProps -> Char -> Html msg
+char { font, sizeMultiplier, color } c =
     let
-        width =
-            8
+        theFontProps =
+            fontProps font
 
-        size =
-            String.fromInt width ++ "px"
+        scaledFontWidth =
+            theFontProps.width * sizeMultiplier
+
+        scaledFontHeight =
+            theFontProps.height * sizeMultiplier
+
+        cssSize n =
+            String.fromInt n ++ "px"
+
+        cssWidth =
+            cssSize scaledFontWidth
+
+        cssHeight =
+            cssSize scaledFontHeight
+
+        maskImage : String
+        maskImage =
+            "url(\"../resources/fonts/" ++ theFontProps.resourceName ++ ".png\")"
 
         maskPosition : String
         maskPosition =
-            String.fromInt (Char.toCode c * width * -1) ++ "px 0"
+            String.fromInt (Char.toCode c * scaledFontWidth * -1) ++ "px 0"
     in
     div
         [ Attr.class "character"
         , Attr.style "background-color" <| Color.toCssString color
+        , Attr.style "-webkit-mask-image" maskImage
+        , Attr.style "mask-image" maskImage
         , Attr.style "-webkit-mask-position" maskPosition
         , Attr.style "mask-position" maskPosition
-        , Attr.style "width" size
-        , Attr.style "height" size
+        , Attr.style "width" cssWidth
+        , Attr.style "height" cssHeight
         ]
         []
 
 
+type alias FontProps =
+    { width : Int, height : Int, resourceName : String }
 
--- fontToString : Font -> String
--- fontToString f =
---     case f of
---         BGIDefault8x8 ->
---             "bgi-default-8x8"
--- type Font
---     = BGIDefault8x8
+
+fontProps : Font -> FontProps
+fontProps f =
+    case f of
+        BGIDefault8x8 ->
+            { width = 8, height = 8, resourceName = "bgi-default-8x8" }
+
+        DenStora ->
+            { width = 28, height = 43, resourceName = "bgi-stroked" }
+
+
+type Font
+    = BGIDefault8x8
+    | DenStora
+
+
+
 -- digit : Size -> Color -> Digit -> Html msg
 -- digit size color (Digit n) =
 --     let
