@@ -1,18 +1,19 @@
-module GUI.Digits exposing (large, small)
+module GUI.Digits exposing (TextProps, large, small)
 
 import Color exposing (Color)
+import GUI.Font exposing (Font(..))
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 
 
 large : Color -> Int -> List (Html msg)
 large color =
-    digits { font = DenStora, color = color, sizeMultiplier = 1 }
+    digits { font = GUI.Font.bgiStroked28x43, color = color, sizeMultiplier = 1 }
 
 
 small : Color -> Int -> List (Html msg)
 small color =
-    digits { font = BGIDefault8x8, color = color, sizeMultiplier = 2 }
+    digits { font = GUI.Font.bgiDefault8x8, color = color, sizeMultiplier = 2 }
 
 
 digits : TextProps -> Int -> List (Html msg)
@@ -32,21 +33,21 @@ text textProps =
 char : TextProps -> Char -> Html msg
 char { font, sizeMultiplier, color } c =
     let
-        theFontProps =
-            fontProps font
+        (Font fontProperties) =
+            font
 
         scaledFontWidth =
-            theFontProps.width * sizeMultiplier
+            fontProperties.width * sizeMultiplier
 
         scaledFontHeight =
-            theFontProps.height * sizeMultiplier
+            fontProperties.height * sizeMultiplier
 
         cssSize n =
             String.fromInt n ++ "px"
 
         maskImage : String
         maskImage =
-            "url(\"../resources/fonts/" ++ theFontProps.resourceName ++ ".png\")"
+            "url(\"../resources/fonts/" ++ fontProperties.resourceName ++ ".png\")"
 
         maskPosition : String
         maskPosition =
@@ -63,25 +64,6 @@ char { font, sizeMultiplier, color } c =
         , Attr.style "height" (cssSize scaledFontHeight)
         ]
         []
-
-
-type alias FontProps =
-    { width : Int, height : Int, resourceName : String }
-
-
-fontProps : Font -> FontProps
-fontProps f =
-    case f of
-        BGIDefault8x8 ->
-            { width = 8, height = 8, resourceName = "bgi-default-8x8" }
-
-        DenStora ->
-            { width = 28, height = 43, resourceName = "bgi-stroked" }
-
-
-type Font
-    = BGIDefault8x8
-    | DenStora
 
 
 
