@@ -12,4 +12,4 @@ bgiDefault8x8 =
 
 bgiStroked28x43 : Font
 bgiStroked28x43 =
-    Font { width = 28, height = 43, resourceName = "bgi-stroked" }
+    Font { width = 28, height = 43, resourceName = "bgi-stroked-28x43" }
