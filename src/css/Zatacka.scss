@@ -107,22 +107,6 @@ $minWidthForCenteredCanvas: (
     mask-size: auto 100%;
 }
 
-.largeDigit {
-    width: 28px;
-    height: 43px;
-    display: inline-block;
-    -webkit-mask-image: url("../resources/digits-large.png");
-    mask-image: url("../resources/digits-large.png");
-}
-
-.smallDigit {
-    width: 16px;
-    height: 14px;
-    display: inline-block;
-    -webkit-mask-image: url("../resources/digits-small.png");
-    mask-image: url("../resources/digits-small.png");
-}
-
 #splashScreen {
     width: $nativeWidth;
     height: $nativeHeight;
