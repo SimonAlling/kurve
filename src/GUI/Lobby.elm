@@ -32,7 +32,8 @@ playerEntry ( id, ( player, status ) ) =
             ]
             (GUI.Text.string GUI.Fonts.bgiDefault8x8 1 player.color <| "(" ++ left ++ " " ++ right ++ ")")
         , Html.div
-            [ Attr.style "visibility"
+            [ Attr.class "ready"
+            , Attr.style "visibility"
                 (case status of
                     Participating _ ->
                         "visible"
