@@ -14,12 +14,15 @@ string font sizeMultiplier color =
 char : Font -> Int -> Color -> Char -> Html msg
 char (Font font) sizeMultiplier color c =
     let
+        scaledFontWidth : Int
         scaledFontWidth =
             font.width * sizeMultiplier
 
+        scaledFontHeight : Int
         scaledFontHeight =
             font.height * sizeMultiplier
 
+        cssSize : Int -> String
         cssSize n =
             String.fromInt n ++ "px"
 
