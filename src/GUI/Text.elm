@@ -2,7 +2,7 @@ module GUI.Text exposing (string)
 
 import Color exposing (Color)
 import GUI.Fonts exposing (Font(..))
-import Html exposing (Html, div)
+import Html exposing (Html, span)
 import Html.Attributes as Attr
 
 
@@ -31,7 +31,7 @@ char (Font font) sizeMultiplier color c =
         maskPosition =
             String.fromInt (Char.toCode c * scaledFontWidth * -1) ++ "px 0"
     in
-    div
+    span
         [ Attr.class "character"
         , Attr.style "background-color" <| Color.toCssString color
         , Attr.style "-webkit-mask-image" maskImage

@@ -4,7 +4,7 @@ import Color
 import Dict
 import GUI.Fonts
 import GUI.Text
-import Html exposing (Html, div)
+import Html exposing (Html, div, span)
 import Html.Attributes as Attr
 import Players exposing (AllPlayers)
 import Types.Player exposing (Player)
