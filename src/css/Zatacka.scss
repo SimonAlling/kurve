@@ -143,11 +143,16 @@ $minWidthForCenteredCanvas: (
         > div {
             height: 100%;
             display: inline-block;
+            line-height: 0;
             vertical-align: top;
         }
 
         .controls {
             width: 160px;
+        }
+
+        .ready {
+            width: 80px;
         }
     }
 }
