@@ -30,7 +30,7 @@ playerEntry ( id, ( player, status ) ) =
         [ Html.div
             [ Attr.class "controls"
             ]
-            (GUI.Text.string GUI.Fonts.bgiDefault8x8 1 player.color <| "(" ++ left ++ " " ++ right ++ ")")
+            (GUI.Text.string GUI.Fonts.BGIDefault 1 player.color <| "(" ++ left ++ " " ++ right ++ ")")
         , Html.div
             [ Attr.class "ready"
             , Attr.style "visibility"
@@ -42,7 +42,7 @@ playerEntry ( id, ( player, status ) ) =
                         "hidden"
                 )
             ]
-            (GUI.Text.string GUI.Fonts.bgiDefault8x8 2 player.color "READY")
+            (GUI.Text.string GUI.Fonts.BGIDefault 2 player.color "READY")
         ]
 
 

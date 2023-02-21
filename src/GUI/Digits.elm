@@ -27,9 +27,9 @@ digits size color =
         ( font, sizeMultiplier ) =
             case size of
                 Large ->
-                    ( GUI.Fonts.bgiStroked28x43, 1 )
+                    ( GUI.Fonts.BGIDefault, 1 )
 
                 Small ->
-                    ( GUI.Fonts.bgiDefault8x8, 2 )
+                    ( GUI.Fonts.BGIDefault, 2 )
     in
     String.fromInt >> GUI.Text.string font sizeMultiplier color

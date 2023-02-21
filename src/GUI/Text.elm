@@ -2,7 +2,7 @@ module GUI.Text exposing (string)
 
 import Color exposing (Color)
 import GUI.Fonts exposing (Font(..))
-import Html exposing (Html, span)
+import Html exposing (Html, img, span)
 import Html.Attributes as Attr
 
 
@@ -12,36 +12,81 @@ string font sizeMultiplier color =
 
 
 char : Font -> Int -> Color -> Char -> Html msg
-char (Font font) sizeMultiplier color c =
+char font sizeMultiplier color c =
     let
-        scaledFontWidth : Int
-        scaledFontWidth =
-            font.width * sizeMultiplier
-
-        scaledFontHeight : Int
-        scaledFontHeight =
-            font.height * sizeMultiplier
-
         cssSize : Int -> String
         cssSize n =
             String.fromInt n ++ "px"
-
-        maskImage : String
-        maskImage =
-            "url(\"../resources/fonts/" ++ font.resourceName ++ ".png\")"
-
-        maskPosition : String
-        maskPosition =
-            String.fromInt (Char.toCode c * scaledFontWidth * -1) ++ "px 0"
     in
-    span
-        [ Attr.class "character"
-        , Attr.style "background-color" <| Color.toCssString color
-        , Attr.style "-webkit-mask-image" maskImage
-        , Attr.style "mask-image" maskImage
-        , Attr.style "-webkit-mask-position" maskPosition
-        , Attr.style "mask-position" maskPosition
-        , Attr.style "width" (cssSize scaledFontWidth)
-        , Attr.style "height" (cssSize scaledFontHeight)
-        ]
-        []
+    case font of
+        BGIDefault ->
+            let
+                scaledFontWidth : Int
+                scaledFontWidth =
+                    8 * sizeMultiplier
+
+                scaledFontHeight : Int
+                scaledFontHeight =
+                    8 * sizeMultiplier
+
+                maskImage : String
+                maskImage =
+                    "url(\"../resources/fonts/bgi-default-8x8.png\")"
+
+                maskPosition : String
+                maskPosition =
+                    String.fromInt (Char.toCode c * scaledFontWidth * -1) ++ "px 0"
+            in
+            span
+                [ Attr.class "character"
+                , Attr.style "background-color" <| Color.toCssString color
+                , Attr.style "-webkit-mask-image" maskImage
+                , Attr.style "mask-image" maskImage
+                , Attr.style "-webkit-mask-position" maskPosition
+                , Attr.style "mask-position" maskPosition
+                , Attr.style "width" (cssSize scaledFontWidth)
+                , Attr.style "height" (cssSize scaledFontHeight)
+                ]
+                []
+
+        BGIStroked ->
+            let
+                theGlyphUrl : String
+                theGlyphUrl =
+                    glyphUrl c
+
+                maskImage : String
+                maskImage =
+                    "url(\"" ++ theGlyphUrl ++ "\")"
+            in
+            span
+                [ Attr.class "character"
+                , Attr.style "background-color" <| Color.toCssString color
+                , Attr.style "-webkit-mask-image" maskImage
+                , Attr.style "mask-image" maskImage
+                , Attr.style "height" (cssSize 65)
+                ]
+                [ img
+                    [ Attr.style "opacity" "0"
+                    , Attr.src theGlyphUrl
+                    ]
+                    []
+                ]
+
+
+glyphUrl : Char -> String
+glyphUrl c =
+    "data:image/png;base64," ++ glyphData c
+
+
+glyphData : Char -> String
+glyphData c =
+    case c of
+        'H' ->
+            "iVBORw0KGgoAAAANSUhEUgAAACgAAABBAQMAAACZy3S8AAAABlBMVEUgICAAAADDODzDAAAAAXRSTlMAQObYZgAAAGpJREFUGFdjYCAV1P+R/8/AwPuAuYKBgb2B8QEDA38DM4hkYD7AwMDNwAQnxRhYG3CTOkBVuMkIoCpUsv7/PyC5ASiPk2RMAKrFSQKdtAEbydoAlEchId6CsCGekz7A9oGB4f8Pe5AbqA8AIPEqUB5VY/IAAAAASUVORK5CYII="
+
+        '/' ->
+            "iVBORw0KGgoAAAANSUhEUgAAACkAAABBAQMAAAB2CR+CAAAABlBMVEUgICAAAADDODzDAAAAAXRSTlMAQObYZgAAADJJREFUGNNjYAACxgYQycDMgEyxoVA8EEoChTJAoRIg1AFkiuYmo1pAZ5N5CJucQB+TAWJ5D+6/N2n+AAAAAElFTkSuQmCC"
+
+        _ ->
+            ""

@@ -104,13 +104,13 @@ $minWidthForCenteredCanvas: (
 
 .character {
     display: inline-block;
+    line-height: 0;
     mask-size: auto 100%;
 }
 
 #splashScreen {
     width: $nativeWidth;
     height: $nativeHeight;
-    background-image: url("../resources/splash.png");
 }
 
 #lobby {
