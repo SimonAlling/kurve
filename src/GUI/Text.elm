@@ -17,16 +17,16 @@ char font sizeMultiplier color c =
         cssSize : Int -> String
         cssSize n =
             String.fromInt n ++ "px"
+
+        scaledFontHeight : Int
+        scaledFontHeight =
+            GUI.Fonts.height font * sizeMultiplier
     in
     case font of
         BGIDefault ->
             let
                 scaledFontWidth : Int
                 scaledFontWidth =
-                    8 * sizeMultiplier
-
-                scaledFontHeight : Int
-                scaledFontHeight =
                     8 * sizeMultiplier
 
                 maskImage : String
@@ -64,7 +64,7 @@ char font sizeMultiplier color c =
                 , Attr.style "background-color" <| Color.toCssString color
                 , Attr.style "-webkit-mask-image" maskImage
                 , Attr.style "mask-image" maskImage
-                , Attr.style "height" (cssSize 65)
+                , Attr.style "height" (cssSize <| scaledFontHeight)
                 ]
                 [ img
                     [ Attr.style "opacity" "0"
