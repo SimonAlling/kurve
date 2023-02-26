@@ -1,6 +1,7 @@
 module GUI.Digits exposing (large, small)
 
 import Color exposing (Color)
+import GUI.Text as Text
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 
@@ -36,19 +37,19 @@ digitsFromInt =
 
 digits : Size -> Color -> Int -> List (Html msg)
 digits size color =
-    digitsFromInt >> List.map (digit size color)
+    case size of
+        Large ->
+            digitsFromInt >> List.map (digit color)
+
+        Small ->
+            String.fromInt >> Text.string (Text.Size 2) color
 
 
-digit : Size -> Color -> Digit -> Html msg
-digit size color (Digit n) =
+digit : Color -> Digit -> Html msg
+digit color (Digit n) =
     let
         ( class, width ) =
-            case size of
-                Large ->
-                    ( "largeDigit", 28 )
-
-                Small ->
-                    ( "smallDigit", 16 )
+            ( "largeDigit", 28 )
 
         maskPosition : String
         maskPosition =
