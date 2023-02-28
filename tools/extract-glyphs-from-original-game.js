@@ -11,9 +11,11 @@ function main(executable, stringToReplace) {
   for (let i = 32; i < 127; i += stringToReplace.length) {
     const codePoints = [...Array(stringToReplace.length).keys()].map(x => spaceIfUnsafe(i + x));
     const replacement = String.fromCodePoint(...codePoints);
-    console.log("Current string:", replacement);
+    console.log("📝 Current string:", replacement);
     fs.writeFileSync(executable, replace(originalFileContent, stringToReplace, replacement));
-    spawnSync("dosbox", [ executable ]);
+    spawnSync("dosbox", [ executable ], {
+      stdio: "inherit", // To make it easy to see that screenshots are saved and where.
+    });
     // Screenshot can be taken now.
   }
   spawnSync("git", [ "restore", executable ]);
