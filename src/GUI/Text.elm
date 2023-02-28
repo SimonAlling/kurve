@@ -25,10 +25,6 @@ char (Size multiplier) color c =
         scaledFontWidth =
             8 * multiplier
 
-        maskImage : String
-        maskImage =
-            "url(../resources/fonts/bgi-default-8x8.png)"
-
         maskPosition : String
         maskPosition =
             cssSize (Char.toCode c * scaledFontWidth * -1)
@@ -36,8 +32,6 @@ char (Size multiplier) color c =
     span
         [ Attr.class "character"
         , Attr.style "background-color" (Color.toCssString color)
-        , Attr.style "-webkit-mask-image" maskImage
-        , Attr.style "mask-image" maskImage
         , Attr.style "-webkit-mask-position" maskPosition
         , Attr.style "mask-position" maskPosition
         , Attr.style "width" (cssSize scaledFontWidth)

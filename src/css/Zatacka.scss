@@ -112,6 +112,8 @@ $minWidthForCenteredCanvas: (
 
 .character {
     display: inline-block;
+    -webkit-mask-image: url("../resources/fonts/bgi-default-8x8.png");
+    mask-image: url("../resources/fonts/bgi-default-8x8.png");
     mask-size: auto 100%;
 }
 
