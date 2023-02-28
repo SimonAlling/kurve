@@ -1,7 +1,7 @@
 module GUI.Lobby exposing (lobby)
 
-import Color
 import Dict
+import GUI.Text as Text
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Players exposing (AllPlayers)
@@ -21,27 +21,17 @@ lobby players =
 playerEntry : ( PlayerId, ( Player, PlayerStatus ) ) -> Html msg
 playerEntry ( id, ( player, status ) ) =
     let
-        controlsImageMask : String
-        controlsImageMask =
-            "url(./resources/controls-player-" ++ String.fromInt id ++ ".png)"
-
-        backgroundColor : String
-        backgroundColor =
-            Color.toCssString player.color
+        ( left, right ) =
+            controls id
     in
     Html.div
         [ Attr.class "playerEntry" ]
         [ Html.div
             [ Attr.class "controls"
-            , Attr.style "background-color" backgroundColor
-            , Attr.style "-webkit-mask-image" controlsImageMask
-            , Attr.style "mask-image" controlsImageMask
             ]
-            []
+            (Text.string (Text.Size 1) player.color <| "(" ++ left ++ " " ++ right ++ ")")
         , Html.div
-            [ Attr.class "ready"
-            , Attr.style "background-color" backgroundColor
-            , Attr.style "visibility"
+            [ Attr.style "visibility"
                 (case status of
                     Participating _ ->
                         "visible"
@@ -50,5 +40,30 @@ playerEntry ( id, ( player, status ) ) =
                         "hidden"
                 )
             ]
-            []
+            (Text.string (Text.Size 2) player.color "READY")
         ]
+
+
+controls : PlayerId -> ( String, String )
+controls id =
+    case id of
+        0 ->
+            ( "1", "Q" )
+
+        1 ->
+            ( "L.Ctrl", "L.Alt" )
+
+        2 ->
+            ( "M", "," )
+
+        3 ->
+            ( "L.Arrow", "D.Arrow" )
+
+        4 ->
+            ( "/", "*" )
+
+        5 ->
+            ( "L.Mouse", "R.Mouse" )
+
+        _ ->
+            ( "", "" )

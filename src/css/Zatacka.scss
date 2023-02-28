@@ -110,12 +110,11 @@ $minWidthForCenteredCanvas: (
     mask-image: url("../resources/digits-large.png");
 }
 
-.smallDigit {
-    width: 16px;
-    height: 14px;
+.character {
     display: inline-block;
-    -webkit-mask-image: url("../resources/digits-small.png");
-    mask-image: url("../resources/digits-small.png");
+    -webkit-mask-image: url("../resources/fonts/bgi-default-8x8.png");
+    mask-image: url("../resources/fonts/bgi-default-8x8.png");
+    mask-size: auto 100%;
 }
 
 #splashScreen {
@@ -138,23 +137,12 @@ $minWidthForCenteredCanvas: (
         > div {
             height: 100%;
             display: inline-block;
-            $maskRepeat: no-repeat;
-            -webkit-mask-repeat: $maskRepeat;
-            mask-repeat: $maskRepeat;
+            line-height: 0;
+            vertical-align: top;
         }
 
         .controls {
             width: 160px;
-            $maskPosition: 1px 0;
-            -webkit-mask-position: $maskPosition;
-            mask-position: $maskPosition;
-        }
-
-        .ready {
-            width: 80px;
-            $maskImage: url("../resources/ready.png");
-            -webkit-mask-image: $maskImage;
-            mask-image: $maskImage;
         }
     }
 }
