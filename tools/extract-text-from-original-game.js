@@ -6,6 +6,7 @@ const fs = require("fs");
 main(...process.argv.slice(2));
 
 function main(executable, stringToReplace) {
+  spawnSync("git", [ "restore", executable ]);
   const originalFileContent = fs.readFileSync(executable);
   for (let i = 32; i < 127; i += stringToReplace.length) {
     const codePoints = [...Array(stringToReplace.length).keys()].map(x => spaceIfUnsafe(i + x));
@@ -14,6 +15,7 @@ function main(executable, stringToReplace) {
     spawnSync("dosbox", [ executable ]);
     // Screenshot can be taken now.
   }
+  spawnSync("git", [ "restore", executable ]);
 }
 
 function spaceIfUnsafe(codePoint) {
