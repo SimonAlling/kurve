@@ -1,12 +1,12 @@
 module GUI.Lobby exposing (lobby)
 
 import Dict
+import GUI.Controls
 import GUI.Text as Text
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Players exposing (AllPlayers)
 import Types.Player exposing (Player)
-import Types.PlayerId exposing (PlayerId)
 import Types.PlayerStatus exposing (PlayerStatus(..))
 
 
@@ -15,14 +15,14 @@ lobby players =
     div
         [ Attr.id "lobby"
         ]
-        (Dict.toList players |> List.map playerEntry)
+        (Dict.values players |> List.map playerEntry)
 
 
-playerEntry : ( PlayerId, ( Player, PlayerStatus ) ) -> Html msg
-playerEntry ( id, ( player, status ) ) =
+playerEntry : ( Player, PlayerStatus ) -> Html msg
+playerEntry ( player, status ) =
     let
         ( left, right ) =
-            controls id
+            GUI.Controls.showControls player
     in
     Html.div
         [ Attr.class "playerEntry" ]
@@ -42,28 +42,3 @@ playerEntry ( id, ( player, status ) ) =
             ]
             (Text.string (Text.Size 2) player.color "READY")
         ]
-
-
-controls : PlayerId -> ( String, String )
-controls id =
-    case id of
-        0 ->
-            ( "1", "Q" )
-
-        1 ->
-            ( "L.Ctrl", "L.Alt" )
-
-        2 ->
-            ( "M", "," )
-
-        3 ->
-            ( "L.Arrow", "D.Arrow" )
-
-        4 ->
-            ( "/", "*" )
-
-        5 ->
-            ( "L.Mouse", "R.Mouse" )
-
-        _ ->
-            ( "", "" )
