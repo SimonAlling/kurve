@@ -79,36 +79,9 @@ Note: No button description in the original game exceeds 7 characters in length,
 misc : String -> Interpretation
 misc keyCode =
     case keyCode of
-        "AltLeft" ->
-            Named "L.Alt"
-
-        "AltRight" ->
-            -- Could have been "AltGr", but this is nicely dual to "L.Alt"; they are in turn analogous to "L.Ctrl" (from the original game) and "R.Ctrl".
-            Named "R.Alt"
-
-        "ArrowDown" ->
-            -- From the original game.
-            Named "D.Arrow"
-
-        "ArrowLeft" ->
-            -- From the original game.
-            Named "L.Arrow"
-
-        "ArrowRight" ->
-            Named "R.Arrow"
-
-        "ArrowUp" ->
-            Named "U.Arrow"
-
-        "AudioVolumeDown" ->
-            Named "VolDn"
-
-        "AudioVolumeMute" ->
-            Named "Mute"
-
-        "AudioVolumeUp" ->
-            Named "VolUp"
-
+        {- Alphanumeric Section
+           https://www.w3.org/TR/uievents-code/#key-alphanumeric-section
+        -}
         "Backquote" ->
             Character '`'
 
@@ -124,12 +97,44 @@ misc keyCode =
         "BracketRight" ->
             Character ']'
 
-        "CapsLock" ->
-            Named "CapsLk"
-
         "Comma" ->
             -- From the original game.
             Character ','
+
+        "Equal" ->
+            Character '='
+
+        "IntlBackslash" ->
+            -- Unclear what this key can be said to represent, but it produces a '\' in the English (UK) layout.
+            Character '\\'
+
+        "Minus" ->
+            Character '-'
+
+        "Period" ->
+            Character '.'
+
+        "Quote" ->
+            Character '\''
+
+        "Semicolon" ->
+            Character ';'
+
+        "Slash" ->
+            Character '/'
+
+        {- Functional Keys
+           https://www.w3.org/TR/uievents-code/#key-alphanumeric-functional
+        -}
+        "AltLeft" ->
+            Named "L.Alt"
+
+        "AltRight" ->
+            -- Could have been "AltGr", but this is nicely dual to "L.Alt"; they are in turn analogous to "L.Ctrl" (from the original game) and "R.Ctrl".
+            Named "R.Alt"
+
+        "CapsLock" ->
+            Named "CapsLk"
 
         "ContextMenu" ->
             Named "Menu"
@@ -140,20 +145,29 @@ misc keyCode =
         "ControlRight" ->
             Named "R.Ctrl"
 
+        "Enter" ->
+            Named "Enter"
+
+        "ShiftLeft" ->
+            Named "L.Shift"
+
+        "ShiftRight" ->
+            Named "R.Shift"
+
+        "Space" ->
+            Named "Space"
+
+        "Tab" ->
+            Named "Tab"
+
+        {- Control Pad Section
+           https://www.w3.org/TR/uievents-code/#key-controlpad-section
+        -}
         "Delete" ->
             Named "Del"
 
         "End" ->
             Named "End"
-
-        "Enter" ->
-            Named "Enter"
-
-        "Equal" ->
-            Character '='
-
-        "Escape" ->
-            Named "Esc"
 
         "Home" ->
             Named "Home"
@@ -161,13 +175,32 @@ misc keyCode =
         "Insert" ->
             Named "Ins"
 
-        "IntlBackslash" ->
-            -- Unclear what this key can be said to represent, but it produces a '\' in the English (UK) layout.
-            Character '\\'
+        "PageDown" ->
+            Named "PgDn"
 
-        "Minus" ->
-            Character '-'
+        "PageUp" ->
+            Named "PgUp"
 
+        {- Arrow Pad Section
+           https://www.w3.org/TR/uievents-code/#key-arrowpad-section
+        -}
+        "ArrowDown" ->
+            -- From the original game.
+            Named "D.Arrow"
+
+        "ArrowLeft" ->
+            -- From the original game.
+            Named "L.Arrow"
+
+        "ArrowRight" ->
+            Named "R.Arrow"
+
+        "ArrowUp" ->
+            Named "U.Arrow"
+
+        {- Numpad Section
+           https://www.w3.org/TR/uievents-code/#key-numpad-section
+        -}
         "NumLock" ->
             Named "NumLk"
 
@@ -206,44 +239,32 @@ misc keyCode =
             -- Just the character without any prefix to maintain consistency between the mathematical operators; 'NumpadMultiply' is rendered as '*' in the original game.
             Character '-'
 
-        "PageDown" ->
-            Named "PgDn"
-
-        "PageUp" ->
-            Named "PgUp"
+        {- Function Section
+           https://www.w3.org/TR/uievents-code/#key-function-section
+        -}
+        "Escape" ->
+            Named "Esc"
 
         "Pause" ->
             Named "Pause"
 
-        "Period" ->
-            Character '.'
-
         "PrintScreen" ->
             Named "PrtSc"
-
-        "Quote" ->
-            Character '\''
 
         "ScrollLock" ->
             Named "ScrLk"
 
-        "Semicolon" ->
-            Character ';'
+        {- Media Keys
+           https://www.w3.org/TR/uievents-code/#key-media
+        -}
+        "AudioVolumeDown" ->
+            Named "VolDn"
 
-        "ShiftLeft" ->
-            Named "L.Shift"
+        "AudioVolumeMute" ->
+            Named "Mute"
 
-        "ShiftRight" ->
-            Named "R.Shift"
-
-        "Slash" ->
-            Character '/'
-
-        "Space" ->
-            Named "Space"
-
-        "Tab" ->
-            Named "Tab"
+        "AudioVolumeUp" ->
+            Named "VolUp"
 
         "VolumeDown" ->
             Named "VolDn"
