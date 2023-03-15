@@ -37,10 +37,10 @@ showButton button =
 
 {-| The purpose of this limit is to prevent unexpected layout breakage caused either by
 
-  - an explicitly defined representation for some button, or
+  - an explicitly defined representation, or
   - a key code that we don't have a human-readable representation for.
 
-7 characters is the maximum in the original game (L.Mouse, R.Mouse, L.Arrow, D.Arrow).
+7 characters is the maximum in the original game (L.Arrow, D.Arrow, L.Mouse, R.Mouse).
 
 8 characters is the maximum that is guaranteed to fit to the left of "READY" in the lobby of the original game.
 
