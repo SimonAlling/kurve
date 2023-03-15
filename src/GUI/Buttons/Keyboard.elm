@@ -172,7 +172,7 @@ misc keyCode =
             Named "NumLk"
 
         "NumpadAdd" ->
-            -- 'NumpadMultiply' is rendered as '*' in the original game.
+            -- Just the character without any prefix to maintain consistency between the mathematical operators; 'NumpadMultiply' is rendered as '*' in the original game.
             Character '+'
 
         "NumpadComma" ->
@@ -182,14 +182,14 @@ misc keyCode =
             NumpadChar '.'
 
         "NumpadDivide" ->
-            -- 'NumpadMultiply' is rendered as '*' in the original game.
+            -- Just the character without any prefix to maintain consistency between the mathematical operators; 'NumpadMultiply' is rendered as '*' in the original game.
             Character '/'
 
         "NumpadEnter" ->
             Named "Enter"
 
         "NumpadEqual" ->
-            -- 'NumpadMultiply' is rendered as '*' in the original game.
+            -- Just the character without any prefix to maintain consistency between the mathematical operators; 'NumpadMultiply' is rendered as '*' in the original game.
             Character '='
 
         "NumpadMultiply" ->
@@ -203,7 +203,7 @@ misc keyCode =
             NumpadChar ')'
 
         "NumpadSubtract" ->
-            -- 'NumpadMultiply' is rendered as '*' in the original game.
+            -- Just the character without any prefix to maintain consistency between the mathematical operators; 'NumpadMultiply' is rendered as '*' in the original game.
             Character '-'
 
         "PageDown" ->
