@@ -83,7 +83,7 @@ misc keyCode =
             Named "L.Alt"
 
         "AltRight" ->
-            -- Nicely dual to "L.Alt"; they are in turn dual to "L.Ctrl" (from the original game) and "R.Ctrl".
+            -- Could have been "AltGr", but this is nicely dual to "L.Alt"; they are in turn analogous to "L.Ctrl" (from the original game) and "R.Ctrl".
             Named "R.Alt"
 
         "ArrowDown" ->
