@@ -118,6 +118,23 @@ $minWidthForCenteredCanvas: (
     mask-size: auto 100%;
 }
 
+.dialog {
+    z-index: 100;
+}
+
+button {
+    background-color: black;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    width: calc(50% - 8px);
+    height: 32px;
+    cursor: pointer;
+
+    &.focused {
+        border-color: white;
+    }
+}
+
 #splashScreen {
     width: $nativeWidth;
     height: $nativeHeight;
