@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
+import Browser.Dom as Dom
 import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Config exposing (Config)
 import GUI.EndScreen exposing (endScreen)
@@ -9,14 +10,16 @@ import GUI.Lobby exposing (lobby)
 import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
 import Game exposing (DialogOption(..), GameState(..), MidRoundState, MidRoundStateVariant(..), QuitDialogState(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
-import Html exposing (Html, canvas, div)
+import Html exposing (Html, button, canvas, div, text)
 import Html.Attributes as Attr
+import Html.Events exposing (onClick)
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Menu exposing (MenuState(..))
 import Players exposing (AllPlayers, atLeastOneIsParticipating, everyoneLeaves, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves, roundIsOver)
 import Set exposing (Set)
+import Task
 import Time
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -66,6 +69,27 @@ type Msg
     = GameTick Tick MidRoundState
     | ButtonUsed ButtonDirection Button
     | SpawnTick SpawnState MidRoundState
+    | ChooseDialogOption DialogOption
+    | NoOp
+
+
+confirmQuitDialog : GameState -> Html Msg
+confirmQuitDialog gameState =
+    case gameState of
+        PostRound _ DialogOpen ->
+            div [ Attr.class "dialog" ]
+                [ text "Really wanna quit?"
+                , button [ onClick (ChooseDialogOption Confirm) ] [ text "Yes" ]
+                , button [ Attr.id "cancel-button", onClick (ChooseDialogOption Cancel) ] [ text "No" ]
+                ]
+
+        _ ->
+            div [] []
+
+
+focusCancelButton : Cmd Msg
+focusCancelButton =
+    Task.attempt (\_ -> NoOp) (Dom.focus "cancel-button")
 
 
 stepSpawnState : Config -> SpawnState -> ( MidRoundState -> GameState, Cmd msg )
@@ -172,7 +196,7 @@ update msg ({ pressedButtons } as model) =
                                 Key "Escape" ->
                                     -- Quitting after the final round is not allowed in the original game.
                                     if not gameIsOver then
-                                        ( { model | appState = InGame (PostRound finishedRound (DialogOpen Cancel)) }, Cmd.none )
+                                        ( { model | appState = InGame (PostRound finishedRound DialogOpen) }, focusCancelButton )
 
                                     else
                                         ( handleUserInteraction Down button model, Cmd.none )
@@ -187,28 +211,10 @@ update msg ({ pressedButtons } as model) =
                                 _ ->
                                     ( handleUserInteraction Down button model, Cmd.none )
 
-                        DialogOpen selectedOption ->
-                            case ( button, selectedOption ) of
-                                ( Key "Escape", _ ) ->
+                        DialogOpen ->
+                            case button of
+                                Key "Escape" ->
                                     ( { model | appState = InGame (PostRound finishedRound DialogNotOpen) }, Cmd.none )
-
-                                ( Key "Enter", Cancel ) ->
-                                    ( { model | appState = InGame (PostRound finishedRound DialogNotOpen) }, Cmd.none )
-
-                                ( Key "Space", Cancel ) ->
-                                    ( { model | appState = InGame (PostRound finishedRound DialogNotOpen) }, Cmd.none )
-
-                                ( Key "Enter", Confirm ) ->
-                                    goToLobby finishedRound.seed model
-
-                                ( Key "Space", Confirm ) ->
-                                    goToLobby finishedRound.seed model
-
-                                ( Key "ArrowLeft", _ ) ->
-                                    ( { model | appState = InGame (PostRound finishedRound (DialogOpen Confirm)) }, Cmd.none )
-
-                                ( Key "ArrowRight", _ ) ->
-                                    ( { model | appState = InGame (PostRound finishedRound (DialogOpen Cancel)) }, Cmd.none )
 
                                 _ ->
                                     ( handleUserInteraction Down button model, Cmd.none )
@@ -226,6 +232,22 @@ update msg ({ pressedButtons } as model) =
 
         ButtonUsed Up key ->
             ( handleUserInteraction Up key model, Cmd.none )
+
+        ChooseDialogOption option ->
+            case model.appState of
+                InGame (PostRound finishedRound DialogOpen) ->
+                    case option of
+                        Confirm ->
+                            goToLobby finishedRound.seed model
+
+                        Cancel ->
+                            ( { model | appState = InGame (PostRound finishedRound DialogNotOpen) }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        NoOp ->
+            ( model, Cmd.none )
 
 
 gameOver : Random.Seed -> Model -> ( Model, Cmd msg )
@@ -327,6 +349,7 @@ view model =
                             , Attr.class "overlay"
                             ]
                             []
+                        , confirmQuitDialog gameState
                         ]
                     , scoreboard gameState model.players
                     ]

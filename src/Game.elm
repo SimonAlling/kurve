@@ -26,7 +26,7 @@ type GameState
 
 
 type QuitDialogState
-    = DialogOpen DialogOption
+    = DialogOpen
     | DialogNotOpen
 
 
