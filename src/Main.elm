@@ -8,7 +8,7 @@ import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
 import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
-import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+import Game exposing (DialogOption(..), GameState(..), MidRoundState, MidRoundStateVariant(..), QuitDialogState(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
@@ -123,7 +123,7 @@ update msg ({ pressedButtons } as model) =
                 newGameState : GameState
                 newGameState =
                     if roundIsOver newKurves then
-                        PostRound newCurrentRound
+                        PostRound newCurrentRound DialogNotOpen
 
                     else
                         MidRound tick <| modifyRound (always newCurrentRound) midRoundState
@@ -153,7 +153,7 @@ update msg ({ pressedButtons } as model) =
                         _ ->
                             ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, Cmd.none )
 
-                InGame (PostRound finishedRound) ->
+                InGame (PostRound finishedRound dialogState) ->
                     let
                         newModel : Model
                         newModel =
@@ -163,27 +163,55 @@ update msg ({ pressedButtons } as model) =
                         gameIsOver =
                             newModel.config.game.isGameOver (participating newModel.players)
                     in
-                    case button of
-                        Key "KeyR" ->
-                            startRound model <| prepareReplayRound model.config (initialStateForReplaying finishedRound)
+                    case dialogState of
+                        DialogNotOpen ->
+                            case button of
+                                Key "KeyR" ->
+                                    startRound model <| prepareReplayRound model.config (initialStateForReplaying finishedRound)
 
-                        Key "Escape" ->
-                            -- Quitting after the final round is not allowed in the original game.
-                            if not gameIsOver then
-                                goToLobby finishedRound.seed model
+                                Key "Escape" ->
+                                    -- Quitting after the final round is not allowed in the original game.
+                                    if not gameIsOver then
+                                        ( { model | appState = InGame (PostRound finishedRound (DialogOpen Cancel)) }, Cmd.none )
 
-                            else
-                                ( handleUserInteraction Down button model, Cmd.none )
+                                    else
+                                        ( handleUserInteraction Down button model, Cmd.none )
 
-                        Key "Space" ->
-                            if gameIsOver then
-                                gameOver finishedRound.seed newModel
+                                Key "Space" ->
+                                    if gameIsOver then
+                                        gameOver finishedRound.seed newModel
 
-                            else
-                                startRound newModel <| prepareLiveRound newModel.config finishedRound.seed (participating newModel.players) pressedButtons
+                                    else
+                                        startRound newModel <| prepareLiveRound newModel.config finishedRound.seed (participating newModel.players) pressedButtons
 
-                        _ ->
-                            ( handleUserInteraction Down button model, Cmd.none )
+                                _ ->
+                                    ( handleUserInteraction Down button model, Cmd.none )
+
+                        DialogOpen selectedOption ->
+                            case ( button, selectedOption ) of
+                                ( Key "Escape", _ ) ->
+                                    ( { model | appState = InGame (PostRound finishedRound DialogNotOpen) }, Cmd.none )
+
+                                ( Key "Enter", Cancel ) ->
+                                    ( { model | appState = InGame (PostRound finishedRound DialogNotOpen) }, Cmd.none )
+
+                                ( Key "Space", Cancel ) ->
+                                    ( { model | appState = InGame (PostRound finishedRound DialogNotOpen) }, Cmd.none )
+
+                                ( Key "Enter", Confirm ) ->
+                                    goToLobby finishedRound.seed model
+
+                                ( Key "Space", Confirm ) ->
+                                    goToLobby finishedRound.seed model
+
+                                ( Key "ArrowLeft", _ ) ->
+                                    ( { model | appState = InGame (PostRound finishedRound (DialogOpen Confirm)) }, Cmd.none )
+
+                                ( Key "ArrowRight", _ ) ->
+                                    ( { model | appState = InGame (PostRound finishedRound (DialogOpen Cancel)) }, Cmd.none )
+
+                                _ ->
+                                    ( handleUserInteraction Down button model, Cmd.none )
 
                 InMenu GameOver seed ->
                     case button of
@@ -249,7 +277,7 @@ subscriptions model =
             InMenu Lobby _ ->
                 Sub.none
 
-            InGame (PostRound _) ->
+            InGame (PostRound _ _) ->
                 Sub.none
 
             InGame (PreRound spawnState plannedMidRoundState) ->

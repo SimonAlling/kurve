@@ -1,4 +1,4 @@
-module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+module Game exposing (DialogOption(..), GameState(..), MidRoundState, MidRoundStateVariant(..), QuitDialogState(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 
 import Color exposing (Color)
 import Config exposing (Config, KurveConfig)
@@ -21,8 +21,18 @@ import World exposing (DrawingPosition, Pixel, Position, distanceToTicks)
 
 type GameState
     = MidRound Tick MidRoundState
-    | PostRound Round
+    | PostRound Round QuitDialogState
     | PreRound SpawnState MidRoundState
+
+
+type QuitDialogState
+    = DialogOpen DialogOption
+    | DialogNotOpen
+
+
+type DialogOption
+    = Confirm
+    | Cancel
 
 
 modifyMidRoundState : (MidRoundState -> MidRoundState) -> GameState -> GameState
