@@ -2,6 +2,7 @@ module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), Sp
 
 import Color exposing (Color)
 import Config exposing (Config, KurveConfig)
+import Dialog
 import Players exposing (ParticipatingPlayers)
 import Random
 import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead)
@@ -21,7 +22,7 @@ import World exposing (DrawingPosition, Pixel, Position, distanceToTicks)
 
 type GameState
     = MidRound Tick MidRoundState
-    | PostRound Round
+    | PostRound Round Dialog.State
     | PreRound SpawnState MidRoundState
 
 

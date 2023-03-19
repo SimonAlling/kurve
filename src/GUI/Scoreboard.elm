@@ -25,7 +25,7 @@ scoreboard gameState players =
             MidRound _ ( _, round ) ->
                 content players round
 
-            PostRound round ->
+            PostRound round _ ->
                 content players round
         )
 
