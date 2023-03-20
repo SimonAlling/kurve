@@ -14,7 +14,7 @@ confirmQuitDialog f gameState =
     let
         op =
             case gameState of
-                PostRound _ DialogOpen ->
+                RoundOver _ DialogOpen ->
                     [ open ]
 
                 _ ->
