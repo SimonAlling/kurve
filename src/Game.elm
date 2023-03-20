@@ -20,19 +20,19 @@ import World exposing (DrawingPosition, Pixel, Position, distanceToTicks)
 
 
 type GameState
-    = PreRound SpawnState MidRoundState
-    | MidRound Tick MidRoundState
-    | PostRound Round
+    = Spawning SpawnState MidRoundState
+    | Moving Tick MidRoundState
+    | RoundOver Round
 
 
 modifyMidRoundState : (MidRoundState -> MidRoundState) -> GameState -> GameState
 modifyMidRoundState f gameState =
     case gameState of
-        MidRound t midRoundState ->
-            MidRound t <| f midRoundState
+        Moving t midRoundState ->
+            Moving t <| f midRoundState
 
-        PreRound s midRoundState ->
-            PreRound s <| f midRoundState
+        Spawning s midRoundState ->
+            Spawning s <| f midRoundState
 
         _ ->
             gameState

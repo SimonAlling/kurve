@@ -53,7 +53,7 @@ startRound model midRoundState =
 
 newRoundGameStateAndCmd : Config -> MidRoundState -> ( GameState, Cmd msg )
 newRoundGameStateAndCmd config plannedMidRoundState =
-    ( PreRound
+    ( Spawning
         { kurvesLeft = Tuple.second plannedMidRoundState |> .kurves |> .alive
         , ticksLeft = config.spawn.numberOfFlickerTicks
         }
@@ -73,7 +73,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
     case kurvesLeft of
         [] ->
             -- All Kurves have spawned.
-            ( MidRound <| Tick.genesis, Cmd.none )
+            ( Moving <| Tick.genesis, Cmd.none )
 
         spawning :: waiting ->
             let
@@ -85,7 +85,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
                     else
                         { kurvesLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
-            ( PreRound newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.kurves.thickness )
+            ( Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.kurves.thickness )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -123,10 +123,10 @@ update msg ({ pressedButtons } as model) =
                 newGameState : GameState
                 newGameState =
                     if roundIsOver newKurves then
-                        PostRound newCurrentRound
+                        RoundOver newCurrentRound
 
                     else
-                        MidRound tick <| modifyRound (always newCurrentRound) midRoundState
+                        Moving tick <| modifyRound (always newCurrentRound) midRoundState
             in
             ( { model | appState = InGame newGameState }
             , [ headDrawingCmd model.config.kurves.thickness newKurves.alive
@@ -153,7 +153,7 @@ update msg ({ pressedButtons } as model) =
                         _ ->
                             ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, Cmd.none )
 
-                InGame (PostRound finishedRound) ->
+                InGame (RoundOver finishedRound) ->
                     let
                         newModel : Model
                         newModel =
@@ -220,10 +220,10 @@ handleUserInteraction direction button model =
         howToModifyRound : Round -> Round
         howToModifyRound =
             case model.appState of
-                InGame (PreRound _ ( Live, _ )) ->
+                InGame (Spawning _ ( Live, _ )) ->
                     recordInteractionBefore firstUpdateTick
 
-                InGame (MidRound lastTick ( Live, _ )) ->
+                InGame (Moving lastTick ( Live, _ )) ->
                     recordInteractionBefore (Tick.succ lastTick)
 
                 _ ->
@@ -249,13 +249,13 @@ subscriptions model =
             InMenu Lobby _ ->
                 Sub.none
 
-            InGame (PreRound spawnState plannedMidRoundState) ->
+            InGame (Spawning spawnState plannedMidRoundState) ->
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
-            InGame (MidRound lastTick midRoundState) ->
+            InGame (Moving lastTick midRoundState) ->
                 Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
 
-            InGame (PostRound _) ->
+            InGame (RoundOver _) ->
                 Sub.none
 
             InMenu GameOver _ ->
