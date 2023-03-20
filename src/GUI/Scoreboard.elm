@@ -19,13 +19,13 @@ scoreboard gameState players =
         , Attr.class "canvasHeight"
         ]
         (case gameState of
-            PreRound _ ( _, round ) ->
+            Spawning _ ( _, round ) ->
                 content players round
 
-            MidRound _ ( _, round ) ->
+            Moving _ ( _, round ) ->
                 content players round
 
-            PostRound round ->
+            RoundOver round ->
                 content players round
         )
 
