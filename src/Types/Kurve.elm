@@ -43,8 +43,8 @@ type Fate
 {-| In both cases, the integer represent the number of ticks left in the current state.
 -}
 type HoleStatus
-    = Unholy Int
-    | Holy Int
+    = Holy Int
+    | Unholy Int
 
 
 reset : Kurve -> Kurve

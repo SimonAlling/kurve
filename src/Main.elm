@@ -63,9 +63,9 @@ newRoundGameStateAndCmd config plannedMidRoundState =
 
 
 type Msg
-    = GameTick Tick MidRoundState
+    = SpawnTick SpawnState MidRoundState
+    | GameTick Tick MidRoundState
     | ButtonUsed ButtonDirection Button
-    | SpawnTick SpawnState MidRoundState
 
 
 stepSpawnState : Config -> SpawnState -> ( MidRoundState -> GameState, Cmd msg )
@@ -220,11 +220,11 @@ handleUserInteraction direction button model =
         howToModifyRound : Round -> Round
         howToModifyRound =
             case model.appState of
-                InGame (MidRound lastTick ( Live, _ )) ->
-                    recordInteractionBefore (Tick.succ lastTick)
-
                 InGame (PreRound _ ( Live, _ )) ->
                     recordInteractionBefore firstUpdateTick
+
+                InGame (MidRound lastTick ( Live, _ )) ->
+                    recordInteractionBefore (Tick.succ lastTick)
 
                 _ ->
                     identity
@@ -249,14 +249,14 @@ subscriptions model =
             InMenu Lobby _ ->
                 Sub.none
 
-            InGame (PostRound _) ->
-                Sub.none
-
             InGame (PreRound spawnState plannedMidRoundState) ->
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
             InGame (MidRound lastTick midRoundState) ->
                 Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
+
+            InGame (PostRound _) ->
+                Sub.none
 
             InMenu GameOver _ ->
                 Sub.none

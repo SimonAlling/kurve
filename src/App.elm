@@ -6,8 +6,8 @@ import Random
 
 
 type AppState
-    = InGame GameState
-    | InMenu MenuState Random.Seed
+    = InMenu MenuState Random.Seed
+    | InGame GameState
 
 
 modifyGameState : (GameState -> GameState) -> AppState -> AppState
