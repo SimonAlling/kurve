@@ -110,6 +110,9 @@
         document.addEventListener("contextmenu", event => {
             event.preventDefault()
         });
+        window.addEventListener("blur", () => {
+            app.ports.focusLost.send(null)
+        })
     </script>
 
 </body>

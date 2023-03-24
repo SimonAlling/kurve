@@ -1,4 +1,4 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
@@ -6,9 +6,10 @@ import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, h
 import Config exposing (Config)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
+import GUI.PauseOverlay exposing (pauseOverlay)
 import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
-import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
@@ -29,6 +30,9 @@ type alias Model =
     , config : Config
     , players : AllPlayers
     }
+
+
+port focusLost : (() -> msg) -> Sub msg
 
 
 init : () -> ( Model, Cmd Msg )
@@ -53,11 +57,12 @@ startRound model midRoundState =
 
 newRoundGameStateAndCmd : Config -> MidRoundState -> ( GameState, Cmd msg )
 newRoundGameStateAndCmd config plannedMidRoundState =
-    ( Spawning
-        { kurvesLeft = Tuple.second plannedMidRoundState |> .kurves |> .alive
-        , ticksLeft = config.spawn.numberOfFlickerTicks
-        }
-        plannedMidRoundState
+    ( Active NotPaused <|
+        Spawning
+            { kurvesLeft = Tuple.second plannedMidRoundState |> .kurves |> .alive
+            , ticksLeft = config.spawn.numberOfFlickerTicks
+            }
+            plannedMidRoundState
     , clearEverything
     )
 
@@ -66,6 +71,7 @@ type Msg
     = SpawnTick SpawnState MidRoundState
     | GameTick Tick MidRoundState
     | ButtonUsed ButtonDirection Button
+    | FocusLost
 
 
 stepSpawnState : Config -> SpawnState -> ( MidRoundState -> GameState, Cmd msg )
@@ -73,7 +79,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
     case kurvesLeft of
         [] ->
             -- All Kurves have spawned.
-            ( Moving <| Tick.genesis, Cmd.none )
+            ( Active NotPaused << Moving Tick.genesis, Cmd.none )
 
         spawning :: waiting ->
             let
@@ -85,12 +91,20 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
                     else
                         { kurvesLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
-            ( Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.kurves.thickness )
+            ( Active NotPaused << Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.kurves.thickness )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ pressedButtons } as model) =
     case msg of
+        FocusLost ->
+            case model.appState of
+                InGame (Active _ s) ->
+                    ( { model | appState = InGame (Active Paused s) }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
         SpawnTick spawnState plannedMidRoundState ->
             stepSpawnState model.config spawnState
                 |> Tuple.mapFirst (\makeGameState -> { model | appState = InGame <| makeGameState plannedMidRoundState })
@@ -126,7 +140,7 @@ update msg ({ pressedButtons } as model) =
                         RoundOver newCurrentRound
 
                     else
-                        Moving tick <| modifyRound (always newCurrentRound) midRoundState
+                        Active NotPaused <| Moving tick <| modifyRound (always newCurrentRound) midRoundState
             in
             ( { model | appState = InGame newGameState }
             , [ headDrawingCmd model.config.kurves.thickness newKurves.alive
@@ -185,6 +199,14 @@ update msg ({ pressedButtons } as model) =
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
 
+                InGame (Active Paused s) ->
+                    case button of
+                        Key "Space" ->
+                            ( { model | appState = InGame (Active NotPaused s) }, Cmd.none )
+
+                        _ ->
+                            ( handleUserInteraction Down button model, Cmd.none )
+
                 InMenu GameOver seed ->
                     case button of
                         Key "Space" ->
@@ -220,10 +242,10 @@ handleUserInteraction direction button model =
         howToModifyRound : Round -> Round
         howToModifyRound =
             case model.appState of
-                InGame (Spawning _ ( Live, _ )) ->
+                InGame (Active _ (Spawning _ ( Live, _ ))) ->
                     recordInteractionBefore firstUpdateTick
 
-                InGame (Moving lastTick ( Live, _ )) ->
+                InGame (Active _ (Moving lastTick ( Live, _ ))) ->
                     recordInteractionBefore (Tick.succ lastTick)
 
                 _ ->
@@ -249,11 +271,14 @@ subscriptions model =
             InMenu Lobby _ ->
                 Sub.none
 
-            InGame (Spawning spawnState plannedMidRoundState) ->
+            InGame (Active NotPaused (Spawning spawnState plannedMidRoundState)) ->
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
-            InGame (Moving lastTick midRoundState) ->
+            InGame (Active NotPaused (Moving lastTick midRoundState)) ->
                 Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
+
+            InGame (Active Paused _) ->
+                Sub.none
 
             InGame (RoundOver _) ->
                 Sub.none
@@ -261,6 +286,7 @@ subscriptions model =
             InMenu GameOver _ ->
                 Sub.none
         )
+            :: focusLost (always FocusLost)
             :: inputSubscriptions ButtonUsed
 
 
@@ -299,6 +325,7 @@ view model =
                             , Attr.class "overlay"
                             ]
                             []
+                        , pauseOverlay gameState
                         ]
                     , scoreboard gameState model.players
                     ]
