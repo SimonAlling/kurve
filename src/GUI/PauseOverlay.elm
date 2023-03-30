@@ -1,4 +1,4 @@
-module GUI.PauseOverlay exposing (..)
+module GUI.PauseOverlay exposing (pauseOverlay)
 
 import Color
 import GUI.Text
