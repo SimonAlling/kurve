@@ -1,6 +1,7 @@
 module GUI.Dialogs exposing (overlay)
 
 import Color
+import Cycle
 import Dialog
 import GUI.Text
 import Game exposing (GameState(..))
@@ -13,30 +14,46 @@ overlay : (Dialog.Option -> msg) -> GameState -> Html msg
 overlay makeMsg gameState =
     div [ Attr.class "overlay", Attr.class "dialogOverlay" ] <|
         case gameState of
-            PostRound _ (Dialog.Open selectedOption) ->
-                List.singleton <| confirm makeMsg "Really quit?" selectedOption
+            PostRound _ (Dialog.Open dialogOpenState) ->
+                List.singleton <| confirm makeMsg "Really quit?" dialogOpenState
 
             _ ->
                 []
 
 
-confirm : (Dialog.Option -> msg) -> String -> Dialog.Option -> Html msg
-confirm makeMsg question selectedOption =
+confirm : (Dialog.Option -> msg) -> String -> Dialog.OpenState -> Html msg
+confirm makeMsg question dialogOpenState =
     let
-        optionButton : Dialog.Option -> String -> Html msg
-        optionButton option label =
-            button (onClick (makeMsg option) :: focusedIf selectedOption option) (smallWhiteText label)
+        optionButton : Bool -> Dialog.Option -> Html msg
+        optionButton focused option =
+            button (onClick (makeMsg option) :: focusedIf focused) (smallWhiteText (optionLabel option))
     in
-    div [ Attr.class "dialog" ]
-        [ p [] (smallWhiteText question)
-        , optionButton Dialog.Confirm "Yes"
-        , optionButton Dialog.Cancel "No"
-        ]
+    div [ Attr.class "dialog" ] <|
+        p []
+            (smallWhiteText question)
+            :: (dialogOpenState
+                    |> Cycle.map3
+                        ( optionButton False
+                        , optionButton True
+                        , optionButton False
+                        )
+                    |> Cycle.toList
+               )
 
 
-focusedIf : Dialog.Option -> Dialog.Option -> List (Attribute msg)
-focusedIf a b =
-    if a == b then
+optionLabel : Dialog.Option -> String
+optionLabel option =
+    case option of
+        Dialog.Confirm ->
+            "Yes"
+
+        Dialog.Cancel ->
+            "No"
+
+
+focusedIf : Bool -> List (Attribute msg)
+focusedIf focused =
+    if focused then
         [ Attr.class "focused" ]
 
     else

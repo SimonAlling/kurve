@@ -1,9 +1,15 @@
-module Dialog exposing (Option(..), State(..))
+module Dialog exposing (OpenState, Option(..), State(..))
+
+import Cycle exposing (Cycle)
 
 
 type State
-    = Open Option
+    = Open OpenState
     | NotOpen
+
+
+type alias OpenState =
+    Cycle Option
 
 
 type Option

@@ -4,6 +4,7 @@ import App exposing (AppState(..), modifyGameState)
 import Browser
 import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Config exposing (Config)
+import Cycle
 import Dialog
 import GUI.Dialogs
 import GUI.EndScreen exposing (endScreen)
@@ -175,7 +176,7 @@ update msg ({ pressedButtons } as model) =
                                 Key "Escape" ->
                                     -- Quitting after the final round is not allowed in the original game.
                                     if not gameIsOver then
-                                        ( { model | appState = InGame (PostRound finishedRound (Dialog.Open Dialog.Cancel)) }, Cmd.none )
+                                        ( { model | appState = InGame (PostRound finishedRound (Dialog.Open (Cycle.from ( [ Dialog.Confirm ], Dialog.Cancel, [] )))) }, Cmd.none )
 
                                     else
                                         ( handleUserInteraction Down button model, Cmd.none )
@@ -190,8 +191,11 @@ update msg ({ pressedButtons } as model) =
                                 _ ->
                                     ( handleUserInteraction Down button model, Cmd.none )
 
-                        Dialog.Open selectedOption ->
+                        Dialog.Open dialogOpenState ->
                             let
+                                ( _, selectedOption, _ ) =
+                                    dialogOpenState
+
                                 cancel : ( Model, Cmd msg )
                                 cancel =
                                     ( { model | appState = InGame (PostRound finishedRound Dialog.NotOpen) }, Cmd.none )
@@ -200,9 +204,9 @@ update msg ({ pressedButtons } as model) =
                                 confirm =
                                     goToLobby finishedRound.seed model
 
-                                select : Dialog.Option -> ( Model, Cmd msg )
-                                select option =
-                                    ( { model | appState = InGame (PostRound finishedRound (Dialog.Open option)) }, Cmd.none )
+                                moveFocus : (Cycle.Cycle Dialog.Option -> Cycle.Cycle Dialog.Option) -> ( Model, Cmd msg )
+                                moveFocus f =
+                                    ( { model | appState = InGame (PostRound finishedRound <| Dialog.Open (f dialogOpenState)) }, Cmd.none )
                             in
                             case ( button, selectedOption ) of
                                 ( Key "Escape", _ ) ->
@@ -221,10 +225,10 @@ update msg ({ pressedButtons } as model) =
                                     confirm
 
                                 ( Key "ArrowLeft", _ ) ->
-                                    select Dialog.Confirm
+                                    moveFocus Cycle.previous
 
                                 ( Key "ArrowRight", _ ) ->
-                                    select Dialog.Cancel
+                                    moveFocus Cycle.next
 
                                 ( Key "Tab", _ ) ->
                                     let
@@ -232,12 +236,13 @@ update msg ({ pressedButtons } as model) =
                                         isShift =
                                             Set.member "ShiftLeft" model.pressedButtons || Set.member "ShiftRight" model.pressedButtons
                                     in
-                                    select <|
-                                        if isShift then
-                                            Dialog.Confirm
+                                    moveFocus
+                                        (if isShift then
+                                            Cycle.previous
 
-                                        else
-                                            Dialog.Cancel
+                                         else
+                                            Cycle.next
+                                        )
 
                                 _ ->
                                     ( handleUserInteraction Down button model, Cmd.none )
