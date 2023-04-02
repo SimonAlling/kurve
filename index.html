@@ -90,7 +90,8 @@
                 ||
                 (event.metaKey && event.key === "r") // Cmd + R on macOS 👀
             )
-            if (!isDeveloperCommand) {
+            if (document.getElementById("elm-root").hasAttribute("data-prevent-default") && !isDeveloperCommand) {
+                console.warn("PREVENTING")
                 event.preventDefault()
             }
             if (!event.repeat) {

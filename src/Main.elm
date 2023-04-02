@@ -295,20 +295,27 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
+    let
+        preventDefaultAttrs =
+            if shouldPreventDefault model.appState then
+                [ Attr.attribute "data-prevent-default" "" ]
+
+            else
+                []
+    in
     case model.appState of
         InMenu Lobby _ ->
-            elmRoot [] [ lobby model.players ]
+            elmRoot preventDefaultAttrs [ lobby model.players ]
 
         InMenu GameOver _ ->
-            elmRoot [] [ endScreen model.players ]
+            elmRoot preventDefaultAttrs [ endScreen model.players ]
 
         InMenu SplashScreen _ ->
-            elmRoot [] [ splashScreen ]
+            elmRoot preventDefaultAttrs [ splashScreen ]
 
         InGame gameState ->
             elmRoot
-                [ Attr.class "in-game"
-                ]
+                (Attr.class "in-game" :: preventDefaultAttrs)
                 [ div
                     [ Attr.id "wrapper"
                     ]
@@ -328,7 +335,7 @@ view model =
                             , Attr.class "overlay"
                             ]
                             []
-                        , confirmQuitDialog gameState
+                        , confirmQuitDialog ChooseDialogOption gameState
                         ]
                     , scoreboard gameState model.players
                     ]
@@ -338,6 +345,16 @@ view model =
 elmRoot : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 elmRoot attrs =
     div (Attr.id "elm-root" :: attrs)
+
+
+shouldPreventDefault : AppState -> Bool
+shouldPreventDefault appState =
+    case appState of
+        InGame (PostRound _ DialogOpen) ->
+            False
+
+        _ ->
+            True
 
 
 main : Program () Model Msg

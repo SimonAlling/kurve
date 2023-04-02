@@ -118,6 +118,11 @@ $minWidthForCenteredCanvas: (
     mask-size: auto 100%;
 }
 
+dialog {
+    background-color: black;
+    color: white;
+}
+
 .dialog {
     z-index: 100;
 }
@@ -130,8 +135,9 @@ button {
     height: 32px;
     cursor: pointer;
 
-    &.focused {
+    &:focus {
         border-color: white;
+        outline: none;
     }
 
     &:hover {
