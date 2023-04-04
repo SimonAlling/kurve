@@ -4,7 +4,7 @@ import App exposing (AppState(..), modifyGameState)
 import Browser
 import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Config exposing (Config)
-import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
+import GUI.ConfirmQuitDialog exposing (confirmQuitDialog, focusCancelButton)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
 import GUI.Scoreboard exposing (scoreboard)
@@ -175,7 +175,7 @@ update msg ({ pressedButtons } as model) =
                                 Key "Escape" ->
                                     -- Quitting after the final round is not allowed in the original game.
                                     if not gameIsOver then
-                                        ( { model | appState = InGame (PostRound finishedRound DialogOpen) }, Cmd.none )
+                                        ( { model | appState = InGame (PostRound finishedRound DialogOpen) }, focusCancelButton NoOp )
 
                                     else
                                         ( handleUserInteraction Down button model, Cmd.none )
