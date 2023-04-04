@@ -2,8 +2,10 @@ module Main exposing (main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
+import Browser.Dom
 import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Config exposing (Config)
+import Console
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog, focusCancelButton)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
@@ -68,7 +70,7 @@ type Msg
     | ButtonUsed ButtonDirection Button
     | SpawnTick SpawnState MidRoundState
     | ChooseDialogOption DialogOption
-    | NoOp
+    | Focus (Result Browser.Dom.Error ())
 
 
 stepSpawnState : Config -> SpawnState -> ( MidRoundState -> GameState, Cmd msg )
@@ -175,7 +177,7 @@ update msg ({ pressedButtons } as model) =
                                 Key "Escape" ->
                                     -- Quitting after the final round is not allowed in the original game.
                                     if not gameIsOver then
-                                        ( { model | appState = InGame (PostRound finishedRound DialogOpen) }, focusCancelButton NoOp )
+                                        ( { model | appState = InGame (PostRound finishedRound DialogOpen) }, focusCancelButton Focus )
 
                                     else
                                         ( handleUserInteraction Down button model, Cmd.none )
@@ -225,8 +227,13 @@ update msg ({ pressedButtons } as model) =
                 _ ->
                     ( model, Cmd.none )
 
-        NoOp ->
-            ( model, Cmd.none )
+        Focus result ->
+            case result of
+                Result.Ok _ ->
+                    ( model, Cmd.none )
+
+                Result.Err (Browser.Dom.NotFound id) ->
+                    ( model, Console.error <| "Cannot focus DOM node with ID '" ++ id ++ "' because it was not found." )
 
 
 gameOver : Random.Seed -> Model -> ( Model, Cmd msg )

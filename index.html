@@ -82,6 +82,8 @@
             }
         })
 
+        app.ports.error.subscribe(console.error)
+
         document.addEventListener("keydown", event => {
             const isDeveloperCommand = (
                 ["F5", "F12"].includes(event.key)

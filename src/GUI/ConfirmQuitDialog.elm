@@ -32,6 +32,6 @@ confirmButtonID =
     "confirm-quit-button-cancel"
 
 
-focusCancelButton : msg -> Cmd msg
-focusCancelButton msg =
-    Task.attempt (always msg) (Browser.Dom.focus confirmButtonID)
+focusCancelButton : (Result Browser.Dom.Error () -> msg) -> Cmd msg
+focusCancelButton f =
+    Task.attempt f (Browser.Dom.focus confirmButtonID)
