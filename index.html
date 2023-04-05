@@ -92,7 +92,7 @@
                 ||
                 (event.metaKey && event.key === "r") // Cmd + R on macOS 👀
             )
-            const elmIsHandlingInputs = document.getElementById("elm-root").hasAttribute("data-prevent-default");
+            const elmIsHandlingInputs = document.getElementById("elm-root").hasAttribute("data-elm-is-handling-keyboard-input");
             if (elmIsHandlingInputs && !isDeveloperCommand) {
                 event.preventDefault()
             }

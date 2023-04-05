@@ -305,7 +305,7 @@ view model =
     let
         preventDefaultAttrs =
             if shouldPreventDefault model.appState then
-                [ Attr.attribute "data-prevent-default" "" ]
+                [ Attr.attribute "data-elm-is-handling-keyboard-input" "" ]
 
             else
                 []
