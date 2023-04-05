@@ -92,7 +92,8 @@
                 ||
                 (event.metaKey && event.key === "r") // Cmd + R on macOS 👀
             )
-            if (document.getElementById("elm-root").hasAttribute("data-prevent-default") && !isDeveloperCommand) {
+            const elmIsHandlingInputs = document.getElementById("elm-root").hasAttribute("data-prevent-default");
+            if (elmIsHandlingInputs && !isDeveloperCommand) {
                 event.preventDefault()
             }
             if (!event.repeat) {
