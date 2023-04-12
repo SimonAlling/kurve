@@ -62,6 +62,12 @@
             }
         }
 
+        app.ports.drawPixel.subscribe(([ x, y ]) => {
+            console.warn("draw")
+            const context_main = getCanvasContext("canvas_main");
+            drawSquare(context_main, { position: { leftEdge: x, topEdge: y }, thickness: 1, color: "white" });
+        });
+
         app.ports.render.subscribe(squares => {
             const context_main = getCanvasContext("canvas_main");
             for (const square of squares) {

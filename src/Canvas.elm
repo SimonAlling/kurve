@@ -1,10 +1,13 @@
-port module Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
+port module Canvas exposing (bodyDrawingCmd, clearEverything, drawPixel, drawSpawnIfAndOnlyIf, headDrawingCmd)
 
 import Color exposing (Color)
 import Types.Kurve exposing (Kurve)
 import Types.Thickness as Thickness exposing (Thickness)
 import Util exposing (maxSafeInteger)
 import World exposing (DrawingPosition)
+
+
+port drawPixel : ( Int, Int ) -> Cmd msg
 
 
 port render : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg

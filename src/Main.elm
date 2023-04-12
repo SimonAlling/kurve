@@ -3,7 +3,7 @@ port module Main exposing (main)
 import App exposing (AppState(..), modifyGameState)
 import Browser
 import Browser.Dom
-import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
+import Canvas exposing (bodyDrawingCmd, clearEverything, drawPixel, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Color
 import Config exposing (Config)
 import Console
@@ -18,6 +18,7 @@ import Html exposing (Html, button, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Menu exposing (MenuState(..))
+import OccupiedPixels exposing (occupiedPixelsSomeTicksBeforeDeath)
 import Players exposing (AllPlayers, atLeastOneIsParticipating, everyoneLeaves, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves, roundIsOver)
@@ -84,7 +85,7 @@ init _ =
                                     ]
                                 , dead = []
                                 }
-                          , occupiedPixels = Set.empty
+                          , occupiedPixels = occupiedPixelsSomeTicksBeforeDeath
                           , history =
                                 { initialState =
                                     { seedAfterSpawn = Random.initialSeed 0
@@ -100,7 +101,7 @@ init _ =
       , config = Config.default
       , players = initialPlayers
       }
-    , Cmd.none
+    , Set.toList occupiedPixelsSomeTicksBeforeDeath |> List.map drawPixel |> Cmd.batch
     )
 
 
