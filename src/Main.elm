@@ -4,6 +4,7 @@ import App exposing (AppState(..), modifyGameState)
 import Browser
 import Browser.Dom
 import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
+import Color
 import Config exposing (Config)
 import Console
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog, focusCancelButton)
@@ -22,7 +23,9 @@ import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves, roundIsOver)
 import Set exposing (Set)
 import Time
-import Types.Tick as Tick exposing (Tick)
+import Types.Angle exposing (Angle(..))
+import Types.Kurve exposing (HoleStatus(..))
+import Types.Tick as Tick exposing (Tick(..))
 import Types.Tickrate as Tickrate
 import Util exposing (isEven)
 
@@ -41,7 +44,59 @@ port focusLost : (() -> msg) -> Sub msg
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedButtons = Set.empty
-      , appState = InMenu SplashScreen (Random.initialSeed 1337)
+      , appState =
+            InGame
+                (Active NotPaused
+                    (Moving (Tick.fromInt 253)
+                        ( Live
+                        , { kurves =
+                                { alive =
+                                    [ { color = Color.red
+                                      , id = 0
+                                      , controls = ( Set.empty, Set.empty ) -- `Set` is exactly what we want here; `String` is not, but since Elm doesn't support user-defined typeclass instances, we have to make do with a type that already is `comparable`.
+                                      , state =
+                                            { position = ( 457.8580653691902, 134.64524119325907 )
+                                            , direction = Angle 0.2300466500795746
+                                            , holeStatus = Unholy 176
+                                            }
+                                      , stateAtSpawn =
+                                            { position = ( 0, 0 )
+                                            , direction = Angle 0
+                                            , holeStatus = Unholy 0
+                                            }
+                                      , reversedInteractions = []
+                                      }
+                                    , { color = Color.green
+                                      , id = 3
+                                      , controls = ( Set.empty, Set.empty ) -- `Set` is exactly what we want here; `String` is not, but since Elm doesn't support user-defined typeclass instances, we have to make do with a type that already is `comparable`.
+                                      , state =
+                                            { position = ( 465.4771331137527, 190.11293146673222 )
+                                            , direction = Angle -1.3224984934361976
+                                            , holeStatus = Unholy 70
+                                            }
+                                      , stateAtSpawn =
+                                            { position = ( 0, 0 )
+                                            , direction = Angle 0
+                                            , holeStatus = Unholy 0
+                                            }
+                                      , reversedInteractions = []
+                                      }
+                                    ]
+                                , dead = []
+                                }
+                          , occupiedPixels = Set.empty
+                          , history =
+                                { initialState =
+                                    { seedAfterSpawn = Random.initialSeed 0
+                                    , spawnedKurves = []
+                                    , pressedButtons = Set.empty
+                                    }
+                                }
+                          , seed = Random.initialSeed 0
+                          }
+                        )
+                    )
+                )
       , config = Config.default
       , players = initialPlayers
       }
