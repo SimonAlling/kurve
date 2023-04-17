@@ -71,7 +71,7 @@
 
         app.ports.renderOverlay.subscribe(squares => {
             const canvas_overlay = document.getElementById("canvas_overlay");
-            clearRectangleIfCanvasExists(canvas_overlay, { x: 0, y: 0, width: Number.MAX_SAFE_INTEGER, height: Number.MAX_SAFE_INTEGER });
+            clearRectangleIfCanvasExists(canvas_overlay, { x: 0, y: 0, width: canvas_overlay?.width, height: canvas_overlay?.height }); // Very large numbers don't work; see the commit that added this comment.
             for (const square of squares) {
                 drawSquare(canvas_overlay, square);
             }
