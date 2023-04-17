@@ -46,39 +46,34 @@
     <script>
         const app = Elm.Main.init({ node: document.getElementById("elm-node") });
 
-        function getCanvasContext(id) {
-            const canvas = document.getElementById(id);
-            return canvas === null ? null : canvas.getContext("2d");
-        }
-
-        function drawSquare(context, { position: { leftEdge, topEdge }, thickness, color }) {
+        function drawSquare(canvas, { position: { leftEdge, topEdge }, thickness, color }) {
+            const context = canvas.getContext("2d");
             context.fillStyle = color;
             context.fillRect(leftEdge, topEdge, thickness, thickness);
         }
 
-        function clearRectangleIfCanvasExists(context, { x, y, width, height }) {
-            if (context !== null) {
-                context.clearRect(x, y, width, height);
-            }
+        function clearRectangleIfCanvasExists(canvas, { x, y, width, height }) {
+            const context = canvas?.getContext("2d");
+            context?.clearRect(x, y, width, height);
         }
 
         app.ports.render.subscribe(squares => {
-            const context_main = getCanvasContext("canvas_main");
+            const canvas_main = document.getElementById("canvas_main");
             for (const square of squares) {
-                drawSquare(context_main, square);
+                drawSquare(canvas_main, square);
             }
         });
 
         app.ports.clear.subscribe(rectangle => {
-            const context_main = getCanvasContext("canvas_main");
-            clearRectangleIfCanvasExists(context_main, rectangle);
+            const canvas_main = document.getElementById("canvas_main");
+            clearRectangleIfCanvasExists(canvas_main, rectangle);
         });
 
         app.ports.renderOverlay.subscribe(squares => {
-            const context_overlay = getCanvasContext("canvas_overlay");
-            clearRectangleIfCanvasExists(context_overlay, { x: 0, y: 0, width: Number.MAX_SAFE_INTEGER, height: Number.MAX_SAFE_INTEGER });
+            const canvas_overlay = document.getElementById("canvas_overlay");
+            clearRectangleIfCanvasExists(canvas_overlay, { x: 0, y: 0, width: Number.MAX_SAFE_INTEGER, height: Number.MAX_SAFE_INTEGER });
             for (const square of squares) {
-                drawSquare(context_overlay, square);
+                drawSquare(canvas_overlay, square);
             }
         });
 
