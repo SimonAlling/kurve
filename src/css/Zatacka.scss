@@ -124,7 +124,9 @@ $minWidthForCenteredCanvas: (
     display: inline-block;
     -webkit-mask-image: url("../resources/fonts/bgi-default-8x8.png");
     mask-image: url("../resources/fonts/bgi-default-8x8.png");
+    -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat; // Prevents unsupported characters from wrapping around and being displayed as some seemingly arbitrary supported character.
+    -webkit-mask-size: auto 100%;
     mask-size: auto 100%;
 }
 
