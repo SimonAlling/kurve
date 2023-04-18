@@ -63,7 +63,7 @@ newRoundGameStateAndCmd config plannedMidRoundState =
             , ticksLeft = config.spawn.numberOfFlickerTicks
             }
             plannedMidRoundState
-    , clearEverything
+    , clearEverything config.world
     )
 
 
