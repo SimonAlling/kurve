@@ -2,7 +2,7 @@ port module Main exposing (main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
-import Color
+import Color exposing (Color)
 import Config exposing (Config)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
@@ -119,7 +119,7 @@ update msg ({ pressedButtons, appState } as model) =
                         ( _, currentRound ) =
                             midRoundState
 
-                        ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
+                        ( newKurvesGenerator, newOccupiedPixels ) =
                             List.foldr
                                 (checkIndividualKurve model.config tick)
                                 ( Random.constant
@@ -127,7 +127,6 @@ update msg ({ pressedButtons, appState } as model) =
                                     , dead = currentRound.kurves.dead -- Dead Kurves, however, will not spring to life again.
                                     }
                                 , currentRound.occupiedPixels
-                                , []
                                 )
                                 currentRound.kurves.alive
 
@@ -312,16 +311,17 @@ view model =
 
         InGame gameState ->
             let
-                pixelToRenderable : ( Int, Int ) -> Renderable
-                pixelToRenderable ( x, y ) =
+                pixelToRenderable : ( ( Int, Int ), Color ) -> Renderable
+                pixelToRenderable ( ( x, y ), color ) =
                     Render.shape rectangle { color = Color.green, position = ( toFloat x, toFloat y ), size = ( 1, 1 ) }
 
                 renderable : List Renderable
                 renderable =
                     case gameState of
                         Active _ (Moving _ ( _, { occupiedPixels } )) ->
-                            occupiedPixels |> Set.toList |> List.map pixelToRenderable
+                            occupiedPixels.list |> List.map pixelToRenderable
 
+                        -- occupiedPixels.list |> List.head |> Maybe.map (pixelToRenderable >> List.singleton) |> Maybe.withDefault []
                         _ ->
                             []
             in
@@ -340,7 +340,7 @@ view model =
                             , size = ( 559, 480 )
                             }
                             (renderable
-                                ++ [ pixelToRenderable ( 10, 10 ), pixelToRenderable ( 10, 470 ), pixelToRenderable ( 549, 10 ), pixelToRenderable ( 549, 470 ) ]
+                             -- ++ [ pixelToRenderable ( 10, 10 ), pixelToRenderable ( 10, 470 ), pixelToRenderable ( 549, 10 ), pixelToRenderable ( 549, 470 ) ]
                             )
                         , pauseOverlay gameState
                         ]

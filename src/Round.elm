@@ -1,5 +1,6 @@
-module Round exposing (Kurves, Round, RoundHistory, RoundInitialState, initialStateForReplaying, modifyAlive, modifyDead, modifyKurves, roundIsOver, scores)
+module Round exposing (Kurves, OccupiedPixels, Round, RoundHistory, RoundInitialState, initialStateForReplaying, modifyAlive, modifyDead, modifyKurves, roundIsOver, scores)
 
+import Color exposing (Color)
 import Dict exposing (Dict)
 import Random
 import Set exposing (Set)
@@ -9,9 +10,13 @@ import Types.Score exposing (Score(..))
 import World exposing (Pixel)
 
 
+type alias OccupiedPixels =
+    { set : Set Pixel, list : List ( Pixel, Color ) }
+
+
 type alias Round =
     { kurves : Kurves
-    , occupiedPixels : Set Pixel
+    , occupiedPixels : OccupiedPixels
     , history : RoundHistory
     , seed : Random.Seed
     }
