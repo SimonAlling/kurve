@@ -13,7 +13,7 @@ overlay : (Dialog.Option -> msg) -> GameState -> Html msg
 overlay makeMsg gameState =
     div [ Attr.class "overlay", Attr.class "dialogOverlay" ] <|
         case gameState of
-            PostRound _ (Dialog.Open selectedOption) ->
+            RoundOver _ (Dialog.Open selectedOption) ->
                 List.singleton <| confirm makeMsg "Really quit?" selectedOption
 
             _ ->

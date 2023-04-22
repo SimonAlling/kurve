@@ -1,4 +1,4 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
@@ -8,9 +8,10 @@ import Dialog
 import GUI.Dialogs
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
+import GUI.PauseOverlay exposing (pauseOverlay)
 import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
-import Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
@@ -31,6 +32,9 @@ type alias Model =
     , config : Config
     , players : AllPlayers
     }
+
+
+port focusLost : (() -> msg) -> Sub msg
 
 
 init : () -> ( Model, Cmd Msg )
@@ -55,20 +59,22 @@ startRound model midRoundState =
 
 newRoundGameStateAndCmd : Config -> MidRoundState -> ( GameState, Cmd msg )
 newRoundGameStateAndCmd config plannedMidRoundState =
-    ( PreRound
-        { kurvesLeft = Tuple.second plannedMidRoundState |> .kurves |> .alive
-        , ticksLeft = config.spawn.numberOfFlickerTicks
-        }
-        plannedMidRoundState
-    , clearEverything
+    ( Active NotPaused <|
+        Spawning
+            { kurvesLeft = Tuple.second plannedMidRoundState |> .kurves |> .alive
+            , ticksLeft = config.spawn.numberOfFlickerTicks
+            }
+            plannedMidRoundState
+    , clearEverything config.world
     )
 
 
 type Msg
-    = GameTick Tick MidRoundState
+    = SpawnTick SpawnState MidRoundState
+    | GameTick Tick MidRoundState
     | ButtonUsed ButtonDirection Button
-    | SpawnTick SpawnState MidRoundState
     | DialogChoiceMade Dialog.Option
+    | FocusLost
 
 
 stepSpawnState : Config -> SpawnState -> ( MidRoundState -> GameState, Cmd msg )
@@ -76,7 +82,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
     case kurvesLeft of
         [] ->
             -- All Kurves have spawned.
-            ( MidRound <| Tick.genesis, Cmd.none )
+            ( Active NotPaused << Moving Tick.genesis, Cmd.none )
 
         spawning :: waiting ->
             let
@@ -88,12 +94,20 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
                     else
                         { kurvesLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
-            ( PreRound newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.kurves.thickness )
+            ( Active NotPaused << Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.kurves.thickness )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ pressedButtons } as model) =
     case msg of
+        FocusLost ->
+            case model.appState of
+                InGame (Active _ s) ->
+                    ( { model | appState = InGame (Active Paused s) }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
         SpawnTick spawnState plannedMidRoundState ->
             stepSpawnState model.config spawnState
                 |> Tuple.mapFirst (\makeGameState -> { model | appState = InGame <| makeGameState plannedMidRoundState })
@@ -126,10 +140,10 @@ update msg ({ pressedButtons } as model) =
                 newGameState : GameState
                 newGameState =
                     if roundIsOver newKurves then
-                        PostRound newCurrentRound Dialog.NotOpen
+                        RoundOver newCurrentRound Dialog.NotOpen
 
                     else
-                        MidRound tick <| modifyRound (always newCurrentRound) midRoundState
+                        Active NotPaused <| Moving tick <| modifyRound (always newCurrentRound) midRoundState
             in
             ( { model | appState = InGame newGameState }
             , [ headDrawingCmd model.config.kurves.thickness newKurves.alive
@@ -156,7 +170,7 @@ update msg ({ pressedButtons } as model) =
                         _ ->
                             ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, Cmd.none )
 
-                InGame (PostRound finishedRound dialogState) ->
+                InGame (RoundOver finishedRound dialogState) ->
                     case dialogState of
                         Dialog.NotOpen ->
                             let
@@ -175,7 +189,7 @@ update msg ({ pressedButtons } as model) =
                                 Key "Escape" ->
                                     -- Quitting after the final round is not allowed in the original game.
                                     if not gameIsOver then
-                                        ( { model | appState = InGame (PostRound finishedRound (Dialog.Open Dialog.Cancel)) }, Cmd.none )
+                                        ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open Dialog.Cancel)) }, Cmd.none )
 
                                     else
                                         ( handleUserInteraction Down button model, Cmd.none )
@@ -194,7 +208,7 @@ update msg ({ pressedButtons } as model) =
                             let
                                 cancel : ( Model, Cmd msg )
                                 cancel =
-                                    ( { model | appState = InGame (PostRound finishedRound Dialog.NotOpen) }, Cmd.none )
+                                    ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, Cmd.none )
 
                                 confirm : ( Model, Cmd msg )
                                 confirm =
@@ -202,7 +216,7 @@ update msg ({ pressedButtons } as model) =
 
                                 select : Dialog.Option -> ( Model, Cmd msg )
                                 select option =
-                                    ( { model | appState = InGame (PostRound finishedRound (Dialog.Open option)) }, Cmd.none )
+                                    ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open option)) }, Cmd.none )
                             in
                             case ( button, selectedOption ) of
                                 ( Key "Escape", _ ) ->
@@ -242,6 +256,14 @@ update msg ({ pressedButtons } as model) =
                                 _ ->
                                     ( handleUserInteraction Down button model, Cmd.none )
 
+                InGame (Active Paused s) ->
+                    case button of
+                        Key "Space" ->
+                            ( { model | appState = InGame (Active NotPaused s) }, Cmd.none )
+
+                        _ ->
+                            ( handleUserInteraction Down button model, Cmd.none )
+
                 InMenu GameOver seed ->
                     case button of
                         Key "Space" ->
@@ -258,13 +280,13 @@ update msg ({ pressedButtons } as model) =
 
         DialogChoiceMade option ->
             case model.appState of
-                InGame (PostRound finishedRound (Dialog.Open _)) ->
+                InGame (RoundOver finishedRound (Dialog.Open _)) ->
                     case option of
                         Dialog.Confirm ->
                             goToLobby finishedRound.seed model
 
                         Dialog.Cancel ->
-                            ( { model | appState = InGame (PostRound finishedRound Dialog.NotOpen) }, Cmd.none )
+                            ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -290,11 +312,11 @@ handleUserInteraction direction button model =
         howToModifyRound : Round -> Round
         howToModifyRound =
             case model.appState of
-                InGame (MidRound lastTick ( Live, _ )) ->
-                    recordInteractionBefore (Tick.succ lastTick)
-
-                InGame (PreRound _ ( Live, _ )) ->
+                InGame (Active _ (Spawning _ ( Live, _ ))) ->
                     recordInteractionBefore firstUpdateTick
+
+                InGame (Active _ (Moving lastTick ( Live, _ ))) ->
+                    recordInteractionBefore (Tick.succ lastTick)
 
                 _ ->
                     identity
@@ -319,18 +341,22 @@ subscriptions model =
             InMenu Lobby _ ->
                 Sub.none
 
-            InGame (PostRound _ _) ->
-                Sub.none
-
-            InGame (PreRound spawnState plannedMidRoundState) ->
+            InGame (Active NotPaused (Spawning spawnState plannedMidRoundState)) ->
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
-            InGame (MidRound lastTick midRoundState) ->
+            InGame (Active NotPaused (Moving lastTick midRoundState)) ->
                 Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
+
+            InGame (Active Paused _) ->
+                Sub.none
+
+            InGame (RoundOver _ _) ->
+                Sub.none
 
             InMenu GameOver _ ->
                 Sub.none
         )
+            :: focusLost (always FocusLost)
             :: inputSubscriptions ButtonUsed
 
 
@@ -370,6 +396,7 @@ view model =
                             ]
                             []
                         , GUI.Dialogs.overlay DialogChoiceMade gameState
+                        , pauseOverlay gameState
                         ]
                     , scoreboard gameState model.players
                     ]

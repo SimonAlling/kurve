@@ -2,7 +2,7 @@ module GUI.Scoreboard exposing (scoreboard)
 
 import Dict
 import GUI.Digits
-import Game exposing (GameState(..))
+import Game exposing (ActiveGameState(..), GameState(..))
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Players exposing (AllPlayers, includeResultsFrom, participating)
@@ -19,13 +19,13 @@ scoreboard gameState players =
         , Attr.class "canvasHeight"
         ]
         (case gameState of
-            PreRound _ ( _, round ) ->
+            Active _ (Spawning _ ( _, round )) ->
                 content players round
 
-            MidRound _ ( _, round ) ->
+            Active _ (Moving _ ( _, round )) ->
                 content players round
 
-            PostRound round _ ->
+            RoundOver round _ ->
                 content players round
         )
 

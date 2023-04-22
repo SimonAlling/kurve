@@ -44,43 +44,38 @@
 
     <script src="./build/ZATACKA.js"></script>
     <script>
-        const app = Elm.Main.init({ node: document.getElementById("elm-node") })
+        const app = Elm.Main.init({ node: document.getElementById("elm-node") });
 
-        function getCanvasContext(id) {
-            const canvas = document.getElementById(id)
-            return canvas === null ? null : canvas.getContext("2d")
+        function drawSquare(canvas, { position: { leftEdge, topEdge }, thickness, color }) {
+            const context = canvas.getContext("2d");
+            context.fillStyle = color;
+            context.fillRect(leftEdge, topEdge, thickness, thickness);
         }
 
-        function drawSquare(context, { position: { leftEdge, topEdge }, thickness, color }) {
-            context.fillStyle = color
-            context.fillRect(leftEdge, topEdge, thickness, thickness)
-        }
-
-        function clearRectangleIfCanvasExists(context, { x, y, width, height }) {
-            if (context !== null) {
-                context.clearRect(x, y, width, height)
-            }
+        function clearRectangleIfCanvasExists(canvas, { x, y, width, height }) {
+            const context = canvas?.getContext("2d");
+            context?.clearRect(x, y, width, height);
         }
 
         app.ports.render.subscribe(squares => {
-            const context_main = getCanvasContext("canvas_main")
+            const canvas_main = document.getElementById("canvas_main");
             for (const square of squares) {
-                drawSquare(context_main, square)
+                drawSquare(canvas_main, square);
             }
-        })
+        });
 
         app.ports.clear.subscribe(rectangle => {
-            const context_main = getCanvasContext("canvas_main")
-            clearRectangleIfCanvasExists(context_main, rectangle)
-        })
+            const canvas_main = document.getElementById("canvas_main");
+            clearRectangleIfCanvasExists(canvas_main, rectangle);
+        });
 
         app.ports.renderOverlay.subscribe(squares => {
-            const context_overlay = getCanvasContext("canvas_overlay")
-            clearRectangleIfCanvasExists(context_overlay, { x: 0, y: 0, width: Number.MAX_SAFE_INTEGER, height: Number.MAX_SAFE_INTEGER })
+            const canvas_overlay = document.getElementById("canvas_overlay");
+            clearRectangleIfCanvasExists(canvas_overlay, { x: 0, y: 0, width: canvas_overlay?.width, height: canvas_overlay?.height }); // Very large numbers don't work; see the commit that added this comment.
             for (const square of squares) {
-                drawSquare(context_overlay, square)
+                drawSquare(canvas_overlay, square);
             }
-        })
+        });
 
         document.addEventListener("keydown", event => {
             const isDeveloperCommand = (
@@ -89,26 +84,29 @@
                 (event.ctrlKey && event.key === "r") // Ctrl + R
                 ||
                 (event.metaKey && event.key === "r") // Cmd + R on macOS 👀
-            )
+            );
             if (!isDeveloperCommand) {
-                event.preventDefault()
+                event.preventDefault();
             }
             if (!event.repeat) {
-                app.ports.onKeydown.send(event.code)
+                app.ports.onKeydown.send(event.code);
             }
-        })
+        });
         document.addEventListener("keyup", event => {
             // Traditionally we never prevented default on keyup.
-            app.ports.onKeyup.send(event.code)
-        })
+            app.ports.onKeyup.send(event.code);
+        });
         document.addEventListener("mousedown", event => {
-            app.ports.onMousedown.send(event.button)
-        })
+            app.ports.onMousedown.send(event.button);
+        });
         document.addEventListener("mouseup", event => {
-            app.ports.onMouseup.send(event.button)
-        })
+            app.ports.onMouseup.send(event.button);
+        });
         document.addEventListener("contextmenu", event => {
-            event.preventDefault()
+            event.preventDefault();
+        });
+        window.addEventListener("blur", () => {
+            app.ports.focusLost.send(null);
         });
     </script>
 

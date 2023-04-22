@@ -1,4 +1,4 @@
-module Game exposing (GameState(..), MidRoundState, MidRoundStateVariant(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+module Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 
 import Color exposing (Color)
 import Config exposing (Config, KurveConfig)
@@ -21,19 +21,28 @@ import World exposing (DrawingPosition, Pixel, Position, distanceToTicks)
 
 
 type GameState
-    = MidRound Tick MidRoundState
-    | PostRound Round Dialog.State
-    | PreRound SpawnState MidRoundState
+    = Active Paused ActiveGameState
+    | RoundOver Round Dialog.State
+
+
+type Paused
+    = Paused
+    | NotPaused
+
+
+type ActiveGameState
+    = Spawning SpawnState MidRoundState
+    | Moving Tick MidRoundState
 
 
 modifyMidRoundState : (MidRoundState -> MidRoundState) -> GameState -> GameState
 modifyMidRoundState f gameState =
     case gameState of
-        MidRound t midRoundState ->
-            MidRound t <| f midRoundState
+        Active p (Moving t midRoundState) ->
+            Active p <| Moving t <| f midRoundState
 
-        PreRound s midRoundState ->
-            PreRound s <| f midRoundState
+        Active p (Spawning s midRoundState) ->
+            Active p <| Spawning s <| f midRoundState
 
         _ ->
             gameState
