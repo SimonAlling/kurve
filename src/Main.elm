@@ -2,7 +2,10 @@ port module Main exposing (main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
-import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
+import Canvas exposing (..)
+import Canvas.Settings exposing (..)
+import CanvasOLD exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
+import Color
 import Config exposing (Config)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
@@ -10,7 +13,7 @@ import GUI.PauseOverlay exposing (pauseOverlay)
 import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
 import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
-import Html exposing (Html, canvas, div)
+import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Menu exposing (MenuState(..))
@@ -303,6 +306,18 @@ view model =
             elmRoot [] [ splashScreen ]
 
         InGame gameState ->
+            let
+                pixelToRenderable ( x, y ) =
+                    rect ( toFloat x, toFloat y ) 1 1
+
+                renderable =
+                    case gameState of
+                        Active _ (Moving _ ( _, { occupiedPixels } )) ->
+                            shapes [ fill Color.white ] (occupiedPixels |> Set.toList |> List.map pixelToRenderable)
+
+                        _ ->
+                            shapes [] []
+            in
             elmRoot
                 [ Attr.class "in-game"
                 ]
@@ -312,19 +327,7 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ canvas
-                            [ Attr.id "canvas_main"
-                            , Attr.width 559
-                            , Attr.height 480
-                            ]
-                            []
-                        , canvas
-                            [ Attr.id "canvas_overlay"
-                            , Attr.width 559
-                            , Attr.height 480
-                            , Attr.class "overlay"
-                            ]
-                            []
+                        [ Canvas.toHtml ( 559, 480 ) [] [ renderable ]
                         , pauseOverlay gameState
                         ]
                     , scoreboard gameState model.players

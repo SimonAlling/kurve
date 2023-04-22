@@ -20,5 +20,8 @@
   },
   "optionalDependencies": {
     "run-pty": "^4.0.3"
+  },
+  "dependencies": {
+    "elm-canvas": "^2.2.4"
   }
 }
