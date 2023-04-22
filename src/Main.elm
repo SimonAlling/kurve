@@ -328,10 +328,12 @@ view model =
                         ]
                         [ Game.render
                             { time = 0
-                            , camera = Camera.fixedHeight 480 ( 0, 0 )
+                            , camera = Camera.fixedHeight 480 ( 280, 240 )
                             , size = ( 559, 480 )
                             }
-                            renderable
+                            (renderable
+                                ++ [ pixelToRenderable ( 10, 10 ), pixelToRenderable ( 10, 470 ), pixelToRenderable ( 549, 10 ), pixelToRenderable ( 549, 470 ) ]
+                            )
                         , pauseOverlay gameState
                         ]
                     , scoreboard gameState model.players
