@@ -2,7 +2,7 @@ port module Main exposing (main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
-import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
+import Color
 import Config exposing (Config)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
@@ -10,6 +10,9 @@ import GUI.PauseOverlay exposing (pauseOverlay)
 import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
 import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+import Game.TwoD as Game
+import Game.TwoD.Camera as Camera exposing (Camera)
+import Game.TwoD.Render as Render exposing (Renderable, circle, rectangle)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
@@ -63,7 +66,7 @@ newRoundGameStateAndCmd config plannedMidRoundState =
             , ticksLeft = config.spawn.numberOfFlickerTicks
             }
             plannedMidRoundState
-    , clearEverything config.world
+    , Cmd.none
     )
 
 
@@ -91,7 +94,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
                     else
                         { kurvesLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
-            ( Active NotPaused << Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.kurves.thickness )
+            ( Active NotPaused << Spawning newSpawnState, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -143,10 +146,7 @@ update msg ({ pressedButtons } as model) =
                         Active NotPaused <| Moving tick <| modifyRound (always newCurrentRound) midRoundState
             in
             ( { model | appState = InGame newGameState }
-            , [ headDrawingCmd model.config.kurves.thickness newKurves.alive
-              , bodyDrawingCmd model.config.kurves.thickness newColoredDrawingPositions
-              ]
-                |> Cmd.batch
+            , Cmd.none
             )
 
         ButtonUsed Down button ->
@@ -303,6 +303,20 @@ view model =
             elmRoot [] [ splashScreen ]
 
         InGame gameState ->
+            let
+                pixelToRenderable : ( Int, Int ) -> Renderable
+                pixelToRenderable ( x, y ) =
+                    Render.shape rectangle { color = Color.green, position = ( toFloat x, toFloat y ), size = ( 1, 1 ) }
+
+                renderable : List Renderable
+                renderable =
+                    case gameState of
+                        Active _ (Moving _ ( _, { occupiedPixels } )) ->
+                            occupiedPixels |> Set.toList |> List.map pixelToRenderable
+
+                        _ ->
+                            []
+            in
             elmRoot
                 [ Attr.class "in-game"
                 ]
@@ -312,19 +326,12 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ canvas
-                            [ Attr.id "canvas_main"
-                            , Attr.width 559
-                            , Attr.height 480
-                            ]
-                            []
-                        , canvas
-                            [ Attr.id "canvas_overlay"
-                            , Attr.width 559
-                            , Attr.height 480
-                            , Attr.class "overlay"
-                            ]
-                            []
+                        [ Game.render
+                            { time = 0
+                            , camera = Camera.fixedHeight 480 ( 0, 0 )
+                            , size = ( 559, 480 )
+                            }
+                            renderable
                         , pauseOverlay gameState
                         ]
                     , scoreboard gameState model.players
