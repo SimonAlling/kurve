@@ -4,7 +4,6 @@ import App exposing (AppState(..), modifyGameState)
 import Browser
 import Canvas exposing (..)
 import Canvas.Settings exposing (..)
-import CanvasOLD exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Color
 import Config exposing (Config)
 import GUI.EndScreen exposing (endScreen)
@@ -24,7 +23,6 @@ import Set exposing (Set)
 import Time
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
-import Util exposing (isEven)
 
 
 type alias Model =
@@ -66,7 +64,7 @@ newRoundGameStateAndCmd config plannedMidRoundState =
             , ticksLeft = config.spawn.numberOfFlickerTicks
             }
             plannedMidRoundState
-    , clearEverything config.world
+    , Cmd.none
     )
 
 
@@ -94,7 +92,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
                     else
                         { kurvesLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
-            ( Active NotPaused << Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.kurves.thickness )
+            ( Active NotPaused << Spawning newSpawnState, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -114,7 +112,7 @@ update msg ({ pressedButtons } as model) =
 
         GameTick tick (( _, currentRound ) as midRoundState) ->
             let
-                ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
+                ( newKurvesGenerator, newOccupiedPixels, _ ) =
                     List.foldr
                         (checkIndividualKurve model.config tick)
                         ( Random.constant
@@ -146,8 +144,8 @@ update msg ({ pressedButtons } as model) =
                         Active NotPaused <| Moving tick <| modifyRound (always newCurrentRound) midRoundState
             in
             ( { model | appState = InGame newGameState }
-            , [ headDrawingCmd model.config.kurves.thickness newKurves.alive
-              , bodyDrawingCmd model.config.kurves.thickness newColoredDrawingPositions
+            , [ Cmd.none
+              , Cmd.none
               ]
                 |> Cmd.batch
             )
