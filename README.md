@@ -4,7 +4,7 @@ The aim of this project is to create an Elm remake of the original *Achtung, die
 
 ```shell
 npm ci
-npm run watch
+npm start
 ```
 
 Then visit <http://localhost:8000> in your browser.
