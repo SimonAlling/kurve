@@ -75,7 +75,7 @@ type Msg
     | GameTick Tick MidRoundState
     | ButtonUsed ButtonDirection Button
     | FocusLost
-    | Focus (Result Browser.Dom.Error ())
+    | DomNodeFocused (Result Browser.Dom.Error ())
     | ChooseDialogOption DialogOption
 
 
@@ -191,7 +191,7 @@ update msg ({ pressedButtons } as model) =
                                 Key "Escape" ->
                                     -- Quitting after the final round is not allowed in the original game.
                                     if not gameIsOver then
-                                        ( { model | appState = InGame (RoundOver finishedRound DialogOpen) }, focusCancelButton Focus )
+                                        ( { model | appState = InGame (RoundOver finishedRound DialogOpen) }, focusCancelButton DomNodeFocused )
 
                                     else
                                         ( handleUserInteraction Down button model, Cmd.none )
@@ -249,7 +249,7 @@ update msg ({ pressedButtons } as model) =
                 _ ->
                     ( model, Cmd.none )
 
-        Focus result ->
+        DomNodeFocused result ->
             case result of
                 Result.Ok _ ->
                     ( model, Cmd.none )
