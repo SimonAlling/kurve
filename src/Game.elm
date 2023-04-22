@@ -2,6 +2,7 @@ module Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoun
 
 import Color exposing (Color)
 import Config exposing (Config, KurveConfig)
+import Dict exposing (Dict)
 import Players exposing (ParticipatingPlayers)
 import Random
 import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead)
@@ -105,7 +106,7 @@ prepareRoundHelper config initialState =
         round : Round
         round =
             { kurves = { alive = theKurves, dead = [] }
-            , occupiedPixels = List.foldr (.state >> .position >> World.drawingPosition thickness >> World.pixelsToOccupy thickness >> Set.union) Set.empty theKurves
+            , occupiedPixels = List.foldr (\kurve -> kurve.state |> .position |> World.drawingPosition thickness |> World.pixelsToOccupy thickness |> pixelSetToDict kurve.color |> Dict.union) Dict.empty theKurves
             , history =
                 { initialState = initialState
                 }
@@ -113,6 +114,11 @@ prepareRoundHelper config initialState =
             }
     in
     round
+
+
+pixelSetToDict : Color -> Set Pixel -> Dict Pixel Color
+pixelSetToDict color =
+    Set.foldl (\pixel dict -> Dict.insert pixel color dict) Dict.empty
 
 
 {-| Takes the distance between the _edges_ of two drawn squares and returns the distance between their _centers_.
@@ -126,10 +132,10 @@ checkIndividualKurve :
     Config
     -> Tick
     -> Kurve
-    -> ( Random.Generator Kurves, Set World.Pixel, List ( Color, DrawingPosition ) )
+    -> ( Random.Generator Kurves, Dict World.Pixel Color, List ( Color, DrawingPosition ) )
     ->
         ( Random.Generator Kurves
-        , Set World.Pixel
+        , Dict World.Pixel Color
         , List ( Color, DrawingPosition )
         )
 checkIndividualKurve config tick kurve ( checkedKurvesGenerator, occupiedPixels, coloredDrawingPositions ) =
@@ -141,10 +147,10 @@ checkIndividualKurve config tick kurve ( checkedKurvesGenerator, occupiedPixels,
         ( newKurveDrawingPositions, checkedKurveGenerator, fate ) =
             updateKurve config turningState occupiedPixels kurve
 
-        occupiedPixelsAfterCheckingThisKurve : Set Pixel
+        occupiedPixelsAfterCheckingThisKurve : Dict Pixel Color
         occupiedPixelsAfterCheckingThisKurve =
             List.foldr
-                (World.pixelsToOccupy config.kurves.thickness >> Set.union)
+                (World.pixelsToOccupy config.kurves.thickness >> pixelSetToDict kurve.color >> Dict.union)
                 occupiedPixels
                 newKurveDrawingPositions
 
@@ -167,7 +173,12 @@ checkIndividualKurve config tick kurve ( checkedKurvesGenerator, occupiedPixels,
     )
 
 
-evaluateMove : Config -> DrawingPosition -> List DrawingPosition -> Set Pixel -> Kurve.HoleStatus -> ( List DrawingPosition, Kurve.Fate )
+colorTODO : Color
+colorTODO =
+    Color.white
+
+
+evaluateMove : Config -> DrawingPosition -> List DrawingPosition -> Dict Pixel Color -> Kurve.HoleStatus -> ( List DrawingPosition, Kurve.Fate )
 evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
     let
         checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Kurve.Fate )
@@ -197,7 +208,7 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
 
                         dies : Bool
                         dies =
-                            drawsOutsideWorld || (not <| Set.isEmpty <| Set.intersect theHitbox occupiedPixels)
+                            drawsOutsideWorld || (not <| Dict.isEmpty <| Dict.intersect (pixelSetToDict colorTODO theHitbox) occupiedPixels)
                     in
                     if dies then
                         ( checked, Kurve.Dies )
@@ -236,7 +247,7 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
 
-updateKurve : Config -> TurningState -> Set Pixel -> Kurve -> ( List DrawingPosition, Random.Generator Kurve, Kurve.Fate )
+updateKurve : Config -> TurningState -> Dict Pixel Color -> Kurve -> ( List DrawingPosition, Random.Generator Kurve, Kurve.Fate )
 updateKurve config turningState occupiedPixels kurve =
     let
         distanceTraveledSinceLastTick : Float

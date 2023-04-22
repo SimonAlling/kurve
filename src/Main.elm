@@ -2,8 +2,9 @@ port module Main exposing (main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
-import Color
+import Color exposing (Color)
 import Config exposing (Config)
+import Dict
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
 import GUI.PauseOverlay exposing (pauseOverlay)
@@ -11,9 +12,9 @@ import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
 import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Game.TwoD as Game
-import Game.TwoD.Camera as Camera exposing (Camera)
-import Game.TwoD.Render as Render exposing (Renderable, circle, rectangle)
-import Html exposing (Html, canvas, div)
+import Game.TwoD.Camera as Camera
+import Game.TwoD.Render as Render exposing (Renderable, rectangle)
+import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Menu exposing (MenuState(..))
@@ -24,7 +25,6 @@ import Set exposing (Set)
 import Time
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
-import Util exposing (isEven)
 
 
 type alias Model =
@@ -304,15 +304,15 @@ view model =
 
         InGame gameState ->
             let
-                pixelToRenderable : ( Int, Int ) -> Renderable
-                pixelToRenderable ( x, y ) =
-                    Render.shape rectangle { color = Color.green, position = ( toFloat x, toFloat y ), size = ( 1, 1 ) }
+                pixelToRenderable : Color -> ( Int, Int ) -> Renderable
+                pixelToRenderable color ( x, y ) =
+                    Render.shape rectangle { color = color, position = ( toFloat x, toFloat y ), size = ( 1, 1 ) }
 
                 renderable : List Renderable
                 renderable =
                     case gameState of
                         Active _ (Moving _ ( _, { occupiedPixels } )) ->
-                            occupiedPixels |> Set.toList |> List.map pixelToRenderable
+                            occupiedPixels |> Dict.foldr (\pixel color b -> pixelToRenderable color pixel :: b) []
 
                         _ ->
                             []
@@ -332,7 +332,7 @@ view model =
                             , size = ( 559, 480 )
                             }
                             (renderable
-                                ++ [ pixelToRenderable ( 10, 10 ), pixelToRenderable ( 10, 470 ), pixelToRenderable ( 549, 10 ), pixelToRenderable ( 549, 470 ) ]
+                                ++ [ pixelToRenderable Color.white ( 10, 10 ), pixelToRenderable Color.white ( 10, 470 ), pixelToRenderable Color.white ( 549, 10 ), pixelToRenderable Color.white ( 549, 470 ) ]
                             )
                         , pauseOverlay gameState
                         ]
