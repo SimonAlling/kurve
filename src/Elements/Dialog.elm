@@ -1,7 +1,7 @@
 module Elements.Dialog exposing (dialog, open)
 
 import Html exposing (Attribute, Html)
-import Html.Attributes
+import Html.Attributes as Attr
 
 
 dialog : List (Attribute msg) -> List (Html msg) -> Html msg
@@ -11,4 +11,4 @@ dialog =
 
 open : Attribute msg
 open =
-    Html.Attributes.attribute "open" ""
+    Attr.attribute "open" ""
