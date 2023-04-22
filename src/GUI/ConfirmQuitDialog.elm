@@ -12,7 +12,7 @@ import Task
 confirmQuitDialog : (DialogOption -> msg) -> GameState -> Html msg
 confirmQuitDialog f gameState =
     let
-        op =
+        attributes =
             case gameState of
                 RoundOver _ DialogOpen ->
                     [ open ]
@@ -20,7 +20,7 @@ confirmQuitDialog f gameState =
                 _ ->
                     []
     in
-    dialog op
+    dialog attributes
         [ text "Really quit?"
         , button [ onClick (f Confirm) ] [ text "Yes" ]
         , button [ onClick (f Cancel), Attr.id confirmButtonID ] [ text "No" ]
