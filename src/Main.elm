@@ -69,7 +69,7 @@ newRoundGameStateAndCmd config plannedMidRoundState =
 
 type Msg
     = SpawnTick SpawnState MidRoundState
-    | GameTick Tick MidRoundState
+    | GameTick Tick
     | ButtonUsed ButtonDirection Button
     | FocusLost
 
@@ -95,7 +95,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ pressedButtons } as model) =
+update msg ({ pressedButtons, appState } as model) =
     case msg of
         FocusLost ->
             case model.appState of
@@ -109,45 +109,53 @@ update msg ({ pressedButtons } as model) =
             stepSpawnState model.config spawnState
                 |> Tuple.mapFirst (\makeGameState -> { model | appState = InGame <| makeGameState plannedMidRoundState })
 
-        GameTick tick (( _, currentRound ) as midRoundState) ->
-            let
-                ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
-                    List.foldr
-                        (checkIndividualKurve model.config tick)
-                        ( Random.constant
-                            { alive = [] -- We start with the empty list because the new one we'll create may not include all the Kurves from the old one.
-                            , dead = currentRound.kurves.dead -- Dead Kurves, however, will not spring to life again.
+        GameTick tick ->
+            case appState of
+                InGame (Active NotPaused (Moving _ midRoundState)) ->
+                    let
+                        ( _, currentRound ) =
+                            midRoundState
+
+                        ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
+                            List.foldr
+                                (checkIndividualKurve model.config tick)
+                                ( Random.constant
+                                    { alive = [] -- We start with the empty list because the new one we'll create may not include all the Kurves from the old one.
+                                    , dead = currentRound.kurves.dead -- Dead Kurves, however, will not spring to life again.
+                                    }
+                                , currentRound.occupiedPixels
+                                , []
+                                )
+                                currentRound.kurves.alive
+
+                        ( newKurves, newSeed ) =
+                            Random.step newKurvesGenerator currentRound.seed
+
+                        newCurrentRound : Round
+                        newCurrentRound =
+                            { kurves = newKurves
+                            , occupiedPixels = newOccupiedPixels
+                            , history = currentRound.history
+                            , seed = newSeed
                             }
-                        , currentRound.occupiedPixels
-                        , []
-                        )
-                        currentRound.kurves.alive
 
-                ( newKurves, newSeed ) =
-                    Random.step newKurvesGenerator currentRound.seed
+                        newGameState : GameState
+                        newGameState =
+                            if roundIsOver newKurves then
+                                RoundOver newCurrentRound
 
-                newCurrentRound : Round
-                newCurrentRound =
-                    { kurves = newKurves
-                    , occupiedPixels = newOccupiedPixels
-                    , history = currentRound.history
-                    , seed = newSeed
-                    }
+                            else
+                                Active NotPaused <| Moving tick <| modifyRound (always newCurrentRound) midRoundState
+                    in
+                    ( { model | appState = InGame newGameState }
+                    , [ headDrawingCmd model.config.kurves.thickness newKurves.alive
+                      , bodyDrawingCmd model.config.kurves.thickness newColoredDrawingPositions
+                      ]
+                        |> Cmd.batch
+                    )
 
-                newGameState : GameState
-                newGameState =
-                    if roundIsOver newKurves then
-                        RoundOver newCurrentRound
-
-                    else
-                        Active NotPaused <| Moving tick <| modifyRound (always newCurrentRound) midRoundState
-            in
-            ( { model | appState = InGame newGameState }
-            , [ headDrawingCmd model.config.kurves.thickness newKurves.alive
-              , bodyDrawingCmd model.config.kurves.thickness newColoredDrawingPositions
-              ]
-                |> Cmd.batch
-            )
+                _ ->
+                    ( model, Cmd.none )
 
         ButtonUsed Down button ->
             case model.appState of
@@ -274,8 +282,8 @@ subscriptions model =
             InGame (Active NotPaused (Spawning spawnState plannedMidRoundState)) ->
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
-            InGame (Active NotPaused (Moving lastTick midRoundState)) ->
-                Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
+            InGame (Active NotPaused (Moving lastTick _)) ->
+                Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick))
 
             InGame (Active Paused _) ->
                 Sub.none
