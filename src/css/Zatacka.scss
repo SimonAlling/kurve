@@ -143,6 +143,11 @@ $minWidthForCenteredCanvas: (
     padding: $padding;
     background-color: black;
 
+    p {
+        line-height: 1em;
+        margin-bottom: 8px;
+    }
+
     button {
         width: calc(50% - $padding/2);
         min-width: 64px;
