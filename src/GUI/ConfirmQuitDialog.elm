@@ -1,4 +1,4 @@
-module GUI.Dialogs exposing (overlay)
+module GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 
 import Color
 import Dialog
@@ -9,23 +9,23 @@ import Html.Attributes as Attr
 import Html.Events exposing (onClick)
 
 
-overlay : (Dialog.Option -> msg) -> GameState -> Html msg
-overlay makeMsg gameState =
+confirmQuitDialog : (Dialog.Option -> msg) -> GameState -> Html msg
+confirmQuitDialog makeMsg gameState =
     case gameState of
         RoundOver _ (Dialog.Open selectedOption) ->
             div
                 [ Attr.class "overlay"
                 , Attr.class "dialogOverlay"
                 ]
-                [ confirm makeMsg "Really quit?" selectedOption
+                [ dialogBox makeMsg "Really quit?" selectedOption
                 ]
 
         _ ->
             Html.text ""
 
 
-confirm : (Dialog.Option -> msg) -> String -> Dialog.Option -> Html msg
-confirm makeMsg question selectedOption =
+dialogBox : (Dialog.Option -> msg) -> String -> Dialog.Option -> Html msg
+dialogBox makeMsg question selectedOption =
     let
         optionButton : Dialog.Option -> String -> Html msg
         optionButton option label =

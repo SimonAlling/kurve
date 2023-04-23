@@ -5,7 +5,7 @@ import Browser
 import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Config exposing (Config)
 import Dialog
-import GUI.Dialogs
+import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
 import GUI.PauseOverlay exposing (pauseOverlay)
@@ -396,7 +396,7 @@ view model =
                             ]
                             []
                         , pauseOverlay gameState
-                        , GUI.Dialogs.overlay DialogChoiceMade gameState
+                        , confirmQuitDialog DialogChoiceMade gameState
                         ]
                     , scoreboard gameState model.players
                     ]
