@@ -11,13 +11,17 @@ import Html.Events exposing (onClick)
 
 overlay : (Dialog.Option -> msg) -> GameState -> Html msg
 overlay makeMsg gameState =
-    div [ Attr.class "overlay", Attr.class "dialogOverlay" ] <|
-        case gameState of
-            RoundOver _ (Dialog.Open selectedOption) ->
-                List.singleton <| confirm makeMsg "Really quit?" selectedOption
+    case gameState of
+        RoundOver _ (Dialog.Open selectedOption) ->
+            div
+                [ Attr.class "overlay"
+                , Attr.class "dialogOverlay"
+                ]
+                [ confirm makeMsg "Really quit?" selectedOption
+                ]
 
-            _ ->
-                []
+        _ ->
+            Html.text ""
 
 
 confirm : (Dialog.Option -> msg) -> String -> Dialog.Option -> Html msg
