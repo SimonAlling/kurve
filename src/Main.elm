@@ -395,8 +395,8 @@ view model =
                             , Attr.class "overlay"
                             ]
                             []
-                        , GUI.Dialogs.overlay DialogChoiceMade gameState
                         , pauseOverlay gameState
+                        , GUI.Dialogs.overlay DialogChoiceMade gameState
                         ]
                     , scoreboard gameState model.players
                     ]
