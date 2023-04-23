@@ -289,6 +289,7 @@ update msg ({ pressedButtons } as model) =
                             ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, Cmd.none )
 
                 _ ->
+                    -- Not expected to ever happen.
                     ( model, Cmd.none )
 
 
