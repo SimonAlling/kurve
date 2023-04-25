@@ -150,7 +150,7 @@ $minWidthForCenteredCanvas: (
 
     button {
         width: calc(50% - $padding/2);
-        min-width: 64px;
+        min-width: 96px;
     }
 
     button:not(:last-child) {
