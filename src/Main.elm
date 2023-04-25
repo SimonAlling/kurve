@@ -327,7 +327,8 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ canvas
+                        [ Canvas.toHtml ( 559, 480 ) [] [ renderable ]
+                        , canvas
                             [ Attr.id "canvas_main"
                             , Attr.width 559
                             , Attr.height 480
