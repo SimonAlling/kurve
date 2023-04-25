@@ -25,7 +25,7 @@ scoreboard gameState players =
             Active _ (Moving _ ( _, round )) ->
                 content players round
 
-            RoundOver round ->
+            RoundOver round _ ->
                 content players round
         )
 

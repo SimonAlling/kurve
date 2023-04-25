@@ -4,6 +4,8 @@ import App exposing (AppState(..), modifyGameState)
 import Browser
 import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Config exposing (Config)
+import Dialog
+import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
 import GUI.PauseOverlay exposing (pauseOverlay)
@@ -71,6 +73,7 @@ type Msg
     = SpawnTick SpawnState MidRoundState
     | GameTick Tick MidRoundState
     | ButtonUsed ButtonDirection Button
+    | DialogChoiceMade Dialog.Option
     | FocusLost
 
 
@@ -137,7 +140,7 @@ update msg ({ pressedButtons } as model) =
                 newGameState : GameState
                 newGameState =
                     if roundIsOver newKurves then
-                        RoundOver newCurrentRound
+                        RoundOver newCurrentRound Dialog.NotOpen
 
                     else
                         Active NotPaused <| Moving tick <| modifyRound (always newCurrentRound) midRoundState
@@ -167,37 +170,91 @@ update msg ({ pressedButtons } as model) =
                         _ ->
                             ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, Cmd.none )
 
-                InGame (RoundOver finishedRound) ->
-                    let
-                        newModel : Model
-                        newModel =
-                            { model | players = includeResultsFrom finishedRound model.players }
+                InGame (RoundOver finishedRound dialogState) ->
+                    case dialogState of
+                        Dialog.NotOpen ->
+                            let
+                                newModel : Model
+                                newModel =
+                                    { model | players = includeResultsFrom finishedRound model.players }
 
-                        gameIsOver : Bool
-                        gameIsOver =
-                            newModel.config.game.isGameOver (participating newModel.players)
-                    in
-                    case button of
-                        Key "KeyR" ->
-                            startRound model <| prepareReplayRound model.config (initialStateForReplaying finishedRound)
+                                gameIsOver : Bool
+                                gameIsOver =
+                                    newModel.config.game.isGameOver (participating newModel.players)
+                            in
+                            case button of
+                                Key "KeyR" ->
+                                    startRound model <| prepareReplayRound model.config (initialStateForReplaying finishedRound)
 
-                        Key "Escape" ->
-                            -- Quitting after the final round is not allowed in the original game.
-                            if not gameIsOver then
-                                goToLobby finishedRound.seed model
+                                Key "Escape" ->
+                                    -- Quitting after the final round is not allowed in the original game.
+                                    if not gameIsOver then
+                                        ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open Dialog.Cancel)) }, Cmd.none )
 
-                            else
-                                ( handleUserInteraction Down button model, Cmd.none )
+                                    else
+                                        ( handleUserInteraction Down button model, Cmd.none )
 
-                        Key "Space" ->
-                            if gameIsOver then
-                                gameOver finishedRound.seed newModel
+                                Key "Space" ->
+                                    if gameIsOver then
+                                        gameOver finishedRound.seed newModel
 
-                            else
-                                startRound newModel <| prepareLiveRound newModel.config finishedRound.seed (participating newModel.players) pressedButtons
+                                    else
+                                        startRound newModel <| prepareLiveRound newModel.config finishedRound.seed (participating newModel.players) pressedButtons
 
-                        _ ->
-                            ( handleUserInteraction Down button model, Cmd.none )
+                                _ ->
+                                    ( handleUserInteraction Down button model, Cmd.none )
+
+                        Dialog.Open selectedOption ->
+                            let
+                                cancel : ( Model, Cmd msg )
+                                cancel =
+                                    ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, Cmd.none )
+
+                                confirm : ( Model, Cmd msg )
+                                confirm =
+                                    goToLobby finishedRound.seed model
+
+                                select : Dialog.Option -> ( Model, Cmd msg )
+                                select option =
+                                    ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open option)) }, Cmd.none )
+                            in
+                            case ( button, selectedOption ) of
+                                ( Key "Escape", _ ) ->
+                                    cancel
+
+                                ( Key "Enter", Dialog.Cancel ) ->
+                                    cancel
+
+                                ( Key "Space", Dialog.Cancel ) ->
+                                    cancel
+
+                                ( Key "Enter", Dialog.Confirm ) ->
+                                    confirm
+
+                                ( Key "Space", Dialog.Confirm ) ->
+                                    confirm
+
+                                ( Key "ArrowLeft", _ ) ->
+                                    select Dialog.Confirm
+
+                                ( Key "ArrowRight", _ ) ->
+                                    select Dialog.Cancel
+
+                                ( Key "Tab", _ ) ->
+                                    let
+                                        isShift : Bool
+                                        isShift =
+                                            Set.member "ShiftLeft" model.pressedButtons || Set.member "ShiftRight" model.pressedButtons
+                                    in
+                                    select <|
+                                        if isShift then
+                                            Dialog.Confirm
+
+                                        else
+                                            Dialog.Cancel
+
+                                _ ->
+                                    ( handleUserInteraction Down button model, Cmd.none )
 
                 InGame (Active Paused s) ->
                     case button of
@@ -220,6 +277,20 @@ update msg ({ pressedButtons } as model) =
 
         ButtonUsed Up key ->
             ( handleUserInteraction Up key model, Cmd.none )
+
+        DialogChoiceMade option ->
+            case model.appState of
+                InGame (RoundOver finishedRound (Dialog.Open _)) ->
+                    case option of
+                        Dialog.Confirm ->
+                            goToLobby finishedRound.seed model
+
+                        Dialog.Cancel ->
+                            ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, Cmd.none )
+
+                _ ->
+                    -- Not expected to ever happen.
+                    ( model, Cmd.none )
 
 
 gameOver : Random.Seed -> Model -> ( Model, Cmd msg )
@@ -280,7 +351,7 @@ subscriptions model =
             InGame (Active Paused _) ->
                 Sub.none
 
-            InGame (RoundOver _) ->
+            InGame (RoundOver _ _) ->
                 Sub.none
 
             InMenu GameOver _ ->
@@ -326,6 +397,7 @@ view model =
                             ]
                             []
                         , pauseOverlay gameState
+                        , confirmQuitDialog DialogChoiceMade gameState
                         ]
                     , scoreboard gameState model.players
                     ]

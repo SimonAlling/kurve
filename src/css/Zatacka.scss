@@ -130,6 +130,51 @@ $minWidthForCenteredCanvas: (
     mask-size: auto 100%;
 }
 
+.dialogOverlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.dialog {
+    border: 1px solid white;
+    $padding: 12px;
+    padding: $padding;
+    background-color: black;
+
+    p {
+        line-height: 12px;
+        margin-bottom: 16px;
+    }
+
+    button {
+        width: calc(50% - $padding/2);
+        min-width: 96px;
+    }
+
+    button:not(:last-child) {
+        margin-right: 8px;
+    }
+}
+
+button {
+    background-color: black;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    height: 32px;
+    cursor: pointer;
+
+    &.focused {
+        border-color: white;
+    }
+
+    &:hover {
+        border-color: white;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
 #splashScreen {
     width: $nativeWidth;
     height: $nativeHeight;
