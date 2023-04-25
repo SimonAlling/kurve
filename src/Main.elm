@@ -4,6 +4,7 @@ import App exposing (AppState(..), modifyGameState)
 import Browser
 import Canvas exposing (..)
 import Canvas.Settings exposing (..)
+import CanvasOLD exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
 import Color
 import Config exposing (Config)
 import GUI.EndScreen exposing (endScreen)
@@ -12,7 +13,7 @@ import GUI.PauseOverlay exposing (pauseOverlay)
 import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
 import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
-import Html exposing (Html, div)
+import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Menu exposing (MenuState(..))
@@ -23,6 +24,7 @@ import Set exposing (Set)
 import Time
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
+import Util exposing (isEven)
 
 
 type alias Model =
@@ -64,7 +66,7 @@ newRoundGameStateAndCmd config plannedMidRoundState =
             , ticksLeft = config.spawn.numberOfFlickerTicks
             }
             plannedMidRoundState
-    , Cmd.none
+    , clearEverything config.world
     )
 
 
@@ -92,7 +94,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
                     else
                         { kurvesLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
-            ( Active NotPaused << Spawning newSpawnState, Cmd.none )
+            ( Active NotPaused << Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.kurves.thickness )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -112,7 +114,7 @@ update msg ({ pressedButtons } as model) =
 
         GameTick tick (( _, currentRound ) as midRoundState) ->
             let
-                ( newKurvesGenerator, newOccupiedPixels, _ ) =
+                ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
                     List.foldr
                         (checkIndividualKurve model.config tick)
                         ( Random.constant
@@ -144,8 +146,8 @@ update msg ({ pressedButtons } as model) =
                         Active NotPaused <| Moving tick <| modifyRound (always newCurrentRound) midRoundState
             in
             ( { model | appState = InGame newGameState }
-            , [ Cmd.none
-              , Cmd.none
+            , [ headDrawingCmd model.config.kurves.thickness newKurves.alive
+              , bodyDrawingCmd model.config.kurves.thickness newColoredDrawingPositions
               ]
                 |> Cmd.batch
             )
@@ -325,7 +327,19 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ Canvas.toHtml ( 559, 480 ) [] [ renderable ]
+                        [ canvas
+                            [ Attr.id "canvas_main"
+                            , Attr.width 559
+                            , Attr.height 480
+                            ]
+                            []
+                        , canvas
+                            [ Attr.id "canvas_overlay"
+                            , Attr.width 559
+                            , Attr.height 480
+                            , Attr.class "overlay"
+                            ]
+                            []
                         , pauseOverlay gameState
                         ]
                     , scoreboard gameState model.players
