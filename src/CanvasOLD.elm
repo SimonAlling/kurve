@@ -1,4 +1,4 @@
-port module Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
+port module CanvasOLD exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf)
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)
@@ -13,9 +13,6 @@ port render : List { position : DrawingPosition, thickness : Int, color : String
 port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 
 
-port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
-
-
 bodyDrawingCmd : Thickness -> List ( Color, DrawingPosition ) -> Cmd msg
 bodyDrawingCmd thickness =
     render
@@ -28,24 +25,22 @@ bodyDrawingCmd thickness =
             )
 
 
-headDrawingCmd : Thickness -> List Kurve -> Cmd msg
-headDrawingCmd thickness =
-    renderOverlay
-        << List.map
-            (\kurve ->
-                { position = World.drawingPosition thickness kurve.state.position
-                , thickness = Thickness.toInt thickness
-                , color = Color.toCssString kurve.color
-                }
-            )
+
+-- headDrawingCmd : Thickness -> List Kurve -> Cmd msg
+-- headDrawingCmd thickness =
+--     renderOverlay
+--         << List.map
+--             (\kurve ->
+--                 { position = World.drawingPosition thickness kurve.state.position
+--                 , thickness = Thickness.toInt thickness
+--                 , color = Color.toCssString kurve.color
+--                 }
+--             )
 
 
 clearEverything : WorldConfig -> Cmd msg
 clearEverything { width, height } =
-    Cmd.batch
-        [ renderOverlay []
-        , clear { x = 0, y = 0, width = width, height = height }
-        ]
+    clear { x = 0, y = 0, width = width, height = height }
 
 
 drawSpawnIfAndOnlyIf : Bool -> Kurve -> Thickness -> Cmd msg

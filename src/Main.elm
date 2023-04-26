@@ -2,7 +2,9 @@ port module Main exposing (main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
-import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
+import Canvas
+import Canvas.Settings
+import CanvasOLD exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf)
 import Config exposing (Config)
 import Dialog
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
@@ -21,9 +23,11 @@ import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves, roundIsOver)
 import Set exposing (Set)
 import Time
+import Types.Thickness as Thickness exposing (Thickness(..))
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Util exposing (isEven)
+import World
 
 
 type alias Model =
@@ -146,10 +150,7 @@ update msg ({ pressedButtons } as model) =
                         Active NotPaused <| Moving tick <| modifyRound (always newCurrentRound) midRoundState
             in
             ( { model | appState = InGame newGameState }
-            , [ headDrawingCmd model.config.kurves.thickness newKurves.alive
-              , bodyDrawingCmd model.config.kurves.thickness newColoredDrawingPositions
-              ]
-                |> Cmd.batch
+            , bodyDrawingCmd model.config.kurves.thickness newColoredDrawingPositions
             )
 
         ButtonUsed Down button ->
@@ -374,6 +375,31 @@ view model =
             elmRoot [] [ splashScreen ]
 
         InGame gameState ->
+            let
+                thickness =
+                    Thickness 3
+
+                thickFloat =
+                    Thickness.toInt thickness |> toFloat
+
+                heads : List Canvas.Renderable
+                heads =
+                    case gameState of
+                        Active _ (Moving _ ( _, round )) ->
+                            List.map
+                                (\kurve ->
+                                    let
+                                        rectPos : Canvas.Point
+                                        rectPos =
+                                            World.drawingPosition thickness kurve.state.position |> (\{ leftEdge, topEdge } -> ( toFloat leftEdge, toFloat topEdge ))
+                                    in
+                                    Canvas.shapes [ Canvas.Settings.fill kurve.color ] [ Canvas.rect rectPos thickFloat thickFloat ]
+                                )
+                                round.kurves.alive
+
+                        _ ->
+                            []
+            in
             elmRoot
                 [ Attr.class "in-game"
                 ]
@@ -389,13 +415,12 @@ view model =
                             , Attr.height 480
                             ]
                             []
-                        , canvas
-                            [ Attr.id "canvas_overlay"
-                            , Attr.width 559
-                            , Attr.height 480
-                            , Attr.class "overlay"
+                        , Canvas.toHtml
+                            ( 559, 480 )
+                            [ Attr.class "overlay"
+                            , Attr.id "canvas_overlay"
                             ]
-                            []
+                            (Canvas.clear ( 0, 0 ) 559 480 :: heads)
                         , pauseOverlay gameState
                         , confirmQuitDialog DialogChoiceMade gameState
                         ]
