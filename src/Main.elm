@@ -380,20 +380,27 @@ view model =
                     Thickness 3
 
                 thickFloat =
-                    Thickness.toInt thickness |> toFloat
+                    Thickness.toInt thickness
 
-                heads : List Canvas.Renderable
+                heads : List (Html msg)
                 heads =
                     case gameState of
                         Active _ (Moving _ ( _, round )) ->
                             List.map
                                 (\kurve ->
                                     let
-                                        rectPos : Canvas.Point
-                                        rectPos =
-                                            World.drawingPosition thickness kurve.state.position |> (\{ leftEdge, topEdge } -> ( toFloat leftEdge, toFloat topEdge ))
+                                        { leftEdge, topEdge } =
+                                            World.drawingPosition thickness kurve.state.position
                                     in
-                                    Canvas.shapes [ Canvas.Settings.fill kurve.color ] [ Canvas.rect rectPos thickFloat thickFloat ]
+                                    div
+                                        [ Attr.style "background-color" "white"
+                                        , Attr.style "left" (String.fromInt leftEdge ++ "px")
+                                        , Attr.style "top" (String.fromInt topEdge ++ "px")
+                                        , Attr.style "width" (String.fromInt thickFloat ++ "px")
+                                        , Attr.style "height" (String.fromInt thickFloat ++ "px")
+                                        , Attr.style "position" "absolute"
+                                        ]
+                                        []
                                 )
                                 round.kurves.alive
 
@@ -409,21 +416,17 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ canvas
+                        (canvas
                             [ Attr.id "canvas_main"
                             , Attr.width 559
                             , Attr.height 480
                             ]
                             []
-                        , Canvas.toHtml
-                            ( 559, 480 )
-                            [ Attr.class "overlay"
-                            , Attr.id "canvas_overlay"
-                            ]
-                            (Canvas.clear ( 0, 0 ) 559 480 :: heads)
-                        , pauseOverlay gameState
-                        , confirmQuitDialog DialogChoiceMade gameState
-                        ]
+                            :: heads
+                            ++ [ pauseOverlay gameState
+                               , confirmQuitDialog DialogChoiceMade gameState
+                               ]
+                        )
                     , scoreboard gameState model.players
                     ]
                 ]
