@@ -10,7 +10,7 @@ port render : List { position : DrawingPosition, thickness : Int, color : String
 
 
 type alias DrawingPosition =
-    { leftEdge : Int, topEdge : Int }
+    ()
 
 
 type alias State =
@@ -154,7 +154,7 @@ addStates a b =
 
 renderState : State -> Cmd msg
 renderState state =
-    render [ { position = { leftEdge = round state.x, topEdge = round state.y }, thickness = 5, color = "white" } ]
+    render [ { position = (), thickness = 5, color = "white" } ]
 
 
 computeNewState : State -> Float -> State
