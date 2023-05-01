@@ -1,7 +1,6 @@
 port module Main exposing (main)
 
 import Browser
-import Browser.Events exposing (onAnimationFrame, onAnimationFrameDelta)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Time
