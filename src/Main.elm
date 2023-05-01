@@ -43,7 +43,7 @@ init _ =
 
 
 type Msg
-    = GameTick Time.Posix
+    = GameTick
 
 
 tickrate : number
@@ -57,40 +57,8 @@ dt =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update (GameTick timestamp) model =
+update _ { currentState, previousState, currentTime, accumulator } =
     let
-        -- double newTime = time();
-        newTime =
-            (toFloat <| Time.posixToMillis timestamp) / 1000
-
-        -- double frameTime = newTime - currentTime;
-        -- if ( frameTime > 0.25 )
-        --     frameTime = 0.25;
-        frameTime =
-            min 0.25 (newTime - model.currentTime)
-
-        -- currentTime = newTime;
-        currentTime =
-            newTime
-
-        -- accumulator += frameTime;
-        accumulatorBeforeLoop =
-            model.accumulator + frameTime
-
-        -- while ( accumulator >= dt )
-        -- {
-        --     previousState = currentState;
-        --     integrate( currentState, t, dt );
-        --     t += dt;                                       TODO
-        --     accumulator -= dt;
-        -- }
-        { previousState, currentState, accumulator } =
-            whileLoop
-                { previousState = model.previousState
-                , currentState = model.currentState
-                , accumulator = accumulatorBeforeLoop
-                }
-
         -- State state = currentState * alpha +
         --     previousState * ( 1.0 - alpha );
         stateToRender =
@@ -106,45 +74,14 @@ update (GameTick timestamp) model =
     )
 
 
-type alias WhileLoopData =
-    { previousState : State
-    , currentState : State
-    , accumulator : Float
-    }
-
-
-whileLoop : WhileLoopData -> WhileLoopData
-whileLoop ({ currentState, accumulator } as loopData) =
-    -- while ( accumulator >= dt )
-    if accumulator >= dt then
-        whileLoop
-            { -- previousState = currentState;
-              previousState = currentState
-
-            -- integrate( currentState, t, dt );
-            , currentState = computeNewState currentState dt
-
-            -- accumulator -= dt;
-            , accumulator = accumulator - dt
-            }
-
-    else
-        loopData
-
-
 renderState : State -> Cmd msg
 renderState state =
     render [ { position = (), color = "white" } ]
 
 
-computeNewState : State -> Float -> State
-computeNewState _ _ =
-    ()
-
-
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Time.every (1 / tickrate) GameTick
+    Time.every (1 / tickrate) (always GameTick)
 
 
 view : Model -> Html Msg
