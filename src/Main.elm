@@ -15,19 +15,24 @@ type alias DrawingPosition =
 
 
 type alias Model =
-    { position : { x : Float, y : Float }
+    { currentState : { x : Float, y : Float }
+    , previousState : { x : Float, y : Float }
+    , previousTime : Time.Posix
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { position = { x = 0, y = 100 } }
+    ( { currentState = { x = 0, y = 100 }
+      , previousState = { x = 0, y = 100 }
+      , previousTime = Time.millisToPosix 0
+      }
     , Cmd.none
     )
 
 
 type Msg
-    = GameTick
+    = GameTick Time.Posix
 
 
 tickrate : number
@@ -42,15 +47,22 @@ speed =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    ( { position = { x = model.position.x + (speed / tickrate), y = model.position.y } }
-    , render [ { position = { leftEdge = round model.position.x, topEdge = round model.position.y }, thickness = 5, color = "white" } ]
+update (GameTick newTime) model =
+    let
+        frameTime =
+            Time.posixToMillis newTime - Time.posixToMillis model.previousTime
+    in
+    ( { currentState = { x = model.currentState.x + (speed / tickrate), y = model.currentState.y }
+      , previousState = model.currentState
+      , previousTime = newTime
+      }
+    , render [ { position = { leftEdge = round model.currentState.x, topEdge = round model.currentState.y }, thickness = 5, color = "white" } ]
     )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    onAnimationFrameDelta (always GameTick)
+    Time.every (1 / tickrate) GameTick
 
 
 view : Model -> Html Msg
