@@ -56,12 +56,6 @@ dt =
     0.01
 
 
-speed : number
-speed =
-    -- px per second
-    60
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update (GameTick timestamp) model =
     let
@@ -97,14 +91,10 @@ update (GameTick timestamp) model =
                 , accumulator = accumulatorBeforeLoop
                 }
 
-        -- const double alpha = accumulator / dt;
-        alpha =
-            accumulator / dt
-
         -- State state = currentState * alpha +
         --     previousState * ( 1.0 - alpha );
         stateToRender =
-            addStates (multiplyState alpha currentState) (multiplyState (1.0 - alpha) previousState)
+            currentState
     in
     ( { currentState = currentState
       , previousState = previousState
@@ -140,16 +130,6 @@ whileLoop ({ currentState, accumulator } as loopData) =
 
     else
         loopData
-
-
-multiplyState : Float -> State -> State
-multiplyState _ _ =
-    ()
-
-
-addStates : State -> State -> State
-addStates _ _ =
-    ()
 
 
 renderState : State -> Cmd msg
