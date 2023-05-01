@@ -15,14 +15,13 @@ type alias DrawingPosition =
 
 
 type alias Model =
-    { x : Float
-    , y : Float
+    { position : { x : Float, y : Float }
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { x = 0, y = 100 }
+    ( { position = { x = 0, y = 100 } }
     , Cmd.none
     )
 
@@ -44,8 +43,8 @@ speed =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( { x = model.x + (speed / tickrate), y = model.y }
-    , render [ { position = { leftEdge = round model.x, topEdge = round model.y }, thickness = 5, color = "white" } ]
+    ( { position = { x = model.position.x + (speed / tickrate), y = model.position.y } }
+    , render [ { position = { leftEdge = round model.position.x, topEdge = round model.position.y }, thickness = 5, color = "white" } ]
     )
 
 
