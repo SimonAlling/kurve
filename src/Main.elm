@@ -65,12 +65,12 @@ update _ { currentState, previousState, currentTime, accumulator } =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Time.every (1 / 60) (always GameTick)
 
 
 view : Model -> Html Msg
-view model =
+view _ =
     elmRoot
         []
         [ canvas
