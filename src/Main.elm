@@ -38,7 +38,7 @@ init _ =
       , accumulator = 0
       , stateToRender = initState
       }
-    , Cmd.none
+    , render []
     )
 
 
