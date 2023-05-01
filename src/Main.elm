@@ -1,6 +1,7 @@
 port module Main exposing (main)
 
 import Browser
+import Browser.Events exposing (onAnimationFrame, onAnimationFrameDelta)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Time
@@ -50,7 +51,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Time.every (1000 / tickrate) (always GameTick)
+    onAnimationFrameDelta (always GameTick)
 
 
 view : Model -> Html Msg
