@@ -14,7 +14,7 @@ type alias DrawingPosition =
 
 
 type alias State =
-    { x : Float }
+    ()
 
 
 type alias Model =
@@ -30,7 +30,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     let
         initState =
-            { x = 0 }
+            ()
     in
     ( { currentState = initState
       , previousState = initState
@@ -143,13 +143,13 @@ whileLoop ({ currentState, accumulator } as loopData) =
 
 
 multiplyState : Float -> State -> State
-multiplyState alpha { x } =
-    { x = x * alpha }
+multiplyState _ _ =
+    ()
 
 
 addStates : State -> State -> State
-addStates a b =
-    { x = a.x + b.x }
+addStates _ _ =
+    ()
 
 
 renderState : State -> Cmd msg
@@ -158,8 +158,8 @@ renderState state =
 
 
 computeNewState : State -> Float -> State
-computeNewState { x } dt_ =
-    { x = x + speed * dt_ }
+computeNewState _ _ =
+    ()
 
 
 subscriptions : Model -> Sub Msg
