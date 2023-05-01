@@ -23,10 +23,7 @@
         }
 
         app.ports.render.subscribe(squares => {
-            const canvas_main = document.getElementById("canvas_main");
-            for (const square of squares) {
-                drawSquare(canvas_main, square);
-            }
+            console.warn(squares)
         });
     </script>
 
