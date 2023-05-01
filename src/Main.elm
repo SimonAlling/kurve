@@ -6,7 +6,7 @@ import Html.Attributes as Attr
 import Time
 
 
-port render : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
+port render : List { position : DrawingPosition, color : String } -> Cmd msg
 
 
 type alias DrawingPosition =
@@ -154,7 +154,7 @@ addStates a b =
 
 renderState : State -> Cmd msg
 renderState state =
-    render [ { position = (), thickness = 5, color = "white" } ]
+    render [ { position = (), color = "white" } ]
 
 
 computeNewState : State -> Float -> State

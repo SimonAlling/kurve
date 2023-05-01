@@ -16,10 +16,10 @@
     <script>
         const app = Elm.Main.init({ node: document.getElementById("elm-node") });
 
-        function drawSquare(canvas, { position: { leftEdge, topEdge }, thickness, color }) {
+        function drawSquare(canvas, { position: { leftEdge, topEdge }, color }) {
             const context = canvas.getContext("2d");
             context.fillStyle = color;
-            context.fillRect(leftEdge, topEdge, thickness, thickness);
+            context.fillRect(leftEdge, topEdge, 5, 5);
         }
 
         app.ports.render.subscribe(squares => {
