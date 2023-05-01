@@ -14,10 +14,15 @@ type alias DrawingPosition =
     { leftEdge : Int, topEdge : Int }
 
 
+type alias State =
+    { x : Float, y : Float }
+
+
 type alias Model =
-    { currentState : { x : Float, y : Float }
-    , previousState : { x : Float, y : Float }
-    , previousTime : Time.Posix
+    { currentState : State
+    , previousState : State
+    , currentTime : Float
+    , accumulator : Float
     }
 
 
@@ -25,7 +30,8 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { currentState = { x = 0, y = 100 }
       , previousState = { x = 0, y = 100 }
-      , previousTime = Time.millisToPosix 0
+      , currentTime = 0
+      , accumulator = 0
       }
     , Cmd.none
     )
@@ -40,24 +46,114 @@ tickrate =
     60
 
 
+dt : Float
+dt =
+    0.01
+
+
 speed : number
 speed =
     -- px per second
-    180
+    60
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update (GameTick newTime) model =
+update (GameTick timestamp) model =
     let
+        -- double newTime = time();
+        newTime =
+            (toFloat <| Time.posixToMillis timestamp) / 1000
+
+        -- double frameTime = newTime - currentTime;
+        -- if ( frameTime > 0.25 )
+        --     frameTime = 0.25;
         frameTime =
-            Time.posixToMillis newTime - Time.posixToMillis model.previousTime
+            min 0.25 (newTime - model.currentTime)
+
+        -- currentTime = newTime;
+        currentTime =
+            newTime
+
+        -- accumulator += frameTime;
+        accumulatorBeforeLoop =
+            model.accumulator + frameTime
+
+        -- while ( accumulator >= dt )
+        -- {
+        --     previousState = currentState;
+        --     integrate( currentState, t, dt );
+        --     t += dt;                                       TODO
+        --     accumulator -= dt;
+        -- }
+        { previousState, currentState, accumulator } =
+            whileLoop
+                { previousState = model.previousState
+                , currentState = model.currentState
+                , accumulator = accumulatorBeforeLoop
+                }
+
+        -- const double alpha = accumulator / dt;
+        alpha =
+            accumulator / dt
+
+        -- State state = currentState * alpha +
+        --     previousState * ( 1.0 - alpha );
+        stateToRender =
+            addStates (multiplyState alpha currentState) (multiplyState (1.0 - alpha) previousState)
     in
-    ( { currentState = { x = model.currentState.x + (speed / tickrate), y = model.currentState.y }
-      , previousState = model.currentState
-      , previousTime = newTime
+    ( { currentState = currentState
+      , previousState = previousState
+      , currentTime = currentTime
+      , accumulator = accumulator
       }
-    , render [ { position = { leftEdge = round model.currentState.x, topEdge = round model.currentState.y }, thickness = 5, color = "white" } ]
+    , renderState stateToRender
     )
+
+
+type alias WhileLoopData =
+    { previousState : State
+    , currentState : State
+    , accumulator : Float
+    }
+
+
+whileLoop : WhileLoopData -> WhileLoopData
+whileLoop ({ currentState, accumulator } as loopData) =
+    -- while ( accumulator >= dt )
+    if accumulator >= dt then
+        whileLoop
+            { -- previousState = currentState;
+              previousState = currentState
+
+            -- integrate( currentState, t, dt );
+            , currentState = computeNewState currentState dt
+
+            -- accumulator -= dt;
+            , accumulator = accumulator - dt
+            }
+
+    else
+        loopData
+
+
+multiplyState : Float -> State -> State
+multiplyState alpha { x, y } =
+    { x = x * alpha, y = alpha * y }
+
+
+addStates : State -> State -> State
+addStates a b =
+    { x = a.x + b.x, y = a.y + b.y }
+
+
+renderState : State -> Cmd msg
+renderState state =
+    render [ { position = { leftEdge = round state.x, topEdge = round state.y }, thickness = 5, color = "white" } ]
+
+
+computeNewState : State -> Float -> State
+computeNewState { x, y } dt_ =
+    { x = x + speed * dt_, y = y }
 
 
 subscriptions : Model -> Sub Msg
