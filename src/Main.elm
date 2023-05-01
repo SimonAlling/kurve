@@ -9,20 +9,19 @@ import Time
 port render : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
-port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
-
-
 type alias DrawingPosition =
     { leftEdge : Int, topEdge : Int }
 
 
 type alias Model =
-    {}
+    { x : Float
+    , y : Float
+    }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( {}
+    ( { x = 0, y = 100 }
     , Cmd.none
     )
 
@@ -31,14 +30,27 @@ type Msg
     = GameTick
 
 
+tickrate : number
+tickrate =
+    60
+
+
+speed : number
+speed =
+    -- px per second
+    180
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.batch <| [ clear { x = 0, y = 0, width = 1000, height = 1000 }, render [] ] )
+    ( { x = model.x + (speed / tickrate), y = model.y }
+    , render [ { position = { leftEdge = round model.x, topEdge = round model.y }, thickness = 5, color = "white" } ]
+    )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Time.every (1000 / 60) (always GameTick)
+    Time.every (1000 / tickrate) (always GameTick)
 
 
 view : Model -> Html Msg
@@ -47,8 +59,9 @@ view model =
         []
         [ canvas
             [ Attr.id "canvas_main"
-            , Attr.width 559
+            , Attr.width 1920
             , Attr.height 480
+            , Attr.style "background" "black"
             ]
             []
         ]

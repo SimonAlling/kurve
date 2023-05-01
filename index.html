@@ -22,21 +22,11 @@
             context.fillRect(leftEdge, topEdge, thickness, thickness);
         }
 
-        function clearRectangleIfCanvasExists(canvas, { x, y, width, height }) {
-            const context = canvas?.getContext("2d");
-            context?.clearRect(x, y, width, height);
-        }
-
         app.ports.render.subscribe(squares => {
             const canvas_main = document.getElementById("canvas_main");
             for (const square of squares) {
                 drawSquare(canvas_main, square);
             }
-        });
-
-        app.ports.clear.subscribe(rectangle => {
-            const canvas_main = document.getElementById("canvas_main");
-            clearRectangleIfCanvasExists(canvas_main, rectangle);
         });
     </script>
 
