@@ -28,8 +28,12 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { currentState = { x = 0, y = 100 }
-      , previousState = { x = 0, y = 100 }
+    let
+        initState =
+            { x = 0, y = 100 }
+    in
+    ( { currentState = initState
+      , previousState = initState
       , currentTime = 0
       , accumulator = 0
       }
