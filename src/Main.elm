@@ -23,6 +23,7 @@ type alias Model =
     , previousState : State
     , currentTime : Float
     , accumulator : Float
+    , stateToRender : State
     }
 
 
@@ -36,6 +37,7 @@ init _ =
       , previousState = initState
       , currentTime = 0
       , accumulator = 0
+      , stateToRender = initState
       }
     , Cmd.none
     )
@@ -109,6 +111,7 @@ update (GameTick timestamp) model =
       , previousState = previousState
       , currentTime = currentTime
       , accumulator = accumulator
+      , stateToRender = stateToRender
       }
     , renderState stateToRender
     )
