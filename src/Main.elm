@@ -70,13 +70,8 @@ update _ { currentState, previousState, currentTime, accumulator } =
       , accumulator = accumulator
       , stateToRender = stateToRender
       }
-    , renderState stateToRender
+    , Cmd.none
     )
-
-
-renderState : State -> Cmd msg
-renderState state =
-    render [ { position = (), color = "white" } ]
 
 
 subscriptions : Model -> Sub Msg
