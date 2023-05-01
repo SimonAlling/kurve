@@ -46,16 +46,6 @@ type Msg
     = GameTick
 
 
-tickrate : number
-tickrate =
-    60
-
-
-dt : Float
-dt =
-    0.01
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update _ { currentState, previousState, currentTime, accumulator } =
     let
@@ -76,7 +66,7 @@ update _ { currentState, previousState, currentTime, accumulator } =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Time.every (1 / tickrate) (always GameTick)
+    Time.every (1 / 60) (always GameTick)
 
 
 view : Model -> Html Msg
