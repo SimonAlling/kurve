@@ -2,6 +2,7 @@ port module Main exposing (main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
+import Browser.Events exposing (onAnimationFrameDelta)
 import Canvas
 import Canvas.Settings
 import CanvasOLD exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf)
@@ -347,7 +348,7 @@ subscriptions model =
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
             InGame (Active NotPaused (Moving lastTick midRoundState)) ->
-                Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
+                onAnimationFrameDelta (always <| GameTick (Tick.succ lastTick) midRoundState)
 
             InGame (Active Paused _) ->
                 Sub.none
@@ -384,28 +385,7 @@ view model =
 
                 heads : List (Html msg)
                 heads =
-                    case gameState of
-                        Active _ (Moving _ ( _, round )) ->
-                            List.map
-                                (\kurve ->
-                                    let
-                                        { leftEdge, topEdge } =
-                                            World.drawingPosition thickness kurve.state.position
-                                    in
-                                    div
-                                        [ Attr.style "background-color" "white"
-                                        , Attr.style "left" (String.fromInt leftEdge ++ "px")
-                                        , Attr.style "top" (String.fromInt topEdge ++ "px")
-                                        , Attr.style "width" (String.fromInt thickFloat ++ "px")
-                                        , Attr.style "height" (String.fromInt thickFloat ++ "px")
-                                        , Attr.style "position" "absolute"
-                                        ]
-                                        []
-                                )
-                                round.kurves.alive
-
-                        _ ->
-                            []
+                    []
             in
             elmRoot
                 [ Attr.class "in-game"

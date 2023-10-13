@@ -85,7 +85,7 @@ generateKurve config id numberOfPlayers existingPositions player =
                 state : Kurve.State
                 state =
                     { position = generatedPosition
-                    , direction = generatedAngle
+                    , direction = Angle 0
                     , holeStatus = generatedHoleStatus
                     }
             in

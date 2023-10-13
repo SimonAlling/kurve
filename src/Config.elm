@@ -18,8 +18,8 @@ default =
         , speed = Speed 60
         , thickness = Thickness 3
         , holes =
-            { minInterval = Distance 90
-            , maxInterval = Distance 300
+            { minInterval = Distance 90000
+            , maxInterval = Distance 300000
             , minSize = Distance 5
             , maxSize = Distance 9
             }
