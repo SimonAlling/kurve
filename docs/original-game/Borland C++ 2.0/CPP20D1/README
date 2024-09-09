@@ -1,0 +1,654 @@
+                         Welcome to Borland C++ 
+                         ----------------------
+
+  This README file contains important information about Borland C++.
+  For the latest information about Borland C++, Turbo Debugger,
+  TASM, and their accompanying programs and manuals, read this
+  file in its entirety.
+
+TABLE OF CONTENTS
+-----------------
+1.  How to Get Help
+2.  Installation
+3.  Features
+4.  Important Information
+5.  Testing Your Expanded Memory
+6.  Corrections to the Documents
+
+
+ 1. HOW TO GET HELP
+-------------------
+  If you have any problems, please read this file, the
+  HELPME!.DOC and other files in your DOC subdirectory, and the
+  Borland C++ manuals first. If you still have a question and
+  need assistance, help is available from the following sources:
+
+  1. Type GO BPROGB on the CompuServe bulletin board system for
+     instant access to the Borland forums with their libraries of
+     technical information and answers to common questions.
+
+     If you are not a member of CompuServe, see the enclosed
+     special offer, and write for full details on how to receive
+     a free IntroPak containing a $15 credit toward your first
+     month's on-line charges.
+
+  2. Check with your local software dealer or users' group.
+
+  3. Write to us at the following address:
+
+     Borland International
+     Borland C Technical Support
+     1800 Green Hills Road
+     P.O. Box 660001
+     Scotts Valley, CA  95066-0001
+
+     Please remember to include your serial number or we will be
+     unable to process your letter.
+
+  4. If you have an urgent problem that cannot wait and you have
+     sent in the license agreement that came with the package,
+     you may call the Borland Technical Support Department at
+     (408) 438-5300. Please have the following information ready
+     before calling:
+
+     a. Product name and serial number on your original
+        distribution disk.  Please have your serial number ready
+        or we will be unable to process your call.
+
+     b. Product version number. The version number for Borland
+        C++ can be displayed by pressing Alt-Space/A.
+
+     c. Computer brand, model, and the brands and model numbers of
+        any additional hardware.
+
+     d. Operating system and version number. (The version number
+        can be determined by typing VER at the MSDOS prompt.)
+
+     e. Contents of your AUTOEXEC.BAT file.
+
+     f. Contents of your CONFIG.SYS file.
+
+
+ 2. INSTALLATION
+----------------
+
+  You MUST use the INSTALL program to install Borland C++. The
+  files on the distribution disks are all archived and have to be
+  properly assembled.  You cannot do this by hand!
+
+  To start the installation, change your current drive to the one
+  that has the install program on it and type INSTALL.  You will
+  be given instructions in a box at the bottom of the screen for
+  each prompt. For example, if you will be installing from drive
+  A:, type:
+
+    A:
+    INSTALL
+
+  -  This INSTALL handles the installation of both the compiler
+     and debugger and tools in one operation, and allows several
+     new configuration options.
+
+  -  Note: The list of files is now contained in a separate file
+     called FILELIST.DOC, which will appear in the target
+     directory you specify during installation.
+
+  You should read the rest of this README file to get further
+  information about this release before you do the installation.
+
+
+ 3. FEATURES
+------------
+
+  Borland C++ includes complete support for Windows programming,
+  as well as big speed and capacity gains.  Here are some
+  important features found in this version:
+
+ COMPILER
+---------
+  - Windows! We now produce EXE and DLL files for Windows 3.0.
+
+  - Protected mode versions of the Programmer's Platform and the
+    command-line compiler for greater capacity.
+
+  - Precompiled header files for faster compilation.
+
+  - A built-in assembler.
+
+  - A full undo for the Programmer's Platform editor
+
+  - The complete Windows API online reference is now provided in the
+    Borland C++ help file.
+
+  - Included on these disks is Turbo Debugger for Windows, a new
+    version of Turbo Debugger that supports Windows debugging.
+  
+  - Switches to control the amount of extended/expanded memory to
+    be used by the compiler.
+
+  - Switches to control various aspects of program data for
+    compatibility with other compilers.
+
+  - A new utility called TRANCOPY which copies transfer items
+    between projects.
+
+  - Note: Because the compiler programs in Borland C++ are named
+    BCC.EXE and BC.EXE, you'll need to rename them if you have
+    batch or make files that use those names, or you'll have to
+    change the macros or batch files to supply the correct name.
+
+ TURBO DEBUGGER
+---------------
+  - Turbo Debugger for Windows (TDW.EXE), uses "display swapping"
+    to allow you to debug Windows applications using one machine
+    and a single display.
+
+  - TDW automatically and transparently lets you debug Windows
+    DLLs. There is a new module view selection dialog that allows
+    you to manually control this feature; press F3 with a Windows
+    module loaded, and F1 to find out more about the options.
+
+  - The View/Log viewer allows logging of global and local heap
+    information, as well as the modules currently loaded by
+    Windows.
+
+  - The View/Windows Messages viewer allows you to collect or
+    break on Windows messages based on window-routine identifiers
+    or on handles.  In addition, you can filter out specific
+    classes of messages to log, allowing you to view exactly what
+    you're interested in.
+
+  - WREMOTE.EXE allows remote debugging of Windows applications
+    between two systems.  WRSETUP.EXE allows you to set up your
+    link speed and comm port settings from within Windows.
+    (Note that this is a Windows-compatible application)
+
+  - The utilities have been modified to handle your Windows
+    programs. See MANUAL.TNT in your DOC directory for detailed
+    information about using the Turbo Debugger Utilities.
+
+  - The File/Get Info window displays global memory information
+    based on banked and non-banked memory.
+
+ TURBO PROFILER
+---------------
+  - Allows you to view text files from within the user interface.
+
+
+ TURBO ASSEMBLER
+----------------
+  - Two versions of Turbo Assembler have been provided. TASMX.EXE
+    can be run from the Windows DOS prompt, and takes advantage
+    of the DOS Protected Mode Interface (DPMI) that Windows 3.0
+    provides. This allows the assembler to take advantage of
+    Windows' memory management and to dramatically increase
+    capacity.  TASM.EXE uses standard DOS memory, and is provided
+    for operation in environments without DPMI support such as
+    DOS and the non-386 enhanced modes of Windows.
+
+  - DPMILOAD.EXE handles loading TASM in environments where DPMI
+    support is a part of the operating system, such as when
+    running from the Windows 3.0 DOS prompt. DPMILOAD.EXE must
+    exist on some path within your path statement. TASMX will
+    automatically detect if DPMI support is present and then use
+    DPMILOAD to load itself. If DPMI support is not available,
+    (or if the DPMILOAD.EXE program is not present), TASMX will
+    load TASM.EXE and Turbo Assembler will run in normal DOS
+    memory.
+
+
+ 4. IMPORTANT INFORMATION
+-------------------------
+  Be sure to look at the files in the DOC subdirectory for more
+  information about Borland C++. These files have additional
+  information about the compiler, utilities, debugger and
+  assembler.
+
+
+  TURBO DEBUGGER
+
+  -  The following options have been removed from TDW.EXE (and
+     TD.EXE when using remote debugging):
+
+      - File Menu
+          DOS Shell
+          Resident
+          Table relocate
+      - View Menu
+          Keystroke Recording
+      - Breakpoints Menu
+          Hardware breakpoint
+
+  -  TDREMOTE/TDRF now have four different link speeds, which
+     will conflict with any previous versions of TDRF or TDREMOTE
+     you may have unless you make sure that the settings are the
+     same on both sides.  These link speeds also apply to WREMOTE
+     for Windows.
+
+  -  TDINST now has a -w command line option which allows you to
+     create TDCONFIG.TDW files (or save the configuration to
+     TDW.EXE) for customized configurations of TDW.  You must use
+     the -w switch to create config files for TDW.EXE.  TDW will
+     not read in your existing TDCONFIG.TD files.
+
+  -  Many of the command-line options for TDW which cannot be
+     used have been eliminated, such as setting overlay area
+     sizes, remote debugging, and the graphics display options.
+     Use the -? option when loading TDW to see the available
+     options, or consult the manual.
+
+  -  The BCWDEMOA example is used to demonstrate the
+     Ctrl+Alt+Sysrq feature of TDW and is not meant to be run
+     directly under Windows. If you do this you will not be able
+     to gain control of Windows again and will have to reboot
+     your system. There may be problems using the Ctrl+Alt+Sysrq
+     feature with certain keyboards or environments.  Some
+     keyboards use Alt+Sysrq to activate the Sysrq scan code;
+     therefore Ctrl+Alt+Sysrq is not possible.  Also, there may
+     be problems using this Windows feature for Zenith.
+
+  -  TDW is a text-based debugger which runs in the graphics mode
+     environment of Windows.  It supports only the standard
+     graphics display modes: CGA, EGA, VGA, and Hercules
+     monochrome graphics.  It does not currently support other
+     video modes, such as the one that supports Super-VGA.
+     However, the DOS versions of TD (TD.EXE, TD286.EXE, etc.)
+     are now capable of using this support.
+
+  -  When you are debugging your application, TDW has control.  You
+     cannot use Ctrl+ESC while in TDW to gain control of Windows.
+     You can, however, use Ctrl+ESC normally while your program is
+     active and Windows has control.
+
+  -  TDW does not load more than one symbol table at a time.  If
+     your program uses more than one symbol table you can load it
+     explicitly or, if your program makes a call to another
+     symbol table, TDW will load that table automatically when
+     tracing (F7) over the calling instruction.
+
+  -  TDW is only able to use the -p command-line option or
+     configuration option to activate the mouse if Windows is
+     installed to use a mouse. If no mouse is specified to be
+     used in Windows, TDW will not recognize it either.
+
+  -  THELP is a help menu TSR (Terminate & Stay Resident) program
+     meant to work in the DOS environment.  It will not work when
+     running TDW under Windows. The normal TDW help is still
+     available.
+
+  -  If you wish to debug a DLL loaded by the Windows LoadLibrary
+     function, you need to use the Add DLL option of the
+     View|Module dialog to add this DLL to the DLLs & programs
+     pane. Once the DLL  has been added, make sure that you
+     select Yes for Load symbols and  Yes for Debug startup.
+
+
+  TURBO ASSEMBLER
+
+  -  In order to take advantage of DPMI support feature, you must
+     be running Windows in 386 enhanced mode. (You may tell if
+     Windows 3.0 is in 386 enhanced mode by selecting ABOUT from
+     the Program Manager. It will tell you how much memory is
+     available to Windows, and it will say that Windows is in
+     "real mode", "standard mode", or "enhanced 386 mode". If you
+     are running Windows on a 386 machine, and Windows is not
+     currently operating in enhanced mode, please see your
+     Windows manual for additional details on running Windows 3.0
+     in enhanced mode. Enhanced mode is not available when
+     Windows 3.0 is run on processor less than a 386.) Also,
+     DPMILOAD.EXE must be somewhere in your path.
+
+  -  TASMX is not designed to be a Windows application, so you
+     must enter a Windows 3.0 DOS prompt to use TASMX. Then to
+     use TASMX, just type TASMX wherever you would normally type
+     TASM. All command-line options are the same as the previous
+     version of TASM. When run within the Windows 3.0 DOS prompt,
+     TASMX will be able to use almost all the free memory in the
+     system, if neccessary, for assembling large programs.
+
+  -  TASM 2.5 will still run without Windows 3.0 DPMI. If DPMI
+     support is not found, you must have TASM.EXE somewhere in
+     your path. Then if you load TASMX, it will run TASM.EXE
+     within the normal 640K DOS environment. Turbo Assembler will
+     not be able to assemble programs larger than normal without
+     DPMI support.
+
+  -  We encourage you to try TASMX on all your assembler source
+     code, both from the normal DOS prompt and from within a
+     Windows 3.0 DOS prompt. TASMX should be able to handle all
+     programs that work properly with TASM 2.01.
+
+  WHITEWATER RESOURCE TOOLKIT
+
+    You can edit C header files using the Header Editor. The file
+    to edit may be created in any editor, or as the output of a
+    resource editing session. There are restrictions on syntax,
+    however:
+
+    - In a C header (.H file), the Header editor supports only
+      #define statements defining constants with a decimal or
+      hexadecimal value; an error will result if you attempt to
+      edit a header file containing anything else except
+      comments. If you save the result of an edit of a file
+      containing comments, the comments will be removed.
+
+
+  C++ STREAMS
+
+      This will be our last version of C++ to support version
+      1.2 streams (which currently requires the use of the
+      OLDSTRM?.LIB files.)
+
+  EXAMPLE PROGRAMS
+
+      When you are running any example programs that come with
+      .PRJ files, if you didn't use the standard directories when
+      you installed Borland C++ you will have to change the .PRJ
+      file to reflect your actual directory setup.  Do this from
+      inside Borland C++ with Alt-O/D.
+
+
+  LINKING C++ WITH C
+
+      Linking C++ modules with C modules requires the use of a
+      linkage specification.  Prototypes for C functions within C++
+      modules must be in one of the following forms:
+
+        extern "C" declaration
+        extern "C" { declarations }
+
+      For example, if a C module contains these functions:
+
+        char *SCopy(char*, char*);
+        void ClearScreen(void)
+
+      they must be declared in a C++ module in one of the
+      following ways:
+
+        extern "C" char *SCopy(char*, char*);
+        extern "C" void ClearScreen(void);
+
+      or
+
+         extern "C" {
+            char *SCopy(char*, char*);
+            void ClearScreen(void);
+         }
+
+      Failure to do so will result in "Undefined symbol" errors
+      during link. For further examples, see the standard header
+      files.
+
+
+  IMPORTANT NOTES
+
+  - The default extension for source files is .CPP; that is, if
+    you enter
+
+       BCC -c test
+
+    the compiler will search for test.cpp, and give an error if a
+    file of that name cannot be found. If you want to have the
+    command-line compiler assume a .c extension and C language
+    source, use the command-line option -P-c. For more information,
+    see Chapter 6, "The command-line compiler", in the User's Guide.
+
+  - Borland C++ only supports Protected Mode Windows target
+    files. Make sure to use the /t option when using the Resource
+    Compiler if you want to enforce Protected Mode usage.
+
+  - Functions that return structures now take a hidden parameter
+    that contains the address where the returned structure is to
+    be placed.  If you are writing assembler code to link with C
+    code you must be sure to allow for this extra parameter.
+
+  - When debugging a mouse application the Options|Debugging|Display
+    Swapping option should be set to "Always" for best results.
+
+  - TEMC will not allow a macro to contain multiple commands that
+    return exit codes.
+
+  - Example 2 for the signal() function in the Reference Guide uses
+    an extension to signal() that is not supported in C++, so the
+    example will not compile as a C++ program.
+
+  - If a directory contains only one project file, invoking
+    Borland C++ without any parameters will open that project. 
+    If this behavior is not desired, a second "dummy" project
+    file must be placed in that directory or the current project
+    file must be removed.
+
+  - Note that the Generate COMDEFs choice under
+    Options|Compiler|Code Generation and the -Fc command-line
+    option are only supported in the C language. Linker errors
+    will result if you attempt to use a communal variable in C++.
+
+  - When linking in libraries that have COMDEFs, be sure to link
+    in at least one .OBJ file that contains a COMDEF. The TDUMP
+    utility can be used to determine if a .LIB file contains a
+    COMDEF.
+
+  - The macros min() and max() are not defined when stdlib.h is
+    compiled as C++ (to allow their use in 3rd party libraries,
+    etc.).
+
+  - When using Brief with THELP, make sure to use Brief's -p
+    switch to insure that the thelp window will be visible.
+
+  - Note that SYMDEB creates .SYM files for use in debugging; Borland C++
+    creates .SYM files for pre-compiled headers. They are not compatible
+    and collisions should be avoided by setting the name of the pre-compiled
+    header file (using -H=filename).
+
+  - If you have an application that uses multiple DLLs at least one of
+    which references another, you need to obey the following rules:
+
+    1. The module names of imported entries specified in module definition
+       files should be in lower case.  This applies to the name specified
+       after the LIBRARY keyword for DLLs which export the entries, as well
+       as the module names supplied in the IMPORTS section.
+
+       For example:  
+
+           LIBRARY mydll
+       not  
+           LIBRARY MYDLL
+
+
+           IMPORTS
+               mydll.1
+       not  
+           IMPORTS
+               MYDLL.1
+
+    2. Enable a case-sensitive link using /c for the standalone linker
+       (TLINK), or the Options|Linker|Case Sensitive Link option in the
+       Programmer's Platform.
+
+
+ 5. TESTING YOUR EXPANDED MEMORY: EMSTEST.COM
+---------------------------------------------
+
+  Included with Borland C++ is a program to test your Expanded
+  Memory hardware and software. If you have problems using
+  Borland C++ with your EMS, type EMSTEST at the DOS prompt and
+  follow the instructions.
+
+
+ 6.  CORRECTIONS TO THE DOCUMENTS
+---------------------------------
+
+  Getting Started
+  ---------------
+  Pg. 3    The manual says that Borland C++ requires DOS 2.0 or higher.
+           It should say DOS 3.0 or higher.
+
+  Borland C++ Programmer's Guide
+  ------------------------------
+  Pg. 168  _WINDOWS shown in the last heading should be _Windows.
+
+  Borland C++ User's Guide
+  ------------------------
+  Pg. 122  The section on Dynamic Link Libraries should include
+           the note that DLLs written in C++ are only supported
+           in the compact and large memory models; this
+           restriction does not apply to DLLs with C language
+           source.
+
+  Pg. 158  In the first paragraph it says you need at least 576k of
+           extended memory. The correct amount is 320k.
+
+  Pg. 159  Note that values of at least 120 should be specified in
+           the TKERNEL kilos parameter.
+
+  Pg. 260  Several TLINK error messages are not included; here is a
+           list of those messages and their meanings:
+
+  - Debug info option ignored for .COM files
+
+     Borland C++ does not include debug information for .COM
+     files.
+
+  - Overlays ignored in new executable image
+
+     This error occurs if you attempt to link an Windows program
+     with the /o option on.
+
+     Windows executables can't be overlaid, although, with
+     discardable code segments, you should be able to achieve a
+     similar effect.
+
+  - Relocation item exceeds 1MB DOS limit
+
+     The DOS executable file format doesn't support relocation
+     items for locations exceeding 1MB.
+
+     Although DOS could never load an image this big, DOS extenders
+     can, and thus TLINK supports the generation of images greater
+     than DOS could load.
+
+     Even if the image is loaded with a DOS extender, the DOS
+     executable file format is limited to describing relocation
+     items in the first 1MB of the image.
+
+  -'filename' ('linenum'): Duplicate internal name in exports
+
+     Two export functions listed in the EXPORTS section of the
+     module definition file defined the same internal name.
+
+  -'filename' ('linenum'): Duplicate internal name in imports
+
+     Two import functions listed in the IMPORTS section of the
+     module definition file defined the same internal name.
+
+  - 'filename' ('linenum'): Duplicate ordinal 'number' in exports
+
+     TLINK encountered two exports with the same ordinal value.
+
+     Check the module definition file to ensure that there are no
+     duplicate ordinal values specified in the EXPORTS section.
+
+     If not, you are linking with modules that specify exports by
+     ordinals and one of two things happened:
+
+       - two export records specify the same ordinal, or
+       - the exports section in the module definition file
+         duplicates an ordinal in an export record.
+
+  - Segment alignment factor too small
+
+     This error occurs if the segment alignment factor (set with
+     the /A option) is too small to represent the file addresses
+     of the segments in the .EXE file.
+
+     This error only occurs when linking for Windows.
+
+  - Segment too large for segment table
+
+     This error should never occur in practice.
+
+     It means that a segment was bigger than 64K and its size
+     can't be represented in the executable file.
+
+     This error can only occur when linking for Windows; the
+     format of the executable file used for Windows does not
+     support segments greater than 64K.
+
+  - Invalid size specified for segment alignment
+
+     This error occurs if an invalid value is specified for the /A
+     option.
+
+     The size specified with /A must be an integral multiple of 2
+     and less than 64K; common values are 16 and 512.
+
+     This error only occurs when linking for Windows.
+
+  - 'filename' ('linenum'): Duplicate external name in exports
+
+     Two export functions listed in the EXPORTS section of a
+     module definition file defined the same external name.
+
+     For example:
+
+       EXPORTS AnyProc=MyProc1 AnyProc=MyProc2 - Automatic data
+       segment exceeds 64K
+
+     The sum of the DGROUP physical segment, local heap, and stack
+     exceeded 64K.
+
+     Either specify smaller values for the HEAPSIZE and STACKSIZE
+     statements in the module definition file, or decrease the
+     size of your near data in DGROUP.
+
+     The map file will show the sizes of the component segments in
+     DGROUP.
+
+     Use the /s TLINK command-line option to find the module.
+
+  - Debugging information overflow; try fewer modules with debug
+    info
+
+     Too many modules containing debugging information are
+     included in the link.
+
+     The debugging information executable file specification uses
+     16-bit fields for many counts. This error message indicates
+     that one of the count fields have overflowed.
+
+     To exclude some modules with debug information from the link,
+     either:
+       - use the /v+ and /v- stand-alone linker options, or
+       - turn on the Exclude Debug Information option
+
+  - Limit of 254 segments for new executable file exceeded
+
+     You have reached the limit of segments that can be specified
+     by the New Executable file format.
+
+     Only 254 segments can be represented in Windows EXEs and
+     DLLs.
+
+     To reduce the total number of segments to below 254, turn on
+     the Pack Code Segments option to combine segments.
+
+  - Imported references from VIRDEFs not supported
+
+     TLINK does not support offset fixups to imported names when
+     those fixups are associated with VIRDEFs.
+
+     This situation is not likely to occur. However, if it does,
+       - use the -Vs command-line option, or
+       - set C++ Virtual Tables to Local in the IDE.
+
+     VIRDEFs are used for C++ virtual tables and inline functions
+     which, for debugging purposes, are pulled out-of-line.
+
+  - Invalid size specified for segment packing
+
+     You have specified an invalid size for the code segment
+     packing limit. The default is 8192; legal values are from 1
+     to 65536.
+
+
+

@@ -1,0 +1,836 @@
+
+Interfacing Turbo Assembler with Turbo Basic
+
+Turbo Assembler's upward compatibility with Microsoft's Macro
+Assembler makes life easier for the Turbo Basic programmer. In this
+document, we'll expand on some Turbo Basic examples currently in the
+Turbo Basic manual and supply others that illustrate how Turbo
+Assembler can extend the power of Turbo Basic.
+
+Note: When we refer to Turbo Basic, we mean versions 1.0 and
+greater.
+
+Turbo Basic provides three general ways to call an assembler
+routine:
+
+   1) You can use CALL to call a procedure containing inline code.
+   2) You can use CALL ABSOLUTE to a particular address in memory.
+   3) You can use CALL INTERRUPT and Turbo Basic's support for the
+      processor's interrupt-handling to branch to a routine.
+
+Whichever calling method you select, you must be sure to preserve
+the values of certain registers. CALL INTERRUPT is the least
+demanding in this respect: You need only be sure to save SS (stack
+segment) and SP (stack pointer). The other two methods require that
+you save the DS (data segment) and BP (base pointer) registers, as
+well as SS and SP.
+
+"Preserving the registers" doesn't necessarily mean you must push
+all the registers on the stack, though that is the most typical way
+of ensuring their safety. Simple routines might not modify any of
+the registers, in which case, you might not need to take any
+precautions.
+
+We use the word "might" because it's generally a very good idea to
+avoid making assumptions, especially where assembler programming is
+concerned. Though your MS-DOS manual might specifically state that
+a particular interrupt will not alter the contents of the stack
+pointer or base pointer (or any one of the other registers), that
+might not always be the case. MS-DOS does change, and some
+combinations of interrupts might contradict the information in the
+MS-DOS manual. It's better to be safe than sorry under such
+circumstances. Taking care to save the required registers will not
+adversely affect the performance of your routine, considering the
+risks and added portability for new releases of MS-DOS.
+
+
+   Passing parameters
+
+Turbo Basic passes parameters to assembler routines on the stack.
+All such calls are far; the last 4 bytes on the stack are the
+return address used by Turbo Basic when your routine is finished.
+The address of the first parameter you pass to your routine will be
+at [SP+4]; add two to that value for each register you push on the
+stack. Remember, stacks grow downward in memory to lower-numbered
+addresses.
+
+Each simple variable (other than arrays) passed on the stack will
+cause the stack to grow by 4 bytes; Turbo Basic passes both the
+segment (2 bytes) and the offset (2 bytes) of such variables. This
+will be an important advantage later, as you will see.
+
+Parameters passed by value (as in constants and expressions) also
+take precisely 4 bytes on the stack. In this case, the value on the
+stack is not the value of the expression: It is the address of the
+temporary location in memory where the value is stored. This may
+seem roundabout, but it has two appreciable advantages. First, all
+assembler routines can handle passed values in precisely the same
+way. Second, routines that modify the value of a parameter
+mistakenly passed by value instead of by reference cannot alter an
+important area of memory.
+
+This way of using the stack can increase the standardization of
+your routines. The following example shows why this is
+advantageous. Suppose the value of the integer variable x% is
+precisely 4, and you have an assembler routine MYROUTINE that
+expects an integer to be passed. This routine will work exactly the
+same whether you invoke it with CALL MYROUTINE(x%) or CALL
+MYROUTINE(4%). If the routine were invoked with CALL MYROUTINE(4%)
+and tried to modify the value of the passed parameter, it would
+modify an area of memory where the integer value 4 was temporarily
+stored and no harm would be done.
+
+Note that the type was explicitly stated in the second case (4%).
+This is not absolutely necessary, though it is good practice. If
+Turbo Basic happened to assume that the value 4 is a single-
+precision number, your routine will use a bad value (2 bytes from a
+4-byte, single-precision number) and run incorrectly. To make sure
+that your routines are passed the correct variable type, it is best
+to indicate the type of the variables or values every time the
+routine is invoked.
+
+If you pass an array to a routine, the stack will grow by 60
+bytes--most of the information that's passed to you is probably
+irrelevant. The Turbo Basic manual recommends that you pass the
+relevant array parameters as integers instead of passing the entire
+array. Passing a few selected parameters rather than the whole
+array will save stack space, decrease the time needed to call your
+routine, and make your routine more portable to later versions of
+Turbo Basic.
+
+For example, suppose you have a simple routine that needs to push
+only the base pointer, BP. In that case, the value or address of
+the first parameter will be at [SP+6]. If you had pushed two
+registers, the address or value of the first parameter would be at
+[SP+8].
+
+Let's suppose the first parameter is an integer value and is passed
+by value to the assembler routine. In that case, you can put the
+integer value into the CX register by simply writing
+
+  push bp          ;save the base pointer
+  mov  bp,sp       ;make the base pointer equal the stack pointer
+  les  di,[bp+6]   ;ES contains the segment, DI the offset of value
+  mov  cx,es:[di]  ;now put the value into CX
+
+Note: The value will not be in the same segment as ordinary
+variables. You must take care to use the correct and complete
+address to access the value. We'll say more about variables that
+are not in the current data segment later.
+
+On the other hand, if you knew the integer variable had been passed
+by reference instead of by value, [BP+6] would contain the offset
+address of the variable within its data segment. To put the value
+of that integer into the CX register you could write
+
+  push bp          ;save the base pointer
+  mov  bp,sp       ;make the base pointer equal the stack pointer
+  mov  bx,[bp+6]   ;put the address of the value in BX
+  mov  cx,[bx]     ;put the passed value into CX
+
+This routine assumes that the variable is located in the current
+data segment, and that only the variable's offset within that
+segment is needed to update the variable's value.
+
+Passing variables is safer if you always assume the pass is done by
+value. If the variable is actually passed by reference, you will
+have lost nothing; the complete variable address will include the
+current data segment. On the other hand, if your routine assumes
+that the variable was passed by reference and it was not, the
+address you obtain will not be the correct complete address because
+the segment will be wrong. Therefore, the routine will either
+retrieve the wrong value or, if you attempt to alter the value of
+the passed variable, will alter an incorrect area of memory with
+unpredictable results.
+
+Passing variables by reference is much easier for variables such as
+strings, arrays, and floating-point numbers. Those variables can be
+long enough to cause problems if they were actually passed on the
+stack. In addition, it takes nearly as much overhead to read a long
+variable from the stack as to obtain its address from the stack and
+manipulate the variable at a memory location. For string variables
+(unless the string is very short, indeed) it's unlikely there would
+be enough register space available to process the string without
+performing memory accesses anyway.
+
+
+     Variables not in the current data segment
+
+If the variable passed is not in the current data segment, then
+you'll need both the segment and the offset of the variable to
+access the value of the variable within your assembler program.
+Turbo Basic always passes both the segment and the offset of each
+variable on the stack; therefore, the complete address of each
+variable is always available to the programmer.
+
+The segment part of the address is in the 2 bytes immediately
+following the offset of the parameter. The most convenient way to
+use this information in your assembler programs is via the
+instruction LES.
+
+LES will load the indicated register with the offset value of the
+variable and load the ES register with the segment part of the
+address. This guarantees you the full address of any variable,
+regardless of which data segment it is in.
+
+Again, suppose your routine needs to store the value of an integer
+variable into the CX register. Since the ES register needn't be
+preserved, you can make use of LES:
+
+  push bp           ;save the base pointer
+  mov  bp,sp        ;make the base pointer equal the stack pointer
+  les  di,[bp+6]    ;ES contains the segment, DI the offset
+  mov  cx,es:[di]   ;put the value of the variable in CX
+
+By passing the complete address of each variable, Turbo Basic makes
+it possible for the assembler programmer to write routines that are
+independent of where the data is stored. If you rewrite your
+program and put variables or arrays into different data segments,
+you won't need to rewrite your assembler routines if you use the
+complete variable address and the LES instruction.
+
+
+     What kind of CALL?
+
+There are two kinds of CALLs: far and near. Far CALLs leave the
+current code segment; near CALLs do not.
+
+In Turbo Basic, only CALL ABSOLUTE can cause any problems because
+it can be located anywhere in memory. Therefore, Turbo Basic
+requires CALL ABSOLUTE routines to terminate with a far return, and
+automatically generates a far CALL when passing control to such
+routines.
+
+CALL INTERRUPT can implicitly generate a far call, but Turbo Basic
+handles that internally. If you have written your own interrupt
+handlers, you only need to use an IRET (return from interrupt)
+instruction to pass control back to the Turbo Basic program.
+
+Inline assembler is inserted into your program when it is compiled.
+The code will generally be within the current code segment, but
+Turbo Basic doesn't assume that; such routines also terminate with
+a far return. Turbo Basic will automatically generate the CALL and
+the return, so don't use a RET instruction in your code. If you
+want to terminate the routine somewhere before the end of the code,
+simply jump to a label at the end of the code.
+
+Note: Since Turbo Basic doesn't use the DOS LINK program, you won't
+need to concern yourself with declaring your routines PUBLIC, nor
+will you need to declare them external within your program.
+
+
+       Popping the stack
+
+Before the end of your routine, you should make sure that all the
+registers you have pushed onto the stack have been popped from the
+stack. It's easy to make a mistake in this area, especially if your
+routine conditionally PUSHes and POPs registers.
+
+If you pop too few registers, your routine will probably never
+return after it is called, since Turbo Basic assumes that the last
+item on the stack is the address to which it should return. If you
+pop too many, the same thing will probably happen.
+
+Don't load or pop trash values into the segment registers because
+this can make your source code incompatible with future versions of
+DOS (protected mode OS/2, for example).
+
+
+       Creating an assembler program for Turbo Basic
+
+If you have created an assembler program and want to convert it
+into a .COM file for use in a Turbo Basic program, you can still
+use the example batch file in the Turbo Basic manual:
+
+  TASM %1;
+  Tlink /t %1;
+
+You should not include a stack segment because the assembler
+routine will use the stack furnished by Turbo Basic when running
+anyway.
+
+Turbo Assembler will default to a starting address of 100h if you
+do not provide an explicit ORG 100h statement at the beginning of
+your program. Still, it is better to explicitly state the ORG for
+later reference.
+
+If your routine is intended to run on an 80186, 80286, or 80386
+processor, you can also use the .186, .286, and .386 directives at
+the beginning of your assembler code. Turbo Assembler then allows
+you to use opcodes applicable for those processors. This can be a
+very big advantage, as you will see.
+
+
+   CALLing an inline assembler procedure
+
+Suppose you have created an assembler routine and converted it into
+a .COM file with Turbo Assembler. There are two ways you can use
+the result within your Turbo Basic program: with the $INLINE COM
+directive or with the $INCLUDE directive.
+
+The most direct way is to use the $INLINE COM filename method and
+have Turbo Basic insert the .COM file in the place you've
+indicated. This method is relatively simple to implement, but has
+several disadvantages:
+
+Turbo Basic has a limit of 16 $INLINE directives per procedure.
+This can cause problems if you're doing something rather complex
+(but it's rather unlikely).
+
+A more serious problem comes from the fact that the .COM files do
+not include documentation. You can include remarks in the calling
+program, of course, but it would be better if the .COM file
+included some documentation of its own.
+
+$INLINE .COM files can proliferate, too. Placing several of them in
+one file would be useful, especially if you often use a number of
+them together. (That's one of the reasons for using a library of
+assembler routines; unfortunately, it's not easy to create a
+library of .COM files.)
+
+Finally, $INLINE .COM files must be modified and reassembled if you
+alter them. This can be aggravating if the changes are relatively
+minor.
+
+Because of the way $INCLUDE COM works, you might want to convert
+the .COM files into a sequence of hexadecimal numbers that you can
+insert into programs via the $INCLUDE directive. Such routines can
+also be read from disk using the Turbo Basic editor's Read File
+command (Ctrl-K R); that way, your source file will explicitly show
+what is being included. This can be a big advantage for the Turbo
+Basic programmer.
+
+Since the hexadecimal codes are editable text, you can include or
+add comments. You can also use the Turbo Basic editor to make small
+changes in the inline code without having to re-assemble it, and
+you can put several routines into one file. By combining these
+techniques, you can effectively create a library of assembler
+routines for use with a family of programs. You might be able to
+maintain such a library more easily than if you had a formal
+library manager.
+
+If the routine is very long, the hexadecimal code file will be very
+large and might make the source file too large to edit comfortably.
+There is a limit of 64K on the largest file you can edit in one
+piece. If that becomes a problem, you can incorporate the
+hexadecimal file in your program as an $INCLUDE file. (Something
+that large wouldn't make your program more readable anyway.)
+
+Here is a small Turbo Basic program that will convert .COM files
+into hexadecimal files:
+
+  'COM2INC.BAS
+  'This program converts COM files to $INCLUDE files with the Turbo
+  'Basic $INLINE meta-command for easy insertion in Basic programs.
+  DEFINT A-Z
+  'All variables will be integers
+  F$=COMMAND$
+  'Check to see if there's a command line
+  WHILE F$=""
+    PRINT"This program will convert COM files to $INCLUDE files"
+    PRINT"for use with Turbo Basic. The default file type of"
+    PRINT"the source file is COM. The default file type of the"
+    PRINT"output file is INC. You may override either default"
+    PRINT"by entering a specific file-type specification."
+    PRINT"If you enter no name for the output file, it will be"
+    PRINT"named the same as the input file, but will have a file"
+    PRINT"type specification of INC."
+    LINE INPUT"Enter the name of the file to convert: ";F$
+  WEND
+
+  IF COMMAND$="" THEN
+    LINE INPUT"Enter the name of the desired output file: ";O$
+  END IF
+
+  IF INSTR(F$,".")=0 THEN F$=F$+".COM"      'fix input spec
+  IF O$="" THEN
+    O$=LEFT$(F$,INSTR(F$,"."))+"INC"        'fix output spec,
+    ELSE
+      IF INSTR(O$,".")=0 THEN O$=O$+".INC"  'both ways
+  END IF
+
+  OPEN"R",#1,F$,1          'input file will be read one byte
+  FIELD #1,1 AS A$         'at a time into A$
+
+  LASTBYTE&=LOF(1)         'end of file position
+  OPEN"O",2, O$            'output file is opened
+  FOR I&=1 TO LASTBYTE&-1
+    GET 1,I&
+    X%=ASC(A$)
+    IF ((I&-1) MOD 5=0) THEN PRINT #2,"":PRINT #2,"$INLINE ";
+    PRINT #2,"&H";HEX$(X%);
+    IF ((I&-1) MOD 5<>4) THEN PRINT #2,",";
+  NEXT I&
+  GET 1,LASTBYTE&
+  PRINT #2,"&H";HEX$(ASC(A$))
+  PRINT"Conversion complete. ";LASTBYTE&;" bytes read."
+  PRINT 0$;" contains ";LOF(2);" bytes."
+  CLOSE
+  END
+
+This program will output a file with up to five hex codes per line.
+Each line will begin with the $INLINE directive, and the resulting
+file should have enough room in it for comments you might want to
+add. If you want to put more or fewer hex codes on a single line,
+you need only change the references to MOD 5 to MOD N, where N is
+greater or less than 5.
+
+If you want to make small changes to the routines you have written
+and converted to hex codes, you should be able to do so without
+having to recreate the whole routine from scratch, provided the
+changes are small enough and your documentation is complete.
+
+
+   Locating a Turbo Basic routine in memory
+
+There are three general ways of finding the location of a routine
+in memory:
+
+   1) You can have the routine itself return its address.
+   2) You can group a series of routines together and have a single
+      routine return an address applicable for all of them.
+   3) You can look for a special sequence of bytes within the
+      computer's memory.
+
+To create a routine that will return its address, you could use
+code similar to the following:
+
+  xy:  mov  ax,cs          ;move the code segment register to AX
+       push bp             ;save the base pointer
+       mov  bp,sp          ;and copy the stack pointer into BP
+       les  di,[bp+6]      ;ES contains the segment, DI the offset
+       mov  es:[di],ax     ;store the CS value to first parameter
+       mov  dx, offset xy  ;get the current offset
+       les  di,[bp+0ah]    ;address of second parameter
+       mov  es:[di],dx     ;store offset value to second parameter
+       jmp  fin            ;jump around "real" code
+                           ; real code would be here
+  fin: pop  bp             ;restore BP and return
+
+You will need to pass two integers to this routine's variables; it
+will return the code segment in the first and the offset in the
+second. The problem: All that code is useless after it has been
+used once. In fact, it's worse than useless because the code must
+be removed before the routine can be run normally.
+
+Unless the routine you want to use can gain a lot of speed from the
+modification you make, it's likely that making the modification
+will cost more time than you'll save. The modification had better
+be good; unless your routine is completely relocatable, the working
+code will be preceded by a lot of NOPs.
+
+You can still determine the address of the routine, however. If you
+had grouped several routines together and put labels in your Turbo
+Basic program so you could call the one you wanted, wouldn't that
+allow you to include a "tell me the address" routine in with the
+others?
+
+The answer is no. Remember, Turbo Basic handles the RET instruction
+for you. Since the routines are given different names, Turbo Basic
+will assume each is relocatable code. There is no guarantee that
+the separate routines will be in the same area of memory in the
+final .EXE file. Even if the routines are in the same area of
+memory and in the same order, you won't know how many bytes of code
+Turbo Basic put between them, and so you won't know where to go in
+each to make the changes you want.
+
+The third method of determining a routine's address is the
+signature method. To use this, you search the computer's memory for
+a memory location containing the particular sequence of bytes that
+identify the routine you want to change.
+
+The signature method also has problems. First, such a search will
+take a good deal of time. Second, there is no guarantee that you
+have definitely located the routine even if you match the
+signature. Third, each routine must contain a different signature;
+this wastes code space and adds to the time needed to modify all
+routines.
+
+To make routines the program can modify, you need a better way of
+determining the address of the routine, and you need an easier way
+of altering the instructions in the routine.
+
+To find a solution to these problems, read the next section, where
+we consider a special way to use routines that you can modify from
+within your Turbo Basic program.
+
+
+     Hiding strings
+
+Turbo Basic allows a maximum of 64K for string space. Sometimes you
+will need every byte of that space, but quoted string constants
+(such as those used for menus and prompts) also take up string
+space.
+
+Code space, however, is limited only to a maximum of 16 segments,
+each up to 64K long. Life would be grand if you were allowed to
+store some of those string constants in code space, where they
+wouldn't reduce the space available for dynamic string data.
+Fortunately, this is not too hard to do.
+
+Consider the following routine:
+
+  ;This routine takes two integer parameters and returns
+  ;the segment and offset of the text in the body of the program.
+  ;
+          push   sp
+          mov    bp,sp
+          mov    dx,offset show         ;location of string
+          mov    ax,cs                  ;code segment to AX
+          les    di,[bp+6]              ;ES:DI point to parameter
+          mov    es:[di],dx             ;report string location
+          les    di,[bp+0ah]            ;next parameter
+          mov    es:[di],ax             ;report the code segment
+          jmp    fini                   ;and go back show
+          DB     'Any text we like here and as much as we want'
+          DB     'For as long as we want, terminated with any'
+          DB     'character we like. Here, a null.',0
+    fini  pop    bp
+
+The effect of this routine is somewhat different than the ones we
+proposed earlier for program-modifiable inline code. For one thing,
+you're not storing code (though Turbo Basic will process the
+resulting .COM file as if it were all code); instead, you're
+storing data.
+
+The routine is returning the current address of the data stored
+within it. If you wanted to know the length of the data, you could
+have the routine report that, too, though you'd have to pass a
+third integer parameter.
+
+Since you know where the text is in memory, you can use the PEEK
+instruction to read the string data into string space any time you
+want to print the message. When you've finished printing the
+message, you can throw away the now unneeded string; it will still
+be available in code space if you need it again.
+
+You can determine the number of bytes available in this routine. In
+particular, you can determine the number of bytes preceding the
+text. Just replace all but the final instruction with your own
+code: Since you know where the routine is and how big it is, you
+can use BLOAD to overwrite it. As far as the Turbo Basic .EXE file
+is concerned, nothing will have changed--even though the whole
+routine is now different.
+
+Usually, this technique is not necessary. Saving strings in code
+space is sometimes useful, but replacing a whole routine with
+another is better done by using CALL ABSOLUTE.
+
+
+     CALL ABSOLUTE
+
+CALL ABSOLUTE is given a short mention in the Turbo Basic manual
+for several reasons. The first one is that Turbo Basic has less
+control over such routines. Second, such routines are commonly used
+because they were written for the Basic interpreter: Turbo Basic is
+different enough from the Basic interpreter that those routines
+might not work. Third, future operating systems may not allow CALL
+ABSOLUTE routines to be used. In particular, operating systems that
+make a clear distinction between code space and data space might
+refuse to allow the processor to execute instructions located in
+data space. Fourth, routines called by CALL ABSOLUTE may only be
+passed simple integer variables. This is not as much of a
+restriction as it seems, since simple integer variables can contain
+segment and offset addresses of any type of variable. Still, it can
+make parameter-passing somewhat more time-consuming.
+
+For this discussion, we'll assume you're using MS-DOS 2.0 or
+greater and that the operating system permits the processor to
+execute instructions anywhere in memory.
+
+
+       CALL ABSOLUTE to fixed memory locations
+
+If you have a family of programs that share the same set of
+routines, it makes sense to put those routines in a fixed location.
+Then, each program that needs to use those routines can call them
+at a particular address. Turbo Basic allows you to safeguard
+addresses in high memory for this purpose with the MEMSET command.
+
+ENDMEM is frequently used with MEMSET. ENDMEM will return a long
+integer that will be the last memory location the compiled Turbo
+Basic program can use. Routines are commonly placed in high memory
+at some fixed location beginning below this limit.
+
+If you have such a set of routines, you will need to call them with
+the CALL ABSOLUTE command. To put them into high memory, use BLOAD.
+You will need to use DEF SEG to set the segment address into which
+the routines should be loaded, and specifically declare the offset
+address at which they should be loaded.
+
+When you create these routines with Turbo Assembler, you should
+take care to follow these rules:
+
+   1) Unless the routine is intended to run at one and only one
+      address, all transfers (JMPs and CALLs) in the program should be
+      completely relocatable. (A complete discussion of relocatable
+      code is beyond the scope of this chapter.)
+
+   2) If the program is intended to be run at only one address, you
+      must specify that address in the ORG directive in the assembler
+      source code.
+
+
+       CALL ABSOLUTE to other locations in memory
+
+Turbo Basic will also allow you to use CALL ABSOLUTE to memory
+locations that might vary each time you run a program. The most
+typical way to do this is to load the assembler routine into an
+array outside of normal data space.
+
+Consider the following code fragment:
+
+  DEFINT a-z
+  $DYNAMIC                                 'arrays will be dynamic
+  DIM RoutineArray(10000)                  '20,002 bytes allocated
+  'miscellaneous code here
+  whereseg% = VARSEG(ROUTINEARRAY(0))      'segment address
+  whereoffset% = VARPTR(ROUTINEARRAY(0))   'offset address
+  DEF SEG = whereseg%                      'set default segment
+  BLOAD"COMFILE", whereoffset%             'read routine in
+  CALL ABSOLUTE whereoffset%(parameter%)   'call the routine
+  DEF SEG                                  'return to default
+
+If you want to use a number of routines, you could load each in
+turn into the same array. If you wanted to use special versions of
+the routines, you could select which ones to load, and load each
+into a different array. Finally, if you wanted to alter portions of
+the array, you could do so by simply changing the values of
+selected array elements.
+
+As you can see, routines designed for use by CALL ABSOLUTE can be
+far more easily located and modified than $INLINE ones. The
+difficulty with the CALL ABSOLUTE routines is that they must be
+fully relocatable if they are to be generally useful. For short
+routines, this might not be a problem; for complex routines, it can
+be quite difficult to write fully relocatable code.
+
+You can also BLOAD routines into string variables. Here, you must
+be especially careful. If you attempt to BLOAD a routine longer
+than the string variable, you will overwrite some other string. If
+that string is modified, part of your BLOADed routine might also be
+modified.
+
+String variables can move, too. Even if the routine is loaded
+correctly into a string, you should take care to use VARSEG and
+VARPTR to establish the address of the string immediately before
+attempting to call the routine.
+
+Turbo Basic strings are not stored the same way numeric variables
+are. If you perform VARPTR(A%), you'll get the address of the
+integer variable A%. If you do VARPTR(A$), you'll get the address
+of the string descriptor for A$. The memory location 2 bytes
+further along will contain the actual address of the string in
+string space. To come up with the same result as VARPTR(A%), you'd
+have to do something equivalent to this:
+
+  A% = VARPTR(A$)
+  A% = A%+2
+  StringAddress% = CVI(CHR$(PEEK(A%)) + CHR$(PEEK(A%+1)))
+
+Though putting assembler routines into character strings used to be
+quite popular, it's a lot less appealing now that integer arrays
+can be dimensioned and erased. It would be better to use integer
+arrays for CALL ABSOLUTE routines and avoid the extra difficulties
+of accessing constantly moveable string data.
+
+If you want to avoid using BLOAD, it's also possible to load .COM
+files into strings by using binary file I/O; that is, open the .COM
+file as type binary and read the correct number of bytes into the
+string. You can use the same approach to read the data into an
+integer array. BLOAD is faster and easier, however.
+
+
+       Other problems with CALL ABSOLUTE
+
+Code read from disk for use by CALL ABSOLUTE suffers from several
+important disadvantages, the most important being the requirement
+for relocatability, which we mentioned previously.
+
+Another serious problem is that the routines must be read from disk
+separately from the main program, introducing several possibilities
+for error. The required code might not be present on the disk, or
+might be present but damaged.
+
+A third problem is that the time spent reading the code from disk
+might remove the very reason to have the routine in assembler--
+rather than in Turbo Basic--in the first place.
+
+Despite these stumbling blocks, the flexibility of pulling in
+different routines, of having code that can be modified under
+program control, and of reducing the amount of code that needs to
+be present in memory at any time can be strong enough reasons to
+consider using the CALL ABSOLUTE construction.
+
+
+     CALL INTERRUPT
+
+The third and final way to access assembler routines from within
+Turbo Basic is perhaps both the easiest way to avoid assembler and
+the most difficult way to use assembler.
+
+Most programmers will use CALL INTERRUPT to access the normal MS-
+DOS services. In this situation, there is really no assembler to
+worry. Instead, you need to remember the following:
+
+  Name    Register
+
+  REG 0   Flags
+  REG 1   AX
+  REG 2   BX
+  REG 3   CX
+  REG 4   DX
+  REG 5   SI
+  REG 6   DI
+  REG 7   BP
+  REG 8   DS
+  REG 9   ES
+
+To set the value of a register, use the REG statement:
+
+  REG 3,&H0F01
+
+This sets the value of the CX register to hexadecimal 0F01.
+Register CH will be hexadecimal 0F, and CL will be 01.
+
+To read the value of a register, use the REG function:
+
+  A%=REG(3)
+
+This assigns the current value of the CX register to A%.
+
+The following example causes the screen to do a reverse scroll,
+from line 1 to 24:
+
+  REG 3,0                  'row zero, column zero for top
+  REG 4,&H175F             'row 23, column 79 for bottom
+  REG 2,&H70               'color 7,0
+  REG 1,&H0701             'bios function 7, scroll 1 line
+  CALL INTERRUPT &H10      'video interrupt 10h
+
+The equivalent routine is more difficult to write in assembler and
+won't work any better. In fact, the CALL INTERRUPT form is easier
+to modify when needed.
+
+The whole procedure is normally very easy. However, for more
+advanced programmers, interrupts can be used for other than the
+normal MS-DOS services.
+
+Interrupts are often used to manage devices (such as temperature
+sensors, remote recorders, timers, and samplers). To use such an
+interrupt, you must first find an unused interrupt. (Many are used
+by MS-DOS, and others may be used by devices such as tape drives
+and storage devices such as the Bernoulli Box.)
+
+Within the Turbo Basic program, you will point the interrupt vector
+to the routine written with Turbo Assembler. As noted in the Turbo
+Basic manual, the interrupt routine should preserve the values of
+the SS and SP registers; any of the others can be modified. At the
+end of the routine, control is passed back to the Turbo Basic
+program via an IRET instruction.
+
+It is possible to use the techniques mentioned already to determine
+the location of a routine and to put that location in the interrupt
+vector, but it's better to put interrupt routines either in high
+memory or to BLOAD them like routines for CALL ABSOLUTE.
+
+Interrupt routines included in your programs via the $INLINE
+command will need to be located somehow. BLOADed routines stored in
+integer arrays might not be in the same location from time to time,
+but at least the location will be known. Still, putting interrupt
+handlers into such arrays will mean that all of the code in the
+interrupt routine must be fully relocatable.
+
+For that reason, interrupt routines are usually put in fixed
+locations in high memory. If you decide to use that approach, be
+sure to include the proper ORG command in your Turbo Assembler
+source code.
+
+
+   Sample program
+
+  FILLIT2$ = CHR$(&HFC)+CHR$(&HF3)+CHR$(&HAB)+CHR$(&HCB)
+  '          cld        rep       stosw       ret
+  DIM a%(100)               'integer array whose elements are all 0
+  WHERE%=VARPTR(FILLIT2$)   'this locations stores the length
+  WHERE%=WHERE%+2           'and this is the string location
+  CLS:PRINT PEEK(WHERE%),PEEK(WHERE%+1)
+  HERE%=PEEK(WHERE%)+256*PEEK(WHERE%+1)
+                            'and this is the string location
+  DEF SEG                   'not necessary here, but good
+                            ' programming practice
+  WHERE%=PEEK(0)+256*PEEK(1)
+  DEF SEG=WHERE%            'string segment is the first word in
+                            ' default DS
+  REGES%=VARSEG(a%(0))
+  REGSI%=VARPTR(a%(0))
+  REG 1,5%                  'put the fill value into AX
+  REG 3,101%                'number of elements to fill, 0 to 100
+                            ' inclusive into CX
+  REG 9,REGES%              'segment of the array to fill into ES
+  REG 6,REGSI%              'offset to first array element into SI
+  CALL ABSOLUTE HERE%       'fill the array with the value 5
+  DEF SEG
+  FOR i%=0 TO 100:PRINT a%(i%);:NEXT i%
+  PRINT
+  PRINT REG(1),REG(3),REG(9),REG(6):STOP
+  CALL FILLIT(a%(0),-1%,101%)  'fill the array with the value -1
+  FOR i%=0 TO 100:PRINT a%(i%);:NEXT i%
+  PRINT
+  END
+  SUB FILLIT INLINE
+  $INLINE &H55,&H8B,&HEC,&HC4,&H7E
+  $INLINE &HE,&H26,&H8B,&HD,&HC4
+  $INLINE &H7E,&HA,&H26,&H8B,&H5
+  $INLINE &HC4,&H7E,&H6,&HFC,&HF3
+  $INLINE &HAB,&H5D
+  END SUB
+
+
+  ;Routine to transfer an arbitrary number of elements with an
+  ;arbitrary value into an integer array for call absolute.
+  ;
+  ;Calling syntax is
+  ;REG 1,FILLVALUE%          'AX has the fill value
+  ;REG 3,FILLCOUNT%          'CX has the number of elements to fill
+  ;REG 9,VARSEG(ARRAY(0))    'ES has the segment of the array
+  ;REG 6,VARPTR(ARRAY(0))    'DI is the offset to first array elem
+  ;
+  ;CALL ABSOLUTE FILLIT2
+  ;FILLIT2 is the address of the absolute routine and DEF SEG
+  ;will have set the default program segment to that of
+  ;FILLIT2 before the CALL ABSOLUTE.
+  PROGRAM SEGMENT
+  START   PROC FAR        ;this will force a far return
+      ASSUME cs:PROGRAM
+      push bp             ;save the base pointer
+      cld                 ;clear direction flag
+      rep                 ;next instruction repeats until CX is 0
+      stosw               ;store AX to ES:DI and increment DI by 2
+      pop bp              ;restore base pointer
+      ret                 ;intersegment (far) return
+  START   ENDP
+  PROGRAM ENDS            ;end of segment
+      END
+
+  ;Routine to transfer an arbitrary number of elements with an
+  ;arbitrary value into an integer array. Calling syntax is:
+  ;CALL FILLIT(ARRAY(0),FILLVALUE,NUMTIMES)
+      ORG 100h
+  PROGRAM SEGMENT
+      ASSUME cs:PROGRAM
+      push bp           ;save the base pointer
+      mov  bp,sp        ;move stack pointer to BP
+      les  di,[bp+0eh]  ;get offset address of # of elems to fill
+      mov  cx,es:[di]   ;number of elements to fill into CX
+      les  di,[bp+0ah]  ;get offset address of fill value
+      mov  ax,es:[di]   ;put fill value in AX
+      les  di,[bp+6]    ;offset address of array to fill
+      cld               ;clear direction flag
+      rep               ;next instruction repeats until CX is zero
+      stosw             ;store AX to ES:DI and increment DI by two
+      pop bp            ;restore base pointer
+  PROGRAM ENDS          ;end segment--no RET instruction
+      END
+
+

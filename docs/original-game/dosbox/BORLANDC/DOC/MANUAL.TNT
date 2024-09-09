@@ -1,0 +1,1473 @@
+/*************************************************************************/
+                        TURBO DEBUGGER & TOOLS 2.5
+                      MANUAL REFERENCE & CORRECTIONS
+
+This file contains information about the Turbo Debugger utilities previously
+found in the Turbo Debugger User's Guide.  The contents of this file are as
+follows;
+
+1.  Turbo Debugger Utilities
+2.  Hardware Debugger Interface
+3.  Corrections to the Manual
+
+1.  TURBO DEBUGGER UTILITIES
+----------------------------
+
+For convenience, when searching for information about a particular utility,
+you can search for the name of the utility followed by a colon (i.e. TDUMP:).
+This will take you directly to the header for the utility specified.
+
+Your Turbo Debugger package comes with several utility programs which are
+discussed in the following sections. One utility lets you debug C programs
+developed with Microsoft compilers. This is the CodeView to Turbo Debugger
+conversion utility, TDCONVRT.EXE.
+
+Another utility works in conjunction with remote debugging and lets you issue
+basic file-maintenance commands to a remote system. This is the Remote File
+Transfer utility, TDRF.EXE.
+
+A third program lets you strip the debugging information (the "symbol table")
+from your programs without relinking. This is the Symbol Table Stripping
+utility, TDSTRIP.EXE.
+
+There is also a utility that lets you pack the debugging information and one
+that lets you append it from a .MAP file: TDPACK.EXE and TDMAP.EXE.
+
+Finally, we provide a generic object module disassembler program called
+TDUMP.EXE.
+
+Additionally, we give you a small TSR program, TDNMI.COM that resets the
+breakout-switch latch if you are using a Periscope I board.
+
+Note: For a list of all the command-line options available for TDCONVRT.EXE,
+TDRF.EXE, TDSTRIP.EXE, TDPACK.EXE, TDMAP.EXE, and TDUMP.EXE, just type the
+program name and press Enter. For example, to see the command-line options
+for TDMAP.EXE, you would enter
+
+   TDMAP
+
+All other utilities use the -? command-line switch for on-line information.
+
+
+TDCONVRT: CodeView symbol table converter
+-----------------------------------------
+The TDCONVRT.EXE utility program converts your C programs linked with Micro-
+soft Link into a format suitable for use with Turbo Debugger. Before you use
+this utility, you must prepare your program for debugging exactly as if you
+were going to use CodeView.
+
+
+Running from DOS
+----------------
+After you have compiled and linked your program, convert it to Turbo Debugger
+format by typing at the DOS prompt:
+
+TDCONVRT oldname [newname]
+
+where oldname is the name of the executable program you made with Microsoft
+Link. You can specify a new name for the Turbo Debugger executable program
+by supplying that name after the old name. If you don't specify a new name,
+the oldname file is converted to Turbo Debugger format.
+
+The utility automatically detects whether your program is in CodeView version
+1 or version 2 format and adjusts its behavior accordingly.
+
+
+Error messages
+
+The conversion utility sometimes encounters a problem that prevents it from
+converting your program to Turbo Debugger format. If that happens, you will
+see one of the following error messages:
+
+Can't convert CodeView version 1 symbol tables
+You have attempted to convert a program that has a symbol table that can only
+be used with CodeView version 1. You must recompile and link your program
+with later versions of Microsoft tools that produce CodeView version 2 symbol
+tables.
+
+Can't create file: ___
+TDCONVRT couldn't create the indicated file. You probably don't have enough
+room on your disk. Delete a few files that you don't need and try again.
+
+Can't translate a packed symbol table
+You are attempting to convert a symbol table that has been processed by the
+CVPACK utility. TDCONVRT can only work on symbol tables that have not been
+packed. You will have to relink your program and not run the packing utility,
+and then use TDCONVRT.
+
+Error reading from file: ___
+An error occurred while reading from the indicated file. This usually means
+that the file was written on a bad disk sector. Try relinking the program
+you want to convert so that it gets written to disk again.
+
+Error writing to file: ___
+An error occurred while writing to the indicated file. This usually means
+your disk has filled up. You will have to delete a few files and try the
+conversion again.
+
+File not found: ___
+TDCONVRT couldn't find the file you are trying to convert. If you don't
+supply an extension to the file name you want to convert, TDCONVRT assumes
+that you meant it to be .EXE.
+
+Not enough memory to perform conversion
+TDCONVRT has run out of memory while translating the symbol table to Turbo
+Debugger format. You can try unloading any resident utilities that you have
+loaded and try the conversion again. If you still don't have enough memory,
+you can try reducing the amount of debug information in your program. Do this
+by compiling or assembling only some of its modules with debugging information
+included.
+
+Program does not have a valid symbol table
+You have attempted to convert a program that does not have a symbol table
+created by MS-LINK. TDCONVRT can only convert symbol tables generated by
+MS-LINK.
+
+Symbol table contains untranslatable fields
+The program you're trying to convert has a symbol table that contains fields
+that TDCONVRT can't translate. TDCONVRT works with all Microsoft C programs,
+but it may not fully support other Microsoft languages.
+
+Symbol table has invalid format
+Your program's symbol table is not formatted correctly. It may have become
+corrupted or have been generated by an old version of MS-LINK. Make sure that
+you are using the latest MS-LINK and then try relinking to create a new .EXE
+file and symbol table on disk.
+
+
+TDRF:/TDREMOTE: Utilities for remote file transfer and debugging
+----------------------------------------------------------------
+The remote file transfer utility (TDRF) works in conjunction with TDREMOTE
+or WREMOTE running on another system. With TDRF you can perform most DOS 
+file maintenance operations on the remote system. You can
+
+* copy files to the remote system
+
+* copy files from the remote system
+
+* make directories
+
+* remove directories
+
+* display directories
+
+* change directories
+
+* rename files
+
+* delete files
+
+
+Once you have started TDREMOTE or WREMOTE on the remote system, you can 
+use TDRF at any time. You can start it directly from the DOS prompt, or you 
+can access DOS from inside Turbo Debugger by using the File|DOS Shell
+command, and then start TDRF, even while debugging a program on the
+remote system. This can be useful if you've forgotten to put some
+files on the remote system that are required by the program you're
+debugging.
+
+When describing TDRF in the following sections, we refer to the system
+you are typing at as the "local system" and any files there as "local
+files," and the other system connected by a cable as the "remote
+system" and any files there as "remote files."
+
+
+Starting TDRF from the DOS command line
+
+The general form of the command line for TDRF is
+
+   TDRF [options] command [arguments]
+
+The options control the speed of the remote link and which port it
+runs on. They are described in more detail in the next section.
+
+Command indicates the operation you wish to perform. The command can
+either be typed the way you are used to doing it with DOS--like COPY,
+DEL, MD, and so on--or it can be a single-letter abbreviation.
+
+For example, to get a directory display of all files starting with ABC
+in the current directory on the remote system, you could type:
+
+   TDRF DIR ABC*
+
+All the commands are described fully after the next section.
+
+
+TDRF command-line options
+
+You must start an option with either a hyphen (-) or a slash (/). Here
+are the possible command-line options for TDRF:
+
+-rsN     Sets the remote link speed.
+
+The -rs option sets the speed at which the remote link operates. You
+must make sure you use the same speed with TDRF that you specified
+when you started TDREMOTE on the remote system. N can be 1, 2, or 3,
+where 1 signifies a speed of 9600 baud, 2 signifies 19,200 baud, 3
+signifies 38,400 baud, and 4 signifies 115,000 baud.
+
+In other words, the higher the number, the faster the data transfer
+rate across the link. Normally, TDRF defaults to -rs4 (the highest
+speed).
+
+-rpN     Sets the remote link port.
+
+The -rp options specifies which port to use for the remote link. N can
+be either 1 or 2, where 1 stands for COM1 and 2 stands for COM2.
+
+-w       Writes options to the executable program file.
+
+You can make the TDRF command-line options permanent by writing them
+back into the TDRF executable program image on disk. Do this by
+specifying the -w command-line option along with the other options you
+wish to make permanent. You will then be prompted for the name of the
+executable program.
+
+If you're running on DOS 3.0 or later, the prompt will indicate the
+path and file name that you executed TDRF from. You can accept this
+name by pressing Enter, or you can enter a new executable file name.
+The new name must already exist and be a copy of the TDRF program that
+you have already made.
+
+If you are running on DOS 2.x, you will have to supply the full path
+and file name of the executable program.
+
+You can enter a new executable file name that does not have to already
+exist. TDRF will create the new executable file.
+
+
+TDRF commands
+
+Here are the command names you can use with the TDRF utility. The
+wildcards * and ? can be used with the COPY, COPYFROM, DEL, and DIR
+commands that follow:
+
+COPY
+Copies files from the local system to the remote system. You can also
+type COPYTO instead of COPY. The single letter abbreviation for this
+command is T.
+
+If you supply a single file name after the COPY command, that file
+name will be copied to the current directory on the remote system. If
+you supply a second file name after the name of the file on the local
+system, the local file will be copied to that destination on the
+remote system. You can specify either a new file name, a directory
+name, or a drive name on the remote system. For example,
+
+   TDRF COPY TEST1 \MYDIR
+
+copies file TEST1 from the local system to file MYDIR\TEST1 on the
+remote system.
+
+COPYFROM
+Copies files from the remote system to the local system. The single
+letter abbreviation for this command is F.
+
+If you supply a single file name after the COPYFROM command, that file
+name will be copied from the current directory on the remote system to
+the current directory on the local system. If you supply a second file
+name after the name of the file on the remote system, the remote file
+will be copied to that destination on the local system. You can
+specify either a new file name, a directory name, or a drive name on
+the local system. For example,
+
+   TDRF COPYFROM MYFILE ..
+
+copies file MYFILE from the remote system to the parent directory of
+the current directory on the local system.
+
+   TDRF F TC*.* A:\TCDEMO
+
+copies all files beginning with TC on the current directory of the
+remote system to the local system's drive A subdirectory, TCDEMO.
+
+DEL
+Erases a single file from the remote system. The single letter
+abbreviation for this command is E.
+
+If you just give a file name with no directory or drive, the file is
+deleted from the current directory on the remote system. For example,
+
+   TDRF DEL \XYZ
+
+removes file XYZ from the root directory of the remote system.
+
+DIR
+Displays a listing of the files in a directory on the remote system.
+The single letter abbreviation for this command is D.
+
+This command behaves very similarly to the equivalent DOS command. If
+you don't specify a wildcard mask, it shows all the files in the
+directory; if you do specify a mask, only those files will be listed.
+You can interrupt the directory display at any time by pressing
+Ctrl-Break.
+
+The directory listing is displayed in exactly the same format as that
+used by the DOS DIR command. For example,
+
+   TDRF DIR \SYS\*.SYS
+
+results in a display like:
+
+Directory of C:\SYS
+
+.            <DIR>      6-08-88   8:01a
+..           <DIR>      6-08-88   8:01a
+ANSI     SYS     1678   3-17-87  12:00a
+VDISK    SYS     3455   3-17-87  12:00a
+
+
+REN
+Renames a single file on the remote system. The single letter
+abbreviation for this command is R.
+
+You must supply two file names with this command: the original file
+name and the new file name. The new name can specify a different
+directory as part of the name, but not a different drive. For example,
+
+   TDRF REN TEST1 \TEST2
+
+renames file TEST1 in the current directory in the remote to TEST2 in
+the root directory. This effectively "moves" the file from one
+directory to another. You can also use this command to simply rename a
+file within a directory, without moving it to another directory.
+
+MD
+Makes a new directory on the remote system. The single letter
+abbreviation for this command is M.
+
+You must supply the name of the directory to be created. If you don't
+supply a directory path as part of the new directory name, the new
+directory will be created in the current directory on the remote
+system. For example,
+
+   TDRF MD TEST
+
+creates a directory named TEST in the current directory on the remote
+system.
+
+RD
+Removes an existing directory on the remote system. The single letter
+abbreviation for this command is K.
+
+You must supply the name of the directory to be removed. If you don't
+supply a directory path as part of the new directory name, the
+directory will be removed from the current directory on the remote
+system. For example,
+
+   TDRF RD MYDIR
+
+removes a directory named MYDIR from the current directory on the
+remote system.
+
+CD
+Changes to a new directory on the remote system. The single letter
+abbreviation for this command is C.
+
+You must supply the name of the directory to change to. You can also
+supply a new drive to switch to, or even supply a new drive and
+directory all at once. For example,
+
+   TDRF CD A:ABC
+
+makes drive A the current drive on the remote system, and switches to
+directory ABC as well.
+
+
+TDRF messages
+
+Here is a list of the messages you might encounter when working with
+TDRF:
+
+Can't create file on local system: ___
+You were copying a file from the remote system using the COPYFROM command,
+and the file could not be created on the local system. This will happen if
+the disk is full on the local system, or if the file name on the
+remote system is the same as a directory name on the local system.
+
+Can't modify exe file
+The file name you specified to modify is not a valid copy of the TDRF
+utility. You can only modify a copy of the TDRF utility with the -w
+option.
+
+Can't open exe file to modify
+The file name you specified to be modified can't be opened. You have
+probably entered an invalid or nonexistent file name.
+
+Error opening file: ___
+The file you wanted to transfer to the remote system could not be
+opened. You probably specified a nonexistent or invalid file name.
+
+Error writing file: ___
+An error occurred while writing to a file on the local system. This
+usually happens when there is no more room on your disk. You will have
+to delete some files to make room for the file that you want to copy
+from the remote system.
+
+Error writing file ___ on remote system
+An error occurred while writing a file to the disk on the remote
+system. This usually happens if the remote disk is full. You must
+delete a few files to make room for the file that you want to
+transfer.
+
+File name is a directory on remote
+You have tried to copy a file from the local to the remote system, but
+the local file name exists as a directory on the remote system. You
+will have to rename the file by giving a second argument to the COPY
+command.
+
+Interrupted
+You have pressed Ctrl-Break while waiting for communications to be
+established with the remote system.
+
+Invalid command: ___
+You have entered a command that TDRF does not recognize. For each
+command, you can use the DOS-style command word or the single letter
+abbreviation.
+
+Invalid command line option: ___
+You have given an invalid command-line option when starting TDRF from
+the DOS command line.
+
+Invalid destination disk drive
+You have specified a nonexistent disk drive letter in your command.
+Remember that the remote system might have a different number of disk
+drives than the local system.
+
+No matching files on remote
+You have done a directory command but either there are no files in the
+directory on the remote system, or no files match the wildcard
+specification that you gave as an argument to the DIR command.
+
+No remote command specified
+You have not specified any command on the DOS command line; TDRF has
+nothing to do.
+
+Too few arguments
+You have not supplied enough arguments for the command that you
+requested. Some commands require an argument, like DEL, MD, CD, RD,
+and so on.
+
+Too many arguments
+You have specified too many arguments for the command that you
+requested. No command requires more than two arguments, and some
+require only one.
+
+Wrong version of TDREMOTE
+You are using an incompatible version of TDRF and TDREMOTE. Make sure
+that you are using the latest version of each utility.
+
+
+TDSTRIP: The symbol table stripping utility
+-------------------------------------------
+TDSTRIP.EXE, the symbol table stripping utility, lets you remove the
+symbol table from an executable program generated by TLINK with the /v
+option. This is a faster way of removing the symbol table than
+relinking without the /v option. It can also remove debugging
+information from an .OBJ file. Just enter
+
+   TDSTRIP PROGRAM.OBJ
+
+You can also use this utility to remove the symbol table and put it in
+a separate file. This is useful when you want to convert the .EXE
+format program to a .COM file, and still retain the debugging symbol
+table. This utility puts the symbol table in a file with the extension
+.TDS. Turbo Debugger looks for this file when it loads a program to
+debug that does not have a symbol table.
+
+
+TDSTRIP command-line options
+
+Here is the general form of the DOS command line used to start the
+Symbol Table Stripping utility, TDSTRIP:
+
+   TDSTRIP [-s][-c] exename [outputname]
+
+If you don't specify the -s option, the symbol table is removed from
+the .EXE file exename. If you specify an outputname, the original .EXE
+file is left unchanged and a version with no symbol table is created
+as outputname.
+
+If you do specify the -s option, the symbol table will be put in a
+file with the same name as exename but with the extension .TDS. If you
+specify an output file, the symbol table will be put in outputname.
+
+If you specify the -c option, the input .EXE file is converted into a
+.COM file. If you use -c in conjunction with -s, you can convert an
+.EXE file with symbols into a .COM file with a separate .TDS symbol
+file. This lets you debug .COM files with Turbo Debugger while
+retaining full debugging information.
+
+You can only convert certain .EXE files into .COM files. The same
+restrictions apply to the -c option of TDSTRIP as to the /t option of
+TLINK: Your program must start at location 100 hex, and it can't
+contain any segment fixups.
+
+If you don't supply an extension with exename, .EXE is presumed. If
+you don't supply an extension with outputname, .EXE is added when you
+don't use -s, and .TDS is added when you do use -s.
+
+Here are some sample TDSTRIP command lines:
+
+   TDSTRIP MYPROG
+
+removes the symbol table from MYPROG.EXE.
+
+   TDSTRIP -s MYPROG.OLD
+
+removes the symbol table from MYPROG.OLD and places it in MYPROG.TDS.
+
+   TDSTRIP MYPROG MYPROG.NEW
+
+leaves MYPROG.EXE unchanged but creates another copy of it named
+MYPROG.NEW without a symbol table.
+
+   TDSTRIP -s MYPROG MYSYMS
+
+removes the symbol table from MYPROG.EXE and places it in MYSYMS.TDS
+
+
+TDSTRIP error messages
+
+Here is a list of the possible error messages you might encounter when
+working with TDSTRIP:
+
+Can't create file: ___
+TDSTRIP could not create the output symbol or .EXE file. Either there
+is no more room on your disk, or you specified an invalid output file
+name.
+
+Can't open file: ___
+TDSTRIP could not locate the .EXE file that you wish to remove the
+symbol table from.
+
+Error reading from input exe file
+An error occurred during reading from the input executable program
+file. Your disk may be unreadable. Try the operation again.
+
+Error writing to output file: ___; disk may be full
+TDSTRIP could not write to the output symbol or executable file. This
+usually happens when there is no more room on your disk. You will have
+to delete some files to make room for the file created by TDSTRIP.
+
+Input file is not an .exe file
+You have specified an input file name that is not a valid executable
+program. You can strip symbols only from .EXE programs, since these
+are the only ones that TLINK can put a symbol table on. Programs in
+.COM file format do not have symbol tables and cannot be processed by
+TDSTRIP.
+
+Invalid command-line option: ___
+You have given an invalid command-line option when starting TDSTRIP
+from the DOS command line.
+
+Invalid exe file format
+The input file appears to be an .EXE format program file, but
+something is wrong with it. You should relink the program with TLINK.
+
+Not enough memory
+Your system does not have enough free memory for TDSTRIP to load and
+process the .EXE file. This only happens in extreme circumstances
+(TDSTRIP has very modest memory requirements). You should probably try
+rebooting your system and trying again. You may have previously run a
+program that allocated some memory that won't be freed until you
+reboot.
+
+Program does not have a symbol table
+You have specified an input file that is a valid .EXE file, but it
+does not have a symbol table.
+
+Program does not have a valid symbol table
+The symbol table at the end of the .EXE file is not a valid TLINK
+symbol table. This can happen if you try and use TDSTRIP on a program
+created by a linker other than TLINK.
+
+Too many arguments
+You can supply a maximum of two arguments to TDSTRIP, the first being
+the name of the executable program, and the second being the name of
+the output file for symbols or the executable program.
+
+You must supply an exe file name
+You have started TDSTRIP without giving it the name of an .EXE program
+file whose symbol table you want to strip.
+
+
+TDMAP: The .MAP file utility
+----------------------------
+The TDMAP utility takes a .MAP file -- an ASCII file created by the
+linker containing all public symbols of a program--and appends it to
+the .EXE file in Turbo Debugger format. This lets you debug an
+executable program that you compiled with a non-Borland compiler and
+linker.
+
+The syntax for using TDMAP is
+
+   TDMAP filename [/sourceextension]
+
+TDMAP reads filename.MAP and adds debugging information to
+filename.EXE. For example, if you want to append debugging records to
+a program called HELLO.PAS, you could enter
+
+   TDMAP hello /Epas
+
+Note that the extension, which is preceded with /E, is optional.
+
+
+TDPACK: The file packing utility
+--------------------------------
+The TDPACK utility compresses the debugging information that's
+appended to an .EXE file, making the executable file smaller. It does
+this by eliminating duplicate information such as strings or data-type
+information.
+
+The syntax for using TDPACK is
+
+   TDPACK filename
+
+If no extension is specified, TDPACK assumes the extension is .EXE. If
+it cannot find FILENAME.EXE, TDPACK looks for FILENAME.COM and
+FILENAME.TDS (a .TDS file contains Turbo Debugger symbols for use with
+a .COM file).
+
+
+TDUMP: The file dumping utility
+-------------------------------
+The TDUMP utility program is a generic module disassembler you can use
+to examine the structure of any file.
+
+TDUMP attempts to break apart a file as intelligently as possible. To
+do this, it first looks to the file's extension, and if it recognizes
+it, it displays the file's components according to the type. TDUMP
+recognizes .EXE, .OBJ, and .LIB files. Any file type other than these
+results in a straight hex dump of the file.
+
+You can use TDUMP to peek into the inner structure of any file. This
+not only shows you what's in a file, but also shows you how files are
+constructed. Moreover, because TDUMP verifies that a file's structure
+matches its extension, you can also use TDUMP to test file integrity.
+
+
+TDUMP syntax
+
+The syntax for TDUMP is
+
+   TDUMP [options] inputfile [outputfile]
+
+Inputfile is the file whose structure you want to display (or "dump").
+Outputfile is an optional file name to send the display to (you can
+also use the standard DOS redirection command ">"). Options stands for
+any of the TDUMP options discussed in the next section.
+
+
+TDUMP command-line options
+
+You can use several optional "switches" with TDUMP, all of which start
+with a hyphen (or you can use a forward slash instead). The following
+two examples are equivalent:
+
+   TDUMP -el -v demo.exe
+
+   TDUMP /el /v demo.exe
+
+
+The -a and -a7 options
+
+TDUMP automatically adjusts its output display according to the file
+type (it shows an unrecognized file type in hex display). You can,
+however, force the display to be in ASCII by including the -a or -a7
+option.
+
+An ASCII file display shows the offset and the contents in displayable
+ASCII characters. If a character is not displayable (like any control
+character), it appears as a period.
+
+The -a7 option works just like the -a except that it converts any
+high-ASCII characters to their low-ASCII equivalents. This is handy if
+the file you're dumping sets high-ASCII characters as flags (as
+WordStar files do).
+
+
+The -e, -el, and -er options
+
+All three of these options force TDUMP to display the file as if it
+were an executable (.EXE) file.
+
+An .EXE file display consists of lists of file statistics at the top
+of the display, followed by the global symbol table and the module
+table.
+
+The -el option works just like -e option except that it suppresses
+line numbers in the display.
+
+The -er option works just like -e option except that it prevents the
+the relocation table from displaying.
+
+You can suppress both line numbers and the relocation table by using
+-elr as an option.
+
+
+The -h option
+
+The -h option forces TDUMP to display the file in hexadecimal format.
+The hex format consists of a column of offset numbers, columns of hex
+numbers, and then ASCII equivalents (with periods appearing where
+there are no displayable ASCII characters).
+
+If TDUMP does not recognize the file extension of the input file, it
+defaults to displaying the file in hex format (unless an option forces
+it to show it in another format).
+
+
+The -l option
+
+The -l option forces TDUMP to display the file as if it were a library
+(.LIB) file. A library file is a collection of object files (see the
+following section for more on object files). A library file dump shows
+first some library-specific information, then each of the object
+files, then each record in each object file.
+
+
+The -o option
+
+The -o option forces TDUMP to display the file as if it were an object
+(.OBJ) file. An object file contains descriptions of the command
+records that pass commands and data to the linker, telling it how to
+create an .EXE file. The display format shows each record and its
+associated data, on a record-by-record basis.
+
+
+The -v option
+
+The -v option affects all file formats equally by suppressing any
+descriptions TDUMP ordinarily inserts into the dump to improve
+readability. If you use the -v option, the display is a verbatim dump
+of the file's components--as terse as possible. You need to be an
+advanced programmer to interpret a verbatim display.
+
+
+TDNMI: The utility to reset the breakout-switch
+-----------------------------------------------
+Periscope users: Use TDNMI if you have a Periscope I board and want to
+use its breakout switch with Turbo Debugger. TDNMI is a small TSR
+program that periodically resets the breakout-switch latch on the
+Periscope board. Use the /p command-line option to set the board's
+base address if it is different from the default address of 300.
+
+If you are using a PC clone that disables the NMI interrupt (such as
+some PC's limited systems), you can install the TDNMI resident utility
+to clear the NMI every half second. You will need to do this if you
+are using a breakout switch on such a system.
+
+For a list of all the command-line options available for TDINST.EXE,
+TDREMOTE.EXE, INSTALL.EXE, and TDNMI.COM, enter the program name
+followed by -h:
+
+   TDNMI -h
+
+
+TDMEM: The memory display utility
+---------------------------------
+TDMEM displays the current availability of your computer's memory.
+This includes Expanded or Extended memory, if it exists, and conventional 
+memory.  This is useful when debugging TSR and device driver programs.  
+You can use the File|Table relocate option in Turbo Debugger to specify 
+a base segment address for the current symbol table which is shown when 
+running TDMEM.
+
+
+TDDEV: The device driver display utility
+----------------------------------------
+TDDEV produces a report showing the device drivers loaded into the system
+as well as how much memory each uses, and what interrupt vectors are taken
+over.  This is also useful when debugging device driver applications.
+
+
+
+2.  HARDWARE DEBUGGER INTERFACE
+-------------------------------
+Hardware debugging boards greatly speed up certain types of break-
+points; in particular, those that watch for an area of memory or a
+program variable to change. Turbo Debugger has a general interface for
+accessing these boards.
+
+This appendix describes how to install the device driver supplied with
+Turbo Debugger and how to write a device driver that Turbo Debugger
+can communicate with in order to make use of the capabilities of a
+particular hardware debugger.
+
+
+TDH386.SYS: 80386 hardware device driver
+----------------------------------------
+This information is intended for vendors of hardware debuggers who
+want to make use of their boards with Turbo Debugger. (Note that you
+must know the general architecture of DOS device drivers. Refer to the
+DOS Technical Reference for more information on how to write device
+drivers.)
+
+The Turbo Debugger distribution disk contains the file TDH386.SYS,
+which is a hardware device driver that lets Turbo Debugger use the
+debug registers on the 80386 processor. You can use this driver by
+copying it to your DOS disk and putting the following line in your
+CONFIG.SYS file:
+
+   DEVICE = TDH386.SYS
+
+Turbo Debugger will then use the hardware assistance of the 80386
+whenever it can to speed up breakpoint processing.
+
+This means, of course, that you can only use this device driver if
+your system uses the 80386 processor.
+
+
+Setting hardware breakpoints
+----------------------------
+There are three ways of setting a hardware-assisted breakpoint:
+
+Choose Breakpoints|Changed Memory Global. In the input box of the
+dialog box that opens, enter a memory address, followed by the number
+of bytes to watch to see if your program has changed anything in that
+part of memory.
+
+From the Breakpoints window local menu choose Set Options to open the
+Breakpoint Options dialog box. Set the Condition radio buttons to
+Hardware.
+
+In the Breakpoint Options dialog box, set the Condition radio buttons
+to Changed Memory. Then choose Hardware Options and the options you
+want to use in the Hardware Breakpoint Options dialog box.
+
+When you set a breakpoint using the Changed Memory Global command,
+Turbo Debugger automatically determines whether that breakpoint can
+make use of the available hardware. If it can, Turbo Debugger sets a
+hardware breakpoint for you, and indicates that the breakpoint is set
+in hardware by putting an asterisk (*) after the global breakpoint
+number in the left pane of the Breakpoints window.
+
+The following two sections describe how to set generalized hardware
+breakpoints. First, we'll tell you the types of breakpoints you can
+set with the TDH386.SYS device driver, and then we'll tell you about
+all the hardware breakpoint options that may work with other hardware
+debugger device drivers. Consult the vendor's documentation for more
+information about your particular device driver.
+
+
+Hardware conditions permitted with TDH386.SYS
+---------------------------------------------
+When you are using TDH386.SYS with the ordinary version of Turbo
+Debugger, you can set the following types of hardware breakpoints with
+the Hardware Options command in the Breakpoints window local menu:
+
+* instruction fetch
+
+* read from memory
+
+* read/write memory
+
+You can't set any type of data matching when you use TDH386.SYS; you
+must always set the Data Match radio buttons to Match All. You can
+also match only a single memory address or range of memory addresses.
+A range can encompass from 1 to 16 bytes, depending on how many other
+hardware breakpoints you have set and the address of the beginning of
+the range.
+
+You can use data watching with breakpoints that are not longer than 4
+bytes.
+
+The other options in the Hardware Breakpoint Options dialog box off
+the Breakpoints window local menu are for other hardware debuggers and
+device drivers that might support more matching modes.
+
+You can also use TDH386.SYS with Turbo Debugger and with the virtual
+debugger (TD386). In this case, you can use many more types of
+hardware breakpoints, including matching on any size ranges of memory
+or I/O access.
+
+
+The Hardware Breakpoint Options dialog box
+------------------------------------------
+
+This section describes the Hardware Breakpoint Options dialog box that
+can be opened with the Hardware Options command in the Breakpoints
+window local menu. Remember that your hardware most likely doesn't
+support all combinations of matching that you can specify from this
+menu. The previous section describes the combinations that are allowed
+for the TDH386.SYS device driver supplied with Turbo Debugger.
+
+The Hardware Conditions dialog box lets you set the three matching
+criteria that make up a hardware breakpoint:
+
+* the bus cycle type that will be matched
+
+* the range of addresses that will be matched
+
+* the range of data values that will be matched
+
+For example, a hardware breakpoint might say "Watch for an I/O write
+anywhere from address 3F8 to 3FF as long as the data value is equal to
+1." This breakpoint will then be triggered any time a byte of 1 is
+written to any of the I/O locations that control the COM1 serial port.
+
+Usually, you set far simpler hardware breakpoints than this, such
+as "Watch for I/O to address 200."
+
+The Cycle Type radio buttons let you make the following settings:
+
+Read Memory          Match memory reads
+Write Memory         Match memory writes
+Access Memory        Match memory read or write
+Input I/O            Match I/O input
+Output I/O           Match I/O Output
+Both I/O             Match I/O input or output
+Fetch Instruction    Match instruction fetch
+
+The Access Memory option is a combination of the Read Memory and Write
+Memory options--it matches either memory reads or writes. Likewise,
+the Both I/O option matches I/O reads or writes.
+
+Some hardware debuggers are capable of distinguishing between simple
+data reads from memory and instruction fetches. In this case, if you
+set a breakpoint to match on read memory, an instruction fetch from
+that location will not trigger the hardware breakpoint. Instruction
+cycles include all the bytes that the processor reads in order to
+determine the instruction operation to perform, including prefix
+bytes, operand addresses, and immediate values. The actual data read
+or written to memory referenced by an operand's address is not
+considered to be part of the instruction fetch. For example,
+
+   MOV    AX,[1234]
+
+fetches 3 instruction bytes from memory and reads 2 data bytes. If you
+use instruction fetch matching, remember that the 80x86 processor
+family prefetches instructions to be executed, so you may get false
+matches, depending on whether your hardware debugger can sort out
+prefetched instructions from ones that are really executed.
+
+The Address radio buttons let you make the following settings:
+
+Above              Match above an address
+Below              Match below an address
+Range              Match within address range
+Not Range          Match outside address range
+Less or Equal      Match below or equal to address
+Greater or Equal   Match above or equal to address
+Equal              Match a single address
+Unequal            Match all but a single address
+Match All          Match any address
+
+The Data Match radio buttons let you make the following settings:
+
+Above              Match above a value
+Below              Match below a value
+Range              Match within value range
+Not Range          Match outside value range
+Less or Equal      Match below or equal to value
+Greater or Equal   Match above or equal to value
+Equal              Match a single value
+Unequal            Match all but a single value
+Match All          Match any value
+
+If you turn on a Data or Address option that involves any less-than or
+greater-than condition, a single address match range either starts at
+zero and extends to the value you specified, or starts at the value
+you specified and extends to the highest allowed value for addresses
+or data.
+
+
+Hardware debugger overview
+--------------------------
+The device driver interface provides device-independent access to the
+capabilities of different hardware debuggers. To accomplish this, the
+common features of several hardware debuggers have been combined into
+one generic hardware debugger. Turbo Debugger then uses this abstract
+model to make requests to the device driver. A particular board may
+not be able to support all the operations specified by the abstract
+interface. In this case, the device driver can inform Turbo Debugger
+that a requested operation cannot be performed. A hardware board may
+also offer more capabilities than the abstract interface defines. In
+this case, Turbo Debugger can't make use of the added features of the
+board.
+
+Since we expect the device driver interface to encompass new features
+in future releases, we have defined an "implementation level" status
+field that the device driver returns when requested. This lets Turbo
+Debugger know what the device driver is capable of doing and provides
+compatibility with older drivers, while allowing new drivers to take
+advantage of capabilities in future releases of the interface.
+
+The hardware debugger interface breaks the capabilities of debugger
+boards into three main areas of functionality:
+
+* memory and I/O access breakpoints
+
+* instruction trace-back memory
+
+* extra onboard memory for symbol tables
+
+This version of the interface supports only the first category. Future
+releases will define an interface that accesses the other features.
+When you write a device driver, keep in mind that these other
+capabilities will be supported at a later date.
+
+
+Device driver interface
+-----------------------
+The device driver is an ordinary character-type device driver named
+TDH386.SYS. You must put the following statement in your CONFIG.SYS
+file in order for the driver to be loaded when you boot the system:
+
+   DEVICE = drvrname.ext
+
+drvrname.ext is the name of the device driver file you have created.
+
+
+Device driver function calls
+----------------------------
+The device driver must support the following function calls:
+
+INIT (command code = 0)
+Called once when the device driver is first loaded. Your code for this
+function must make sure that the hardware board is disabled and in a
+quiescent state.
+
+READ (command code = 4)
+Called by Turbo Debugger to read the status block from the last
+command sent to the device driver. You should keep the last status in
+a data area inside the driver and return as many bytes as requested.
+Each time a read is issued, you must start sending from the beginning
+of the status block, even if the previous read request was not long
+enough to send the entire block.
+
+The section "Status blocks returned by the device driver" describes
+the various status blocks the device driver can return in response to
+different command blocks.
+
+READNOWAIT (command code = 5)
+Returns the first byte of the status block. The busy bit should always
+be set to 0, indicating that data is available at all times.
+
+READSTATUS (command code = 6)
+Always sets the busy bit to 0, indicating that a subsequent read
+request would complete immediately.
+
+READFLUSH (command code = 7)
+Simply sets the done bit in the return status.
+
+WRITE (command code = 8)
+Called by Turbo Debugger to send a command to the device driver. The
+command will have a variable length, depending on the command type.
+You can either copy the data into a work area inside the device
+driver, or you can access it directly using the data pointer that is
+part of the device driver request.
+
+The next section describes the various command blocks Turbo Debugger
+can send to the device driver.
+
+WRITEVERIFY (command code = 9)
+Does the same thing as WRITE (command code 8).
+
+WRITESTATUS (command code = 10)
+Simply sets the done bit in the return status.
+
+WRITEFLUSH (command code = 11)
+Simply sets the done bit in the return status.
+
+All other function calls should set the error bit (bit 15) in the
+return status word, and put an "Unknown command" error code (3) in the
+low byte of the status word.
+
+
+Command blocks sent to driver
+-----------------------------
+All command blocks sent to the device driver by the WRITE function
+call start with a byte that describes the operation to perform. The
+subsequent bytes provide additional information for the particular
+command.
+
+When a hardware breakpoint is set, it is the device driver's
+responsibility to check that it has been handed an acceptable
+parameter block. It can't just ignore fields that request an operation
+it can't perform. You must check each field to make sure that the
+hardware can support the requested operation, and if it can't, you
+must set the appropriate return code.
+
+The first byte can contain one of the following command codes:
+
+0   Installs vectors
+1   Gets hardware capabilities
+2   Enables the hardware breakpoints
+3   Disables the hardware breakpoints
+4   Sets a hardware breakpoint
+5   Clears a hardware breakpoint
+6   Sets I/O base address, resets hardware
+7   Removes vectors
+
+The following commands send additional data after the command code:
+
+Install vectors (code 0)
+4 bytes     Far pointer to vector routine
+
+This is a 32-bit pointer, the first word being the offset, and the
+second being the segment. You must save this address so that the
+device driver can jump to it when a hardware breakpoint occurs. This
+routine should also install any interrupt vectors that the device
+driver needs. Turbo Debugger calls this routine once when it first
+starts up. The Remove Vectors (code 10) function is called once by
+Turbo Debugger when it no longer needs to use the hardware debugger
+device driver. At this time, you should replace any vectors that you
+took over when function 0 was called and make sure the hardware is
+disabled.
+
+Set a hardware breakpoint (code 4)
+
+1 byte      Breakpoint type
+
+0   Memory read
+1   Memory write
+2   Memory read or write
+3   I/O read
+4   I/O write
+5   I/O read or write
+6   Instruction fetch
+
+1 byte      Address matching mode
+
+0   Match any address, don't care
+1   Equal to test value
+2   Not equal to test value
+3   Above test value
+4   Below test value
+5   Below or equal to test value
+6   Above or equal to test value
+7   Within inclusive range
+8   Outside range
+
+4 bytes     Low address
+
+A memory address, in 32-bit linear form. If the address-matching mode
+requires one or more addresses to test against, the only or low value
+comes here.
+
+4 bytes     High address
+
+A memory address, in 32-bit linear form. If the address matching mode
+requires two addresses to test against a range, the second and higher
+value comes here.
+
+2 bytes     Pass count
+
+1 byte      Data-matching size, 1 = byte, 2 = word, 4 = doubleword
+
+1 byte      Source of matched bus cycle:
+
+1   CPU
+2   DMA
+3   Either CPU or DMA
+
+1 byte      Data-matching mode
+
+0   Match any data, don't care
+1   Equal to test value
+2   Not equal to test value
+3   Above test value
+4   Below test value
+5   Below or equal to test value
+6   Above or equal to test value
+7   Within inclusive range
+8   Outside range
+
+4 bytes     Low data value
+
+If the data-matching mode requires one or more data values, this field
+supplies the first or only value. The data-matching size determines
+how many bytes of this field are significant.
+
+4 bytes     High data value
+
+If the data-matching mode requires two data values, this field
+supplies the second value. The data-matching size determines how many
+bytes of this field are significant.
+
+4 bytes     Data mask
+
+If the hardware supports it, this field controls which bits in the
+data are examined for the match condition.
+
+Clear a hardware breakpoint (code 5)
+
+1 byte      The handle of the breakpoint to clear. The handle was
+given to Turbo Debugger by the Set Hardware Breakpoint command (code
+4).
+
+Set I/O board base address (code 6)
+
+2 bytes     The base address of the hardware debugger board.
+
+
+Status blocks returned by device driver
+
+The READ function call returns the status block from the device
+driver. Different commands written to the device driver result in
+various status blocks being built to report on what happened. All the
+status blocks start with a single byte that describes the overall
+result of the requested operation. The subsequent bytes return
+additional information particular to the command that generated the
+status block.
+
+The following status codes can be returned in the first byte:
+
+0   Command was successful.
+
+1   Invalid handle supplied.
+
+2   Full, can't set any more breakpoints.
+
+3   Breakpoint was too complex for the hardware.
+The breakpoint could never be set; the hardware is not capable of
+supporting the combination of bus cycle, address, and data-matching
+that Turbo Debugger requested.
+
+4   Command can't be performed due to restrictions imposed by a
+previous command.
+The command could have been performed if it weren't for some previous
+operation preventing it. This could happen, for example, if the
+hardware only permits a single data match value, but Turbo Debugger
+tries to set a second hardware breakpoint with a different data match
+value than the first breakpoint.
+
+5   The device driver can't find the hardware board.
+
+6   A hardware failure has occurred.
+
+7   An invalid command code was sent to the driver.
+
+8   The driver has not been initialized with function code 0, so
+nothing can be done yet.
+
+The following commands return additional status information after the
+status code byte:
+
+Get hardware capabilities (code 1)
+
+2 bytes     Device driver interface (this specification) version
+number.
+
+The current version is 1, subsequent versions will increase this
+number.
+
+2 bytes     Device driver software version number.
+
+For each released version of your device driver that behaves
+differently, this field should contain a different number. This lets
+Turbo Debugger take special measures if necessary, based on this
+field.
+
+1 byte      Maximum number of hardware breakpoints that this
+driver/board combination can support.
+
+1 byte      Configuration bits
+
+Bit  Function
+
+01   can distinguish between CPU and DMA accesses
+11   can detect DMA transfers
+21   has data mask
+31   breakpoints have hardware pass counter
+41   can match on data as well as address
+
+1 byte      Breakpoint types supported (bit mask)
+
+Bit  Function
+
+0    Memory read
+1    Memory write
+2    Memory read or write
+3    I/O read
+4    I/O write
+5    I/O read or write
+6    Instruction fetch
+
+2 bytes     Addressing match modes supported (bit mask)
+
+Bit  Function
+
+0    Match any address, don't care
+1    Equal to test value
+2    Not equal to test value
+3    Above test value
+4    Below test value
+5    Below or equal to test value
+6    Above or equal to test value
+7    Within inclusive range
+8    Outside range
+
+2 bytes     Data match modes supported (bit mask)
+
+Bit  Function
+
+0    Match any data, don't care
+1    Equal to test value
+2    Not equal to test value
+3    Above test value
+4    Below test value
+5    Below or equal to test value
+6    Above or equal to test value
+7    Within inclusive range
+8    Outside range
+
+1 byte      Maximum data match length
+
+Set to 1, 2, or 4 depending on the widest data match or mask that the
+hardware can perform.
+
+2 bytes     Size of onboard memory in kilobytes.
+
+2 bytes     Maximum number of trace-back events that can be recalled.
+
+2 bytes     Address of hardware breakpoint enable byte
+
+Specifies the segment address where Turbo Debugger must write a byte
+with a value of 1 to enable hardware breakpoints. The field must
+contain 0 if the device driver does not or cannot support this
+capability. If it is supported, this byte lets Turbo Debugger inform
+the device driver that it has finished writing things to the address
+space of the program being debugged, and that subsequent accesses can
+cause hardware breakpoints.
+
+Set a hardware breakpoint (code 4)
+
+1 byte      A handle that Turbo Debugger will use to refer to this
+breakpoint in the future. The device driver also uses this handle when
+calling back into Turbo Debugger after a hardware breakpoint has
+occurred. The handle must be greater than or equal to zero (0).
+Negative values (top bit on) indicate a special condition when the
+device driver calls Turbo Debugger with a hardware breakpoint.
+
+Recursive entry (code -2)
+
+1 byte      The special value FE (hex) can be returned by the hardware
+device driver if it has been recursively entered while processing a
+hardware breakpoint. This can happen if a hardware breakpoint has been
+set in the 6 bytes below the current top of stack in the program being
+debugged. If Turbo Debugger receives this entry code, it displays a
+message that the device driver can't proceed because of a breakpoint
+being set near the top of the stack.
+
+
+Device driver call into Turbo Debugger
+--------------------------------------
+
+When the hardware board and the device driver software have determined
+that a hardware breakpoint has occurred, control must be transferred
+to the address inside Turbo Debugger that was specified with command
+code 0 (set hardware breakpoint vector).
+
+The vector address must be jumped to with the CPU state exactly as it
+was when the hardware breakpoint occurred, but with the program's AX
+register pushed on the stack and an entry code now in the AH register.
+The entry code can be
+
+>= 0        The handle of the triggered breakpoint
+
+-1 (FF)     The breakout button was pressed
+
+Turbo Debugger will never return to the device driver once it is
+jumped into from a hardware breakpoint.
+
+
+3.  CORRECTIONS TO THE MANUAL
+=============================
+
+Chapter 17, Turbo Debugger for Windows (TDW)
+
+Debugging dynamic link libraries (DLLs)
+p. 276	The comment "TDW can load a DLL that doesn't have a symbol 
+		table, but only into a CPU window, and only if you are
+		debugging in a CPU window" is only partially correct.  
+		TDW will load a DLL without symbols, even when you
+		are debugging source code, and you can only view it in a
+		CPU window.  Therefore, the comment should read, "TDW can
+		load a DLL that doesn't have a symbol table, but only 
+		into a CPU window."
+p. 276	"When the DLL routine exits, TDW reloads your application's
+		symbol table and source code and positions the line marker
+		on the next statement after the call to the DLL entry
+		point."  This statement is not entirely correct.  If you are
+		tracing in a DLL using F7 or F8 and you trace to the end,
+		the DLL will not return to your application if it returns
+		through a Windows function call.  Instead your program will
+		run just as though you had pressed F9.  This behavior occurs
+		often if you are tracing through DLL Startup code.  
+
+		To force a return to your application, set a breakpoint in
+		your application on the line after the call to the DLL. 
+		When debugging DLL Startup code, set the breakpoint on
+		the first line of your program.
+p. 278	"The items at the top of this list, marked on the right with
+		an oval, are your application's .EXE and the DLLs with symbol
+		tables that your application calls.  If you make no changes,
+		TDW automatically loads in the symbol table and source for
+		each marked DLL whenever your application makes a call to
+		that DLL.  In addition, TDW automatically loads the symbol
+		table and source of any DLL your application starts with a
+		LOADLIBRARY call, even though the DLL might not appear on
+		the list at first.  (It will appear there after TDW loads
+		it.)"  This statement is not entirely correct.  The items 
+		at the top of this list, marked on the right with an oval,
+		do not neccessarily have symbol tables.  The oval indicates
+		that TDW automatically attempts to load in the symbol 
+		table and source for each marked .EXE and DLL.  Therefore,
+		this statement should read, "The items at the top of this
+		list, marked on the right with an oval, are your
+		application's .EXE and the DLLs that your application calls.
+		If you make no changes,	TDW automatically attempts to load
+		in the symbol table and source for each marked DLL whenever
+		your application makes a call to that DLL.  In addition,
+		TDW automatically attempts to loads the symbol table and
+		source of any DLL your application starts with a LOADLIBRARY
+		call, even though the DLL might not appear on the list at
+		first.  (It will appear there after TDW loads it.)"
+
+Table 17.5 DLLs & Programs list dialog box controls
+p. 278	Symbol load:  This button overrides the Load Symbols
+		setting.  When pressed, it loads the symbol table for 
+		the highlighted DLL or application, regardless of the
+		Load Symbols setting.  Also, the Symbol load button
+		applies to both applications and DLLs.  The description
+		should read as follows:  "Load in the symbol table and
+		source files for the DLL or application, regardless of
+		the Load Symbols setting.  This command overrides the
+		Load Symbols setting and changes the contents of the 
+		Module Window so you can set breakpoints, Window messages,
+		and so on for the DLL or application."
+
+
+Chapter 18, Debugging a Windows application
+
+Terminating BCWDEMOA
+p. 288	Step 11 refers to BCWDEMOB.  This reference should be
+		changed	to BCWDEMOA.
+
+Logging messages
+p. 288	The first paragraph should read, "This time, you'll tell
+		TDW to log all messages before starting the program.
+		Open the Windows messages window by using the View|Windows
+		messages command, then add WndProc to the top left pane,
+		if it is not already there.  You'll see "Log all messages"
+		appear in the top right pane.  Since this is what you want,
+		you're done with this window."
+
+Finding the bug
+p. 289	The first paragraph should read, "So where do you go from
+		here?  You could start looking through the code to see if
+		there's an area where WM_PAINT is handled.  However, a more
+		attractive alternative is to set a message breakpoint that
+		will break at the right place, then to begin stepping
+		through the program to see where the problem is.
+
+Terminating BCWDEMOA
+p. 293	Step 5 should read, "Move the cursor to the New Value entry
+		and	enter 0.  Next, choose Modify to change the variable's
+		value, then press ESC to close the window.  Now when you run
+		the	program, the if statement will evaluate to TRUE and the
+		BeginPaint and EndPaint calls will execute on the first pass."
+

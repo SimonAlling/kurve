@@ -1,0 +1,1122 @@
+HOW TO USE THIS FILE: This file has a table of contents
+that refers to "page numbers" in this file. If your editor
+has a search facility, you can use it to search for the page
+numbers listed in the table of contents. The phrase "Page n"
+(where n represents the actual page number) appears at the
+bottom left of the "page" it refers to. Thus, at the bottom
+of page 1, you'll find "Page 1" as the last item on that "page."
+
+                  A PRIMER ON C++ AND WINDOWS
+                       TABLE OF CONTENTS
+___________________________________________________________________
+
+
+Chapter 1  A primer on Windows         Defining the base class . 13
+           and C++             1       Defining the derived
+Object-oriented thinking . . . 1       class . . . . . . . . . . 14
+A Windows vocabulary . . . . . 2       Creating and painting the
+C and Windows  . . . . . . . . 4       window  . . . . . . . . . 15
+The WHELLO application . . .  11     Pointers to Windows . . . . 17
+  Directives and                     The callback function . . . 18
+  intialization  . . . . . .  11     Putting it all together with
+  Defining the Main class  .  12     WinMain . . . . . . . . . . 19
+  Defining Windows classes .  13
+
+                                 i
+
+
+                                        A primer on Windows and C++
+
+
+This chapter demonstrates the use of C++ concepts and constructs in
+building an object-oriented Windows application. It is not an
+exhaustive orientation to Windows programming. If you are new to
+Windows programming, you will gain some familiarity with Windows by
+reading this primer. If you are new to C++, you should first read
+chapters 4 and 5 in Getting Started.
+
+
+Object-oriented thinking
+
+In the same manner as object-oriented programming and for much the
+same benefits, Windows seeks to mimic the way we think and work by
+presenting us with objects that represent both data and a way to
+manipulate that data. A window is an object, because it
+encapsulates data and the functions that act on that data. Windows
+are polymorphic in that they have the same basic definition but can
+change their behavior in response to different conditions. The
+displayed windows can inherit from more basic structures. So, if
+you've learned object-oriented programming in general, as you learn
+to program Windows, a number of concepts should "feel" familiar to
+you; you've already accomplished some of the change in perspective
+that programming for Windows requires.
+
+The venture of programming in Windows benefits not only from the
+concepts of object-oriented programming, but also from the specific
+features of C++. C++ lends itself to Windows programming because
+graphic objects, such as windows, involve complex data structures
+and functions which are best thought of and handled together. In
+fact, when you define a window under Windows, you initialize a
+structure that contains information about the window, and that
+structure includes a pointer to a function that itself is called
+when another process acts on the window. In C, this is a structure
+that includes a pointer. In C++ you can simply design a class to
+accomplish the same thing. Under Windows, you would design the
+class as a "wrapper" for the structure. All of your future
+interactions with the structure could then be through the class.
+
+
+
+Chapter 1 Page 1
+
+
+Furthermore, specific C++ features will make your programming life
+more pleasant while you're programming for Windows. Windows is a
+message-based system. Put simply, this means that Windows sends out
+messages to your application to tell it that some event has
+occurred. At the heart of every Windows application, you write a
+message loop to wait for messages. As the message loop gets
+messages, it sends them off to a function that decides how to
+respond to the message. The decision process embodied in the
+message-handling function usually takes the form of a large,
+unwieldy switch statement. Although this switch cannot be entirely
+avoided, virtual functions make the process somewhat easier to
+manage. Used wisely, this has the effect of making code more
+efficient and more readable.
+
+
+A Windows vocabulary
+
+To get you up to speed fast, this section introduces some of the
+Windows words and concepts.
+
+module or executable
+
+For documentation purposes, the term module is used generically to
+mean one of two things: an application (.EXE) or a dynamic linked
+library (.DLL). Sometimes the term "executable" is also used in
+this generic sense. Module can also be used in the more specific
+sense of a self-contained piece of a program (for instance, one of
+the many modules linked together when you build the program). An
+application runs under Windows and probably calls functions from
+DLLs. DLLs contain functions that can be linked to your application
+at run time (hence the name dynamic link library as opposed to
+regular libraries which are linked when the program is built). We
+explain DLLs in greater depth later in this chapter.
+
+application
+
+A Windows application is a program intended to be called by and run
+under Windows. It can call functions from static libraries and from
+DLLs; it can also launch other applications. The run-time input to
+an application, via its window, is retrieved by Windows, then
+passed as a message to the window function (usually called WndProc)
+for the active window. Similarly, output from an application to a
+window occurs through Windows. Most DOS applications can basically
+take over the machine, assume that all the resources belong to
+them, tell a relatively passive DOS what to do, and so on. In a
+Windows application, Windows itself is very active, and very much
+involved in the workings of your program.
+
+DLLs
+
+DLLs are library modules, specifically dynamic link libraries. DLLs
+are dynamically linked to an application or another DLL at run-
+
+
+
+Chapter 1 Page 2
+
+
+time, instead of statically linked at build time. For instance,
+let's say your application calls a function from one of the run-
+time libraries. When your code is being linked, the linker gets a
+copy of that function and places the entire copy in your
+executable. If you call many functions from libraries, this can
+quickly enlarge your code. If you call a function from a DLL,
+however, a single copy of that function serves all applications
+which refer to it and is accessed in the DLL at run-time. The
+function itself never becomes part of your executable. Furthermore,
+if another .EXE also uses the .DLL, Windows uses the copy already
+in memory; it doesn't load another copy.
+
+windows.h
+
+Every Windows module must be compiled with the windows.h header
+file. windows.h includes prototypes for all the Windows API
+functions, defines data types and structures, and defines a number
+of global variables. You must include windows.h in any module that
+uses any Windows function, structure, or data type, or tests any of
+the defined variables. If you're new to Windows programming, you
+will find it useful to browse through windows.h.
+
+stub
+
+Windows must be loaded before you can run a program compiled and
+linked for Windows. Windows programs include a stub program that
+runs if the program was invoked from DOS (that is, DOS without
+Windows), and, if so, terminates the application with an error
+message. A default stub that does exactly that is linked in
+automatically by the linker. You can create and include your own
+stub, if you like. More sophisticated stub programs could, for
+example, start Windows if it is not running, or run a DOS version
+of the program.
+
+functions under Windows
+
+Besides all the usual things you need to know about a function--
+whether it is near or far, what type of data it returns and
+expects, how it should be called and named--now you need to know
+one more thing: Is it a callback function, an exported function, or
+an imported function?
+
+exported functions
+
+This term relates to how a function must be declared in one module
+so that it can be accessed by other modules. Exported functions are
+those functions from a given module that can be called from outside
+that module--either by Windows or by another module. These
+functions must be handled in a certain way so that they will
+correctly establish the appropriate data segment when they are
+called. A DLL, because it provides functions for other modules to
+call, is comprised of exported functions for each of the callable
+
+
+
+Chapter 1 Page 3
+
+
+entry points in the DLL. An application, on the other hand,
+typically has few, and all of these are of the special subclass of
+exported functions called callback functions, described next. The
+handling of exported functions is described in more detail in the
+User's Guide, Chapter 3.
+
+callback functions
+
+A callback function is a special kind of exported function.
+Callback functions are those functions that the Windows environment
+calls directly. An application must have at least one callback
+function, which Windows invokes when messages are to be processed
+by the application. This function corresponds to an active window
+and is called a window procedure (or WndProc). Since most
+applications also create at least one window, and Windows needs to
+send messages to that window, the function that receives those
+messages must be called by Windows (when we walk through the
+program, you'll see how Windows knows exactly which function to
+call for which window).
+
+imported functions
+
+Imported functions are those functions available to your module
+from libraries (DLLs). When the IDE links a Windows application, it
+automatically includes a file named IMPORT.LIB that allows your
+program to call the functions from the Windows API (Application
+Program Interface). The linked file is an import library. Import
+libraries provide the link between an application and the functions
+available to it from one or more DLLs.
+
+
+C and Windows
+
+This section illustrates programming for Windows using C. The next
+section will walk you through a similar program that uses C++
+instead.
+
+
+  /*  Windows HELLO WORLD - C Version */
+
+  #include <windows.h>
+  #include <string.h>
+
+  long FAR PASCAL WndProc( HWND hWnd, WORD message,
+                           WORD wParam, LONG lParam );
+
+  void Paint( HWND hWnd );
+
+  char szClassName[] = "Hello, World!";
+
+
+
+Chapter 1 Page 4
+
+
+The preceding lines of code include the Windows header file
+windows.h and the header file string.h (for access to strlen). The
+prototypes are given for WndProc and Paint.
+
+The string szClassName, used in WinMain and Paint, globally defines
+the name of the main window class.
+
+  int PASCAL WinMain( HANDLE hInstance, HANDLE hPrevInstance,
+                      LPSTR lpszCmdLine, int nCmdShow )
+
+When Windows calls WinMain, it passes it four arguments. HANDLE is
+defined in windows.h as an unsigned integer (16 bit); LPSTR is
+defined as a far character pointer (long pointer to a string).
+Because several instances of an application can be running at the
+same time, the hInstance (instance handle) is needed to provide a
+unique identifier for each instance of a program. hPrevInstance is
+the instance handle of the most recent previous instance of the
+same application. hPrevInstance is set to NULL if there is no
+previous instance.
+
+lpszCmdLine is a far pointer to a null-terminated string containing
+the command-line parameters with which the application was invoked.
+
+nCmdShow is a number indicating how to display the application when
+it is launched. For instance, the application can be launched as
+minimized and inactive.
+
+  {
+    HWND hWnd;   // handle to a window (unsigned int)
+    MSG msg;     // structure used to accept and manipulate
+                 //  Windows messages
+    if ( !hPrevInstance )
+    {
+      WNDCLASS wndclass;   /* Structure to register window class.  */
+      wndclass.style         = CS_HREDRAW | CS_VREDRAW;
+      wndclass.lpfnWndProc   = WndProc;
+      wndclass.cbClsExtra    = 0;
+      wndclass.cbWndExtra    = 0;
+      wndclass.hInstance     = hInstance;
+      wndclass.hIcon         = LoadIcon( NULL, IDI_APPLICATION );
+      wndclass.hCursor       = LoadCursor( NULL, IDC_ARROW );
+      wndclass.hbrBackground = GetStockObject( WHITE_BRUSH );
+      wndclass.lpszMenuName  = NULL;
+      wndclass.lpszClassName = szClassName;
+
+      if ( ! RegisterClass( &wndclass ) )
+         return FALSE;
+    }
+
+Windows creates a window according to information contained in a
+window class. The window class not only defines display
+
+
+
+Chapter 1 Page 5
+
+
+characteristics of the window, it also names the window and
+specifies the window procedure that Windows must use to pass
+messages to the window (to the application).
+
+Every instance of an application uses the same definition of a main
+window; therefore, each window class only needs to be defined once
+(although an application may have multiple window classes). This
+code tests for a previous instance, and registers the window class
+if there is no previous instance.
+
+Let's examine each member of wndclass (note that the online help
+provides a complete reference to the WNDCLASS structure as well as
+the other structures defined in windows.h):
+
+   wndclass.style = CS_HREDRAW | CS_VREDRAW;
+
+wndclass.style can be set to include one or more of any of 11
+styles. CS_HREDRAW asks Windows to redraw the client area of this
+window when the horizontal size of the window changes; CS_VREDRAW
+asks for a redraw when the vertical size changes.
+
+   wndclass.lpfnWndProc = WndProc;
+
+lpfnWndProc contains a pointer to the message-handling function,
+called the window procedure. This function is often named WndProc.
+The window procedure function handles incoming messages. Windows
+calls WinMain when it starts your application, but thereafter it
+calls the window procedure. (Note that there may be more than one
+window procedure; for example, a window procedure can exist for
+each different window class and Windows will call the appropriate
+one whenever it wants to deliver a message to the corresponding
+window.) When Windows gets a messages, either from the environment,
+from another application, or from your application, it calls the
+window procedure function and passes the message to that function.
+
+The window procedure WndProc handles all messages to any window
+created from this window class.
+
+   wndclass.cbClsExtra = 0;
+
+wndclass.cbClsExtra specifies the number of extra bytes Windows is
+to maintain in the window class (cb stands for count of bytes).
+This allows you to store application-specific information in the
+window class to use for your own purposes. None are reserved in
+this window class.
+
+   wndclass.cbWndExtra = 0;
+
+wndclass.cbWndExtra specifies the number of extra bytes Windows is
+to maintain in the window structure. None are reserved in this
+window structure.
+
+
+
+
+Chapter 1 Page 6
+
+
+   wndclass.hInstance = hInstance;
+
+wndclass.hInstance normally takes the hInstance value of the
+application (an argument passed by Windows to WinMain).
+
+   wndclass.hIcon = LoadIcon( NULL, IDI_APPLICATION );
+
+wndclass.hIcon is set to the handle for an icon. In this case,
+LoadIcon is called to obtain the handle of the predefined icon
+IDI_APPLICATION. If you had defined an icon resource for your
+application, and compiled the resources to the application, you
+would call LoadIcon with the current hInstance and with a pointer
+to the icon resource name.
+
+   wndclass.hCursor = LoadCursor( NULL, IDC_ARROW );
+
+LoadCursor returns a handle to a cursor type. IDC_ARROW is one of
+the predefined mouse cursors.
+
+   wndclass.hbrBackground = GetStockObject( WHITE_BRUSH );
+
+This statement sets wndclass.hbrBackground to a white brush. The
+background of all windows based on this window class will be
+painted according to the handle of the brush set in
+wndclass.hbrBackground; in this case, solid white.
+
+   wndclass.lpszMenuName = NULL;
+
+This statement sets wndclass.lpszMenuName to the name of the
+application's menu. Since this application has no menu, it is set
+to NULL.
+
+   wndclass.lpszClassName = szClassName;
+
+The wndclass.lpszClassName member gives the window class itself a
+name. This one is named "Hello, World!"
+
+Once the wndclass structure is filled, RegisterClass must be called
+to register the window class with Windows. If another window class
+of the same name already exists, RegisterClass fails.
+
+    hWnd = CreateWindow( szClassName,  // name of window class
+        szClassName,                   // caption for this window
+        WS_OVERLAPPEDWINDOW,           // type of window to create
+        CW_USEDEFAULT,                 // starting upper-left corner (x)
+        0,                             // starting upper-left corner (y)
+        CW_USEDEFAULT,                 // starting width
+        0,                             // starting height
+        NULL,                          // handle of parent window
+        NULL,                          // handle of window menu
+
+
+
+Chapter 1 Page 7
+
+
+        hInstance,                     // application instance handle
+        NULL );                        // create parameters
+    if ( !hWnd )
+       return FALSE;
+
+After the window class is registered, a specific instance of that
+window can be created with CreateWindow. CreateWindow takes 11
+arguments; each argument is briefly described in the comment
+following it. See the online help for CreateWindow for more
+information.
+
+    ShowWindow( hWnd, nCmdShow );
+    UpdateWindow( hWnd );
+
+ShowWindow displays the window according to the value of nCmdShow.
+(nCmdShow is one of the parameters passed to WinMain). If nCmdShow
+is equal to SW_SHOWNORMAL, the window is displayed normally; if
+nCmdShow is equal to SW_SHOWMINNOACTIVE, then the window is
+displayed as an icon. If the value of nCmdShow tells ShowWindow to
+display the window normally, then the client area of the window is
+erased with the background brush specified by the window class's
+hbrBackground (in this case white). This sets the stage for
+UpdateWindow, which causes the client area to be repainted.
+
+UpdateWindow sends a message to that window's window procedure. The
+window procedure, you may recall, is specified with the
+lpfnWndProc; for this window class it is WndProc. WndProc handles
+incoming messages, reacting according to the message sent.
+
+    while( GetMessage( &msg, NULL, 0, 0 ) )
+    {
+      TranslateMessage( &msg );
+      DispatchMessage( &msg );
+    }
+    return msg.wParam;
+  }
+
+These four lines of code comprise the main message loop, which is
+the heart of a Windows application. Windows keeps a message queue
+for each running application. When a key or a mouse button is
+pressed (input events), Windows translates the input event into a
+message, then places the message in that program's message queue.
+The application retrieves these messages with the message loop.
+
+GetMessage gives Windows a far pointer to msg, Windows fills the
+fields of msg with the next message from the queue. The other three
+parameters of GetMessage tell Windows what messages to get for
+which windows; values of NULL, 0, and 0 indicate that GetMessage
+wants all messages for all windows created by this application.
+GetMessage examines msg and returns zero only if the message member
+
+
+
+
+Chapter 1 Page 8
+
+
+of msg is WM_QUIT. When WM_QUIT is encountered, the program
+terminates, returning the value of msg.wParam.
+
+TranslateMessage sends the message back to Windows for translation,
+and DispatchMessage sends the message to Windows yet again. When
+Windows receives  the message from DispatchMessage, it dispatches
+the message to the window's window procedure. In this application,
+Windows will dispatch the message to WndProc.
+
+Before we start examining WndProc, we should take a look at this
+ubiquitous msg message.  msg was declared to be of type MSG, a
+structure defined in windows.h as follows:
+
+  /* Message structure */
+  typedef struct tagMSG
+  {
+    HWND      hwnd;        // handle to the current window
+    WORD      message;     // a number identifying the message --
+                           //  all window message identifiers are
+                           //  defined in windows.h (look for the WM_
+                           //  prefix)
+    WORD      wParam;      // 16-bit parameter specific to message
+    LONG      lParam;      // 32-bit parameter specific to message
+    DWORD     time;        // time message was placed in queue
+    POINT     pt;          // x, y mouse coordinates at message
+  time
+  } MSG;
+
+Note that the window procedure takes as arguments the first four
+fields of the message structure.
+
+  long FAR PASCAL WndProc( HWND hWnd, WORD message,
+                           WORD wParam, LONG lParam )
+  {
+    switch (message)
+    {
+      case WM_PAINT:
+        Paint( hWnd );           // Paint is defined later in program
+          break;
+
+      case WM_DESTROY:
+        PostQuitMessage( 0 );    // Sends WM_QUIT message to application
+          break;
+
+      default:                     // called for all other messages
+        return DefWindowProc( hWnd, message, wParam, lParam );
+    }
+
+    return 0L;
+
+  }
+
+
+Chapter 1 Page 9
+
+
+
+
+The window procedure simply examines the value of message and calls
+other functions based on what it finds. Paint is called if a
+message was received to repaint the window. PostQuitMessage sends
+the WM_QUIT message to the application; WM_QUIT is handled in the
+message loop of WinMain. The argument to PostQuitMessage is the
+application's exit code; it becomes the wParam parameter of the
+WM_QUIT message.
+
+DefWindowProc is called for all messages other than WM_PAINT and
+WM_QUIT. DefWindowProc, supplied by Windows, provides default
+processing.
+
+  void Paint( HWND hWnd )
+  {
+    PAINTSTRUCT ps;
+    RECT rect;
+    int strsize = strlen( szClassName );
+
+    BeginPaint( hWnd, &ps );
+    SetTextAlign( ps.hDC, TA_CENTER );
+    GetClientRect( hWnd, (LPRECT) &rect );
+    TextOut( ps.hDC,
+             rect.right / 2, rect.bottom / 2,
+             szClassName,
+             strsize );
+    EndPaint( hWnd, &ps );
+  }
+
+BeginPaint is called with the current window handle hWnd and passed
+the address of the structure ps. BeginPaint fills ps and returns a
+handle to something called a device context. A device context is
+actually a data structure that specifies display device attributes
+to Windows Graphics Device Interface (GDI) functions.
+
+PAINTSTRUCT is defined as follows.
+
+  typedef struct tagPAINTSTRUCT
+  {
+    HDC  hDC;                // handle to a device context
+    BOOL fErase;             // set to True if Windows has erased
+                             //  background of invalid rectangle
+    RECT rcPaint;            // invalid rectangle -- Windows knows
+                             //  which part of the client area needs
+                             //  to be repainted
+    BOOL fRestore;           // used by Windows
+    BOOL fIncUpdate;         // used by Windows
+    BYTE rgbReserved[16];    // used by Windows
+  } PAINTSTRUCT;
+
+
+
+
+Chapter 1 Page 10
+
+
+GetClientRect sets the four fields of rect to the dimensions of the
+client area of the window. left and top are always set to 0; right
+and bottom are set to the width and height in pixels. For this
+example, the rectangle defining the client area was necessary only
+to calculate the center of that area for the call to TextOut.
+
+When SetTextAlign is called with the TA_CENTER flag, a subsequent
+call to TextOut changes the meaning of the coordinates passed to
+TextOut (the second and third parameters) such that those
+coordinates are used as the center of the string to be printed, not
+the beginning.
+
+TextOut prints strsize characters of string szClassName, on the
+device indicated by ps.hDC, using the two coordinates rect.right/2
+and rect.bottom/2.
+
+EndPaint marks the ending of painting in this window by releasing
+the handle to the device context and validating the window.
+
+
+The WHELLO application
+
+The main source file for the WHELLO application is WHELLO.CPP. We
+discuss each part of this program in the following sections.
+
+
+  Directives and initialization
+The following segment of code comments on the contents of the file,
+necessary header files, and provides the function prototypes.
+
+  //  Windows HELLO WORLD - C++ Version 1
+
+  #include <windows.h>
+
+  #include <stdlib.h>
+  #include <string.h>
+
+  long FAR PASCAL _export WndProc( HWND hWnd, WORD iMessage,
+                                   WORD wParam, LONG lParam );
+
+Three things are triggered by flagging a function with the _export
+keyword: the function is compiled as exportable, the function is
+linked as an exported function, and the function name is not
+mangled.
+
+Any functions exported by your Windows program and not flagged with
+the _export keyword would need to be exported by their C++ mangled
+name (not a fun job!). If you choose to export functions only by
+listing them in the module definition file, then you will need to
+declare those functions extern "C", or use the mangled name in the
+module definition file. Chapter 3 in the User's Guide discusses the
+various methods of exporting functions in greater detail.
+
+
+
+Chapter 1 Page 11
+
+
+Borland has licensed windows.h from Microsoft; however, our version
+of this file differs from Microsoft's in a few ways. In particular,
+you don't have to write
+
+  extern "C" {
+  #include <windows.h>
+  }
+
+because the appropriate extern statements appear inside the header
+file.
+
+
+    Defining the
+      Main class
+      public:
+       static HANDLE hInstance;
+       static HANDLE hPrevInstance;
+       static int nCmdShow;
+       static int MessageLoop( void );
+  };
+  HANDLE Main::hInstance = 0;
+  HANDLE Main::hPrevInstance = 0;
+  int Main::nCmdShow = 0;
+
+  int Main::MessageLoop( void )
+  {
+      MSG msg;
+
+      while( GetMessage( &msg, NULL, 0, 0 ) )
+      {
+          TranslateMessage( &msg );
+          DispatchMessage( &msg );
+      }
+      return msg.wParam;
+  }
+
+The class Main serves as a wrapper around WinMain's arguments. Main
+contains static data members that correspond to the arguments of
+WinMain. We define these as static members since we only need one
+copy of each of these values. Because they are static, we can use
+these values without defining an object of class Main. Declaring
+these as public members enables access to these values wherever we
+want. Alternatively, we could have made these data members private
+or protected, then declared the functions or classes that need the
+data members as friends of the class Main. (If the WinMain argument
+lpszCmdLine is used in a program, you might also define and use a
+static member of type LPSTR in a similar fashion.)
+
+Since the Windows message loop is more or less the same in every
+Windows application, placing it in the static member function
+Main::MessageLoop shortens WinMain without obscuring any important
+details. For instance, we could later write a program that uses a
+
+
+
+Chapter 1 Page 12
+
+
+keyboard accelerator table, requiring a function call to
+"TranslateAccelerator" to be added to MessageLoop.
+
+We made this a static member function because it does not use any
+(non-static) member data of the class.
+
+
+Defining Windows
+         classes
+  {
+      protected:
+          HWND hWnd;
+      public:
+          // Provide (read) access to the window's handle in case
+          // it is needed elsewhere.
+          HWND GetHandle() { return hWnd; }
+
+          BOOL Show( int nCmdShow ) { return ShowWindow( hWnd,
+  nCmdShow ); }
+          void Update() { UpdateWindow( hWnd ); }
+          // Pure virtual function makes Window an abstract class.
+          virtual long WndProc( WORD iMessage, WORD wParam,
+	  LONG lParam ) = 0;
+  };
+
+This example also takes advantage of the C++ notion of inheritance.
+Each window has a handle and there is a common set of actions (such
+as Show and Update) that are performed upon each window. Therefore,
+it makes sense to put these common actions and common data in a
+class Window from which we derive our MainWindow. In general, if we
+only add members to Window that may be used by typically any
+window, we might derive all our window classes from Window. (By
+"class", we usually mean "C++ class", though the distinctions
+between C++ and Windows classes is fuzzy since our C++ window
+classes should parallel and contain the notions related to Windows
+window classes.)
+
+
+  Defining the base class
+
+Instead of calling ShowWindow and UpdateWindow, we now call the member
+functions Show and Update. These in turn call the associated
+Windows functions.
+
+Using member functions in this fashion has the advantages of
+simplifying the code by requiring fewer arguments in each function
+call. Instead of requiring a handle to a window as an argument in
+order to know upon which window to perform the action, the window
+(an object of class MainWindow) is identified by the object making
+the function call.
+
+For example, if we created an object "MainWnd" of class MainWindow
+by
+
+
+
+Chapter 1 Page 13
+
+
+  MainWindow MainWnd;
+
+then we might make a call such as
+
+  MainWnd.Show( nCmdShow );
+
+(think of this as sending the message Show to the object MainWnd;
+in C++, we can think of invoking a class's member function for a
+particular object as sending that object a message).
+
+The handle is member data of the object so it need not appear as an
+argument to the method.
+
+(In the example WHELLO.CPP, there is a call to the member function
+Show in the constructor of MainWindow). Also, Show and Update are
+inline member functions of the class MainWindow, and hence, no
+extra code is generated in WinMain by defining these new functions.
+
+
+Defining the derived class
+
+class MainWindow : public Window
+{
+      private:
+          static char szClassName[14];
+          // Helper function used by Paint function; it is used as a
+          // callback function by LineDDA.
+          static void FAR PASCAL LineFunc( int X, int Y, LPSTR lpData );
+      public:
+          // Register the class only AFTER WinMain assigns appropriate
+          // values to static members of Main and only if no previous
+          // instances of the program exist (a previous instance would
+          // have already performed the registration).
+          static void Register( void )
+          {
+              WNDCLASS wndclass;   // Structure used to register
+                                   //   Windows class.
+              wndclass.style         = CS_HREDRAW | CS_VREDRAW;
+              wndclass.lpfnWndProc   = ::WndProc;
+              wndclass.cbClsExtra    = 0;
+              // Reserve extra bytes for each instance of the window;
+              // we will use these bytes to store a pointer to the C++
+              // (MainWindow) object corresponding to the window.
+              // The size of a 'this' pointer depends on the memory model.
+              wndclass.cbWndExtra    = sizeof( MainWindow * );
+
+
+
+Chapter 1 Page 14
+
+
+              wndclass.hInstance     = Main::hInstance;
+              wndclass.hIcon         = LoadIcon( Main::hInstance, "whello" );
+              wndclass.hCursor       = LoadCursor( NULL, IDC_ARROW );
+              wndclass.hbrBackground = GetStockObject( WHITE_BRUSH );
+              wndclass.lpszMenuName  = NULL;
+              wndclass.lpszClassName = szClassName;
+
+              if ( ! RegisterClass( &wndclass ) )
+                  exit( FALSE );
+          }
+
+Windows needs to have information on the different window classes
+used in your program. You pass this information along by filling in
+a struct of type WNDCLASS (defined in windows.h) and calling
+RegisterClass. You should only do this once for each Windows class;
+in particular, a previous instance of the same program will have
+already registered the classes with Windows. This can be
+accomplished by including a static member function (Register in
+WHELLO1.CPP) to fill the fields of a WNDCLASS object in the C++
+class defined to represent a Windows class. This function is then
+called in WinMain to handle Windows class registration if
+necessary.
+
+Because the window procedure may be responsible for many different
+actions, what we would like to do is call an appropriate member
+function for each Windows message. Unfortunately, this is not as
+straightforward as we would like, primarily because the function
+WndProc is passed a handle to identify a window when a pointer to
+the C++ object corresponding to the window is what we need to call
+an object's member functions.
+
+One way to handle this is to use the extra bytes available in the
+window class. We filled in a WNDCLASS structure defining the
+attributes of the window class when we registered it with Windows.
+One field, cbWndExtra, tells Windows to allocate that number of
+extra bytes for each window instance. If you think of a window
+class as analogous to a C++ class, then window extra bytes are
+analogous to a class's member data (just as a class's extra bytes,
+defined by the cbClsExtra field of WNDCLASS, are analogous to a
+class's static member data). In our constructor of MainWindow, we
+make a call to CreateWindow with the last argument set to this.
+
+
+    Creating andction of code should be read with attention to the
+    painting theplanation of the callback function, following in a
+          windowxplains some of the techniques employed here.
+
+          // Do not create unless previously registered.
+          MainWindow( void )
+
+
+
+Chapter 1 Page 15
+
+
+          {
+              // Pass 'this' pointer in lpParam of CreateWindow().
+              hWnd = CreateWindow( szClassName,
+                  szClassName,
+                  WS_OVERLAPPEDWINDOW,
+                  CW_USEDEFAULT,
+                  0,
+                  CW_USEDEFAULT,
+                  0,
+                  NULL,
+                  NULL,
+                  Main::hInstance,
+                  (LPSTR) this );
+              if ( ! hWnd )
+                  exit( FALSE );
+
+              Show( Main::nCmdShow );
+              Update();
+          }
+          long WndProc( WORD iMessage, WORD wParam, LONG lParam );
+
+          // Print a message in the client rectangle.
+          void Paint( void );
+          // Struct used by Paint to pass information to callback function
+          // used by LineDDA
+          struct LINEFUNCDATA
+          {
+              HDC hDC;
+              char FAR *LineMessage;
+              int MessageLength;
+              LINEFUNCDATA( char *Message )
+              {
+                  hDC = 0;
+                  MessageLength = strlen( Message );
+                  LineMessage = new char far [MessageLength+1];
+                  lstrcpy( LineMessage, Message );
+              };
+              ~LINEFUNCDATA( void ) { delete LineMessage; }
+          };
+  };
+  char MainWindow::szClassName[] = "Hello, World!";
+
+  void MainWindow::Paint( void )
+  {
+      PAINTSTRUCT ps;
+      RECT rect;
+      FARPROC lpLineFunc;
+      LINEFUNCDATA LineFuncData( "Borland C++ welcomes you to the
+  Wonderful World of Windows Programming!" );
+
+
+
+
+
+Chapter 1 Page 16
+
+
+      lpLineFunc = MakeProcInstance( (FARPROC)
+  MainWindow::LineFunc, Main::hInstance );
+      BeginPaint( hWnd, &ps );
+      GetClientRect( hWnd, (LPRECT) &rect );
+      LineFuncData.hDC = ps.hdc;
+      SetTextAlign( ps.hdc, TA_BOTTOM );
+      LineDDA( 0, 0, 0,
+               rect.bottom / 2, lpLineFunc, (LPSTR) &LineFuncData
+  );
+      EndPaint( hWnd, &ps );
+      FreeProcInstance( lpLineFunc );
+  }
+
+
+  void FAR PASCAL MainWindow::LineFunc( int X, int Y, LPSTR lpData
+  )
+  {
+      LINEFUNCDATA FAR * lpLineFuncData = (LINEFUNCDATA FAR *) lpData;
+      TextOut( lpLineFuncData->hDC, X, Y,
+               lpLineFuncData->LineMessage, lpLineFuncData->MessageLength );
+  }
+
+  long MainWindow::WndProc( WORD iMessage, WORD wParam, LONG lParam
+  )
+  {
+      switch (iMessage)
+      {
+          case WM_CREATE:
+              break;
+          case WM_PAINT:
+              Paint();
+              break;
+          case WM_DESTROY:
+              PostQuitMessage( 0 );
+              break;
+          default:
+              return DefWindowProc( hWnd, iMessage, wParam, lParam );
+      }
+  }
+
+Pointers to Windows
+
+This section gives an example of how to handle pointers to Windows.
+
+  // If data pointers are near pointers
+  #if defined(__SMALL__) || defined(__MEDIUM__)
+  inline Window *GetPointer( HWND hWnd )
+  {
+      return (Window *) GetWindowWord( hWnd, 0 );
+  }
+  inline void SetPointer( HWND hWnd, Window *pWindow )
+
+
+
+Chapter 1 Page 17
+
+
+  {
+      SetWindowWord( hWnd, 0, (WORD) pWindow );
+  }
+
+  // else pointers are far
+  #elif defined(__LARGE__) || defined(__COMPACT__)
+  inline Window *GetPointer( HWND hWnd )
+  {
+      return (Window *) GetWindowLong( hWnd, 0 );
+  }
+  inline void SetPointer( HWND hWnd, Window *pWindow )
+  {
+      SetWindowLong( hWnd, 0, (LONG) pWindow );
+  }
+
+  #else
+      #error Choose another memory model!
+  #endif
+
+
+  The callback function
+
+The call to CreateWindow in the constructor of MainWindow sends
+several messages to the global WndProc, one of which is WM_CREATE.
+The lparam passed with WM_CREATE is actually a far pointer to a
+CREATESTRUCT (defined in windows.h), and the lpCreateParams field
+of this struct is filled with the last argument set in the call to
+CreateWindow. Thus, when the global WndProc processes the WM_CREATE
+message, this value is set in the extra bytes of the window
+specified by hWnd.
+
+When the global WndProc is called thereafter, we can use the handle
+to the window to extract this pointer from our window object, and
+we're then all set to use our associated C++ object; for example,
+the WM_PAINT message is converted into a call to the MainWindow
+member function Paint(). We do have to be a careful about messages
+passed to the WndProc before this pointer has been correctly set
+(ie, messages that may be sent before WM_CREATE has been
+processed); these messages either should be passed to DefWindowProc
+or should be handled without using the pointer.
+
+The pointer pWindow will have an invalid value if the WM_CREATE
+message has not yet been processed. The pointer pWindow will have
+an invalid value if the WM_CREATE message has not yet been
+processed. The program responds to the WM_CREATE message by setting
+the extra bytes to be a pointer to the C++ object corresponding to
+the Window identified by hWnd. The messages that precede WM_CREATE
+must be processed without using pWindow so we pass them to
+DefWindowProc. How do we know if the pointer pWindow is invalid? We
+know because Windows allocates the window extra bytes using
+LocalAlloc which zero-initializes memory; thus, pWindow will have a
+value of zero before we set the window extra bytes to the this
+pointer. Keep in mind this caveat: the fact that LocalAlloc will
+
+
+
+
+Chapter 1 Page 18
+
+
+zero-initialize the window extra bytes is not documented in the
+SDK; therefore, it could change in the future.
+
+  long FAR PASCAL _export WndProc( HWND hWnd, WORD iMessage,
+                                   WORD wParam, LONG lParam )
+  {
+      // Pointer to the (C++ object that is the) window.
+      Window *pWindow = GetPointer( hWnd );
+
+      if ( pWindow == 0 )
+      {
+          if ( iMessage == WM_CREATE )
+          {
+              LPCREATESTRUCT lpcs;
+
+              lpcs = (LPCREATESTRUCT) lParam;
+              pWindow = (Window *) lpcs->lpCreateParams;
+
+              // Store a pointer to this object in the window's extra bytes;
+              // this will enable to access this object (and its member
+              // functions) in WndProc where we are
+              // given only a handle to identify the window.
+              SetPointer( hWnd, pWindow );
+              // Now let the object perform whatever
+              // initialization it needs for WM_CREATE in its own
+              // WndProc.
+              return pWindow->WndProc( iMessage, wParam, lParam );
+          }
+          else
+              return DefWindowProc( hWnd, iMessage, wParam, lParam
+  );
+      }
+      else
+          return pWindow->WndProc( iMessage, wParam, lParam );
+  }
+
+
+  Putting it all together with WinMain
+
+Note that the WinMain function in the C++ version of "Hello, World"
+shorter than (though equivalent to) the C version because such
+actions as the registration of the window class, the creation of
+the window, and the message loop have been moved into member
+functions of various C++ classes.
+
+  // Turn off warning: Parameter 'lpszCmdLine' is never used in function
+
+  WinMain(unsigned int,unsigned int,char far*,int)
+  #pragma argsused
+
+  // Turn off warning: 'MainWnd' is assigned a value that is never
+  // used in function
+
+  WinMain(unsigned int,unsigned int,char far*,int)
+  #pragma option -w-aus
+
+
+
+Chapter 1 Page 19
+
+
+  int PASCAL WinMain( HANDLE hInstance, HANDLE hPrevInstance, LPSTR
+  lpszCmdLine, int nCmdShow )
+  {
+      Main::hInstance = hInstance;
+      Main::hPrevInstance = hPrevInstance;
+      Main::nCmdShow = nCmdShow;
+
+      // A Windows class should be registered with Windows before
+      // any windows of that type are created. Register here all
+      // Windows classes that will be used in the program.
+      // Windows classes should not be registered if an instance of
+      // the program is already running.
+      if ( ! Main::hPrevInstance ) {
+          MainWindow::Register();
+      }
+
+      MainWindow MainWnd;
+
+      return Main::MessageLoop();
+  }
+
+

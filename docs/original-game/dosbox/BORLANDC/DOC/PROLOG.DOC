@@ -1,0 +1,712 @@
+
+Interfacing Turbo Assembler with Turbo Prolog
+
+
+Turbo Prolog offers the programmer a wealth of predicates that
+provide a rich set of high-level functions, from screen window
+management to B+ tree database management. What Turbo Assembler
+adds to Turbo Prolog is a low-level programming facility.
+
+In this chapter, we'll first take a look at the interface between
+Turbo Prolog and Turbo Assembler. Then we'll build some simple
+examples of interfacing assembly routines to Turbo Prolog. Finally,
+we'll discuss calling Turbo Prolog predicates from assembly code,
+using Turbo Prolog library calls and passing compound structures.
+
+Note: When referring to Turbo Prolog, we mean versions 1.0 and
+greater.
+
+
+Declaring external predicates
+
+Turbo Prolog allows interfacing with other languages through the
+use of a global predicates declaration. A language specification is
+appended to the declaration so that Turbo Prolog knows a global
+predicate is implemented in another language:
+
+  global predicates
+     add(integer,integer,integer) - (i,i,o),(i,i,i) language asm
+     scanner(string,token) - (i,o) language Pascal
+
+Turbo Prolog makes the interfaced language explicit to simplify the
+problems of activation record and parameter format, calling and
+returning conventions, segment definition, linking, and
+initialization.
+
+
+Calling conventions and parameters
+
+The 8086 processor family gives the programmer a choice between
+near and far subroutine calls. Turbo Prolog creates large memory
+model programs and requires that all calls to and returns from
+subroutines be far.
+
+Turbo Prolog supports a number of calling conventions; C, Pascal,
+and assembler. When interfacing to a routine written using the C
+calling convention, the parameters are pushed onto the stack in
+reverse order and, after returning, the stack pointer is
+automatically adjusted. When interfacing to other languages, the
+parameters are pushed in the normal order, and the called function
+is responsible for removing the parameters from the stack.
+
+In many language compilers for the 8086 family, there is a choice
+between 16-bit and 32-bit pointers, where the 16-bit pointers refer
+to a default segment. Turbo Prolog always uses 32-bit pointers to
+access all memory.
+
+Turbo Prolog types are implemented in the following way:
+
+integer 2 bytes
+real    8 bytes (IEEE format)
+char    1 byte (2 bytes when pushed on the stack)
+string  4-byte dword pointer to a null-terminated string
+symbol  4-byte dword pointer to a null-terminated string
+compound
+        4-byte dword pointer to a record
+
+An output parameter is pushed as a 32-bit pointer to a location
+where the return value must be assigned. For input parameters, the
+value is pushed directly, and the size of the parameter depends on
+its type.
+
+
+Naming conventions
+
+The same predicate in Turbo Prolog can have several type variants
+and several flow variants. Each type and flow variant must have its
+own procedure that's assigned a unique name. This is done by
+numbering the different procedures with the same predicate name
+from 0 upward. For example, given the declaration
+
+  global predicates
+     add(integer,integer,integer)-(i,i,o),(i,i,i) language asm
+
+the first variant--with flow pattern (i,i,o)--is named add_0, and
+the second--with flow pattern (i,i,i)--is named add_1.
+
+Turbo Prolog also allows the programmer to declare an explicit name
+for a global predicate. This is done by succeeding the declaration
+with an "as public name" part. In the following example, the global
+predicate pred will be resolved by an identifier name my_pred, not
+pred_0.
+
+  global predicates
+     pred(integer,integer)-(i,o) language asm as "my_pred"
+
+This method is good when you're naming predicates that have only
+one flow pattern. If more than one flow pattern exists, you'll have
+to provide a name for each variant. Using the add predicate as an
+example, the predicate definition might read
+
+  global predicates
+     add(integer,integer,integer)-(i,i,o) language asm as "doadd"
+     add(integer,integer,integer)-(i,i,i) language asm as
+  "add_check"
+
+The first variant--with flow pattern (i,i,o)--is named doadd, and
+the second--with flow pattern (i,i,i)--is named add_check. Note
+that this naming method requires the variants to be declared
+separately.
+
+
+Writing assembly language predicates
+
+Perhaps the simplest predicates to write are those that have only
+input flow patterns. Suppose you wanted to scroll the contents of
+the current Turbo Prolog window horizontally. You could create the
+predicate scroll_left that scrolls a region of the screen one
+column to the left. In the SCROLLH.PRO example, scroll_left will
+take four integer arguments and one flow pattern.
+
+The Turbo Prolog module SCROLLH.PRO contains a global predicates
+declaration for the predicate scroll_left. The scroll_left
+predicate is defined as an assembly predicate.
+
+  /* SCROLLH.PRO */
+
+  global predicates
+     scroll_left(integer,integer,integer,integer) -
+        (i,i,i,i) language asm
+
+  predicates
+     scrollh
+
+  clauses
+     scrollh :-
+        makewindow(_,_,_,_,Row,Col,Nrows,Ncols),
+        scroll_left(Row,Col,Nrows,Ncols),
+        readchar(C),
+        char_int(C,CI),
+        not(CI = 27),
+        scrollh.
+
+  goal
+     makewindow(1,7,7," A SCROLLING MESSAGE ",10,20,4,60),
+     write("This message will scroll across the window"),nl,
+     write("Look at it go!"),
+     readchar(_),
+     scrollh,
+     readchar(_).
+
+The following assembly language source is the implementation of the
+scroll_left predicate. Notice that the name given to the predicate
+is SCROLL_LEFT_0. This name conforms (as it must) to the naming
+conventions discussed earlier in this chapter.
+
+  ;  SCROL.ASM
+  ;
+       name   scrol
+  ;
+  ;    scroll_left(integer,integer,integer,integer) -
+  ;       (i,i,i,i) language asm
+  ;
+  SCROL_TEXT     SEGMENT  BYTE PUBLIC 'CODE'
+       ASSUME    cs:SCROL_TEXT
+  PUBLIC SCROLL_LEFT_0
+  SCROLL_LEFT_0  PROC FAR
+  ;
+  ; parameters
+  arg  NCOLS:WORD, NROWS:WORD, COL:WORD, ROW:WORD = ARGLEN
+  ;
+  ; local variable
+  local      SSEG :WORD = LSIZE
+       push  bp
+       mov   bp,sp
+       sub   sp,lsize        ;room for local variables
+       push  si
+       push  di
+       mov   SSEG, 0B800h
+       sub   NCOLS, 3        ;NCOLS = NCOLS - 3
+       mov   ax, ROW         ;DEST = ROW*160 + (COL+1)*2
+       mov   dx,160
+       mul   dx
+       mov   dx, COL
+       inc   dx              ;added
+       shl   dx,1
+       add   dx,ax
+       push  ds
+       push  es
+       mov   bx , NROWS      ;loop NROWS times using BX as counter
+       dec   bx              ;NROWS = NROWS - 2
+       dec   bx
+  Top: cmp   bx ,0
+       je    Done
+       add   dx, 160         ;dest = dest + 160
+       mov   ax,NCOLs        ;lastchar = dest + nc*2
+       shl   ax,1
+       add   ax,dx
+       push  ax              ;push lastchar offset on stack
+       mov   ax,SSEG         ;load screen segment into ES, DS
+       mov   es,ax
+       mov   ds,ax
+       mov   di,dx           ;set up SI and DI for movs
+       mov   si,di           ;source is 2 bytes above DEST
+       add   si,2
+       mov   ax,[di]         ;save the char in col 0 in AX
+       mov   cx,NCOLS        ;mov NCOLS words
+       cld
+       rep   movsw
+       pop   di              ;pop lastchar offset to DI
+       mov   [di],ax         ;put char in AX to last column
+       dec   bx
+       jmp   TOP
+  Done:pop   es
+       pop   ds
+       pop   di
+       pop   si
+       mov   sp,bp
+       pop   bp
+       ret   ARGLEN
+  SCROLL_LEFT_0  ENDP
+  SCROL_TEXT     ENDS
+       END
+
+To create an executable file from SCROLLH.PRO and SCROL.ASM, first
+compile the Turbo Prolog file to an .OBJ file using Turbo Prolog.
+(When Turbo Prolog compiles a module, it creates an .OBJ file and a
+.SYM file.) Then assemble SCROL.ASM to an .OBJ file with Turbo
+Assembler, and link the modules together with the following TLINK
+command line:
+
+  TLINK init scrollh scrol scrollh.sym,scroll,,prolog
+
+The resultant executable file will be named SCROLL.EXE.
+
+
+Implementing the
+double predicate
+
+Suppose an assembly language routine is to be called into operation
+via the clause
+
+  double(MyInVar,MyOutVar)
+
+with MyInVar bound to an integer value before the call so that,
+after the call, MyOutVar is bound to twice that value.
+
+The activation record placed on top of the stack when double is
+activated will take the form shown in Figure 2.1.
+
+      Figure 2.1
+      Activation
+      record for
+          double
+
+
+The following assembly language function implements the double
+predicate:
+
+  ;
+  ; MYASM.ASM
+  ;
+  A_PROG     SEGMENT BYTE
+             ASSUME cs:a_prog
+             PUBLIC double_0
+  double_0   PROC   FAR
+             push   bp
+             mov    bp,sp
+             mov    ax, [bp]+6         ;get the value to which
+                                       ; MyInVar is bound
+             add    ax,ax              ;double that value
+             lds    si,DWORD PTR [bp]+10
+             mov    [si],ax            ;store the value to which
+                                       ; MyOutVar is to be bound in
+                                       ; the appropriate address
+             pop    bp
+             mov    sp,bp
+             ret    6
+  double_0  ENDP
+  A_PROG    ENDS
+
+The Turbo Prolog program containing the call to double must contain
+the following global predicates declaration:
+
+  global predicates
+     double(integer,integer) - (i,o) language asm
+
+Otherwise, the Turbo Prolog program is no different from any other
+program.
+
+The following program uses this double:
+
+  /* MYPROLOG.PRO */
+
+  global predicates
+     double(integer,integer) - (i,o) language asm
+
+  goal
+     write("Enter an integer "),
+     readint(I),
+     double(I,Y),
+     write(I," doubled is ",Y).
+
+If this assembly language program module is assembled into the file
+MYASM.OBJ, and the calling Turbo Prolog object module is
+MYPROLOG.OBJ, the two can be linked via this command line
+
+  TLINK init myprolog myasm myprolog.sym,double,,prolog
+
+and produce an executable, stand-alone program in the file
+DOUBLE.EXE (using the Turbo Prolog library in PROLOG.LIB). It is
+important that MYPROLOG.SYM appear as the last file name before the
+first comma in the TLINK command.
+
+In general, the format of an activation record will depend on the
+number of parameters in the calling Turbo Prolog predicate and the
+domain types corresponding to those parameters. For instance, if
+you wanted to define
+
+  add(Val1,Val2,Sum)
+
+with Val1, Val2, and Sum belonging to integer domains, the
+activation record would take the form shown in Figure 2.2.
+
+      Figure 2.2
+      Activation
+  record for add
+
+
+Notice that each parameter occupies a corresponding number of
+bytes. For output parameters, the size is always 4 bytes (used for
+segment address and offset).  For input parameters, the size is
+determined by the value actually pushed onto the stack, so it is
+dependent on the corresponding domain.
+
+Val1 and Val2, belonging to an integer domain and being used with
+an (i) flow pattern, both occupy 2 bytes; Sum, being used with an
+(o) flow pattern, occupies 4 bytes.
+
+Note also that, within the Turbo Prolog compiler, a call to an
+external predicate takes the form
+
+  mov  ax,SEGMENT data
+  mov  ds,ax
+  call FAR PTR external_predicate_implementation
+
+so the data segment that's addressed while a procedure for an
+external predicate is being executed is the segment called DATA.
+
+
+Implementing predicates with multiple flow patterns
+
+When implementing predicates with multiple flow patterns, you must
+be careful that the assembly language functions adhere to the Turbo
+Prolog naming convention. For example, suppose you want to
+implement the predicate add, which has multiple flow patterns. add
+will find the missing value in the equation X + Y = Z when any two
+of the three arguments are bound at the time of the call to add.
+
+The following Turbo Prolog program, ADDPRO.PRO, declares the global
+assembly language predicate add. Notice that add has three flow
+patterns, (i,i,o), (i,o,i), and (o,i,i).
+
+  /* ADDPRO.PRO */
+
+  global predicates
+     add(integer,integer,integer) -
+         (i,i,o),(i,o,i),(o,i,i) language asm
+
+  goal
+     add(2,3,X), write("2 + 3 = ",X),nl,
+     add(2,Y,5), write("5 - 2 = ",Y),nl,
+     add(Z,3,5), write("5 - 3 = ",Z),nl.
+
+The following assembly language program, ADD.ASM, contains the code
+to implement add. ADD_0 corresponds to the (i,i,o) flow pattern,
+ADD_1 corresponds to (i,o,i), and ADD_2 to (o,i,i).
+
+         name     add
+  ADD_TEXT        SEGMENT   BYTE PUBLIC 'CODE'
+         ASSUME   cs:ADD_TEXT
+         PUBLIC   ADD_0                       ;(i,i,o) flow pattern
+  ADD_0  PROC     FAR
+         arg      Z:DWORD, Y:WORD, X:WORD = ARGLEN1
+         push     bp
+         mov      bp,sp
+         mov      ax,X
+         add      ax,Y
+         les      bx,Z
+         mov      WORD PTR es:[bx],ax
+         pop      bp
+         ret      ARGLEN1
+  ADD_0  ENDP
+         PUBLIC   ADD_1                       ;(i,o,i) flow pattern
+  ADD_1  PROC     FAR
+  arg    Z:WORD,  Y:DWORD, X:WORD = ARGLEN2
+         push     bp
+         mov      bp,sp
+         mov      ax, Z
+         sub      ax, X
+         les      bx, Y
+         mov      WORD PTR es:[bx],ax
+         pop      bp
+         ret      ARGLEN2
+  ADD_1  ENDP
+         PUBLIC   ADD_2                       ;(o,i,i) flow pattern
+  ADD_2  PROC     FAR
+  arg    Z:WORD,  Y:WORD, X:DWORD = ARGLEN3
+         push     bp
+         mov      bp,sp
+         mov      ax, Z
+         sub      ax, Y
+         les      bx, X
+         mov      WORD PTR es:[bx],ax
+         pop      bp
+         ret      ARGLEN3
+  ADD_2  ENDP
+  ADD_TEXT        ENDS
+         END
+
+After ADDPRO.PRO and ADD.ASM have been translated to .OBJ files,
+you can create an .EXE file with the following command line:
+
+  TLINK init addpro add addpro.sym,addpro,,prolog
+
+
+Calling Turbo Prolog predicates from assembly functions
+
+Now that we've discussed calling assembly language functions from
+Turbo Prolog, we'll cover it in reverse--calling Turbo Prolog
+predicates from assembly language.
+
+When a predicate is declared as a global predicate, the predicate's
+variants become global functions that can be called by any other
+module. The naming and calling conventions are the same as for
+predicates defined in assembly language.
+
+The following Turbo Prolog module defines two global predicates:
+popmessage and from_asm. popmessage is declared as a C language
+predicate and from_asm is declared as an assembly language
+predicate.
+
+To build SHOWMESS, compile SHOWMESS.PRO to .OBJ from the Turbo
+Prolog development environment. Then compile FROM_ASM.ASM with
+
+  tasm from_asm
+
+and link with
+
+  TLINK init showmess from_asm showmess.sym,showmess,,prolog
+
+Here's SHOWMESS:
+
+  /* SHOWMESS.PRO */
+
+  global predicates
+     popmessage(string) - (i) language c        /* predicate called
+                                                            from   
+                                     assembly language procedure */
+     from_asm - language asm      /* assembly language procedure */
+
+  clauses
+     popmessage(S) :-           /* can be called as a c function   
+                                              named popmessage_0 */
+        str_len(S,L),
+        LL = L + 4,
+        makewindow(13,7,7,"",10,10,3,LL),
+        write(S),
+        readchar(_),
+        removewindow.
+
+  goal
+     from_asm.                                       /* external */
+
+The following assembly code implements from_asm and issues a call
+to popmessage:
+
+          EXTRN   PopMessage_0:FAR
+  DGROUP  GROUP   _DATA
+          ASSUME  cs:SENDMESS_TEXT,ds:DGROUP
+  _DATA   SEGMENT WORD PUBLIC 'DATA'
+  mess1   DB      "Report: Condition Red",0
+  _DATA   ENDS
+  SENDMESS_TEXT   SEGMENT   BYTE PUBLIC 'CODE'
+          PUBLIC  FROM_ASM_0
+  FROM_ASM_0      PROC    FAR
+          push  ds
+          mov   ax,OFFSET DGROUP:mess1
+          push  ax
+          call  FAR PTR PopMessage_0
+          pop   cx
+          pop   cx
+          ret
+  FROM_ASM_0      ENDP
+  SENDMESS_TEXT   ENDS
+          END
+
+A program follows, using high-level assembly extensions to build
+the same executable program. To build it, compile SHOWNEW.PRO to
+.OBJ from the Turbo Prolog development environment, then compile
+FROM_ASM.ASM with
+
+  tasm /jmasm51 /jquirks from_new
+
+and link with
+
+  TLINK init shownew from_new shownew.sym,show2,,prolog
+
+Here's SHOWNEW:
+
+  /* SHOWNEW.PRO */
+  global predicates
+     popmessage(string) - (i) language c        /* predicate called
+                                                            from   
+                                     assembly language procedure */
+    from_asm - language c as "_from_asm"      /* define public name
+                                                              of   
+                                     assembly language procedure */
+
+  clauses
+     popmessage(S) :-
+        str_len(S,L),
+        LL=L+4,
+        makewindow(13,7,7,"window",10,10,3,LL),
+        write(S),
+        readchar(_),
+        removewindow.
+
+  goal
+     from_asm.               /* call assembly language procedure */
+
+The following assembly code implements from_asm and issues a call
+to popmessage (like in the preceding example).
+
+  ; FROM_NEW.ASM
+
+         EXTRN  PopMessage_0:far
+         .MODEL large,c
+         .CODE
+
+  FROM_ASM     PROC
+         push  ds
+         mov   ax, OFFSET DGROUP:mess1
+         push  ax
+         call  FAR PTR PopMessage_0
+         pop   cx
+         pop   cx
+         ret
+  FROM_ASM     ENDP
+
+         .DATA
+  mess1  DB       "Report: Condition Red",0
+         END
+
+
+       Lists and
+        functors
+
+In this section, we'll discuss the method used to pass lists and
+functors to assembly language predicates. As mentioned previously,
+compound Turbo Prolog objects are not passed directly; instead,
+Turbo Prolog passes a 4-byte pointer to a structure.
+
+The record structure used for both lists and functors is simple and
+straightforward. Suppose you had the following Turbo Prolog
+domains:
+
+  domains
+     ilist = integer*
+     ifunc = int(integer)
+
+The corresponding list-node structure for the ilist domain would be
+as follows:
+
+  STRUC ILIST
+     NodeType DB ?
+     Value    DW ?
+     NextNode DD ?
+  ENDS
+
+As you can see from this structure, a list node has three parts:
+
+the node type (a byte)
+
+the node value (depends on the type)
+
+the pointer to the next node (4 bytes)
+
+The node type can contain two meaningful values: Value 1 means that
+the node is a list node, while Value 2 means that the node is an
+end-of-list node. (An end-of-list node contains no other meaningful
+information.) The node value can be any Turbo Prolog domain.
+
+The corresponding structure for the ifunc functor would be as
+follows:
+
+  STRUC IFUNC
+     FuncType DB ?
+     Value    DW ?
+  ENDS
+
+A functor structure has two parts: the functor type and the functor
+record. The functor type is an integer associated with the position
+of the functor variant in the list of alternates. The first
+alternate is type 1, the second is type 2, and so on.
+
+In the following Turbo Prolog and Turbo Assembler modules, we've
+implemented a predicate that returns a functor to Turbo Prolog:
+
+Here's the Turbo Prolog module:
+
+  /* FUNC.PRO */
+
+  domains
+     ifunc = int(integer)
+  global predicates
+     makeifunc(integer,ifunc) - (i,o) language c
+
+  goal
+     makeifunc(4,H),
+     write(H).
+
+And this is the Turbo Assembler module:
+
+  ;
+  ; IFUNC.ASM
+  ;
+       EXTRN   _alloc_gstack:FAR   ;_alloc_gstack returns
+                                   ; pointer to memory block
+  STRUC IFUNC
+     FuncType  DB ?
+     Value     DW ?
+  ENDS
+  IFUNC_TEXT     SEGMENT  WORD PUBLIC 'CODE'
+       ASSUME    cs:IFUNC_TEXT
+       PUBLIC    Makeifunc_0
+  Makeifunc_0    PROC FAR
+       arg       __inval:WORD, __outp:DWORD
+       push      bp
+       mov       bp,sp
+       mov       ax,3                             ;allocate 3 bytes
+       push      ax
+       call      FAR PTR _alloc_gstack
+       pop       cx
+       les       bx,__outp
+       mov       [WORD PTR es:bx+2],dx
+       mov       [WORD PTR es:bx],ax
+       mov       ax,__inval
+  ;;   les       bx,__outp
+       les       bx,[DWORD PTR es:bx]
+       mov       [(IFUNC PTR es:bx).VALUE],ax     ;value = __inval
+       mov       [(IFUNC PTR es:bx).FUNCTYPE],1   ;type  = 1
+       pop       bp
+       ret
+  Makeifunc_0    ENDP
+  IFUNC_TEXT     ENDS
+       END
+
+This example used only one functor type for ifunc. If you were to
+declare another functor, like so:
+
+  myfunc = int(integer); char(char); r(real); d2(integer,real)
+
+the structure would become somewhat more complicated. The structure
+would still have two parts, but the second part would be a union of
+the data structures required to define all the variants for myfunc.
+The following structure is a possible implementation of myfunc in
+Turbo Assembler:
+
+  STRUC MyFunc
+        FuncType DB ?
+        UNION
+           STRUC
+              _int DW ?
+           ENDS
+           STRUC
+              _char DB ?
+           ENDS
+           STRUC
+              _real DQ ?
+           ENDS
+           STRUC
+              v1   DW ?
+              v2   DQ ?
+           ENDS
+        ENDS
+  ENDS
+
+The types associated with functor alternates would be
+
+int(integer)
+            1
+char(char)  2
+r(real)     3
+d2(integer,real)
+            4
+
+To help put lists and functors into focus, take a look at the
+earlier domains declaration of ilist. Why are the valid node types
+1 and 2? Because Turbo Prolog treats ilist as a structure that
+could have been just as easily declared as
+
+  ilist = listnode(integer,listnode); end_of_list.
+
+Keep in mind that when you pass compound objects, you pass a
+pointer to a structure. More specifically: An input flow pattern
+list or functor is passed by reference; an output flow pattern list
+or functor is passed as a pointer to a reference to a structure.
+(Turbo Prolog passes the address of a pointer to the returned
+structure.) All structures returned to Turbo Prolog should use
+memory allocated with Turbo Prolog's memory allocation functions.
+(Refer to the Turbo Prolog User's Guide and the Turbo Prolog
+Reference Guide.)
