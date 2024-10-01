@@ -12,11 +12,11 @@
   },
   "author": "Simon Alling",
   "devDependencies": {
-    "elm-review": "^2.8.2",
-    "elm-tooling": "^1.6.0",
-    "elm-watch": "^1.1.0",
-    "esbuild": "^0.15.12",
-    "sass": "^1.43.3"
+    "elm-review": "2.8.2",
+    "elm-tooling": "1.6.0",
+    "elm-watch": "1.1.0",
+    "esbuild": "0.15.12",
+    "sass": "1.43.3"
   },
   "optionalDependencies": {
     "run-pty": "^4.0.3"
