@@ -84,7 +84,7 @@ prepareLiveRound config seed players pressedButtons =
         ( theKurves, seedAfterSpawn ) =
             Random.step (generateKurves config players) seed |> Tuple.mapFirst recordInitialInteractions
     in
-    ( Live, prepareRoundHelper config { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves, pressedButtons = pressedButtons } )
+    ( Live, prepareRoundHelper config { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves } )
 
 
 prepareReplayRound : Config -> RoundInitialState -> MidRoundState
