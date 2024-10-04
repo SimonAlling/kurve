@@ -189,7 +189,7 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
 
                         drawsOutsideWorld : Bool
                         drawsOutsideWorld =
-                            List.any ((==) True)
+                            List.member True
                                 [ current.leftEdge < 0
                                 , current.topEdge < 0
                                 , current.leftEdge > config.world.width - thickness
