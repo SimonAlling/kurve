@@ -11,6 +11,7 @@ COPY elm-watch.json .
 COPY review review
 COPY tests tests
 COPY src src
-RUN npm run lint
+RUN npm run check-formatting
+RUN npm run review
 RUN npm run build
 RUN npm test
