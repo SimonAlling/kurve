@@ -143,13 +143,13 @@ tests =
                     InGame gameState ->
                         case gameState of
                             RoundOver round _ ->
-                                case round.kurves.dead of
-                                    kurve :: [] ->
+                                case ( round.kurves.alive, round.kurves.dead ) of
+                                    ( [], kurve :: [] ) ->
                                         Expect.equal kurve.state.position
                                             ( 0, 100 )
 
                                     _ ->
-                                        Expect.fail "Expected exactly one dead Kurve"
+                                        Expect.fail "Expected exactly one dead Kurve and no alive ones"
 
                             _ ->
                                 Expect.fail "Expected round to be over"
