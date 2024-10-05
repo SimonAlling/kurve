@@ -52,7 +52,6 @@ tests =
                             { initialState =
                                 { seedAfterSpawn = Random.initialSeed 0
                                 , spawnedKurves = []
-                                , pressedButtons = Set.empty
                                 }
                             }
                         , seed = Random.initialSeed 0
@@ -121,7 +120,6 @@ tests =
                             { initialState =
                                 { seedAfterSpawn = Random.initialSeed 0
                                 , spawnedKurves = []
-                                , pressedButtons = Set.empty
                                 }
                             }
                         , seed = Random.initialSeed 0

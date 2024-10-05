@@ -31,7 +31,6 @@ type alias RoundHistory =
 type alias RoundInitialState =
     { seedAfterSpawn : Random.Seed
     , spawnedKurves : List Kurve
-    , pressedButtons : Set String
     }
 
 
