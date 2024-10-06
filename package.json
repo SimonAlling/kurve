@@ -2,14 +2,14 @@
   "name": "zatacka",
   "description": "Achtung, die Kurve! in JavaScript",
   "scripts": {
-    "postinstall": "elm-tooling install",
+    "postinstall": "elm-tooling install && npm run install-hooks",
     "install-hooks": "cp hooks/* .git/hooks",
     "sass-build": "sass --source-map src/css/:css/",
     "build": "elm-watch make --optimize",
     "check-formatting": "elm-format --validate src/",
     "review": "elm-review",
     "test": "elm-test",
-    "start": "npm run install-hooks && run-pty % elm-watch hot % esbuild --serve --servedir=. % sass --watch --source-map src/css/:css/",
+    "start": "run-pty % elm-watch hot % esbuild --serve --servedir=. % sass --watch --source-map src/css/:css/",
     "deploy": "git checkout master && git merge --no-ff -m \"Merge branch 'develop'\" develop && npm run build && git add -f js css && git commit -m \"Deploy\""
   },
   "author": "Simon Alling",
