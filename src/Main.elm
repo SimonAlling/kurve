@@ -98,7 +98,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ pressedButtons } as model) =
+update msg ({ config, pressedButtons } as model) =
     case msg of
         FocusLost ->
             case model.appState of
@@ -109,14 +109,14 @@ update msg ({ pressedButtons } as model) =
                     ( model, Cmd.none )
 
         SpawnTick spawnState plannedMidRoundState ->
-            stepSpawnState model.config spawnState
+            stepSpawnState config spawnState
                 |> Tuple.mapFirst (\makeGameState -> { model | appState = InGame <| makeGameState plannedMidRoundState })
 
         GameTick tick (( _, currentRound ) as midRoundState) ->
             let
                 ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
                     List.foldr
-                        (checkIndividualKurve model.config tick)
+                        (checkIndividualKurve config tick)
                         ( Random.constant
                             { alive = [] -- We start with the empty list because the new one we'll create may not include all the Kurves from the old one.
                             , dead = currentRound.kurves.dead -- Dead Kurves, however, will not spring to life again.
@@ -146,8 +146,8 @@ update msg ({ pressedButtons } as model) =
                         Active NotPaused <| Moving tick <| modifyRound (always newCurrentRound) midRoundState
             in
             ( { model | appState = InGame newGameState }
-            , [ headDrawingCmd model.config.kurves.thickness newKurves.alive
-              , bodyDrawingCmd model.config.kurves.thickness newColoredDrawingPositions
+            , [ headDrawingCmd config.kurves.thickness newKurves.alive
+              , bodyDrawingCmd config.kurves.thickness newColoredDrawingPositions
               ]
                 |> Cmd.batch
             )
@@ -165,7 +165,7 @@ update msg ({ pressedButtons } as model) =
                 InMenu Lobby seed ->
                     case ( button, atLeastOneIsParticipating model.players ) of
                         ( Key "Space", True ) ->
-                            startRound model <| prepareLiveRound model.config seed (participating model.players) pressedButtons
+                            startRound model <| prepareLiveRound config seed (participating model.players) pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, Cmd.none )
@@ -180,11 +180,11 @@ update msg ({ pressedButtons } as model) =
 
                                 gameIsOver : Bool
                                 gameIsOver =
-                                    newModel.config.game.isGameOver (participating newModel.players)
+                                    config.game.isGameOver (participating newModel.players)
                             in
                             case button of
                                 Key "KeyR" ->
-                                    startRound model <| prepareReplayRound model.config (initialStateForReplaying finishedRound)
+                                    startRound model <| prepareReplayRound config (initialStateForReplaying finishedRound)
 
                                 Key "Escape" ->
                                     -- Quitting after the final round is not allowed in the original game.
@@ -199,7 +199,7 @@ update msg ({ pressedButtons } as model) =
                                         gameOver finishedRound.seed newModel
 
                                     else
-                                        startRound newModel <| prepareLiveRound newModel.config finishedRound.seed (participating newModel.players) pressedButtons
+                                        startRound newModel <| prepareLiveRound config finishedRound.seed (participating newModel.players) pressedButtons
 
                                 _ ->
                                     ( handleUserInteraction Down button model, Cmd.none )
