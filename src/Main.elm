@@ -2,7 +2,7 @@ port module Main exposing (Model, Msg(..), main, update)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
-import Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
+import Canvas exposing (clearEverything, drawSpawnIfAndOnlyIf)
 import Config exposing (Config)
 import Dialog
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
@@ -11,14 +11,14 @@ import GUI.Lobby exposing (lobby)
 import GUI.PauseOverlay exposing (pauseOverlay)
 import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
-import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Menu exposing (MenuState(..))
 import Players exposing (AllPlayers, atLeastOneIsParticipating, everyoneLeaves, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
 import Random
-import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves, roundIsOver)
+import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
 import Time
 import Types.Tick as Tick exposing (Tick)
@@ -112,44 +112,13 @@ update msg ({ config, pressedButtons } as model) =
             stepSpawnState config spawnState
                 |> Tuple.mapFirst (\makeGameState -> { model | appState = InGame <| makeGameState plannedMidRoundState })
 
-        GameTick tick (( _, currentRound ) as midRoundState) ->
+        GameTick tick midRoundState ->
             let
-                ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
-                    List.foldr
-                        (checkIndividualKurve config tick)
-                        ( Random.constant
-                            { alive = [] -- We start with the empty list because the new one we'll create may not include all the Kurves from the old one.
-                            , dead = currentRound.kurves.dead -- Dead Kurves, however, will not spring to life again.
-                            }
-                        , currentRound.occupiedPixels
-                        , []
-                        )
-                        currentRound.kurves.alive
-
-                ( newKurves, newSeed ) =
-                    Random.step newKurvesGenerator currentRound.seed
-
-                newCurrentRound : Round
-                newCurrentRound =
-                    { kurves = newKurves
-                    , occupiedPixels = newOccupiedPixels
-                    , initialState = currentRound.initialState
-                    , seed = newSeed
-                    }
-
-                newGameState : GameState
-                newGameState =
-                    if roundIsOver newKurves then
-                        RoundOver newCurrentRound Dialog.NotOpen
-
-                    else
-                        Active NotPaused <| Moving tick <| modifyRound (always newCurrentRound) midRoundState
+                ( newGameState, cmd ) =
+                    Game.reactToTick config tick midRoundState
             in
             ( { model | appState = InGame newGameState }
-            , [ headDrawingCmd config.kurves.thickness newKurves.alive
-              , bodyDrawingCmd config.kurves.thickness newColoredDrawingPositions
-              ]
-                |> Cmd.batch
+            , cmd
             )
 
         ButtonUsed Down button ->
