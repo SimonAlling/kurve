@@ -133,7 +133,7 @@ update msg ({ pressedButtons } as model) =
                 newCurrentRound =
                     { kurves = newKurves
                     , occupiedPixels = newOccupiedPixels
-                    , history = currentRound.history
+                    , initialState = currentRound.initialState
                     , seed = newSeed
                     }
 
