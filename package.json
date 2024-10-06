@@ -3,7 +3,7 @@
   "description": "Achtung, die Kurve! in JavaScript",
   "scripts": {
     "postinstall": "elm-tooling install",
-    "install-hooks": "cp hooks/* .git/hooks",
+    "install-hooks": "[ -d .git/ ] && cp hooks/* .git/hooks",
     "sass-build": "sass --source-map src/css/:css/",
     "build": "elm-watch make --optimize",
     "check-formatting": "elm-format --validate src/",
