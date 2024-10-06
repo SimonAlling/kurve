@@ -107,9 +107,7 @@ prepareRoundHelper config initialState =
         round =
             { kurves = { alive = theKurves, dead = [] }
             , occupiedPixels = List.foldr (.state >> .position >> World.drawingPosition thickness >> World.pixelsToOccupy thickness >> Set.union) Set.empty theKurves
-            , history =
-                { initialState = initialState
-                }
+            , initialState = initialState
             , seed = initialState.seedAfterSpawn
             }
     in

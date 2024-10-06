@@ -48,11 +48,9 @@ tests =
                             , dead = []
                             }
                         , occupiedPixels = Set.empty
-                        , history =
-                            { initialState =
-                                { seedAfterSpawn = Random.initialSeed 0
-                                , spawnedKurves = []
-                                }
+                        , initialState =
+                            { seedAfterSpawn = Random.initialSeed 0
+                            , spawnedKurves = []
                             }
                         , seed = Random.initialSeed 0
                         }
@@ -116,11 +114,9 @@ tests =
                             , dead = []
                             }
                         , occupiedPixels = Set.empty
-                        , history =
-                            { initialState =
-                                { seedAfterSpawn = Random.initialSeed 0
-                                , spawnedKurves = []
-                                }
+                        , initialState =
+                            { seedAfterSpawn = Random.initialSeed 0
+                            , spawnedKurves = []
                             }
                         , seed = Random.initialSeed 0
                         }
