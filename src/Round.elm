@@ -1,4 +1,4 @@
-module Round exposing (Kurves, Round, RoundHistory, RoundInitialState, initialStateForReplaying, modifyAlive, modifyDead, modifyKurves, roundIsOver, scores)
+module Round exposing (Kurves, Round, RoundInitialState, initialStateForReplaying, modifyAlive, modifyDead, modifyKurves, roundIsOver, scores)
 
 import Dict exposing (Dict)
 import Random
@@ -12,7 +12,7 @@ import World exposing (Pixel)
 type alias Round =
     { kurves : Kurves
     , occupiedPixels : Set Pixel
-    , history : RoundHistory
+    , initialState : RoundInitialState
     , seed : Random.Seed
     }
 
@@ -20,11 +20,6 @@ type alias Round =
 type alias Kurves =
     { alive : List Kurve
     , dead : List Kurve
-    }
-
-
-type alias RoundHistory =
-    { initialState : RoundInitialState
     }
 
 
@@ -68,7 +63,7 @@ initialStateForReplaying round =
     let
         initialState : RoundInitialState
         initialState =
-            round.history.initialState
+            round.initialState
 
         theKurves : List Kurve
         theKurves =
