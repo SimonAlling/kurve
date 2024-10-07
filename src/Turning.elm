@@ -1,4 +1,8 @@
-module Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
+module Turning exposing
+    ( computeAngleChange
+    , computeTurningState
+    , turningStateFromHistory
+    )
 
 import Config exposing (KurveConfig)
 import Set exposing (Set)
