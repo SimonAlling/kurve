@@ -7,14 +7,14 @@ import Players exposing (ParticipatingPlayers)
 import Random
 import Random.Extra as Random
 import Types.Angle exposing (Angle(..))
-import Types.Distance as Distance exposing (Distance(..))
+import Types.Distance as Distance exposing (Distance)
 import Types.Kurve as Kurve exposing (Kurve)
 import Types.Player exposing (Player)
 import Types.PlayerId exposing (PlayerId)
 import Types.Radius as Radius
 import Types.Thickness as Thickness
 import Util exposing (curry)
-import World exposing (Position, distanceToTicks)
+import World exposing (Position, distanceBetween, distanceToTicks)
 
 
 generateKurves : Config -> ParticipatingPlayers -> Random.Generator (List Kurve)
@@ -65,11 +65,6 @@ isTooCloseFor numberOfPlayers config point1 point2 =
             2 * sqrt (config.spawn.protectionAudacity * availableArea / (toFloat numberOfPlayers * pi))
     in
     Distance.toFloat (distanceBetween point1 point2) < min desiredMinimumDistance maxAllowedMinimumDistance
-
-
-distanceBetween : Position -> Position -> Distance
-distanceBetween ( x1, y1 ) ( x2, y2 ) =
-    Distance <| sqrt ((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
 
 
 generateKurve : Config -> PlayerId -> Int -> List Position -> Player -> Random.Generator Kurve
