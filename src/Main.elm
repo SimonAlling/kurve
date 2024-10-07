@@ -1,4 +1,4 @@
-port module Main exposing (Model, Msg(..), main, update)
+port module Main exposing (Model, Msg(..), main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
