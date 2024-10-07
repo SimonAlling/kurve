@@ -27,7 +27,6 @@ import NoUnused.Variables
 import Review.Rule exposing (Rule)
 import Simplify
 
-
 config : List Rule
 config =
     [ NoConfusingPrefixOperator.rule
