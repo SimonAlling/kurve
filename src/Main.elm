@@ -11,7 +11,7 @@ import GUI.Lobby exposing (lobby)
 import GUI.PauseOverlay exposing (pauseOverlay)
 import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
-import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, tickResultToGameState)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
@@ -114,10 +114,10 @@ update msg ({ config, pressedButtons } as model) =
 
         GameTick tick midRoundState ->
             let
-                ( newGameState, cmd ) =
+                ( tickResult, cmd ) =
                     Game.reactToTick config tick midRoundState
             in
-            ( { model | appState = InGame newGameState }
+            ( { model | appState = InGame (tickResultToGameState tickResult) }
             , cmd
             )
 
