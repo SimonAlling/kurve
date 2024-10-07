@@ -1,12 +1,9 @@
 module AchtungTest exposing (tests)
 
-import App exposing (AppState(..))
 import Color
 import Config
-import Dict
 import Expect
-import Game exposing (ActiveGameState(..), GameState(..), MidRoundStateVariant(..), Paused(..))
-import Main exposing (Model, Msg(..), update)
+import Game exposing (ActiveGameState(..), GameState(..), MidRoundStateVariant(..), reactToTick)
 import Random
 import Round exposing (Round)
 import Set
@@ -55,35 +52,22 @@ tests =
                         , seed = Random.initialSeed 0
                         }
 
-                    currentModel : Model
-                    currentModel =
-                        { pressedButtons = Set.empty
-                        , appState = InGame (Active NotPaused (Moving Tick.genesis ( Live, currentRound )))
-                        , config = Config.default
-                        , players = Dict.empty
-                        }
-
-                    newAppState : AppState
-                    newAppState =
-                        currentModel |> update (GameTick (Tick.succ Tick.genesis) ( Live, currentRound )) |> Tuple.first |> .appState
+                    newGameState : GameState
+                    newGameState =
+                        reactToTick Config.default (Tick.succ Tick.genesis) ( Live, currentRound ) |> Tuple.first
                 in
-                case newAppState of
-                    InGame gameState ->
-                        case gameState of
-                            Active _ (Moving _ ( _, round )) ->
-                                case round.kurves.alive of
-                                    kurve :: [] ->
-                                        Expect.equal kurve.state.position
-                                            ( 101, 100 )
-
-                                    _ ->
-                                        Expect.fail "Expected exactly one alive Kurve"
+                case newGameState of
+                    Active _ (Moving _ ( _, round )) ->
+                        case round.kurves.alive of
+                            kurve :: [] ->
+                                Expect.equal kurve.state.position
+                                    ( 101, 100 )
 
                             _ ->
-                                Expect.fail "Expected active game state with Kurves moving"
+                                Expect.fail "Expected exactly one alive Kurve"
 
                     _ ->
-                        Expect.fail "Expected in-game app state"
+                        Expect.fail "Expected active game state with Kurves moving"
             )
         , test
             "A Kurve that crashes into the wall dies"
@@ -121,34 +105,21 @@ tests =
                         , seed = Random.initialSeed 0
                         }
 
-                    currentModel : Model
-                    currentModel =
-                        { pressedButtons = Set.empty
-                        , appState = InGame (Active NotPaused (Moving Tick.genesis ( Live, currentRound )))
-                        , config = Config.default
-                        , players = Dict.empty
-                        }
-
-                    newAppState : AppState
-                    newAppState =
-                        currentModel |> update (GameTick (Tick.succ Tick.genesis) ( Live, currentRound )) |> Tuple.first |> .appState
+                    newGameState : GameState
+                    newGameState =
+                        reactToTick Config.default (Tick.succ Tick.genesis) ( Live, currentRound ) |> Tuple.first
                 in
-                case newAppState of
-                    InGame gameState ->
-                        case gameState of
-                            RoundOver round _ ->
-                                case ( round.kurves.alive, round.kurves.dead ) of
-                                    ( [], kurve :: [] ) ->
-                                        Expect.equal kurve.state.position
-                                            ( 0, 100 )
-
-                                    _ ->
-                                        Expect.fail "Expected exactly one dead Kurve and no alive ones"
+                case newGameState of
+                    RoundOver round _ ->
+                        case ( round.kurves.alive, round.kurves.dead ) of
+                            ( [], kurve :: [] ) ->
+                                Expect.equal kurve.state.position
+                                    ( 0, 100 )
 
                             _ ->
-                                Expect.fail "Expected round to be over"
+                                Expect.fail "Expected exactly one dead Kurve and no alive ones"
 
                     _ ->
-                        Expect.fail "Expected in-game app state"
+                        Expect.fail "Expected round to be over"
             )
         ]
