@@ -1,4 +1,10 @@
-module Types.Angle exposing (Angle(..), add, cos, negate, sin)
+module Types.Angle exposing
+    ( Angle(..)
+    , add
+    , cos
+    , negate
+    , sin
+    )
 
 {-| Angles are measured in radians.
 -}

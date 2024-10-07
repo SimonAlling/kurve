@@ -1,4 +1,9 @@
-module Types.Tick exposing (Tick, genesis, succ, toInt)
+module Types.Tick exposing
+    ( Tick
+    , genesis
+    , succ
+    , toInt
+    )
 
 
 type Tick

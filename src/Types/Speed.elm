@@ -1,4 +1,7 @@
-module Types.Speed exposing (Speed(..), toFloat)
+module Types.Speed exposing
+    ( Speed(..)
+    , toFloat
+    )
 
 {-| Speeds in Kurve are traditionally measured in pixels per second.
 -}

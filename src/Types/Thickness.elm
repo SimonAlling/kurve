@@ -1,4 +1,7 @@
-module Types.Thickness exposing (Thickness(..), toInt)
+module Types.Thickness exposing
+    ( Thickness(..)
+    , toInt
+    )
 
 {-| A thickness in Kurve is traditionally measured in whole pixels.
 -}

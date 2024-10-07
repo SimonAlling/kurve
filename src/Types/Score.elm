@@ -1,4 +1,7 @@
-module Types.Score exposing (Score(..), isAtLeast)
+module Types.Score exposing
+    ( Score(..)
+    , isAtLeast
+    )
 
 
 type Score

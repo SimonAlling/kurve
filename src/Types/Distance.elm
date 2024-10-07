@@ -1,4 +1,8 @@
-module Types.Distance exposing (Distance(..), generate, toFloat)
+module Types.Distance exposing
+    ( Distance(..)
+    , generate
+    , toFloat
+    )
 
 import Random
 

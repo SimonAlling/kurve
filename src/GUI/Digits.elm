@@ -1,4 +1,7 @@
-module GUI.Digits exposing (large, small)
+module GUI.Digits exposing
+    ( large
+    , small
+    )
 
 import Color exposing (Color)
 import GUI.Text as Text

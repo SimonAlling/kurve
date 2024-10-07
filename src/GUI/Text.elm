@@ -1,4 +1,7 @@
-module GUI.Text exposing (Size(..), string)
+module GUI.Text exposing
+    ( Size(..)
+    , string
+    )
 
 import Color exposing (Color)
 import Html exposing (Html, span)
