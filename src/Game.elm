@@ -1,11 +1,12 @@
-module Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, checkIndividualKurve, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction)
+module Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, reactToTick, recordUserInteraction)
 
+import Canvas exposing (bodyDrawingCmd, headDrawingCmd)
 import Color exposing (Color)
 import Config exposing (Config, KurveConfig)
 import Dialog
 import Players exposing (ParticipatingPlayers)
 import Random
-import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead)
+import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
 import Set exposing (Set)
 import Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
@@ -112,6 +113,48 @@ prepareRoundHelper config initialState =
             }
     in
     round
+
+
+reactToTick : Config -> Tick -> MidRoundState -> ( GameState, Cmd msg )
+reactToTick config tick (( _, currentRound ) as midRoundState) =
+    let
+        ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
+            List.foldr
+                (checkIndividualKurve config tick)
+                ( Random.constant
+                    { alive = [] -- We start with the empty list because the new one we'll create may not include all the Kurves from the old one.
+                    , dead = currentRound.kurves.dead -- Dead Kurves, however, will not spring to life again.
+                    }
+                , currentRound.occupiedPixels
+                , []
+                )
+                currentRound.kurves.alive
+
+        ( newKurves, newSeed ) =
+            Random.step newKurvesGenerator currentRound.seed
+
+        newCurrentRound : Round
+        newCurrentRound =
+            { kurves = newKurves
+            , occupiedPixels = newOccupiedPixels
+            , initialState = currentRound.initialState
+            , seed = newSeed
+            }
+
+        newGameState : GameState
+        newGameState =
+            if roundIsOver newKurves then
+                RoundOver newCurrentRound Dialog.NotOpen
+
+            else
+                Active NotPaused <| Moving tick <| modifyRound (always newCurrentRound) midRoundState
+    in
+    ( newGameState
+    , [ headDrawingCmd config.kurves.thickness newKurves.alive
+      , bodyDrawingCmd config.kurves.thickness newColoredDrawingPositions
+      ]
+        |> Cmd.batch
+    )
 
 
 {-| Takes the distance between the _edges_ of two drawn squares and returns the distance between their _centers_.
