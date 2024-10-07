@@ -77,12 +77,12 @@ type Msg
     | FocusLost
 
 
-stepSpawnState : Config -> SpawnState -> ( MidRoundState -> GameState, Cmd msg )
+stepSpawnState : Config -> SpawnState -> ( MidRoundState -> ActiveGameState, Cmd msg )
 stepSpawnState config { kurvesLeft, ticksLeft } =
     case kurvesLeft of
         [] ->
             -- All Kurves have spawned.
-            ( Active NotPaused << Moving Tick.genesis, Cmd.none )
+            ( Moving Tick.genesis, Cmd.none )
 
         spawning :: waiting ->
             let
@@ -94,7 +94,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
                     else
                         { kurvesLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
-            ( Active NotPaused << Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.kurves.thickness )
+            ( Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.kurves.thickness )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -110,7 +110,7 @@ update msg ({ config, pressedButtons } as model) =
 
         SpawnTick spawnState plannedMidRoundState ->
             stepSpawnState config spawnState
-                |> Tuple.mapFirst (\makeGameState -> { model | appState = InGame <| makeGameState plannedMidRoundState })
+                |> Tuple.mapFirst (\makeActiveGameState -> { model | appState = InGame <| Active NotPaused <| makeActiveGameState plannedMidRoundState })
 
         GameTick tick midRoundState ->
             let
