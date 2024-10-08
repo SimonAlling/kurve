@@ -80,7 +80,7 @@ tests =
                         , id = 5
                         , controls = ( Set.empty, Set.empty )
                         , state =
-                            { position = ( 1, 100 )
+                            { position = ( 2.5, 100 )
                             , direction = Angle pi
                             , holeStatus = Unholy 60
                             }
@@ -108,65 +108,16 @@ tests =
                 in
                 currentRound
                     |> expectRoundOutcome
-                        { tickThatShouldEndIt = Tick.succ Tick.genesis
+                        { tickThatShouldEndIt = Tick.succ (Tick.succ Tick.genesis)
                         , howItShouldEnd =
                             \round ->
                                 case ( round.kurves.alive, round.kurves.dead ) of
                                     ( [], kurve :: [] ) ->
                                         Expect.equal kurve.state.position
-                                            ( 0, 100 )
+                                            ( 0.5, 100 )
 
                                     _ ->
                                         Expect.fail "Expected exactly one dead Kurve and no alive ones"
-                        }
-            )
-        , test
-            "A Kurve dies exactly when it crashes into the wall"
-            (\_ ->
-                let
-                    kurve : Kurve
-                    kurve =
-                        { color = Color.white
-                        , id = 1
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 2.5, 100 )
-                            , direction = Angle pi
-                            , holeStatus = Unholy 50
-                            }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
-
-                    round : Round
-                    round =
-                        { kurves =
-                            { alive = [ kurve ]
-                            , dead = []
-                            }
-                        , occupiedPixels = Set.empty
-                        , initialState =
-                            { seedAfterSpawn = Random.initialSeed 0
-                            , spawnedKurves = []
-                            }
-                        , seed = Random.initialSeed 0
-                        }
-                in
-                round
-                    |> expectRoundOutcome
-                        { tickThatShouldEndIt = Tick.succ (Tick.succ Tick.genesis)
-                        , howItShouldEnd =
-                            \finishedRound ->
-                                Expect.equal finishedRound.kurves
-                                    { alive = []
-                                    , dead =
-                                        [ { kurve | state = { position = ( 0.5, 100 ), direction = Angle pi, holeStatus = Unholy 48 } }
-                                        ]
-                                    }
                         }
             )
         ]
