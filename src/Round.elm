@@ -1,4 +1,14 @@
-module Round exposing (Kurves, Round, RoundInitialState, initialStateForReplaying, modifyAlive, modifyDead, modifyKurves, roundIsOver, scores)
+module Round exposing
+    ( Kurves
+    , Round
+    , RoundInitialState
+    , initialStateForReplaying
+    , modifyAlive
+    , modifyDead
+    , modifyKurves
+    , roundIsOver
+    , scores
+    )
 
 import Dict exposing (Dict)
 import Random

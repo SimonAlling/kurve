@@ -1,4 +1,18 @@
-module Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, reactToTick, recordUserInteraction)
+module Game exposing
+    ( ActiveGameState(..)
+    , GameState(..)
+    , MidRoundState
+    , MidRoundStateVariant(..)
+    , Paused(..)
+    , SpawnState
+    , firstUpdateTick
+    , modifyMidRoundState
+    , modifyRound
+    , prepareLiveRound
+    , prepareReplayRound
+    , reactToTick
+    , recordUserInteraction
+    )
 
 import Canvas exposing (bodyDrawingCmd, headDrawingCmd)
 import Color exposing (Color)

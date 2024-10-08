@@ -1,4 +1,7 @@
-module App exposing (AppState(..), modifyGameState)
+module App exposing
+    ( AppState(..)
+    , modifyGameState
+    )
 
 import Game exposing (GameState)
 import Menu exposing (MenuState)

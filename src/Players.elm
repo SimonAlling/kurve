@@ -1,4 +1,13 @@
-module Players exposing (AllPlayers, ParticipatingPlayers, atLeastOneIsParticipating, everyoneLeaves, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
+module Players exposing
+    ( AllPlayers
+    , ParticipatingPlayers
+    , atLeastOneIsParticipating
+    , everyoneLeaves
+    , handlePlayerJoiningOrLeaving
+    , includeResultsFrom
+    , initialPlayers
+    , participating
+    )
 
 import Color exposing (Color)
 import Dict exposing (Dict)
