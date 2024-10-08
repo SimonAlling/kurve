@@ -80,7 +80,7 @@ tests =
                         , id = 5
                         , controls = ( Set.empty, Set.empty )
                         , state =
-                            { position = ( 1, 100 )
+                            { position = ( 2.5, 100 )
                             , direction = Angle pi
                             , holeStatus = Unholy 60
                             }
@@ -108,13 +108,13 @@ tests =
                 in
                 currentRound
                     |> expectRoundOutcome
-                        { tickThatShouldEndIt = Tick.succ Tick.genesis
+                        { tickThatShouldEndIt = Tick.succ (Tick.succ Tick.genesis)
                         , howItShouldEnd =
                             \round ->
                                 case ( round.kurves.alive, round.kurves.dead ) of
                                     ( [], kurve :: [] ) ->
                                         Expect.equal kurve.state.position
-                                            ( 0, 100 )
+                                            ( 0.5, 100 )
 
                                     _ ->
                                         Expect.fail "Expected exactly one dead Kurve and no alive ones"
