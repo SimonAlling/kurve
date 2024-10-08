@@ -1,4 +1,12 @@
-module Config exposing (Config, GameConfig, HoleConfig, KurveConfig, SpawnConfig, WorldConfig, default)
+module Config exposing
+    ( Config
+    , GameConfig
+    , HoleConfig
+    , KurveConfig
+    , SpawnConfig
+    , WorldConfig
+    , default
+    )
 
 import Dict
 import Players exposing (ParticipatingPlayers)

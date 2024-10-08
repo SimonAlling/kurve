@@ -1,4 +1,8 @@
-module Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
+module Spawn exposing
+    ( generateHoleSize
+    , generateHoleSpacing
+    , generateKurves
+    )
 
 import Config exposing (Config, HoleConfig, KurveConfig, SpawnConfig, WorldConfig)
 import Dict

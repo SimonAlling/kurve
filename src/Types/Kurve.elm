@@ -1,4 +1,12 @@
-module Types.Kurve exposing (Fate(..), HoleStatus(..), Kurve, State, UserInteraction(..), modifyReversedInteractions, reset)
+module Types.Kurve exposing
+    ( Fate(..)
+    , HoleStatus(..)
+    , Kurve
+    , State
+    , UserInteraction(..)
+    , modifyReversedInteractions
+    , reset
+    )
 
 import Color exposing (Color)
 import Set exposing (Set)

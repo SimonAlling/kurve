@@ -1,4 +1,7 @@
-module Util exposing (curry, isEven)
+module Util exposing
+    ( curry
+    , isEven
+    )
 
 
 curry : (( a, b ) -> c) -> a -> b -> c

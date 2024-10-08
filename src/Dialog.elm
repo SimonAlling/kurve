@@ -1,4 +1,7 @@
-module Dialog exposing (Option(..), State(..))
+module Dialog exposing
+    ( Option(..)
+    , State(..)
+    )
 
 
 type State
