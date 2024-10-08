@@ -3,14 +3,15 @@ module AchtungTest exposing (tests)
 import Color
 import Config
 import Expect
-import Game exposing (ActiveGameState(..), GameState(..), MidRoundStateVariant(..), reactToTick)
+import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), reactToTick)
 import Random
 import Round exposing (Round)
 import Set
+import String
 import Test exposing (Test, describe, test)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
-import Types.Tick as Tick
+import Types.Tick as Tick exposing (Tick)
 
 
 tests : Test
@@ -104,22 +105,70 @@ tests =
                             }
                         , seed = Random.initialSeed 0
                         }
-
-                    newGameState : GameState
-                    newGameState =
-                        reactToTick Config.default (Tick.succ Tick.genesis) ( Live, currentRound ) |> Tuple.first
                 in
-                case newGameState of
-                    RoundOver round _ ->
-                        case ( round.kurves.alive, round.kurves.dead ) of
-                            ( [], kurve :: [] ) ->
-                                Expect.equal kurve.state.position
-                                    ( 0, 100 )
+                currentRound
+                    |> expectRoundOutcome
+                        { tickThatShouldEndIt = Tick.succ Tick.genesis
+                        , howItShouldEnd =
+                            \round ->
+                                case ( round.kurves.alive, round.kurves.dead ) of
+                                    ( [], kurve :: [] ) ->
+                                        Expect.equal kurve.state.position
+                                            ( 0, 100 )
 
-                            _ ->
-                                Expect.fail "Expected exactly one dead Kurve and no alive ones"
-
-                    _ ->
-                        Expect.fail "Expected round to be over"
+                                    _ ->
+                                        Expect.fail "Expected exactly one dead Kurve and no alive ones"
+                        }
             )
         ]
+
+
+{-| A description of when and how a round should end.
+-}
+type alias RoundOutcome =
+    { tickThatShouldEndIt : Tick
+    , howItShouldEnd : Round -> Expect.Expectation
+    }
+
+
+expectRoundOutcome : RoundOutcome -> Round -> Expect.Expectation
+expectRoundOutcome { tickThatShouldEndIt, howItShouldEnd } round =
+    let
+        recurse : Tick -> MidRoundState -> Expect.Expectation
+        recurse tick midRoundState =
+            let
+                nextGameState : GameState
+                nextGameState =
+                    reactToTick Config.default (Tick.succ tick) midRoundState |> Tuple.first
+            in
+            case nextGameState of
+                Active _ activeGameState ->
+                    case activeGameState of
+                        Moving nextTick nextMidRoundState ->
+                            if nextTick == tickThatShouldEndIt then
+                                Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it did not."
+
+                            else
+                                recurse nextTick nextMidRoundState
+
+                        Spawning _ _ ->
+                            Expect.fail <| "Did not expect players to be spawning as a result of tick " ++ showTick tick ++ "."
+
+                RoundOver actualRoundResult _ ->
+                    let
+                        actualEndTick : Tick
+                        actualEndTick =
+                            Tick.succ tick
+                    in
+                    if actualEndTick == tickThatShouldEndIt then
+                        howItShouldEnd actualRoundResult
+
+                    else
+                        Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it ended on tick " ++ showTick actualEndTick ++ "."
+    in
+    recurse Tick.genesis ( Live, round )
+
+
+showTick : Tick -> String
+showTick =
+    Tick.toInt >> String.fromInt
