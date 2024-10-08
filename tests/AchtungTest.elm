@@ -134,8 +134,8 @@ type alias RoundOutcome =
 expectRoundOutcome : RoundOutcome -> Round -> Expect.Expectation
 expectRoundOutcome { tickThatShouldEndIt, howItShouldEnd } round =
     let
-        recurse : ( Tick, MidRoundState ) -> Expect.Expectation
-        recurse ( tick, midRoundState ) =
+        recurse : Tick -> MidRoundState -> Expect.Expectation
+        recurse tick midRoundState =
             let
                 nextGameState : GameState
                 nextGameState =
@@ -149,7 +149,7 @@ expectRoundOutcome { tickThatShouldEndIt, howItShouldEnd } round =
                                 Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it did not."
 
                             else
-                                recurse ( nextTick, nextMidRoundState )
+                                recurse nextTick nextMidRoundState
 
                         Spawning _ _ ->
                             Expect.fail <| "Did not expect players to be spawning as a result of tick " ++ showTick tick ++ "."
@@ -166,7 +166,7 @@ expectRoundOutcome { tickThatShouldEndIt, howItShouldEnd } round =
                     else
                         Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it ended on tick " ++ showTick actualEndTick ++ "."
     in
-    recurse ( Tick.genesis, ( Live, round ) )
+    recurse Tick.genesis ( Live, round )
 
 
 showTick : Tick -> String
