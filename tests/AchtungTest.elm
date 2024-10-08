@@ -137,8 +137,9 @@ expectRoundOutcome { tickThatShouldEndIt, howItShouldEnd } round =
         recurse : ( Tick, MidRoundState ) -> Expect.Expectation
         recurse ( tick, midRoundState ) =
             let
-                ( nextGameState, _ ) =
-                    reactToTick Config.default (Tick.succ tick) midRoundState
+                nextGameState : GameState
+                nextGameState =
+                    reactToTick Config.default (Tick.succ tick) midRoundState |> Tuple.first
             in
             case nextGameState of
                 Active _ activeGameState ->
