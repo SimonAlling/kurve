@@ -3,7 +3,7 @@ module AchtungTest exposing (tests)
 import Color
 import Config
 import Expect
-import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), reactToTick)
+import Game exposing (MidRoundState, MidRoundStateVariant(..), TickResult(..), reactToTick)
 import Random
 import Round exposing (Round)
 import Set
@@ -53,12 +53,12 @@ tests =
                         , seed = Random.initialSeed 0
                         }
 
-                    newGameState : GameState
-                    newGameState =
+                    tickResult : TickResult
+                    tickResult =
                         reactToTick Config.default (Tick.succ Tick.genesis) ( Live, currentRound ) |> Tuple.first
                 in
-                case newGameState of
-                    Active _ (Moving _ ( _, round )) ->
+                case tickResult of
+                    RoundKeepsGoing _ ( _, round ) ->
                         case round.kurves.alive of
                             kurve :: [] ->
                                 Expect.equal kurve.state.position
@@ -67,8 +67,8 @@ tests =
                             _ ->
                                 Expect.fail "Expected exactly one alive Kurve"
 
-                    _ ->
-                        Expect.fail "Expected active game state with Kurves moving"
+                    RoundEnds _ ->
+                        Expect.fail "Expected round not to end"
             )
         , test
             "A Kurve that crashes into the wall dies"
@@ -137,24 +137,19 @@ expectRoundOutcome { tickThatShouldEndIt, howItShouldEnd } round =
         recurse : Tick -> MidRoundState -> Expect.Expectation
         recurse tick midRoundState =
             let
-                nextGameState : GameState
-                nextGameState =
+                tickResult : TickResult
+                tickResult =
                     reactToTick Config.default (Tick.succ tick) midRoundState |> Tuple.first
             in
-            case nextGameState of
-                Active _ activeGameState ->
-                    case activeGameState of
-                        Moving nextTick nextMidRoundState ->
-                            if nextTick == tickThatShouldEndIt then
-                                Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it did not."
+            case tickResult of
+                RoundKeepsGoing nextTick nextMidRoundState ->
+                    if nextTick == tickThatShouldEndIt then
+                        Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it did not."
 
-                            else
-                                recurse nextTick nextMidRoundState
+                    else
+                        recurse nextTick nextMidRoundState
 
-                        Spawning _ _ ->
-                            Expect.fail <| "Did not expect players to be spawning as a result of tick " ++ showTick tick ++ "."
-
-                RoundOver actualRoundResult _ ->
+                RoundEnds actualRoundResult ->
                     let
                         actualEndTick : Tick
                         actualEndTick =

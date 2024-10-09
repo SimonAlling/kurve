@@ -5,6 +5,7 @@ module Game exposing
     , MidRoundStateVariant(..)
     , Paused(..)
     , SpawnState
+    , TickResult(..)
     , firstUpdateTick
     , modifyMidRoundState
     , modifyRound
@@ -12,6 +13,7 @@ module Game exposing
     , prepareReplayRound
     , reactToTick
     , recordUserInteraction
+    , tickResultToGameState
     )
 
 import Canvas exposing (bodyDrawingCmd, headDrawingCmd)
@@ -48,6 +50,11 @@ type Paused
 type ActiveGameState
     = Spawning SpawnState MidRoundState
     | Moving Tick MidRoundState
+
+
+type TickResult
+    = RoundKeepsGoing Tick MidRoundState
+    | RoundEnds Round
 
 
 modifyMidRoundState : (MidRoundState -> MidRoundState) -> GameState -> GameState
@@ -129,7 +136,7 @@ prepareRoundHelper config initialState =
     round
 
 
-reactToTick : Config -> Tick -> MidRoundState -> ( GameState, Cmd msg )
+reactToTick : Config -> Tick -> MidRoundState -> ( TickResult, Cmd msg )
 reactToTick config tick (( _, currentRound ) as midRoundState) =
     let
         ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
@@ -155,20 +162,30 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
             , seed = newSeed
             }
 
-        newGameState : GameState
-        newGameState =
+        tickResult : TickResult
+        tickResult =
             if roundIsOver newKurves then
-                RoundOver newCurrentRound Dialog.NotOpen
+                RoundEnds newCurrentRound
 
             else
-                Active NotPaused <| Moving tick <| modifyRound (always newCurrentRound) midRoundState
+                RoundKeepsGoing tick <| modifyRound (always newCurrentRound) midRoundState
     in
-    ( newGameState
+    ( tickResult
     , [ headDrawingCmd config.kurves.thickness newKurves.alive
       , bodyDrawingCmd config.kurves.thickness newColoredDrawingPositions
       ]
         |> Cmd.batch
     )
+
+
+tickResultToGameState : TickResult -> GameState
+tickResultToGameState tickResult =
+    case tickResult of
+        RoundKeepsGoing tick s ->
+            Active NotPaused (Moving tick s)
+
+        RoundEnds finishedRound ->
+            RoundOver finishedRound Dialog.NotOpen
 
 
 {-| Takes the distance between the _edges_ of two drawn squares and returns the distance between their _centers_.
