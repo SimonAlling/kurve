@@ -122,7 +122,7 @@ tests =
                         }
             )
         , test
-            "TODO enkelt att se när man kommer dö"
+            "The exact timing of a crash into the wall is predictable"
             (\_ ->
                 let
                     currentKurve : Kurve
