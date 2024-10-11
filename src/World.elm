@@ -1,6 +1,5 @@
 module World exposing
     ( DrawingPosition
-    , Pixel
     , Position
     , desiredPositions
     , distanceBetween
@@ -20,10 +19,6 @@ type alias Position =
 
 type alias DrawingPosition =
     { leftEdge : Int, topEdge : Int }
-
-
-type alias Pixel =
-    ( Int, Int )
 
 
 distanceBetween : Position -> Position -> Distance

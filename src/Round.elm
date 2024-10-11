@@ -16,7 +16,7 @@ import Set exposing (Set)
 import Types.Kurve as Kurve exposing (Kurve)
 import Types.PlayerId exposing (PlayerId)
 import Types.Score exposing (Score(..))
-import World exposing (Pixel, Position)
+import World exposing (Position)
 
 
 type alias Round =

@@ -35,7 +35,7 @@ import Types.Thickness as Thickness exposing (Thickness)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Types.TurningState exposing (TurningState)
-import World exposing (DrawingPosition, Pixel, Position, distanceBetween, distanceToTicks)
+import World exposing (DrawingPosition, Position, distanceBetween, distanceToTicks)
 
 
 type GameState
@@ -121,10 +121,6 @@ prepareRoundHelper config initialState =
         theKurves : List Kurve
         theKurves =
             initialState.spawnedKurves
-
-        thickness : Thickness
-        thickness =
-            config.kurves.thickness
 
         round : Round
         round =
