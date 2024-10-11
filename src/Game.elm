@@ -24,6 +24,7 @@ import Players exposing (ParticipatingPlayers)
 import Random
 import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
 import Set exposing (Set)
+import Set.Extra as Set
 import Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle)
@@ -34,7 +35,7 @@ import Types.Thickness as Thickness exposing (Thickness)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Types.TurningState exposing (TurningState)
-import World exposing (DrawingPosition, Pixel, Position, distanceToTicks)
+import World exposing (DrawingPosition, Pixel, Position, distanceBetween, distanceToTicks)
 
 
 type GameState
@@ -128,7 +129,7 @@ prepareRoundHelper config initialState =
         round : Round
         round =
             { kurves = { alive = theKurves, dead = [] }
-            , occupiedPixels = List.foldr (.state >> .position >> World.drawingPosition thickness >> World.pixelsToOccupy thickness >> Set.union) Set.empty theKurves
+            , occupiedPositions = List.foldr (.state >> .position >> Set.insert) Set.empty theKurves
             , initialState = initialState
             , seed = initialState.seedAfterSpawn
             }
@@ -139,14 +140,14 @@ prepareRoundHelper config initialState =
 reactToTick : Config -> Tick -> MidRoundState -> ( TickResult, Cmd msg )
 reactToTick config tick (( _, currentRound ) as midRoundState) =
     let
-        ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
+        ( newKurvesGenerator, newOccupiedPositions, newColoredPositions ) =
             List.foldr
                 (checkIndividualKurve config tick)
                 ( Random.constant
                     { alive = [] -- We start with the empty list because the new one we'll create may not include all the Kurves from the old one.
                     , dead = currentRound.kurves.dead -- Dead Kurves, however, will not spring to life again.
                     }
-                , currentRound.occupiedPixels
+                , currentRound.occupiedPositions
                 , []
                 )
                 currentRound.kurves.alive
@@ -154,10 +155,14 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
         ( newKurves, newSeed ) =
             Random.step newKurvesGenerator currentRound.seed
 
+        newColoredDrawingPositions : List ( Color, DrawingPosition )
+        newColoredDrawingPositions =
+            List.map (Tuple.mapSecond (World.drawingPosition config.kurves.thickness)) newColoredPositions
+
         newCurrentRound : Round
         newCurrentRound =
             { kurves = newKurves
-            , occupiedPixels = newOccupiedPixels
+            , occupiedPositions = newOccupiedPositions
             , initialState = currentRound.initialState
             , seed = newSeed
             }
@@ -199,31 +204,31 @@ checkIndividualKurve :
     Config
     -> Tick
     -> Kurve
-    -> ( Random.Generator Kurves, Set World.Pixel, List ( Color, DrawingPosition ) )
+    -> ( Random.Generator Kurves, Set World.Position, List ( Color, Position ) )
     ->
         ( Random.Generator Kurves
-        , Set World.Pixel
-        , List ( Color, DrawingPosition )
+        , Set World.Position
+        , List ( Color, Position )
         )
-checkIndividualKurve config tick kurve ( checkedKurvesGenerator, occupiedPixels, coloredDrawingPositions ) =
+checkIndividualKurve config tick kurve ( checkedKurvesGenerator, occupiedPositions, coloredPositions ) =
     let
         turningState : TurningState
         turningState =
             turningStateFromHistory tick kurve
 
-        ( newKurveDrawingPositions, checkedKurveGenerator, fate ) =
-            updateKurve config turningState occupiedPixels kurve
+        ( newKurvePositions, checkedKurveGenerator, fate ) =
+            updateKurve config turningState occupiedPositions kurve
 
-        occupiedPixelsAfterCheckingThisKurve : Set Pixel
-        occupiedPixelsAfterCheckingThisKurve =
+        occupiedPositionsAfterCheckingThisKurve : Set Position
+        occupiedPositionsAfterCheckingThisKurve =
             List.foldr
-                (World.pixelsToOccupy config.kurves.thickness >> Set.union)
-                occupiedPixels
-                newKurveDrawingPositions
+                Set.insert
+                occupiedPositions
+                newKurvePositions
 
-        coloredDrawingPositionsAfterCheckingThisKurve : List ( Color, DrawingPosition )
-        coloredDrawingPositionsAfterCheckingThisKurve =
-            coloredDrawingPositions ++ List.map (Tuple.pair kurve.color) newKurveDrawingPositions
+        coloredPositionsAfterCheckingThisKurve : List ( Color, Position )
+        coloredPositionsAfterCheckingThisKurve =
+            coloredPositions ++ List.map (Tuple.pair kurve.color) newKurvePositions
 
         kurvesAfterCheckingThisKurve : Kurve -> Kurves -> Kurves
         kurvesAfterCheckingThisKurve checkedKurve =
@@ -235,15 +240,15 @@ checkIndividualKurve config tick kurve ( checkedKurvesGenerator, occupiedPixels,
                     modifyAlive ((::) checkedKurve)
     in
     ( Random.map2 kurvesAfterCheckingThisKurve checkedKurveGenerator checkedKurvesGenerator
-    , occupiedPixelsAfterCheckingThisKurve
-    , coloredDrawingPositionsAfterCheckingThisKurve
+    , occupiedPositionsAfterCheckingThisKurve
+    , coloredPositionsAfterCheckingThisKurve
     )
 
 
-evaluateMove : Config -> DrawingPosition -> List DrawingPosition -> Set Pixel -> Kurve.HoleStatus -> ( List DrawingPosition, Kurve.Fate )
-evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
+evaluateMove : Config -> Position -> List Position -> Set Position -> Kurve.HoleStatus -> ( List Position, Kurve.Fate )
+evaluateMove config startingPoint positionsToCheck occupiedPositions holeStatus =
     let
-        checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Kurve.Fate )
+        checkPositions : List Position -> Position -> List Position -> ( List Position, Kurve.Fate )
         checkPositions checked lastChecked remaining =
             case remaining of
                 [] ->
@@ -251,26 +256,34 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
 
                 current :: rest ->
                     let
-                        theHitbox : Set Pixel
-                        theHitbox =
-                            World.hitbox config.kurves.thickness lastChecked current
-
-                        thickness : Int
+                        thickness : Thickness
                         thickness =
-                            Thickness.toInt config.kurves.thickness
+                            config.kurves.thickness
 
-                        drawsOutsideWorld : Bool
-                        drawsOutsideWorld =
+                        ( currentX, currentY ) =
+                            current
+
+                        crashesIntoWall : Bool
+                        crashesIntoWall =
+                            let
+                                halfThickness =
+                                    -- TODO: Think more about this calculation (should it be an integer division?)
+                                    toFloat (Thickness.toInt thickness) / 2
+                            in
                             List.member True
-                                [ current.leftEdge < 0
-                                , current.topEdge < 0
-                                , current.leftEdge > config.world.width - thickness
-                                , current.topEdge > config.world.height - thickness
+                                [ currentX < halfThickness
+                                , currentY < halfThickness
+                                , currentX > toFloat config.world.width - halfThickness
+                                , currentY > toFloat config.world.height - halfThickness
                                 ]
+
+                        crashesIntoKurve : Bool
+                        crashesIntoKurve =
+                            occupiedPositions |> Set.any (checkCollision thickness current lastChecked)
 
                         dies : Bool
                         dies =
-                            drawsOutsideWorld || (not <| Set.isEmpty <| Set.intersect theHitbox occupiedPixels)
+                            crashesIntoWall || crashesIntoKurve
                     in
                     if dies then
                         ( checked, Kurve.Dies )
@@ -290,7 +303,7 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
         ( checkedPositionsReversed, evaluatedStatus ) =
             checkPositions [] startingPoint positionsToCheck
 
-        positionsToDraw : List DrawingPosition
+        positionsToDraw : List Position
         positionsToDraw =
             if isHoly then
                 case evaluatedStatus of
@@ -309,8 +322,21 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
 
-updateKurve : Config -> TurningState -> Set Pixel -> Kurve -> ( List DrawingPosition, Random.Generator Kurve, Kurve.Fate )
-updateKurve config turningState occupiedPixels kurve =
+checkCollision : Thickness -> Position -> Position -> Position -> Bool
+checkCollision thickness current lastChecked obstacle =
+    let
+        isTooCloseToObstacle =
+            Distance.toFloat (distanceBetween current obstacle) < toFloat (Thickness.toInt thickness)
+
+        isMovingTowardObstacle =
+            -- Otherwise every Kurve immediately crashes into its own "neck".
+            Distance.toFloat (distanceBetween current obstacle) < Distance.toFloat (distanceBetween lastChecked obstacle)
+    in
+    isTooCloseToObstacle && isMovingTowardObstacle
+
+
+updateKurve : Config -> TurningState -> Set Position -> Kurve -> ( List Position, Random.Generator Kurve, Kurve.Fate )
+updateKurve config turningState occupiedPositions kurve =
     let
         distanceTraveledSinceLastTick : Float
         distanceTraveledSinceLastTick =
@@ -338,9 +364,9 @@ updateKurve config turningState occupiedPixels kurve =
         ( confirmedDrawingPositions, fate ) =
             evaluateMove
                 config
-                (World.drawingPosition thickness kurve.state.position)
-                (World.desiredDrawingPositions thickness kurve.state.position newPosition)
-                occupiedPixels
+                kurve.state.position
+                (World.desiredPositions thickness kurve.state.position newPosition)
+                occupiedPositions
                 kurve.state.holeStatus
 
         newHoleStatusGenerator : Random.Generator Kurve.HoleStatus

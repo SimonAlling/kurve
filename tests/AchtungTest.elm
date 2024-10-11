@@ -46,7 +46,7 @@ tests =
                             { alive = [ currentKurve ]
                             , dead = []
                             }
-                        , occupiedPixels = Set.empty
+                        , occupiedPositions = Set.empty
                         , initialState =
                             { seedAfterSpawn = Random.initialSeed 0
                             , spawnedKurves = []
@@ -99,7 +99,7 @@ tests =
                             { alive = [ currentKurve ]
                             , dead = []
                             }
-                        , occupiedPixels = Set.empty
+                        , occupiedPositions = Set.empty
                         , initialState =
                             { seedAfterSpawn = Random.initialSeed 0
                             , spawnedKurves = []
@@ -149,7 +149,7 @@ tests =
                             { alive = [ currentKurve ]
                             , dead = []
                             }
-                        , occupiedPixels = Set.empty
+                        , occupiedPositions = Set.empty
                         , initialState =
                             { seedAfterSpawn = Random.initialSeed 0
                             , spawnedKurves = []

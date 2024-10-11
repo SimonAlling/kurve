@@ -2,17 +2,12 @@ module World exposing
     ( DrawingPosition
     , Pixel
     , Position
-    , desiredDrawingPositions
+    , desiredPositions
     , distanceBetween
     , distanceToTicks
     , drawingPosition
-    , hitbox
-    , pixelsToOccupy
     )
 
-import List.Cartesian
-import RasterShapes
-import Set exposing (Set)
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Speed as Speed exposing (Speed)
 import Types.Thickness as Thickness exposing (Thickness)
@@ -41,16 +36,6 @@ distanceToTicks tickrate speed distance =
     round <| Tickrate.toFloat tickrate * Distance.toFloat distance / Speed.toFloat speed
 
 
-toBresenham : DrawingPosition -> RasterShapes.Position
-toBresenham { leftEdge, topEdge } =
-    { x = leftEdge, y = topEdge }
-
-
-fromBresenham : RasterShapes.Position -> DrawingPosition
-fromBresenham { x, y } =
-    { leftEdge = x, topEdge = y }
-
-
 drawingPosition : Thickness -> Position -> DrawingPosition
 drawingPosition thickness ( x, y ) =
     { leftEdge = edgeOfSquare thickness x, topEdge = edgeOfSquare thickness y }
@@ -61,63 +46,28 @@ edgeOfSquare thickness xOrY =
     round (xOrY - (toFloat (Thickness.toInt thickness) / 2))
 
 
-pixelsToOccupy : Thickness -> DrawingPosition -> Set Pixel
-pixelsToOccupy thickness { leftEdge, topEdge } =
+desiredPositions : Thickness -> Position -> Position -> List Position
+desiredPositions thickness position1 position2 =
     let
-        rangeFrom : Int -> List Int
-        rangeFrom start =
-            List.range start (start + Thickness.toInt thickness - 1)
+        maxDistanceBetweenAdjacentPositions =
+            -- TODO: Should always be 1?
+            (Thickness.toInt thickness |> toFloat) / 2
 
-        xs : List Int
-        xs =
-            rangeFrom leftEdge
+        totalDistance =
+            distanceBetween position1 position2 |> Distance.toFloat
 
-        ys : List Int
-        ys =
-            rangeFrom topEdge
+        numberOfSteps =
+            floor (totalDistance / maxDistanceBetweenAdjacentPositions)
+
+        stepSize =
+            1 / toFloat numberOfSteps
+
+        steps =
+            List.range 1 (numberOfSteps - 1)
     in
-    List.Cartesian.map2 Tuple.pair xs ys
-        |> Set.fromList
+    List.map (\i -> interpolate position1 position2 (toFloat i * stepSize)) steps ++ [ position2 ]
 
 
-desiredDrawingPositions : Thickness -> Position -> Position -> List DrawingPosition
-desiredDrawingPositions thickness position1 position2 =
-    RasterShapes.line
-        (drawingPosition thickness position1 |> toBresenham)
-        (drawingPosition thickness position2 |> toBresenham)
-        -- The RasterShapes library returns the positions in reverse order.
-        |> List.reverse
-        -- The first element in the list is the starting position, which is assumed to already have been drawn.
-        |> List.drop 1
-        |> List.map fromBresenham
-
-
-hitbox : Thickness -> DrawingPosition -> DrawingPosition -> Set Pixel
-hitbox thickness oldPosition newPosition =
-    let
-        is45DegreeDraw : Bool
-        is45DegreeDraw =
-            oldPosition.leftEdge /= newPosition.leftEdge && oldPosition.topEdge /= newPosition.topEdge
-
-        oldPixels : Set Pixel
-        oldPixels =
-            pixelsToOccupy thickness oldPosition
-
-        newPixels : Set Pixel
-        newPixels =
-            pixelsToOccupy thickness newPosition
-    in
-    if is45DegreeDraw then
-        let
-            oldXs : Set Int
-            oldXs =
-                Set.map Tuple.first oldPixels
-
-            oldYs : Set Int
-            oldYs =
-                Set.map Tuple.second oldPixels
-        in
-        Set.filter (\( x, y ) -> not (Set.member x oldXs) && not (Set.member y oldYs)) newPixels
-
-    else
-        Set.diff newPixels oldPixels
+interpolate : Position -> Position -> Float -> Position
+interpolate ( x1, y1 ) ( x2, y2 ) t =
+    ( x1 + t * (x2 - x1), y1 + t * (y2 - y1) )
