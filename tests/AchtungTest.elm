@@ -108,7 +108,7 @@ tests =
                 in
                 currentRound
                     |> expectRoundOutcome
-                        { tickThatShouldEndIt = Tick.succ (Tick.succ Tick.genesis)
+                        { tickThatShouldEndIt = tickNumber 2
                         , howItShouldEnd =
                             \round ->
                                 case ( round.kurves.alive, round.kurves.dead ) of
@@ -167,3 +167,13 @@ expectRoundOutcome { tickThatShouldEndIt, howItShouldEnd } round =
 showTick : Tick -> String
 showTick =
     Tick.toInt >> String.fromInt
+
+
+tickNumber : Int -> Tick
+tickNumber n =
+    case Tick.fromInt n of
+        Nothing ->
+            Debug.todo <| "Tick cannot be negative (was " ++ String.fromInt n ++ ")."
+
+        Just tick ->
+            tick
