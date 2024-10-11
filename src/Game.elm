@@ -266,15 +266,15 @@ evaluateMove config startingPoint positionsToCheck occupiedPositions holeStatus 
                         crashesIntoWall : Bool
                         crashesIntoWall =
                             let
-                                halfThickness =
+                                halfThicknessRoundedDown =
                                     -- TODO: explain
                                     toFloat <| Thickness.toInt thickness // 2
                             in
                             List.member True
-                                [ currentX < halfThickness
-                                , currentY < halfThickness
-                                , currentX > toFloat config.world.width - halfThickness
-                                , currentY > toFloat config.world.height - halfThickness
+                                [ currentX < halfThicknessRoundedDown
+                                , currentY < halfThicknessRoundedDown
+                                , currentX > toFloat config.world.width - halfThicknessRoundedDown
+                                , currentY > toFloat config.world.height - halfThicknessRoundedDown
                                 ]
 
                         crashesIntoKurve : Bool
