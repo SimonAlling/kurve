@@ -165,6 +165,7 @@ tests =
                                 case ( round.kurves.alive, round.kurves.dead ) of
                                     ( [], kurve :: [] ) ->
                                         let
+                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                             theDrawingPositionItNeverMadeItTo =
                                                 World.drawingPosition Config.default.kurves.thickness kurve.state.position
                                         in
