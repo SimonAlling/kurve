@@ -140,26 +140,8 @@ prepareRoundHelper config initialState =
             , id = 5
             , controls = ( Set.empty, Set.empty )
             , state =
-                { position = ( 50, 50.5 )
-                , direction = Angle (-pi / 4)
-                , holeStatus = Unholy 60000
-                }
-            , stateAtSpawn =
-                { position = ( 0, 0 )
+                { position = ( 150, 100.5 )
                 , direction = Angle 0
-                , holeStatus = Unholy 0
-                }
-            , reversedInteractions = []
-            }
-
-        yellow : Kurve
-        yellow =
-            { color = Color.yellow
-            , id = 5
-            , controls = ( Set.empty, Set.empty )
-            , state =
-                { position = ( 50, 70.1 )
-                , direction = Angle (-pi / 4)
                 , holeStatus = Unholy 60000
                 }
             , stateAtSpawn =
@@ -176,8 +158,8 @@ prepareRoundHelper config initialState =
             , id = 5
             , controls = ( Set.empty, Set.empty )
             , state =
-                { position = ( 50, 90 )
-                , direction = Angle (-pi / 4)
+                { position = ( 100, 107.5 )
+                , direction = Angle 0.02
                 , holeStatus = Unholy 60000
                 }
             , stateAtSpawn =
@@ -191,7 +173,7 @@ prepareRoundHelper config initialState =
         currentRound : Round
         currentRound =
             { kurves =
-                { alive = [ red, green, yellow ]
+                { alive = [ red, green ]
                 , dead = []
                 }
             , occupiedPositions = Set.empty
