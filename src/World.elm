@@ -44,21 +44,26 @@ edgeOfSquare thickness xOrY =
 desiredPositions : Position -> Position -> List Position
 desiredPositions position1 position2 =
     let
+        maxDistanceBetweenAdjacentPositions : Float
         maxDistanceBetweenAdjacentPositions =
             -- Must be 1 at least as long as we use these positions for drawing.
             -- Otherwise a low tickrate, like 5, makes it obvious that the squares that make up the Kurve aren't drawn densely enough.
             -- Tested with 45-degree Kurves starting from ( 50, 50.5 ), ( 50, 70.1 ) and ( 50, 90 ).
             1
 
+        totalDistance : Float
         totalDistance =
             distanceBetween position1 position2 |> Distance.toFloat
 
+        numberOfSteps : Int
         numberOfSteps =
             floor (totalDistance / maxDistanceBetweenAdjacentPositions)
 
+        stepSize : Float
         stepSize =
             1 / toFloat numberOfSteps
 
+        steps : List Int
         steps =
             List.range 1 (numberOfSteps - 1)
     in

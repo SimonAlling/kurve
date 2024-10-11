@@ -262,6 +262,7 @@ evaluateMove config startingPoint positionsToCheck occupiedPositions holeStatus 
                         crashesIntoWall : Bool
                         crashesIntoWall =
                             let
+                                halfThicknessRoundedDown : Float
                                 halfThicknessRoundedDown =
                                     -- TODO: explain
                                     toFloat <| Thickness.toInt thickness // 2
@@ -321,9 +322,11 @@ evaluateMove config startingPoint positionsToCheck occupiedPositions holeStatus 
 checkCollision : Thickness -> Position -> Position -> Position -> Bool
 checkCollision thickness current lastChecked obstacle =
     let
+        isTooCloseToObstacle : Bool
         isTooCloseToObstacle =
             Distance.toFloat (distanceBetween current obstacle) < toFloat (Thickness.toInt thickness)
 
+        isMovingTowardObstacle : Bool
         isMovingTowardObstacle =
             -- Otherwise every Kurve immediately crashes into its own "neck".
             Distance.toFloat (distanceBetween current obstacle) < Distance.toFloat (distanceBetween lastChecked obstacle)
