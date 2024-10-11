@@ -267,8 +267,8 @@ evaluateMove config startingPoint positionsToCheck occupiedPositions holeStatus 
                         crashesIntoWall =
                             let
                                 halfThickness =
-                                    -- TODO: Think more about this calculation (should it be an integer division?)
-                                    toFloat (Thickness.toInt thickness) / 2
+                                    -- TODO: explain
+                                    toFloat <| Thickness.toInt thickness // 2
                             in
                             List.member True
                                 [ currentX < halfThickness
