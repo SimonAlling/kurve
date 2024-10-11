@@ -1,5 +1,6 @@
 module Types.Tick exposing
     ( Tick
+    , fromInt
     , genesis
     , succ
     , toInt
@@ -25,3 +26,12 @@ succ (Tick n) =
 toInt : Tick -> Int
 toInt (Tick n) =
     n
+
+
+fromInt : Int -> Maybe Tick
+fromInt n =
+    if n < 0 then
+        Nothing
+
+    else
+        Just (Tick n)

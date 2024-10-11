@@ -12,6 +12,7 @@ import Test exposing (Test, describe, test)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.Tick as Tick exposing (Tick)
+import World
 
 
 tests : Test
@@ -120,6 +121,60 @@ tests =
                                         Expect.fail "Expected exactly one dead Kurve and no alive ones"
                         }
             )
+        , test
+            "TODO enkelt att se när man kommer dö"
+            (\_ ->
+                let
+                    currentKurve : Kurve
+                    currentKurve =
+                        { color = Color.white
+                        , id = 5
+                        , controls = ( Set.empty, Set.empty )
+                        , state =
+                            { position = ( 100, 3.5 )
+                            , direction = Angle 0.01
+                            , holeStatus = Unholy 60000
+                            }
+                        , stateAtSpawn =
+                            { position = ( 0, 0 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 0
+                            }
+                        , reversedInteractions = []
+                        }
+
+                    currentRound : Round
+                    currentRound =
+                        { kurves =
+                            { alive = [ currentKurve ]
+                            , dead = []
+                            }
+                        , occupiedPixels = Set.empty
+                        , initialState =
+                            { seedAfterSpawn = Random.initialSeed 0
+                            , spawnedKurves = []
+                            }
+                        , seed = Random.initialSeed 0
+                        }
+                in
+                currentRound
+                    |> expectRoundOutcome
+                        { tickThatShouldEndIt = tickNumber 251
+                        , howItShouldEnd =
+                            \round ->
+                                case ( round.kurves.alive, round.kurves.dead ) of
+                                    ( [], kurve :: [] ) ->
+                                        let
+                                            theDrawingPositionItNeverMadeItTo =
+                                                World.drawingPosition Config.default.kurves.thickness kurve.state.position
+                                        in
+                                        Expect.equal theDrawingPositionItNeverMadeItTo
+                                            { leftEdge = 349, topEdge = -1 }
+
+                                    _ ->
+                                        Expect.fail "Expected exactly one dead Kurve and no alive ones"
+                        }
+            )
         ]
 
 
@@ -167,3 +222,13 @@ expectRoundOutcome { tickThatShouldEndIt, howItShouldEnd } round =
 showTick : Tick -> String
 showTick =
     Tick.toInt >> String.fromInt
+
+
+tickNumber : Int -> Tick
+tickNumber n =
+    case Tick.fromInt n of
+        Nothing ->
+            Debug.todo <| "Tick cannot be negative (was " ++ String.fromInt n ++ ")."
+
+        Just tick ->
+            tick
