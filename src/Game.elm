@@ -27,9 +27,9 @@ import Set exposing (Set)
 import Set.Extra as Set
 import Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
-import Types.Angle as Angle exposing (Angle)
+import Types.Angle as Angle exposing (Angle(..))
 import Types.Distance as Distance exposing (Distance(..))
-import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..), modifyReversedInteractions)
+import Types.Kurve as Kurve exposing (HoleStatus(..), Kurve, UserInteraction(..), modifyReversedInteractions)
 import Types.Speed as Speed
 import Types.Thickness as Thickness exposing (Thickness)
 import Types.Tick as Tick exposing (Tick)
@@ -133,8 +133,76 @@ prepareRoundHelper config initialState =
             , initialState = initialState
             , seed = initialState.seedAfterSpawn
             }
+
+        red : Kurve
+        red =
+            { color = Color.red
+            , id = 5
+            , controls = ( Set.empty, Set.empty )
+            , state =
+                { position = ( 50, 50.5 )
+                , direction = Angle (-pi / 4)
+                , holeStatus = Unholy 60000
+                }
+            , stateAtSpawn =
+                { position = ( 0, 0 )
+                , direction = Angle 0
+                , holeStatus = Unholy 0
+                }
+            , reversedInteractions = []
+            }
+
+        yellow : Kurve
+        yellow =
+            { color = Color.yellow
+            , id = 5
+            , controls = ( Set.empty, Set.empty )
+            , state =
+                { position = ( 50, 70.1 )
+                , direction = Angle (-pi / 4)
+                , holeStatus = Unholy 60000
+                }
+            , stateAtSpawn =
+                { position = ( 0, 0 )
+                , direction = Angle 0
+                , holeStatus = Unholy 0
+                }
+            , reversedInteractions = []
+            }
+
+        green : Kurve
+        green =
+            { color = Color.green
+            , id = 5
+            , controls = ( Set.empty, Set.empty )
+            , state =
+                { position = ( 50, 90 )
+                , direction = Angle (-pi / 4)
+                , holeStatus = Unholy 60000
+                }
+            , stateAtSpawn =
+                { position = ( 0, 0 )
+                , direction = Angle 0
+                , holeStatus = Unholy 0
+                }
+            , reversedInteractions = []
+            }
+
+        currentRound : Round
+        currentRound =
+            { kurves =
+                { alive = [ red, green, yellow ]
+                , dead = []
+                }
+            , occupiedPositions = Set.empty
+            , initialState =
+                { seedAfterSpawn = Random.initialSeed 0
+                , spawnedKurves = []
+                }
+            , seed = Random.initialSeed 0
+            }
     in
-    round
+    currentRound
 
 
 reactToTick : Config -> Tick -> MidRoundState -> ( TickResult, Cmd msg )
