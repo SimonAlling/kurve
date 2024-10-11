@@ -259,8 +259,8 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
                         thickness =
                             Thickness.toInt config.kurves.thickness
 
-                        drawsOutsideWorld : Bool
-                        drawsOutsideWorld =
+                        crashesIntoWall : Bool
+                        crashesIntoWall =
                             List.member True
                                 [ current.leftEdge < 0
                                 , current.topEdge < 0
@@ -268,9 +268,13 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
                                 , current.topEdge > config.world.height - thickness
                                 ]
 
+                        crashesIntoKurve : Bool
+                        crashesIntoKurve =
+                            not <| Set.isEmpty <| Set.intersect theHitbox occupiedPixels
+
                         dies : Bool
                         dies =
-                            drawsOutsideWorld || (not <| Set.isEmpty <| Set.intersect theHitbox occupiedPixels)
+                            crashesIntoWall || crashesIntoKurve
                     in
                     if dies then
                         ( checked, Kurve.Dies )
