@@ -153,7 +153,7 @@ update msg ({ config, pressedButtons } as model) =
                             in
                             case button of
                                 Key "KeyR" ->
-                                    startRound model <| prepareReplayRound config (initialStateForReplaying finishedRound)
+                                    startRound model <| prepareReplayRound (initialStateForReplaying finishedRound)
 
                                 Key "Escape" ->
                                     -- Quitting after the final round is not allowed in the original game.

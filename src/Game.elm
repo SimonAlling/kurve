@@ -107,16 +107,16 @@ prepareLiveRound config seed players pressedButtons =
         ( theKurves, seedAfterSpawn ) =
             Random.step (generateKurves config players) seed |> Tuple.mapFirst recordInitialInteractions
     in
-    ( Live, prepareRoundHelper config { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves } )
+    ( Live, prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves } )
 
 
-prepareReplayRound : Config -> RoundInitialState -> MidRoundState
-prepareReplayRound config initialState =
-    ( Replay, prepareRoundHelper config initialState )
+prepareReplayRound : RoundInitialState -> MidRoundState
+prepareReplayRound initialState =
+    ( Replay, prepareRoundHelper initialState )
 
 
-prepareRoundHelper : Config -> RoundInitialState -> Round
-prepareRoundHelper config initialState =
+prepareRoundHelper : RoundInitialState -> Round
+prepareRoundHelper initialState =
     let
         theKurves : List Kurve
         theKurves =
@@ -353,15 +353,11 @@ updateKurve config turningState occupiedPositions kurve =
               y - distanceTraveledSinceLastTick * Angle.sin newDirection
             )
 
-        thickness : Thickness
-        thickness =
-            config.kurves.thickness
-
         ( confirmedDrawingPositions, fate ) =
             evaluateMove
                 config
                 kurve.state.position
-                (World.desiredPositions thickness kurve.state.position newPosition)
+                (World.desiredPositions kurve.state.position newPosition)
                 occupiedPositions
                 kurve.state.holeStatus
 

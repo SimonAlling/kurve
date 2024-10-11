@@ -41,8 +41,8 @@ edgeOfSquare thickness xOrY =
     round (xOrY - (toFloat (Thickness.toInt thickness) / 2))
 
 
-desiredPositions : Thickness -> Position -> Position -> List Position
-desiredPositions thickness position1 position2 =
+desiredPositions : Position -> Position -> List Position
+desiredPositions position1 position2 =
     let
         maxDistanceBetweenAdjacentPositions =
             -- Must be 1 at least as long as we use these positions for drawing.
