@@ -109,7 +109,7 @@ tests =
                 in
                 currentRound
                     |> expectRoundOutcome
-                        { tickThatShouldEndIt = Tick.succ (Tick.succ Tick.genesis)
+                        { tickThatShouldEndIt = tickNumber 2
                         , howItShouldEnd =
                             \round ->
                                 case ( round.kurves.alive, round.kurves.dead ) of
