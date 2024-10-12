@@ -167,7 +167,7 @@ tests =
                                         let
                                             theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                             theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition Config.default.kurves.thickness kurve.state.position
+                                                World.drawingPosition kurve.state.position
                                         in
                                         Expect.equal theDrawingPositionItNeverMadeItTo
                                             { leftEdge = 349, topEdge = -1 }
@@ -247,7 +247,7 @@ crashingIntoKurveTest =
                                         let
                                             theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                             theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition Config.default.kurves.thickness kurve.state.position
+                                                World.drawingPosition kurve.state.position
                                         in
                                         Expect.equal theDrawingPositionItNeverMadeItTo
                                             (Debug.todo "drawing position")
@@ -320,7 +320,7 @@ crashingIntoKurveTest =
                                         let
                                             theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                             theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition Config.default.kurves.thickness kurve.state.position
+                                                World.drawingPosition kurve.state.position
                                         in
                                         Expect.equal theDrawingPositionItNeverMadeItTo
                                             (Debug.todo "drawing position")
@@ -393,7 +393,7 @@ crashingIntoKurveTest =
                                         let
                                             theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                             theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition Config.default.kurves.thickness kurve.state.position
+                                                World.drawingPosition kurve.state.position
                                         in
                                         Expect.equal theDrawingPositionItNeverMadeItTo
                                             (Debug.todo "drawing position")

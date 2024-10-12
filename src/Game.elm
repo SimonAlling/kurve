@@ -26,12 +26,12 @@ import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead
 import Set exposing (Set)
 import Set.Extra as Set
 import Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
+import Thickness exposing (theThickness)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle)
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..), modifyReversedInteractions)
 import Types.Speed as Speed
-import Types.Thickness as Thickness exposing (Thickness)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Types.TurningState exposing (TurningState)
@@ -153,7 +153,7 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
 
         newColoredDrawingPositions : List ( Color, DrawingPosition )
         newColoredDrawingPositions =
-            List.map (Tuple.mapSecond (World.drawingPosition config.kurves.thickness)) newColoredPositions
+            List.map (Tuple.mapSecond World.drawingPosition) newColoredPositions
 
         newCurrentRound : Round
         newCurrentRound =
@@ -172,8 +172,8 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
                 RoundKeepsGoing tick <| modifyRound (always newCurrentRound) midRoundState
     in
     ( tickResult
-    , [ headDrawingCmd config.kurves.thickness newKurves.alive
-      , bodyDrawingCmd config.kurves.thickness newColoredDrawingPositions
+    , [ headDrawingCmd newKurves.alive
+      , bodyDrawingCmd newColoredDrawingPositions
       ]
         |> Cmd.batch
     )
@@ -191,9 +191,9 @@ tickResultToGameState tickResult =
 
 {-| Takes the distance between the _edges_ of two drawn squares and returns the distance between their _centers_.
 -}
-computeDistanceBetweenCenters : Thickness -> Distance -> Distance
-computeDistanceBetweenCenters thickness distanceBetweenEdges =
-    Distance <| Distance.toFloat distanceBetweenEdges + toFloat (Thickness.toInt thickness)
+computeDistanceBetweenCenters : Distance -> Distance
+computeDistanceBetweenCenters distanceBetweenEdges =
+    Distance <| Distance.toFloat distanceBetweenEdges + theThickness
 
 
 checkIndividualKurve :
@@ -256,10 +256,6 @@ evaluateMove config startingPoint desiredEndPoint occupiedPositions holeStatus =
 
                 current :: rest ->
                     let
-                        thickness : Thickness
-                        thickness =
-                            config.kurves.thickness
-
                         ( currentX, currentY ) =
                             current
 
@@ -269,7 +265,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPositions holeStatus =
                                 halfThicknessRoundedDown : Float
                                 halfThicknessRoundedDown =
                                     -- TODO: explain
-                                    toFloat <| Thickness.toInt thickness // 2
+                                    toFloat <| theThickness // 2
                             in
                             List.member True
                                 [ currentX < halfThicknessRoundedDown
@@ -280,7 +276,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPositions holeStatus =
 
                         crashesIntoKurve : Bool
                         crashesIntoKurve =
-                            occupiedPositions |> Set.any (checkCollision thickness current lastChecked)
+                            occupiedPositions |> Set.any (checkCollision current lastChecked)
 
                         dies : Bool
                         dies =
@@ -323,12 +319,12 @@ evaluateMove config startingPoint desiredEndPoint occupiedPositions holeStatus =
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
 
-checkCollision : Thickness -> Position -> Position -> Position -> Bool
-checkCollision thickness current lastChecked obstacle =
+checkCollision : Position -> Position -> Position -> Bool
+checkCollision current lastChecked obstacle =
     let
         isTooCloseToObstacle : Bool
         isTooCloseToObstacle =
-            Distance.toFloat (distanceBetween current obstacle) < toFloat (Thickness.toInt thickness)
+            Distance.toFloat (distanceBetween current obstacle) < theThickness
 
         isMovingTowardObstacle : Bool
         isMovingTowardObstacle =
@@ -403,7 +399,7 @@ updateHoleStatus kurveConfig holeStatus =
             Random.constant <| Kurve.Holy (ticksLeft - 1)
 
         Kurve.Unholy 0 ->
-            generateHoleSize kurveConfig.holes |> Random.map (computeDistanceBetweenCenters kurveConfig.thickness >> distanceToTicks kurveConfig.tickrate kurveConfig.speed >> Kurve.Holy)
+            generateHoleSize kurveConfig.holes |> Random.map (computeDistanceBetweenCenters >> distanceToTicks kurveConfig.tickrate kurveConfig.speed >> Kurve.Holy)
 
         Kurve.Unholy ticksLeft ->
             Random.constant <| Kurve.Unholy (ticksLeft - 1)

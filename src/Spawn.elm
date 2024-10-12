@@ -10,13 +10,13 @@ import Input exposing (toStringSetControls)
 import Players exposing (ParticipatingPlayers)
 import Random
 import Random.Extra as Random
+import Thickness exposing (theThickness)
 import Types.Angle exposing (Angle(..))
 import Types.Distance as Distance exposing (Distance)
 import Types.Kurve as Kurve exposing (Kurve)
 import Types.Player exposing (Player)
 import Types.PlayerId exposing (PlayerId)
 import Types.Radius as Radius
-import Types.Thickness as Thickness
 import Util exposing (curry)
 import World exposing (Position, distanceBetween, distanceToTicks)
 
@@ -53,7 +53,7 @@ isTooCloseFor numberOfPlayers config point1 point2 =
     let
         desiredMinimumDistance : Float
         desiredMinimumDistance =
-            toFloat (Thickness.toInt config.kurves.thickness) + Radius.toFloat config.kurves.turningRadius * config.spawn.desiredMinimumDistanceTurningRadiusFactor
+            theThickness + Radius.toFloat config.kurves.turningRadius * config.spawn.desiredMinimumDistanceTurningRadiusFactor
 
         ( ( left, top ), ( right, bottom ) ) =
             spawnArea config.spawn config.world

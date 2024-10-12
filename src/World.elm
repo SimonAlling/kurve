@@ -7,9 +7,9 @@ module World exposing
     , drawingPosition
     )
 
+import Thickness exposing (theThickness)
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Speed as Speed exposing (Speed)
-import Types.Thickness as Thickness exposing (Thickness)
 import Types.Tickrate as Tickrate exposing (Tickrate)
 
 
@@ -31,14 +31,14 @@ distanceToTicks tickrate speed distance =
     round <| Tickrate.toFloat tickrate * Distance.toFloat distance / Speed.toFloat speed
 
 
-drawingPosition : Thickness -> Position -> DrawingPosition
-drawingPosition thickness ( x, y ) =
-    { leftEdge = edgeOfSquare thickness x, topEdge = edgeOfSquare thickness y }
+drawingPosition : Position -> DrawingPosition
+drawingPosition ( x, y ) =
+    { leftEdge = edgeOfSquare x, topEdge = edgeOfSquare y }
 
 
-edgeOfSquare : Thickness -> Float -> Int
-edgeOfSquare thickness xOrY =
-    round (xOrY - (toFloat (Thickness.toInt thickness) / 2))
+edgeOfSquare : Float -> Int
+edgeOfSquare xOrY =
+    round (xOrY - (theThickness / 2))
 
 
 desiredPositions : Position -> Position -> List Position

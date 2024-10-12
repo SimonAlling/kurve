@@ -94,7 +94,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
                     else
                         { kurvesLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
-            ( Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning config.kurves.thickness )
+            ( Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
