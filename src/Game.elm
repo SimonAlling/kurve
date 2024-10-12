@@ -11,6 +11,7 @@ module Game exposing
     , modifyRound
     , prepareLiveRound
     , prepareReplayRound
+    , prepareRoundHelper
     , reactToTick
     , recordUserInteraction
     , tickResultToGameState
