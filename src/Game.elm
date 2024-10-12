@@ -240,9 +240,17 @@ checkIndividualKurve config tick kurve ( checkedKurvesGenerator, occupiedPixels,
     )
 
 
-evaluateMove : Config -> DrawingPosition -> List DrawingPosition -> Set Pixel -> Kurve.HoleStatus -> ( List DrawingPosition, Kurve.Fate )
-evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
+evaluateMove : Config -> Position -> Position -> Set Pixel -> Kurve.HoleStatus -> ( List DrawingPosition, Kurve.Fate )
+evaluateMove config startingPoint desiredEndPoint occupiedPixels holeStatus =
     let
+        startingPointAsDrawingPosition : DrawingPosition
+        startingPointAsDrawingPosition =
+            World.drawingPosition config.kurves.thickness startingPoint
+
+        positionsToCheck : List DrawingPosition
+        positionsToCheck =
+            World.desiredDrawingPositions config.kurves.thickness startingPoint desiredEndPoint
+
         checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Kurve.Fate )
         checkPositions checked lastChecked remaining =
             case remaining of
@@ -292,7 +300,7 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
                     False
 
         ( checkedPositionsReversed, evaluatedStatus ) =
-            checkPositions [] startingPoint positionsToCheck
+            checkPositions [] startingPointAsDrawingPosition positionsToCheck
 
         positionsToDraw : List DrawingPosition
         positionsToDraw =
@@ -305,7 +313,7 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
                         -- The Kurve's head must always be drawn when they die, even if they are in the middle of a hole.
                         -- If the Kurve couldn't draw at all in this tick, then the last position where the Kurve could draw before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
                         -- Otherwise, the last position where the Kurve could draw is the last checked position before death occurred.
-                        List.singleton <| Maybe.withDefault startingPoint <| List.head checkedPositionsReversed
+                        List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
 
             else
                 checkedPositionsReversed
@@ -335,15 +343,11 @@ updateKurve config turningState occupiedPixels kurve =
               y - distanceTraveledSinceLastTick * Angle.sin newDirection
             )
 
-        thickness : Thickness
-        thickness =
-            config.kurves.thickness
-
         ( confirmedDrawingPositions, fate ) =
             evaluateMove
                 config
-                (World.drawingPosition thickness kurve.state.position)
-                (World.desiredDrawingPositions thickness kurve.state.position newPosition)
+                kurve.state.position
+                newPosition
                 occupiedPixels
                 kurve.state.holeStatus
 
