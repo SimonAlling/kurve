@@ -445,6 +445,77 @@ cuttingCornersTests =
                                     _ ->
                                         Expect.fail "Expected exactly one dead Kurve and one alive one"
                         }
+        , test "It is possible to paint over three pixels when cutting a corner (real example from original game)" <|
+            \_ ->
+                let
+                    red : Kurve
+                    red =
+                        { color = Color.red
+                        , id = 0
+                        , controls = ( Set.empty, Set.empty )
+                        , state =
+                            { position = ( 299.5, 302.5 )
+                            , direction = Angle (-71 * (2 * pi / 360))
+                            , holeStatus = Unholy 60000
+                            }
+                        , stateAtSpawn =
+                            { position = ( 0, 0 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 0
+                            }
+                        , reversedInteractions = []
+                        }
+
+                    green : Kurve
+                    green =
+                        { color = Color.green
+                        , id = 3
+                        , controls = ( Set.empty, Set.empty )
+                        , state =
+                            { position = ( 319, 269 )
+                            , direction = Angle (-123 * (2 * pi / 360))
+                            , holeStatus = Unholy 60000
+                            }
+                        , stateAtSpawn =
+                            { position = ( 0, 0 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 0
+                            }
+                        , reversedInteractions = []
+                        }
+
+                    initialState : RoundInitialState
+                    initialState =
+                        { seedAfterSpawn = Random.initialSeed 0
+                        , spawnedKurves = [ red, green ]
+                        }
+                in
+                initialState
+                    |> expectRoundOutcome
+                        Config.default
+                        { tickThatShouldEndIt = tickNumber 40
+                        , howItShouldEnd =
+                            \round ->
+                                case ( round.kurves.alive, round.kurves.dead ) of
+                                    ( [ _ ], [ deadKurve ] ) ->
+                                        let
+                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                            theDrawingPositionItNeverMadeItTo =
+                                                World.drawingPosition deadKurve.state.position
+                                        in
+                                        Expect.all
+                                            [ \() ->
+                                                theDrawingPositionItNeverMadeItTo
+                                                    |> Expect.equal { leftEdge = 296, topEdge = 301 }
+                                            , \() ->
+                                                deadKurve.color
+                                                    |> Expect.equal Color.green
+                                            ]
+                                            ()
+
+                                    _ ->
+                                        Expect.fail "Expected exactly one dead Kurve and one alive one"
+                        }
         ]
 
 
