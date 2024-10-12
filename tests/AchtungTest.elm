@@ -106,60 +106,103 @@ tests =
                                         Expect.fail "Expected exactly one dead Kurve and no alive ones"
                         }
             )
-        , test
-            "The exact timing of a crash into the wall is predictable"
-            (\_ ->
-                let
-                    currentKurve : Kurve
-                    currentKurve =
-                        { color = Color.white
-                        , id = 5
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 100, 3.5 )
-                            , direction = Angle 0.01
-                            , holeStatus = Unholy 60000
-                            }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ currentKurve ]
-                        }
-                in
-                initialState
-                    |> expectRoundOutcome
-                        { tickThatShouldEndIt = tickNumber 251
-                        , howItShouldEnd =
-                            \round ->
-                                case ( round.kurves.alive, round.kurves.dead ) of
-                                    ( [], kurve :: [] ) ->
-                                        let
-                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                            theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition (World.toPixel kurve.state.position)
-                                        in
-                                        Expect.equal theDrawingPositionItNeverMadeItTo
-                                            { leftEdge = 349, topEdge = -1 }
-
-                                    _ ->
-                                        Expect.fail "Expected exactly one dead Kurve and no alive ones"
-                        }
-            )
-        , crashingIntoKurveTest
+        , crashTimingTests
         ]
 
 
-crashingIntoKurveTest : Test
-crashingIntoKurveTest =
-    describe "Exact timing is predictable based on visuals regardless of internal positions"
+{-|
+
+
+## Crash timing predictability
+
+When a Kurve is traveling almost horizontally or vertically, it very obviously "snaps over to the next pixel row/column" at regular intervals.
+When approaching a horizontal or vertical obstacle (wall or Kurve) from a shallow angle, an experienced player can easily tell based on the "snaps" exactly when they need to turn away to avoid crashing, because that will always happen at a "snap", never in the middle of a continuous "segment".
+
+For example, the illustration below shows the exact moment when Green crashes into Red.
+
+Notably, Green enjoys a full "segment" right next to Red before dying.
+It would be highly surprising (at least to an experienced player) if Green would crash any earlier, because that would never happen in the original game.
+
+    ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+    ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+    ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+    ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+    🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥⬛⬛⬛⬛
+    🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥⬛⬛⬛⬛
+    🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥⬛⬛⬛⬛
+    ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+    ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+    ⬛⬛⬛⬛⬛⬛⬛🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+    🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+    🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+    🟩🟩🟩🟩🟩🟩🟩🟩🟩⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+    ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+    ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+    ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+    ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+
+-}
+crashTimingTests : Test
+crashTimingTests =
+    describe "Crash timing"
+        [ crashingIntoWallTest
+        , crashingIntoKurveTests
+        ]
+
+
+crashingIntoWallTest : Test
+crashingIntoWallTest =
+    test "The exact timing of a crash into the wall is predictable for the player"
+        (\_ ->
+            let
+                currentKurve : Kurve
+                currentKurve =
+                    { color = Color.white
+                    , id = 5
+                    , controls = ( Set.empty, Set.empty )
+                    , state =
+                        { position = ( 100, 3.5 )
+                        , direction = Angle 0.01
+                        , holeStatus = Unholy 60000
+                        }
+                    , stateAtSpawn =
+                        { position = ( 0, 0 )
+                        , direction = Angle 0
+                        , holeStatus = Unholy 0
+                        }
+                    , reversedInteractions = []
+                    }
+
+                initialState : RoundInitialState
+                initialState =
+                    { seedAfterSpawn = Random.initialSeed 0
+                    , spawnedKurves = [ currentKurve ]
+                    }
+            in
+            initialState
+                |> expectRoundOutcome
+                    { tickThatShouldEndIt = tickNumber 251
+                    , howItShouldEnd =
+                        \round ->
+                            case ( round.kurves.alive, round.kurves.dead ) of
+                                ( [], [ kurve ] ) ->
+                                    let
+                                        theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                        theDrawingPositionItNeverMadeItTo =
+                                            World.drawingPosition (World.toPixel kurve.state.position)
+                                    in
+                                    theDrawingPositionItNeverMadeItTo
+                                        |> Expect.equal { leftEdge = 349, topEdge = -1 }
+
+                                _ ->
+                                    Expect.fail "Expected exactly one dead Kurve and no alive ones"
+                    }
+        )
+
+
+crashingIntoKurveTests : Test
+crashingIntoKurveTests =
+    describe "The exact timing of a crash into a Kurve is predictable for the player"
         (List.range 0 9
             |> List.map
                 (\decimal ->
@@ -175,7 +218,7 @@ crashingIntoKurveTest =
                                 red : Kurve
                                 red =
                                     { color = Color.red
-                                    , id = 5
+                                    , id = 0
                                     , controls = ( Set.empty, Set.empty )
                                     , state =
                                         { position = ( 150, y_red )
@@ -193,7 +236,7 @@ crashingIntoKurveTest =
                                 green : Kurve
                                 green =
                                     { color = Color.green
-                                    , id = 5
+                                    , id = 3
                                     , controls = ( Set.empty, Set.empty )
                                     , state =
                                         { position = ( 100, 107.5 )
@@ -216,21 +259,28 @@ crashingIntoKurveTest =
                             in
                             initialState
                                 |> expectRoundOutcome
-                                    { tickThatShouldEndIt = tickNumber 251
+                                    { tickThatShouldEndIt = tickNumber 226
                                     , howItShouldEnd =
                                         \round ->
                                             case ( round.kurves.alive, round.kurves.dead ) of
-                                                ( [], kurve :: [] ) ->
+                                                ( [ _ ], [ deadKurve ] ) ->
                                                     let
                                                         theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                                         theDrawingPositionItNeverMadeItTo =
-                                                            World.drawingPosition (World.toPixel kurve.state.position)
+                                                            World.drawingPosition (World.toPixel deadKurve.state.position)
                                                     in
-                                                    Expect.equal theDrawingPositionItNeverMadeItTo
-                                                        (Debug.todo "drawing position")
+                                                    Expect.all
+                                                        [ \() ->
+                                                            theDrawingPositionItNeverMadeItTo
+                                                                |> Expect.equal { leftEdge = 324, topEdge = 101 }
+                                                        , \() ->
+                                                            deadKurve.color
+                                                                |> Expect.equal Color.green
+                                                        ]
+                                                        ()
 
                                                 _ ->
-                                                    Expect.fail "Expected exactly one dead Kurve and no alive ones"
+                                                    Expect.fail "Expected exactly one dead Kurve and one alive one"
                                     }
                         )
                 )
