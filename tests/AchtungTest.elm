@@ -184,7 +184,7 @@ crashingIntoKurveTest : Test
 crashingIntoKurveTest =
     Test.describe "TODO crashing into kurve"
         [ test
-            "Exact timing is predictable when actual distance is smaller than it appears"
+            "Exact timing is predictable when red is in the middle of the pixel"
             (\_ ->
                 let
                     red : Kurve
@@ -194,6 +194,152 @@ crashingIntoKurveTest =
                         , controls = ( Set.empty, Set.empty )
                         , state =
                             { position = ( 150, 100.5 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 60000
+                            }
+                        , stateAtSpawn =
+                            { position = ( 0, 0 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 0
+                            }
+                        , reversedInteractions = []
+                        }
+
+                    green : Kurve
+                    green =
+                        { color = Color.green
+                        , id = 5
+                        , controls = ( Set.empty, Set.empty )
+                        , state =
+                            { position = ( 100, 107.5 )
+                            , direction = Angle 0.02
+                            , holeStatus = Unholy 60000
+                            }
+                        , stateAtSpawn =
+                            { position = ( 0, 0 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 0
+                            }
+                        , reversedInteractions = []
+                        }
+
+                    currentRound : Round
+                    currentRound =
+                        { kurves =
+                            { alive = [ red, green ]
+                            , dead = []
+                            }
+                        , occupiedPositions = Set.empty
+                        , initialState =
+                            { seedAfterSpawn = Random.initialSeed 0
+                            , spawnedKurves = []
+                            }
+                        , seed = Random.initialSeed 0
+                        }
+                in
+                currentRound
+                    |> expectRoundOutcome
+                        { tickThatShouldEndIt = tickNumber 251
+                        , howItShouldEnd =
+                            \round ->
+                                case ( round.kurves.alive, round.kurves.dead ) of
+                                    ( [], kurve :: [] ) ->
+                                        let
+                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                            theDrawingPositionItNeverMadeItTo =
+                                                World.drawingPosition Config.default.kurves.thickness kurve.state.position
+                                        in
+                                        Expect.equal theDrawingPositionItNeverMadeItTo
+                                            (Debug.todo "drawing position")
+
+                                    _ ->
+                                        Expect.fail "Expected exactly one dead Kurve and no alive ones"
+                        }
+            )
+        , test
+            "Exact timing is predictable when red is near the top of the pixel"
+            (\_ ->
+                let
+                    red : Kurve
+                    red =
+                        { color = Color.red
+                        , id = 5
+                        , controls = ( Set.empty, Set.empty )
+                        , state =
+                            { position = ( 150, 100.2 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 60000
+                            }
+                        , stateAtSpawn =
+                            { position = ( 0, 0 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 0
+                            }
+                        , reversedInteractions = []
+                        }
+
+                    green : Kurve
+                    green =
+                        { color = Color.green
+                        , id = 5
+                        , controls = ( Set.empty, Set.empty )
+                        , state =
+                            { position = ( 100, 107.5 )
+                            , direction = Angle 0.02
+                            , holeStatus = Unholy 60000
+                            }
+                        , stateAtSpawn =
+                            { position = ( 0, 0 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 0
+                            }
+                        , reversedInteractions = []
+                        }
+
+                    currentRound : Round
+                    currentRound =
+                        { kurves =
+                            { alive = [ red, green ]
+                            , dead = []
+                            }
+                        , occupiedPositions = Set.empty
+                        , initialState =
+                            { seedAfterSpawn = Random.initialSeed 0
+                            , spawnedKurves = []
+                            }
+                        , seed = Random.initialSeed 0
+                        }
+                in
+                currentRound
+                    |> expectRoundOutcome
+                        { tickThatShouldEndIt = tickNumber 251
+                        , howItShouldEnd =
+                            \round ->
+                                case ( round.kurves.alive, round.kurves.dead ) of
+                                    ( [], kurve :: [] ) ->
+                                        let
+                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                            theDrawingPositionItNeverMadeItTo =
+                                                World.drawingPosition Config.default.kurves.thickness kurve.state.position
+                                        in
+                                        Expect.equal theDrawingPositionItNeverMadeItTo
+                                            (Debug.todo "drawing position")
+
+                                    _ ->
+                                        Expect.fail "Expected exactly one dead Kurve and no alive ones"
+                        }
+            )
+        , test
+            "Exact timing is predictable when red is near the bottom of the pixel"
+            (\_ ->
+                let
+                    red : Kurve
+                    red =
+                        { color = Color.red
+                        , id = 5
+                        , controls = ( Set.empty, Set.empty )
+                        , state =
+                            { position = ( 150, 100.8 )
                             , direction = Angle 0
                             , holeStatus = Unholy 60000
                             }
