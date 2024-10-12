@@ -14,7 +14,6 @@ import Types.Distance exposing (Distance(..))
 import Types.Radius exposing (Radius(..))
 import Types.Score exposing (Score(..), isAtLeast)
 import Types.Speed exposing (Speed(..))
-import Types.Thickness exposing (Thickness(..))
 import Types.Tickrate exposing (Tickrate(..))
 
 
@@ -24,7 +23,6 @@ default =
         { tickrate = Tickrate 60
         , turningRadius = Radius 28.5
         , speed = Speed 60
-        , thickness = Thickness 3
         , holes =
             { minInterval = Distance 90
             , maxInterval = Distance 300
@@ -82,7 +80,6 @@ type alias KurveConfig =
     { tickrate : Tickrate
     , speed : Speed
     , turningRadius : Radius
-    , thickness : Thickness
     , holes : HoleConfig
     }
 

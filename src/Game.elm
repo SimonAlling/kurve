@@ -25,12 +25,12 @@ import Random
 import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
 import Set exposing (Set)
 import Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
+import Thickness exposing (theThickness)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle)
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..), modifyReversedInteractions)
 import Types.Speed as Speed
-import Types.Thickness as Thickness exposing (Thickness)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Types.TurningState exposing (TurningState)
@@ -106,29 +106,25 @@ prepareLiveRound config seed players pressedButtons =
         ( theKurves, seedAfterSpawn ) =
             Random.step (generateKurves config players) seed |> Tuple.mapFirst recordInitialInteractions
     in
-    ( Live, prepareRoundHelper config { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves } )
+    ( Live, prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves } )
 
 
-prepareReplayRound : Config -> RoundInitialState -> MidRoundState
-prepareReplayRound config initialState =
-    ( Replay, prepareRoundHelper config initialState )
+prepareReplayRound : RoundInitialState -> MidRoundState
+prepareReplayRound initialState =
+    ( Replay, prepareRoundHelper initialState )
 
 
-prepareRoundHelper : Config -> RoundInitialState -> Round
-prepareRoundHelper config initialState =
+prepareRoundHelper : RoundInitialState -> Round
+prepareRoundHelper initialState =
     let
         theKurves : List Kurve
         theKurves =
             initialState.spawnedKurves
 
-        thickness : Thickness
-        thickness =
-            config.kurves.thickness
-
         round : Round
         round =
             { kurves = { alive = theKurves, dead = [] }
-            , occupiedPixels = List.foldr (.state >> .position >> World.drawingPosition thickness >> World.pixelsToOccupy thickness >> Set.union) Set.empty theKurves
+            , occupiedPixels = List.foldr (.state >> .position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty theKurves
             , initialState = initialState
             , seed = initialState.seedAfterSpawn
             }
@@ -171,8 +167,8 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
                 RoundKeepsGoing tick <| modifyRound (always newCurrentRound) midRoundState
     in
     ( tickResult
-    , [ headDrawingCmd config.kurves.thickness newKurves.alive
-      , bodyDrawingCmd config.kurves.thickness newColoredDrawingPositions
+    , [ headDrawingCmd newKurves.alive
+      , bodyDrawingCmd newColoredDrawingPositions
       ]
         |> Cmd.batch
     )
@@ -190,9 +186,9 @@ tickResultToGameState tickResult =
 
 {-| Takes the distance between the _edges_ of two drawn squares and returns the distance between their _centers_.
 -}
-computeDistanceBetweenCenters : Thickness -> Distance -> Distance
-computeDistanceBetweenCenters thickness distanceBetweenEdges =
-    Distance <| Distance.toFloat distanceBetweenEdges + toFloat (Thickness.toInt thickness)
+computeDistanceBetweenCenters : Distance -> Distance
+computeDistanceBetweenCenters distanceBetweenEdges =
+    Distance <| Distance.toFloat distanceBetweenEdges + theThickness
 
 
 checkIndividualKurve :
@@ -217,7 +213,7 @@ checkIndividualKurve config tick kurve ( checkedKurvesGenerator, occupiedPixels,
         occupiedPixelsAfterCheckingThisKurve : Set Pixel
         occupiedPixelsAfterCheckingThisKurve =
             List.foldr
-                (World.pixelsToOccupy config.kurves.thickness >> Set.union)
+                (World.pixelsToOccupy >> Set.union)
                 occupiedPixels
                 newKurveDrawingPositions
 
@@ -253,19 +249,15 @@ evaluateMove config startingPoint positionsToCheck occupiedPixels holeStatus =
                     let
                         theHitbox : Set Pixel
                         theHitbox =
-                            World.hitbox config.kurves.thickness lastChecked current
-
-                        thickness : Int
-                        thickness =
-                            Thickness.toInt config.kurves.thickness
+                            World.hitbox lastChecked current
 
                         crashesIntoWall : Bool
                         crashesIntoWall =
                             List.member True
                                 [ current.leftEdge < 0
                                 , current.topEdge < 0
-                                , current.leftEdge > config.world.width - thickness
-                                , current.topEdge > config.world.height - thickness
+                                , current.leftEdge > config.world.width - theThickness
+                                , current.topEdge > config.world.height - theThickness
                                 ]
 
                         crashesIntoKurve : Bool
@@ -335,15 +327,11 @@ updateKurve config turningState occupiedPixels kurve =
               y - distanceTraveledSinceLastTick * Angle.sin newDirection
             )
 
-        thickness : Thickness
-        thickness =
-            config.kurves.thickness
-
         ( confirmedDrawingPositions, fate ) =
             evaluateMove
                 config
-                (World.drawingPosition thickness kurve.state.position)
-                (World.desiredDrawingPositions thickness kurve.state.position newPosition)
+                (World.drawingPosition kurve.state.position)
+                (World.desiredDrawingPositions kurve.state.position newPosition)
                 occupiedPixels
                 kurve.state.holeStatus
 
@@ -382,7 +370,7 @@ updateHoleStatus kurveConfig holeStatus =
             Random.constant <| Kurve.Holy (ticksLeft - 1)
 
         Kurve.Unholy 0 ->
-            generateHoleSize kurveConfig.holes |> Random.map (computeDistanceBetweenCenters kurveConfig.thickness >> distanceToTicks kurveConfig.tickrate kurveConfig.speed >> Kurve.Holy)
+            generateHoleSize kurveConfig.holes |> Random.map (computeDistanceBetweenCenters >> distanceToTicks kurveConfig.tickrate kurveConfig.speed >> Kurve.Holy)
 
         Kurve.Unholy ticksLeft ->
             Random.constant <| Kurve.Unholy (ticksLeft - 1)
