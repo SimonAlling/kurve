@@ -3,9 +3,9 @@ module AchtungTest exposing (tests)
 import Color
 import Config
 import Expect
-import Game exposing (MidRoundState, MidRoundStateVariant(..), TickResult(..), reactToTick)
+import Game exposing (MidRoundState, MidRoundStateVariant(..), TickResult(..), prepareRoundFromKnownInitialState, reactToTick)
 import Random
-import Round exposing (Round)
+import Round exposing (Round, RoundInitialState)
 import Set
 import String
 import Test exposing (Test, describe, test)
@@ -41,17 +41,10 @@ tests =
 
                     currentRound : Round
                     currentRound =
-                        { kurves =
-                            { alive = [ currentKurve ]
-                            , dead = []
-                            }
-                        , occupiedPixels = Set.empty
-                        , initialState =
+                        prepareRoundFromKnownInitialState
                             { seedAfterSpawn = Random.initialSeed 0
-                            , spawnedKurves = []
+                            , spawnedKurves = [ currentKurve ]
                             }
-                        , seed = Random.initialSeed 0
-                        }
 
                     tickResult : TickResult
                     tickResult =
@@ -92,21 +85,13 @@ tests =
                         , reversedInteractions = []
                         }
 
-                    currentRound : Round
-                    currentRound =
-                        { kurves =
-                            { alive = [ currentKurve ]
-                            , dead = []
-                            }
-                        , occupiedPixels = Set.empty
-                        , initialState =
-                            { seedAfterSpawn = Random.initialSeed 0
-                            , spawnedKurves = []
-                            }
-                        , seed = Random.initialSeed 0
+                    initialState : RoundInitialState
+                    initialState =
+                        { seedAfterSpawn = Random.initialSeed 0
+                        , spawnedKurves = [ currentKurve ]
                         }
                 in
-                currentRound
+                initialState
                     |> expectRoundOutcome
                         { tickThatShouldEndIt = tickNumber 2
                         , howItShouldEnd =
@@ -131,8 +116,8 @@ type alias RoundOutcome =
     }
 
 
-expectRoundOutcome : RoundOutcome -> Round -> Expect.Expectation
-expectRoundOutcome { tickThatShouldEndIt, howItShouldEnd } round =
+expectRoundOutcome : RoundOutcome -> RoundInitialState -> Expect.Expectation
+expectRoundOutcome { tickThatShouldEndIt, howItShouldEnd } initialState =
     let
         recurse : Tick -> MidRoundState -> Expect.Expectation
         recurse tick midRoundState =
@@ -160,6 +145,10 @@ expectRoundOutcome { tickThatShouldEndIt, howItShouldEnd } round =
 
                     else
                         Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it ended on tick " ++ showTick actualEndTick ++ "."
+
+        round : Round
+        round =
+            prepareRoundFromKnownInitialState initialState
     in
     recurse Tick.genesis ( Live, round )
 

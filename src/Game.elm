@@ -11,6 +11,7 @@ module Game exposing
     , modifyRound
     , prepareLiveRound
     , prepareReplayRound
+    , prepareRoundFromKnownInitialState
     , reactToTick
     , recordUserInteraction
     , tickResultToGameState
@@ -106,16 +107,16 @@ prepareLiveRound config seed players pressedButtons =
         ( theKurves, seedAfterSpawn ) =
             Random.step (generateKurves config players) seed |> Tuple.mapFirst recordInitialInteractions
     in
-    ( Live, prepareRoundHelper { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves } )
+    ( Live, prepareRoundFromKnownInitialState { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves } )
 
 
 prepareReplayRound : RoundInitialState -> MidRoundState
 prepareReplayRound initialState =
-    ( Replay, prepareRoundHelper initialState )
+    ( Replay, prepareRoundFromKnownInitialState initialState )
 
 
-prepareRoundHelper : RoundInitialState -> Round
-prepareRoundHelper initialState =
+prepareRoundFromKnownInitialState : RoundInitialState -> Round
+prepareRoundFromKnownInitialState initialState =
     let
         theKurves : List Kurve
         theKurves =
