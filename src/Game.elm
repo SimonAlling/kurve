@@ -241,9 +241,13 @@ checkIndividualKurve config tick kurve ( checkedKurvesGenerator, occupiedPositio
     )
 
 
-evaluateMove : Config -> Position -> List Position -> Set Position -> Kurve.HoleStatus -> ( List Position, Kurve.Fate )
-evaluateMove config startingPoint positionsToCheck occupiedPositions holeStatus =
+evaluateMove : Config -> Position -> Position -> Set Position -> Kurve.HoleStatus -> ( List Position, Kurve.Fate )
+evaluateMove config startingPoint desiredEndPoint occupiedPositions holeStatus =
     let
+        positionsToCheck : List Position
+        positionsToCheck =
+            World.desiredPositions startingPoint desiredEndPoint
+
         checkPositions : List Position -> Position -> List Position -> ( List Position, Kurve.Fate )
         checkPositions checked lastChecked remaining =
             case remaining of
@@ -360,7 +364,7 @@ updateKurve config turningState occupiedPositions kurve =
             evaluateMove
                 config
                 kurve.state.position
-                (World.desiredPositions kurve.state.position newPosition)
+                newPosition
                 occupiedPositions
                 kurve.state.holeStatus
 
