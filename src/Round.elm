@@ -16,12 +16,12 @@ import Set exposing (Set)
 import Types.Kurve as Kurve exposing (Kurve)
 import Types.PlayerId exposing (PlayerId)
 import Types.Score exposing (Score(..))
-import World exposing (Position)
+import World exposing (Pixel, Position)
 
 
 type alias Round =
     { kurves : Kurves
-    , occupiedPositions : Set Position
+    , occupiedPixelPositions : Set Pixel
     , initialState : RoundInitialState
     , seed : Random.Seed
     }

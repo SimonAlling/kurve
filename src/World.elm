@@ -1,12 +1,15 @@
 module World exposing
     ( DrawingPosition
+    , Pixel
     , Position
-    , desiredPositions
+    , desiredPixelPositions
     , distanceBetween
     , distanceToTicks
     , drawingPosition
+    , toPixel
     )
 
+import RasterShapes
 import Thickness exposing (theThickness)
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Speed as Speed exposing (Speed)
@@ -21,9 +24,13 @@ type alias DrawingPosition =
     { leftEdge : Int, topEdge : Int }
 
 
-distanceBetween : Position -> Position -> Distance
+type alias Pixel =
+    ( Int, Int )
+
+
+distanceBetween : Pixel -> Pixel -> Distance
 distanceBetween ( x1, y1 ) ( x2, y2 ) =
-    Distance <| sqrt ((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
+    Distance <| sqrt (toFloat ((x2 - x1) ^ 2 + (y2 - y1) ^ 2))
 
 
 distanceToTicks : Tickrate -> Speed -> Distance -> Int
@@ -31,45 +38,45 @@ distanceToTicks tickrate speed distance =
     round <| Tickrate.toFloat tickrate * Distance.toFloat distance / Speed.toFloat speed
 
 
-drawingPosition : Position -> DrawingPosition
+drawingPosition : Pixel -> DrawingPosition
 drawingPosition ( x, y ) =
     { leftEdge = edgeOfSquare x, topEdge = edgeOfSquare y }
 
 
-edgeOfSquare : Float -> Int
+edgeOfSquare : Int -> Int
 edgeOfSquare xOrY =
-    round (xOrY - (theThickness / 2))
+    xOrY - (theThickness // 2)
 
 
-desiredPositions : Position -> Position -> List Position
-desiredPositions position1 position2 =
+desiredPixelPositions : Position -> Position -> List Pixel
+desiredPixelPositions position1 position2 =
     let
-        maxDistanceBetweenAdjacentPositions : Float
-        maxDistanceBetweenAdjacentPositions =
-            -- Must be 1 at least as long as we use these positions for drawing.
-            -- Otherwise a low tickrate, like 5, makes it obvious that the squares that make up the Kurve aren't drawn densely enough.
-            -- Tested with 45-degree Kurves starting from ( 50, 50.5 ), ( 50, 70.1 ) and ( 50, 90 ).
-            1
+        startPixel =
+            toPixel position1
 
-        totalDistance : Float
-        totalDistance =
-            distanceBetween position1 position2 |> Distance.toFloat
-
-        numberOfSteps : Int
-        numberOfSteps =
-            floor (totalDistance / maxDistanceBetweenAdjacentPositions)
-
-        stepSize : Float
-        stepSize =
-            1 / toFloat numberOfSteps
-
-        steps : List Int
-        steps =
-            List.range 1 (numberOfSteps - 1)
+        endPixel =
+            toPixel position2
     in
-    List.map (\i -> interpolate position1 position2 (toFloat i * stepSize)) steps ++ [ position2 ]
+    RasterShapes.line
+        (pixelToRasterShapesPosition startPixel)
+        (pixelToRasterShapesPosition endPixel)
+        -- The RasterShapes library returns the positions in reverse order.
+        |> List.reverse
+        -- The first element in the list is the starting position, which is assumed to already have been occupied.
+        |> List.drop 1
+        |> List.map rasterShapesPositionToPixel
 
 
-interpolate : Position -> Position -> Float -> Position
-interpolate ( x1, y1 ) ( x2, y2 ) t =
-    ( x1 + t * (x2 - x1), y1 + t * (y2 - y1) )
+toPixel : Position -> Pixel
+toPixel =
+    Tuple.mapBoth floor floor
+
+
+pixelToRasterShapesPosition : Pixel -> RasterShapes.Position
+pixelToRasterShapesPosition ( x, y ) =
+    { x = x, y = y }
+
+
+rasterShapesPositionToPixel : RasterShapes.Position -> Pixel
+rasterShapesPositionToPixel { x, y } =
+    ( x, y )

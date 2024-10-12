@@ -33,7 +33,7 @@ headDrawingCmd =
     renderOverlay
         << List.map
             (\kurve ->
-                { position = World.drawingPosition kurve.state.position
+                { position = World.drawingPosition (World.toPixel kurve.state.position)
                 , thickness = theThickness
                 , color = Color.toCssString kurve.color
                 }
@@ -53,7 +53,7 @@ drawSpawnIfAndOnlyIf shouldBeVisible kurve =
     let
         drawingPosition : DrawingPosition
         drawingPosition =
-            World.drawingPosition kurve.state.position
+            World.drawingPosition (World.toPixel kurve.state.position)
     in
     if shouldBeVisible then
         render <|
