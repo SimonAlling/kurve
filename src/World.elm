@@ -51,9 +51,11 @@ edgeOfSquare xOrY =
 desiredPixelPositions : Position -> Position -> List Pixel
 desiredPixelPositions position1 position2 =
     let
+        startPixel : Pixel
         startPixel =
             toPixel position1
 
+        endPixel : Pixel
         endPixel =
             toPixel position2
     in
