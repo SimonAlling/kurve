@@ -3,7 +3,7 @@ module AchtungTest exposing (tests)
 import Color
 import Config
 import Expect
-import Game exposing (MidRoundState, MidRoundStateVariant(..), TickResult(..), prepareRoundHelper, reactToTick)
+import Game exposing (MidRoundState, MidRoundStateVariant(..), TickResult(..), prepareRoundFromKnownInitialState, reactToTick)
 import Random
 import Round exposing (Round, RoundInitialState)
 import Set
@@ -41,7 +41,7 @@ tests =
 
                     currentRound : Round
                     currentRound =
-                        prepareRoundHelper
+                        prepareRoundFromKnownInitialState
                             { seedAfterSpawn = Random.initialSeed 0
                             , spawnedKurves = [ currentKurve ]
                             }
@@ -148,7 +148,7 @@ expectRoundOutcome { tickThatShouldEndIt, howItShouldEnd } initialState =
 
         round : Round
         round =
-            prepareRoundHelper initialState
+            prepareRoundFromKnownInitialState initialState
     in
     recurse Tick.genesis ( Live, round )
 
