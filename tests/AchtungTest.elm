@@ -161,8 +161,8 @@ crashingIntoWallTest =
                                         theDrawingPositionItNeverMadeItTo =
                                             World.drawingPosition kurve.state.position
                                     in
-                                    Expect.equal theDrawingPositionItNeverMadeItTo
-                                        { leftEdge = 349, topEdge = -1 }
+                                    theDrawingPositionItNeverMadeItTo
+                                        |> Expect.equal { leftEdge = 349, topEdge = -1 }
 
                                 _ ->
                                     Expect.fail "Expected exactly one dead Kurve and no alive ones"
