@@ -159,203 +159,82 @@ tests =
 
 crashingIntoKurveTest : Test
 crashingIntoKurveTest =
-    Test.describe "TODO crashing into kurve"
-        [ test
-            "Exact timing is predictable when red is in the middle of the pixel"
-            (\_ ->
-                let
-                    red : Kurve
-                    red =
-                        { color = Color.red
-                        , id = 5
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 150, 100.5 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 60000
-                            }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
+    describe "Exact timing is predictable based on visuals regardless of internal positions"
+        (List.range 0 9
+            |> List.map
+                (\decimal ->
+                    let
+                        y_red : Float
+                        y_red =
+                            100 + toFloat decimal / 10
+                    in
+                    test
+                        ("When Red's vertical position is " ++ String.fromFloat y_red)
+                        (\_ ->
+                            let
+                                red : Kurve
+                                red =
+                                    { color = Color.red
+                                    , id = 5
+                                    , controls = ( Set.empty, Set.empty )
+                                    , state =
+                                        { position = ( 150, y_red )
+                                        , direction = Angle 0
+                                        , holeStatus = Unholy 60000
+                                        }
+                                    , stateAtSpawn =
+                                        { position = ( 0, 0 )
+                                        , direction = Angle 0
+                                        , holeStatus = Unholy 0
+                                        }
+                                    , reversedInteractions = []
+                                    }
 
-                    green : Kurve
-                    green =
-                        { color = Color.green
-                        , id = 5
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 100, 107.5 )
-                            , direction = Angle 0.02
-                            , holeStatus = Unholy 60000
-                            }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
+                                green : Kurve
+                                green =
+                                    { color = Color.green
+                                    , id = 5
+                                    , controls = ( Set.empty, Set.empty )
+                                    , state =
+                                        { position = ( 100, 107.5 )
+                                        , direction = Angle 0.02
+                                        , holeStatus = Unholy 60000
+                                        }
+                                    , stateAtSpawn =
+                                        { position = ( 0, 0 )
+                                        , direction = Angle 0
+                                        , holeStatus = Unholy 0
+                                        }
+                                    , reversedInteractions = []
+                                    }
 
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ red, green ]
-                        }
-                in
-                initialState
-                    |> expectRoundOutcome
-                        { tickThatShouldEndIt = tickNumber 251
-                        , howItShouldEnd =
-                            \round ->
-                                case ( round.kurves.alive, round.kurves.dead ) of
-                                    ( [], kurve :: [] ) ->
-                                        let
-                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                            theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition (World.toPixel kurve.state.position)
-                                        in
-                                        Expect.equal theDrawingPositionItNeverMadeItTo
-                                            (Debug.todo "drawing position")
+                                initialState : RoundInitialState
+                                initialState =
+                                    { seedAfterSpawn = Random.initialSeed 0
+                                    , spawnedKurves = [ red, green ]
+                                    }
+                            in
+                            initialState
+                                |> expectRoundOutcome
+                                    { tickThatShouldEndIt = tickNumber 251
+                                    , howItShouldEnd =
+                                        \round ->
+                                            case ( round.kurves.alive, round.kurves.dead ) of
+                                                ( [], kurve :: [] ) ->
+                                                    let
+                                                        theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                                        theDrawingPositionItNeverMadeItTo =
+                                                            World.drawingPosition (World.toPixel kurve.state.position)
+                                                    in
+                                                    Expect.equal theDrawingPositionItNeverMadeItTo
+                                                        (Debug.todo "drawing position")
 
-                                    _ ->
-                                        Expect.fail "Expected exactly one dead Kurve and no alive ones"
-                        }
-            )
-        , test
-            "Exact timing is predictable when red is near the top of the pixel"
-            (\_ ->
-                let
-                    red : Kurve
-                    red =
-                        { color = Color.red
-                        , id = 5
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 150, 100.2 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 60000
-                            }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
-
-                    green : Kurve
-                    green =
-                        { color = Color.green
-                        , id = 5
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 100, 107.5 )
-                            , direction = Angle 0.02
-                            , holeStatus = Unholy 60000
-                            }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ red, green ]
-                        }
-                in
-                initialState
-                    |> expectRoundOutcome
-                        { tickThatShouldEndIt = tickNumber 251
-                        , howItShouldEnd =
-                            \round ->
-                                case ( round.kurves.alive, round.kurves.dead ) of
-                                    ( [], kurve :: [] ) ->
-                                        let
-                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                            theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition (World.toPixel kurve.state.position)
-                                        in
-                                        Expect.equal theDrawingPositionItNeverMadeItTo
-                                            (Debug.todo "drawing position")
-
-                                    _ ->
-                                        Expect.fail "Expected exactly one dead Kurve and no alive ones"
-                        }
-            )
-        , test
-            "Exact timing is predictable when red is near the bottom of the pixel"
-            (\_ ->
-                let
-                    red : Kurve
-                    red =
-                        { color = Color.red
-                        , id = 5
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 150, 100.8 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 60000
-                            }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
-
-                    green : Kurve
-                    green =
-                        { color = Color.green
-                        , id = 5
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 100, 107.5 )
-                            , direction = Angle 0.02
-                            , holeStatus = Unholy 60000
-                            }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ red, green ]
-                        }
-                in
-                initialState
-                    |> expectRoundOutcome
-                        { tickThatShouldEndIt = tickNumber 251
-                        , howItShouldEnd =
-                            \round ->
-                                case ( round.kurves.alive, round.kurves.dead ) of
-                                    ( [], kurve :: [] ) ->
-                                        let
-                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                            theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition (World.toPixel kurve.state.position)
-                                        in
-                                        Expect.equal theDrawingPositionItNeverMadeItTo
-                                            (Debug.todo "drawing position")
-
-                                    _ ->
-                                        Expect.fail "Expected exactly one dead Kurve and no alive ones"
-                        }
-            )
-        ]
+                                                _ ->
+                                                    Expect.fail "Expected exactly one dead Kurve and no alive ones"
+                                    }
+                        )
+                )
+        )
 
 
 {-| A description of when and how a round should end.
