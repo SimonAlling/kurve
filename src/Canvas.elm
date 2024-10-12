@@ -2,8 +2,8 @@ port module Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnly
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)
+import Thickness exposing (theThickness)
 import Types.Kurve exposing (Kurve)
-import Types.Thickness as Thickness exposing (Thickness)
 import World exposing (DrawingPosition)
 
 
@@ -16,25 +16,25 @@ port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
-bodyDrawingCmd : Thickness -> List ( Color, DrawingPosition ) -> Cmd msg
-bodyDrawingCmd thickness =
+bodyDrawingCmd : List ( Color, DrawingPosition ) -> Cmd msg
+bodyDrawingCmd =
     render
         << List.map
             (\( color, position ) ->
                 { position = position
-                , thickness = Thickness.toInt thickness
+                , thickness = theThickness
                 , color = Color.toCssString color
                 }
             )
 
 
-headDrawingCmd : Thickness -> List Kurve -> Cmd msg
-headDrawingCmd thickness =
+headDrawingCmd : List Kurve -> Cmd msg
+headDrawingCmd =
     renderOverlay
         << List.map
             (\kurve ->
-                { position = World.drawingPosition thickness kurve.state.position
-                , thickness = Thickness.toInt thickness
+                { position = World.drawingPosition kurve.state.position
+                , thickness = theThickness
                 , color = Color.toCssString kurve.color
                 }
             )
@@ -48,22 +48,18 @@ clearEverything { width, height } =
         ]
 
 
-drawSpawnIfAndOnlyIf : Bool -> Kurve -> Thickness -> Cmd msg
-drawSpawnIfAndOnlyIf shouldBeVisible kurve thickness =
+drawSpawnIfAndOnlyIf : Bool -> Kurve -> Cmd msg
+drawSpawnIfAndOnlyIf shouldBeVisible kurve =
     let
-        thicknessAsInt : Int
-        thicknessAsInt =
-            Thickness.toInt thickness
-
         drawingPosition : DrawingPosition
         drawingPosition =
-            World.drawingPosition thickness kurve.state.position
+            World.drawingPosition kurve.state.position
     in
     if shouldBeVisible then
         render <|
             List.singleton
                 { position = drawingPosition
-                , thickness = thicknessAsInt
+                , thickness = theThickness
                 , color = Color.toCssString kurve.color
                 }
 
@@ -71,6 +67,6 @@ drawSpawnIfAndOnlyIf shouldBeVisible kurve thickness =
         clear
             { x = drawingPosition.leftEdge
             , y = drawingPosition.topEdge
-            , width = thicknessAsInt
-            , height = thicknessAsInt
+            , width = theThickness
+            , height = theThickness
             }
