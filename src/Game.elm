@@ -27,7 +27,7 @@ import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead
 import Set exposing (Set)
 import Set.Extra as Set
 import Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
-import Thickness exposing (theThickness)
+import Thickness exposing (minimumDistanceFor45DegreeDraws, theThickness)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle)
 import Types.Distance as Distance exposing (Distance(..))
@@ -327,9 +327,21 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixelPositions holeSta
 checkCollision : Pixel -> Pixel -> Pixel -> Bool
 checkCollision current lastChecked obstacle =
     let
+        is45DegreeDraw : Bool
+        is45DegreeDraw =
+            Tuple.first current /= Tuple.first lastChecked && Tuple.second current /= Tuple.second lastChecked
+
+        minimumDistanceToObstacle : Float
+        minimumDistanceToObstacle =
+            if is45DegreeDraw then
+                minimumDistanceFor45DegreeDraws
+
+            else
+                theThickness
+
         isTooCloseToObstacle : Bool
         isTooCloseToObstacle =
-            Distance.toFloat (distanceBetween current obstacle) < theThickness
+            Distance.toFloat (distanceBetween current obstacle) < minimumDistanceToObstacle
 
         isMovingTowardObstacle : Bool
         isMovingTowardObstacle =
