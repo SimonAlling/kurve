@@ -106,7 +106,86 @@ tests =
                                         Expect.fail "Expected exactly one dead Kurve and no alive ones"
                         }
             )
+        , crashTests
         , crashTimingTests
+        , cuttingCornersTests
+        ]
+
+
+crashTests : Test
+crashTests =
+    describe "Crashing into a Kurve"
+        [ test "Hitting a Kurve's tail end is a crash"
+            (\_ ->
+                let
+                    red : Kurve
+                    red =
+                        { color = Color.red
+                        , id = 0
+                        , controls = ( Set.empty, Set.empty )
+                        , state =
+                            { position = ( 100.5, 100.5 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 60000
+                            }
+                        , stateAtSpawn =
+                            { position = ( 0, 0 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 0
+                            }
+                        , reversedInteractions = []
+                        }
+
+                    green : Kurve
+                    green =
+                        { color = Color.green
+                        , id = 3
+                        , controls = ( Set.empty, Set.empty )
+                        , state =
+                            { position = ( 98.5, 110.5 )
+                            , direction = Angle (pi / 2)
+                            , holeStatus = Unholy 60000
+                            }
+                        , stateAtSpawn =
+                            { position = ( 0, 0 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 0
+                            }
+                        , reversedInteractions = []
+                        }
+
+                    initialState : RoundInitialState
+                    initialState =
+                        { seedAfterSpawn = Random.initialSeed 0
+                        , spawnedKurves = [ red, green ]
+                        }
+                in
+                initialState
+                    |> expectRoundOutcome
+                        { tickThatShouldEndIt = tickNumber 8
+                        , howItShouldEnd =
+                            \round ->
+                                case ( round.kurves.alive, round.kurves.dead ) of
+                                    ( [ _ ], [ deadKurve ] ) ->
+                                        let
+                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                            theDrawingPositionItNeverMadeItTo =
+                                                World.drawingPosition (World.toPixel deadKurve.state.position)
+                                        in
+                                        Expect.all
+                                            [ \() ->
+                                                theDrawingPositionItNeverMadeItTo
+                                                    |> Expect.equal { leftEdge = 97, topEdge = 101 }
+                                            , \() ->
+                                                deadKurve.color
+                                                    |> Expect.equal Color.green
+                                            ]
+                                            ()
+
+                                    _ ->
+                                        Expect.fail "Expected exactly one dead Kurve and one alive one"
+                        }
+            )
         ]
 
 
@@ -285,6 +364,83 @@ crashingIntoKurveTests =
                         )
                 )
         )
+
+
+cuttingCornersTests : Test
+cuttingCornersTests =
+    describe "Cutting corners (by painting over them)"
+        [ test "It is possible to cut the corner of a Kurve's tail end"
+            (\_ ->
+                let
+                    red : Kurve
+                    red =
+                        { color = Color.red
+                        , id = 0
+                        , controls = ( Set.empty, Set.empty )
+                        , state =
+                            { position = ( 200.5, 100.5 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 60000
+                            }
+                        , stateAtSpawn =
+                            { position = ( 0, 0 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 0
+                            }
+                        , reversedInteractions = []
+                        }
+
+                    green : Kurve
+                    green =
+                        { color = Color.green
+                        , id = 3
+                        , controls = ( Set.empty, Set.empty )
+                        , state =
+                            { position = ( 100.5, 196.5 )
+                            , direction = Angle (pi / 4)
+                            , holeStatus = Unholy 60000
+                            }
+                        , stateAtSpawn =
+                            { position = ( 0, 0 )
+                            , direction = Angle 0
+                            , holeStatus = Unholy 0
+                            }
+                        , reversedInteractions = []
+                        }
+
+                    initialState : RoundInitialState
+                    initialState =
+                        { seedAfterSpawn = Random.initialSeed 0
+                        , spawnedKurves = [ red, green ]
+                        }
+                in
+                initialState
+                    |> expectRoundOutcome
+                        { tickThatShouldEndIt = tickNumber 277
+                        , howItShouldEnd =
+                            \round ->
+                                case ( round.kurves.alive, round.kurves.dead ) of
+                                    ( [ _ ], [ deadKurve ] ) ->
+                                        let
+                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                            theDrawingPositionItNeverMadeItTo =
+                                                World.drawingPosition (World.toPixel deadKurve.state.position)
+                                        in
+                                        Expect.all
+                                            [ \() ->
+                                                theDrawingPositionItNeverMadeItTo
+                                                    |> Expect.equal { leftEdge = 295, topEdge = -1 }
+                                            , \() ->
+                                                deadKurve.color
+                                                    |> Expect.equal Color.green
+                                            ]
+                                            ()
+
+                                    _ ->
+                                        Expect.fail "Expected exactly one dead Kurve and one alive one"
+                        }
+            )
+        ]
 
 
 {-| A description of when and how a round should end.
