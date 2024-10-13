@@ -8,4 +8,4 @@ theThickness =
 
 minimumDistanceFor45DegreeDraws : Float
 minimumDistanceFor45DegreeDraws =
-    2 * sqrt 2
+    sqrt 5
