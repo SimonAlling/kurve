@@ -1,7 +1,7 @@
 module AchtungTest exposing (tests)
 
 import Color
-import Config
+import Config exposing (Config)
 import Expect
 import Game exposing (MidRoundState, MidRoundStateVariant(..), TickResult(..), prepareRoundFromKnownInitialState, reactToTick)
 import Random
@@ -94,6 +94,7 @@ tests =
                 in
                 initialState
                     |> expectRoundOutcome
+                        Config.default
                         { tickThatShouldEndIt = tickNumber 2
                         , howItShouldEnd =
                             \round ->
@@ -162,6 +163,7 @@ crashTests =
                 in
                 initialState
                     |> expectRoundOutcome
+                        Config.default
                         { tickThatShouldEndIt = tickNumber 8
                         , howItShouldEnd =
                             \round ->
@@ -260,6 +262,7 @@ crashingIntoWallTest =
             in
             initialState
                 |> expectRoundOutcome
+                    Config.default
                     { tickThatShouldEndIt = tickNumber 251
                     , howItShouldEnd =
                         \round ->
@@ -338,6 +341,7 @@ crashingIntoKurveTests =
                             in
                             initialState
                                 |> expectRoundOutcome
+                                    Config.default
                                     { tickThatShouldEndIt = tickNumber 226
                                     , howItShouldEnd =
                                         \round ->
@@ -416,6 +420,7 @@ cuttingCornersTests =
                 in
                 initialState
                     |> expectRoundOutcome
+                        Config.default
                         { tickThatShouldEndIt = tickNumber 277
                         , howItShouldEnd =
                             \round ->
@@ -451,15 +456,15 @@ type alias RoundOutcome =
     }
 
 
-expectRoundOutcome : RoundOutcome -> RoundInitialState -> Expect.Expectation
-expectRoundOutcome { tickThatShouldEndIt, howItShouldEnd } initialState =
+expectRoundOutcome : Config -> RoundOutcome -> RoundInitialState -> Expect.Expectation
+expectRoundOutcome config { tickThatShouldEndIt, howItShouldEnd } initialState =
     let
         recurse : Tick -> MidRoundState -> Expect.Expectation
         recurse tick midRoundState =
             let
                 tickResult : TickResult
                 tickResult =
-                    reactToTick Config.default (Tick.succ tick) midRoundState |> Tuple.first
+                    reactToTick config (Tick.succ tick) midRoundState |> Tuple.first
             in
             case tickResult of
                 RoundKeepsGoing nextTick nextMidRoundState ->
