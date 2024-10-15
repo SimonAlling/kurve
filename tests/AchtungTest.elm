@@ -461,10 +461,18 @@ expectRoundOutcome config { tickThatShouldEndIt, howItShouldEnd } initialState =
     let
         ( actualEndTick, actualRoundResult ) =
             playOutRound config initialState
+
+        expectationOnEndTick : Expect.Expectation
+        expectationOnEndTick =
+            if actualEndTick == tickThatShouldEndIt then
+                Expect.pass
+
+            else
+                Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it ended on tick " ++ showTick actualEndTick ++ "."
     in
     Expect.all
         [ always <| howItShouldEnd actualRoundResult
-        , always <| expectationOnEndTick tickThatShouldEndIt actualEndTick
+        , always <| expectationOnEndTick
         ]
         ()
 
@@ -496,15 +504,6 @@ playOutRound config initialState =
             prepareRoundFromKnownInitialState initialState
     in
     recurse Tick.genesis ( Live, round )
-
-
-expectationOnEndTick : Tick -> Tick -> Expect.Expectation
-expectationOnEndTick tickThatShouldEndIt actualEndTick =
-    if actualEndTick == tickThatShouldEndIt then
-        Expect.pass
-
-    else
-        Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it ended on tick " ++ showTick actualEndTick ++ "."
 
 
 showTick : Tick -> String
