@@ -165,7 +165,7 @@ prepareLiveRound config seed players pressedButtons =
             , reversedInteractions = []
             }
     in
-    ( Live, prepareRoundFromKnownInitialState { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves } )
+    ( Replay, prepareRoundFromKnownInitialState { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves } )
 
 
 prepareReplayRound : RoundInitialState -> MidRoundState
