@@ -32,9 +32,9 @@ import Types.Angle as Angle exposing (Angle(..))
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Kurve as Kurve exposing (HoleStatus(..), Kurve, UserInteraction(..), modifyReversedInteractions)
 import Types.Speed as Speed
-import Types.Tick as Tick exposing (Tick)
+import Types.Tick as Tick exposing (Tick(..))
 import Types.Tickrate as Tickrate
-import Types.TurningState exposing (TurningState)
+import Types.TurningState exposing (TurningState(..))
 import World exposing (DrawingPosition, Pixel, Position, distanceToTicks)
 
 
@@ -125,7 +125,12 @@ prepareLiveRound config seed players pressedButtons =
                 , direction = Angle 0
                 , holeStatus = Unholy 0
                 }
-            , reversedInteractions = []
+            , reversedInteractions =
+                [ HappenedBefore (tickNumber 197) NotTurning
+                , HappenedBefore (tickNumber 196) TurningLeft
+                , HappenedBefore (tickNumber 188) NotTurning
+                , HappenedBefore (tickNumber 143) TurningRight
+                ]
             }
 
         cyan : Kurve
@@ -451,3 +456,13 @@ recordUserInteraction pressedButtons nextTick kurve =
             computeTurningState pressedButtons kurve
     in
     modifyReversedInteractions ((::) (HappenedBefore nextTick newTurningState)) kurve
+
+
+tickNumber : Int -> Tick
+tickNumber n =
+    case Tick.fromInt n of
+        Nothing ->
+            Tick.genesis
+
+        Just tick ->
+            tick
