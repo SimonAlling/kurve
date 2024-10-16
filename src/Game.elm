@@ -28,9 +28,9 @@ import Set exposing (Set)
 import Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
 import Thickness exposing (theThickness)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
-import Types.Angle as Angle exposing (Angle)
+import Types.Angle as Angle exposing (Angle(..))
 import Types.Distance as Distance exposing (Distance(..))
-import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..), modifyReversedInteractions)
+import Types.Kurve as Kurve exposing (HoleStatus(..), Kurve, UserInteraction(..), modifyReversedInteractions)
 import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -104,8 +104,66 @@ prepareLiveRound config seed players pressedButtons =
         recordInitialInteractions =
             List.map (recordUserInteraction pressedButtons firstUpdateTick)
 
-        ( theKurves, seedAfterSpawn ) =
+        ( _, seedAfterSpawn ) =
             Random.step (generateKurves config players) seed |> Tuple.mapFirst recordInitialInteractions
+
+        theKurves =
+            [ magenta, cyan, white ]
+
+        magenta : Kurve
+        magenta =
+            { color = Color.rgba 1 0 1 0.9
+            , id = 5
+            , controls = ( Set.empty, Set.empty )
+            , state =
+                { position = ( 115, 147 )
+                , direction = Angle (56.78 * (2 * pi / 360))
+                , holeStatus = Unholy 60000
+                }
+            , stateAtSpawn =
+                { position = ( 0, 0 )
+                , direction = Angle 0
+                , holeStatus = Unholy 0
+                }
+            , reversedInteractions = []
+            }
+
+        cyan : Kurve
+        cyan =
+            { color = Color.rgba 0 1 1 1
+            , id = 5
+            , controls = ( Set.empty, Set.empty )
+            , state =
+                { position = ( 140, 296 )
+                , direction = Angle 0.202
+                , holeStatus = Unholy 60000
+                }
+            , stateAtSpawn =
+                { position = ( 0, 0 )
+                , direction = Angle 0
+                , holeStatus = Unholy 0
+                }
+            , reversedInteractions = []
+            }
+
+        white : Kurve
+        white =
+            -- so the others keep going until they crash
+            { color = Color.white
+            , id = 5
+            , controls = ( Set.empty, Set.empty )
+            , state =
+                { position = ( 50, 400 )
+                , direction = Angle 0
+                , holeStatus = Unholy 60000
+                }
+            , stateAtSpawn =
+                { position = ( 0, 0 )
+                , direction = Angle 0
+                , holeStatus = Unholy 0
+                }
+            , reversedInteractions = []
+            }
     in
     ( Live, prepareRoundFromKnownInitialState { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves } )
 

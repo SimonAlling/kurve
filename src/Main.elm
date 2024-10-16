@@ -39,13 +39,15 @@ port focusLost : (() -> msg) -> Sub msg
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { pressedButtons = Set.empty
-      , appState = InMenu SplashScreen (Random.initialSeed 1337)
-      , config = Config.default
-      , players = initialPlayers
-      }
-    , Cmd.none
-    )
+    let
+        m =
+            { pressedButtons = Set.empty
+            , appState = InMenu SplashScreen (Random.initialSeed 1337)
+            , config = Config.default
+            , players = initialPlayers
+            }
+    in
+    startRound m <| prepareLiveRound Config.default (Random.initialSeed 1337) (participating m.players) Set.empty
 
 
 startRound : Model -> MidRoundState -> ( Model, Cmd msg )
