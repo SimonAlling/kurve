@@ -459,7 +459,20 @@ type alias RoundOutcome =
 expectRoundOutcome : Config -> RoundOutcome -> RoundInitialState -> Expect.Expectation
 expectRoundOutcome config { tickThatShouldEndIt, howItShouldEnd } initialState =
     let
-        recurse : Tick -> MidRoundState -> Expect.Expectation
+        ( actualEndTick, actualRoundResult ) =
+            playOutRound config initialState
+    in
+    if actualEndTick == tickThatShouldEndIt then
+        howItShouldEnd actualRoundResult
+
+    else
+        Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it ended on tick " ++ showTick actualEndTick ++ "."
+
+
+playOutRound : Config -> RoundInitialState -> ( Tick, Round )
+playOutRound config initialState =
+    let
+        recurse : Tick -> MidRoundState -> ( Tick, Round )
         recurse tick midRoundState =
             let
                 tickResult : TickResult
@@ -468,11 +481,7 @@ expectRoundOutcome config { tickThatShouldEndIt, howItShouldEnd } initialState =
             in
             case tickResult of
                 RoundKeepsGoing nextTick nextMidRoundState ->
-                    if nextTick == tickThatShouldEndIt then
-                        Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it did not."
-
-                    else
-                        recurse nextTick nextMidRoundState
+                    recurse nextTick nextMidRoundState
 
                 RoundEnds actualRoundResult ->
                     let
@@ -480,11 +489,7 @@ expectRoundOutcome config { tickThatShouldEndIt, howItShouldEnd } initialState =
                         actualEndTick =
                             Tick.succ tick
                     in
-                    if actualEndTick == tickThatShouldEndIt then
-                        howItShouldEnd actualRoundResult
-
-                    else
-                        Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it ended on tick " ++ showTick actualEndTick ++ "."
+                    ( actualEndTick, actualRoundResult )
 
         round : Round
         round =
