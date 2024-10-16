@@ -17,7 +17,17 @@ import World
 
 tests : Test
 tests =
-    describe "Achtung, die Kurve!"
+    Test.concat
+        [ basicTests
+        , crashTests
+        , crashTimingTests
+        , cuttingCornersTests
+        ]
+
+
+basicTests : Test
+basicTests =
+    describe "Basic tests"
         [ test
             "Kurves move forward by default when game is active"
             (\_ ->
@@ -107,9 +117,6 @@ tests =
                                         Expect.fail "Expected exactly one dead Kurve and no alive ones"
                         }
             )
-        , crashTests
-        , crashTimingTests
-        , cuttingCornersTests
         ]
 
 
