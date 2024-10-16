@@ -463,13 +463,13 @@ expectRoundOutcome config { tickThatShouldEndIt, howItShouldEnd } initialState =
             playOutRound config initialState
     in
     Expect.all
-        [ \_ ->
+        [ \_ -> howItShouldEnd actualRoundResult
+        , \_ ->
             if actualEndTick == tickThatShouldEndIt then
                 Expect.pass
 
             else
                 Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it ended on tick " ++ showTick actualEndTick ++ "."
-        , \_ -> howItShouldEnd actualRoundResult
         ]
         ()
 
