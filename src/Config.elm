@@ -20,7 +20,7 @@ import Types.Tickrate exposing (Tickrate(..))
 default : Config
 default =
     { kurves =
-        { tickrate = Tickrate 60
+        { tickrate = Tickrate 120
         , turningRadius = Radius 28.5
         , speed = Speed 60
         , holes =

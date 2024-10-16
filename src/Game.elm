@@ -126,10 +126,10 @@ prepareLiveRound config seed players pressedButtons =
                 , holeStatus = Unholy 0
                 }
             , reversedInteractions =
-                [ HappenedBefore (tickNumber 324) NotTurning
-                , HappenedBefore (tickNumber 230) TurningLeft
-                , HappenedBefore (tickNumber 197) NotTurning
-                , HappenedBefore (tickNumber 101) TurningRight
+                [ HappenedBefore (tickNumber 649) NotTurning
+                , HappenedBefore (tickNumber 460) TurningLeft
+                , HappenedBefore (tickNumber 394) NotTurning
+                , HappenedBefore (tickNumber 201) TurningRight
                 ]
             }
 
