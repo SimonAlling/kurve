@@ -28,9 +28,8 @@ tests =
 basicTests : Test
 basicTests =
     describe "Basic tests"
-        [ test
-            "Kurves move forward by default when game is active"
-            (\_ ->
+        [ test "Kurves move forward by default when game is active" <|
+            \_ ->
                 let
                     currentKurve : Kurve
                     currentKurve =
@@ -73,10 +72,8 @@ basicTests =
 
                     RoundEnds _ ->
                         Expect.fail "Expected round not to end"
-            )
-        , test
-            "A Kurve that crashes into the wall dies"
-            (\_ ->
+        , test "A Kurve that crashes into the wall dies" <|
+            \_ ->
                 let
                     currentKurve : Kurve
                     currentKurve =
@@ -116,15 +113,14 @@ basicTests =
                                     _ ->
                                         Expect.fail "Expected exactly one dead Kurve and no alive ones"
                         }
-            )
         ]
 
 
 crashTests : Test
 crashTests =
     describe "Crashing into a Kurve"
-        [ test "Hitting a Kurve's tail end is a crash"
-            (\_ ->
+        [ test "Hitting a Kurve's tail end is a crash" <|
+            \_ ->
                 let
                     red : Kurve
                     red =
@@ -194,7 +190,6 @@ crashTests =
                                     _ ->
                                         Expect.fail "Expected exactly one dead Kurve and one alive one"
                         }
-            )
         ]
 
 
@@ -240,8 +235,8 @@ crashTimingTests =
 
 crashingIntoWallTest : Test
 crashingIntoWallTest =
-    test "The exact timing of a crash into the wall is predictable for the player"
-        (\_ ->
+    test "The exact timing of a crash into the wall is predictable for the player" <|
+        \_ ->
             let
                 currentKurve : Kurve
                 currentKurve =
@@ -286,7 +281,6 @@ crashingIntoWallTest =
                                 _ ->
                                     Expect.fail "Expected exactly one dead Kurve and no alive ones"
                     }
-        )
 
 
 crashingIntoKurveTests : Test
@@ -380,8 +374,8 @@ crashingIntoKurveTests =
 cuttingCornersTests : Test
 cuttingCornersTests =
     describe "Cutting corners (by painting over them)"
-        [ test "It is possible to cut the corner of a Kurve's tail end"
-            (\_ ->
+        [ test "It is possible to cut the corner of a Kurve's tail end" <|
+            \_ ->
                 let
                     red : Kurve
                     red =
@@ -451,7 +445,6 @@ cuttingCornersTests =
                                     _ ->
                                         Expect.fail "Expected exactly one dead Kurve and one alive one"
                         }
-            )
         ]
 
 
