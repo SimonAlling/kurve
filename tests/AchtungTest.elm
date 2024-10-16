@@ -1,7 +1,7 @@
 module AchtungTest exposing (tests)
 
 import Color
-import Config exposing (Config)
+import Config exposing (Config, KurveConfig)
 import Expect
 import Game exposing (MidRoundState, MidRoundStateVariant(..), TickResult(..), prepareRoundFromKnownInitialState, reactToTick)
 import Random
@@ -11,6 +11,7 @@ import String
 import Test exposing (Test, describe, test)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
+import Types.Speed as Speed exposing (Speed(..))
 import Types.Tick as Tick exposing (Tick)
 import World
 
@@ -22,6 +23,7 @@ tests =
         , crashTests
         , crashTimingTests
         , cuttingCornersTests
+        , speedTests
         ]
 
 
@@ -519,6 +521,65 @@ cuttingCornersTests =
         ]
 
 
+speedTests : Test
+speedTests =
+    describe "Kurve speed"
+        ([ ( Speed 60, tickNumber 450 )
+         , ( Speed 120, tickNumber 225 )
+         , ( Speed 180, tickNumber 150 )
+         ]
+            |> List.map
+                (\( speed, expectedEndTick ) ->
+                    test ("Round ends as expected when speed is " ++ String.fromFloat (Speed.toFloat speed)) <|
+                        \_ ->
+                            let
+                                green : Kurve
+                                green =
+                                    { color = Color.green
+                                    , id = 3
+                                    , controls = ( Set.empty, Set.empty )
+                                    , state =
+                                        { position = ( 108, 100 )
+                                        , direction = Angle 0
+                                        , holeStatus = Unholy 60000
+                                        }
+                                    , stateAtSpawn =
+                                        { position = ( 0, 0 )
+                                        , direction = Angle 0
+                                        , holeStatus = Unholy 0
+                                        }
+                                    , reversedInteractions = []
+                                    }
+
+                                initialState : RoundInitialState
+                                initialState =
+                                    { seedAfterSpawn = Random.initialSeed 0
+                                    , spawnedKurves = [ green ]
+                                    }
+                            in
+                            initialState
+                                |> expectRoundOutcome
+                                    (defaultConfigWithSpeed speed)
+                                    { tickThatShouldEndIt = expectedEndTick
+                                    , howItShouldEnd =
+                                        \round ->
+                                            case round.kurves.dead of
+                                                [ deadKurve ] ->
+                                                    let
+                                                        theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                                        theDrawingPositionItNeverMadeItTo =
+                                                            World.drawingPosition deadKurve.state.position
+                                                    in
+                                                    theDrawingPositionItNeverMadeItTo
+                                                        |> Expect.equal { leftEdge = 557, topEdge = 99 }
+
+                                                _ ->
+                                                    Expect.fail "Expected exactly one dead Kurve"
+                                    }
+                )
+        )
+
+
 {-| A description of when and how a round should end.
 -}
 type alias RoundOutcome =
@@ -587,3 +648,22 @@ tickNumber n =
 
         Just tick ->
             tick
+
+
+defaultConfigWithSpeed : Speed -> Config
+defaultConfigWithSpeed speed =
+    let
+        defaultConfig : Config
+        defaultConfig =
+            Config.default
+
+        defaultKurveConfig : KurveConfig
+        defaultKurveConfig =
+            defaultConfig.kurves
+    in
+    { defaultConfig
+        | kurves =
+            { defaultKurveConfig
+                | speed = speed
+            }
+    }
