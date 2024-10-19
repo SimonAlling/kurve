@@ -125,7 +125,7 @@ prepareRoundFromKnownInitialState initialState =
         round : Round
         round =
             { kurves = { alive = theKurves, dead = [] }
-            , occupiedPixels = List.foldr (.state >> .position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty theKurves
+            , occupiedPixels = List.foldl (.state >> .position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty theKurves
             , initialState = initialState
             , seed = initialState.seedAfterSpawn
             }
@@ -213,7 +213,7 @@ checkIndividualKurve config tick kurve ( checkedKurvesGenerator, occupiedPixels,
 
         occupiedPixelsAfterCheckingThisKurve : Set Pixel
         occupiedPixelsAfterCheckingThisKurve =
-            List.foldr
+            List.foldl
                 (World.pixelsToOccupy >> Set.union)
                 occupiedPixels
                 newKurveDrawingPositions
