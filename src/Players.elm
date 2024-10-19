@@ -105,23 +105,47 @@ players =
         rgb : Int -> Int -> Int -> Color
         rgb =
             Color.rgb255
+
+        red : Player
+        red =
+            { color = rgb 255 40 0
+            , controls = ( [ Key "Digit1" ], [ Key "KeyQ" ] )
+            }
+
+        yellow : Player
+        yellow =
+            { color = rgb 195 195 0
+            , controls = ( [ Key "ControlLeft", Key "KeyZ" ], [ Key "AltLeft", Key "KeyX" ] )
+            }
+
+        orange : Player
+        orange =
+            { color = rgb 255 121 0
+            , controls = ( [ Key "KeyM" ], [ Key "Comma" ] )
+            }
+
+        green : Player
+        green =
+            { color = rgb 0 203 0
+            , controls = ( [ Key "ArrowLeft" ], [ Key "ArrowDown" ] )
+            }
+
+        pink : Player
+        pink =
+            { color = rgb 223 81 182
+            , controls = ( [ Key "NumpadDivide", Key "End", Key "PageDown" ], [ Key "NumpadMultiply", Key "PageUp" ] )
+            }
+
+        blue : Player
+        blue =
+            { color = rgb 0 162 203
+            , controls = ( [ Mouse 0 ], [ Mouse 2 ] )
+            }
     in
-    [ { color = rgb 255 40 0
-      , controls = ( [ Key "Digit1" ], [ Key "KeyQ" ] )
-      }
-    , { color = rgb 195 195 0
-      , controls = ( [ Key "ControlLeft", Key "KeyZ" ], [ Key "AltLeft", Key "KeyX" ] )
-      }
-    , { color = rgb 255 121 0
-      , controls = ( [ Key "KeyM" ], [ Key "Comma" ] )
-      }
-    , { color = rgb 0 203 0
-      , controls = ( [ Key "ArrowLeft" ], [ Key "ArrowDown" ] )
-      }
-    , { color = rgb 223 81 182
-      , controls = ( [ Key "NumpadDivide", Key "End", Key "PageDown" ], [ Key "NumpadMultiply", Key "PageUp" ] )
-      }
-    , { color = rgb 0 162 203
-      , controls = ( [ Mouse 0 ], [ Mouse 2 ] )
-      }
+    [ red
+    , yellow
+    , orange
+    , green
+    , pink
+    , blue
     ]
