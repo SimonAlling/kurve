@@ -3,19 +3,20 @@ module World exposing
     , Pixel
     , Position
     , desiredDrawingPositions
-    , distanceBetween
     , distanceToTicks
     , drawingPosition
     , hitbox
     , pixelsToOccupy
+    , squaredDistanceBetween
     )
 
 import List.Cartesian
 import RasterShapes
 import Set exposing (Set)
 import Thickness exposing (theThickness)
-import Types.Distance as Distance exposing (Distance(..))
+import Types.Distance as Distance exposing (Distance)
 import Types.Speed as Speed exposing (Speed)
+import Types.SquaredDistance exposing (SquaredDistance(..))
 import Types.Tickrate as Tickrate exposing (Tickrate)
 
 
@@ -31,9 +32,9 @@ type alias Pixel =
     ( Int, Int )
 
 
-distanceBetween : Position -> Position -> Distance
-distanceBetween ( x1, y1 ) ( x2, y2 ) =
-    Distance <| sqrt ((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
+squaredDistanceBetween : Position -> Position -> SquaredDistance
+squaredDistanceBetween ( x1, y1 ) ( x2, y2 ) =
+    SquaredDistance <| (x2 - x1) ^ 2 + (y2 - y1) ^ 2
 
 
 distanceToTicks : Tickrate -> Speed -> Distance -> Int
