@@ -279,9 +279,24 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixelPositions holeSta
                                 , currentY > config.world.height - halfThicknessRoundedDown
                                 ]
 
+                        nearbyPositionsX : List Int
+                        nearbyPositionsX =
+                            List.range (currentX - theThickness) (currentX + theThickness)
+
+                        nearbyPositionsY : List Int
+                        nearbyPositionsY =
+                            List.range (currentY - theThickness) (currentY + theThickness)
+
+                        nearbyOccupiedPixelPositions : Set Pixel
+                        nearbyOccupiedPixelPositions =
+                            nearbyPositionsX
+                                |> List.concatMap (\x -> nearbyPositionsY |> List.map (\y -> ( x, y )))
+                                |> Set.fromList
+                                |> Set.intersect occupiedPixelPositions
+
                         crashesIntoKurve : Bool
                         crashesIntoKurve =
-                            occupiedPixelPositions |> Set.any (checkCollision current lastChecked)
+                            nearbyOccupiedPixelPositions |> Set.any (checkCollision current lastChecked)
 
                         dies : Bool
                         dies =
