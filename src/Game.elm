@@ -275,8 +275,8 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixelPositions holeSta
                             List.member True
                                 [ currentX < halfThicknessRoundedDown
                                 , currentY < halfThicknessRoundedDown
-                                , currentX > config.world.width - halfThicknessRoundedDown
-                                , currentY > config.world.height - halfThicknessRoundedDown
+                                , currentX > config.world.width - halfThicknessRoundedDown - 1
+                                , currentY > config.world.height - halfThicknessRoundedDown - 1
                                 ]
 
                         nearbyPositionsX : List Int
