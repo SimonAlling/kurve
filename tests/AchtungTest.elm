@@ -13,7 +13,7 @@ import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.Speed as Speed exposing (Speed(..))
 import Types.Tick as Tick exposing (Tick)
-import World exposing (DrawingPosition, Position)
+import World
 
 
 tests : Test
@@ -207,9 +207,9 @@ crashingIntoWallTests =
             testCases :
                 List
                     { wallDescription : String
-                    , startingPosition : Position
+                    , startingPosition : World.Position
                     , direction : Angle
-                    , drawingPositionItShouldNeverMakeItTo : DrawingPosition
+                    , drawingPositionItShouldNeverMakeItTo : World.DrawingPosition
                     }
             testCases =
                 [ { wallDescription = "Top wall"
