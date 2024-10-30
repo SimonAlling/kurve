@@ -37,7 +37,7 @@ basicTests =
                 let
                     currentKurve : Kurve
                     currentKurve =
-                        zombieKurve
+                        makeZombieKurve
                             { color = Color.white
                             , id = 5
                             , state =
@@ -75,7 +75,7 @@ basicTests =
                 let
                     currentKurve : Kurve
                     currentKurve =
-                        zombieKurve
+                        makeZombieKurve
                             { color = Color.white
                             , id = 5
                             , state =
@@ -116,7 +116,7 @@ crashingIntoKurveTests =
                 let
                     red : Kurve
                     red =
-                        zombieKurve
+                        makeZombieKurve
                             { color = Color.red
                             , id = 0
                             , state =
@@ -128,7 +128,7 @@ crashingIntoKurveTests =
 
                     green : Kurve
                     green =
-                        zombieKurve
+                        makeZombieKurve
                             { color = Color.green
                             , id = 3
                             , state =
@@ -219,7 +219,7 @@ crashingIntoWallTests =
                             let
                                 green : Kurve
                                 green =
-                                    zombieKurve
+                                    makeZombieKurve
                                         { color = Color.green
                                         , id = 3
                                         , state =
@@ -305,7 +305,7 @@ crashingIntoWallTimingTest =
             let
                 currentKurve : Kurve
                 currentKurve =
-                    zombieKurve
+                    makeZombieKurve
                         { color = Color.white
                         , id = 5
                         , state =
@@ -359,7 +359,7 @@ crashingIntoKurveTimingTests =
                             let
                                 red : Kurve
                                 red =
-                                    zombieKurve
+                                    makeZombieKurve
                                         { color = Color.red
                                         , id = 0
                                         , state =
@@ -371,7 +371,7 @@ crashingIntoKurveTimingTests =
 
                                 green : Kurve
                                 green =
-                                    zombieKurve
+                                    makeZombieKurve
                                         { color = Color.green
                                         , id = 3
                                         , state =
@@ -426,7 +426,7 @@ cuttingCornersTests =
                 let
                     red : Kurve
                     red =
-                        zombieKurve
+                        makeZombieKurve
                             { color = Color.red
                             , id = 0
                             , state =
@@ -438,7 +438,7 @@ cuttingCornersTests =
 
                     green : Kurve
                     green =
-                        zombieKurve
+                        makeZombieKurve
                             { color = Color.green
                             , id = 3
                             , state =
@@ -485,7 +485,7 @@ cuttingCornersTests =
                 let
                     red : Kurve
                     red =
-                        zombieKurve
+                        makeZombieKurve
                             { color = Color.red
                             , id = 0
                             , state =
@@ -497,7 +497,7 @@ cuttingCornersTests =
 
                     green : Kurve
                     green =
-                        zombieKurve
+                        makeZombieKurve
                             { color = Color.green
                             , id = 3
                             , state =
@@ -556,7 +556,7 @@ speedTests =
                             let
                                 green : Kurve
                                 green =
-                                    zombieKurve
+                                    makeZombieKurve
                                         { color = Color.green
                                         , id = 3
                                         , state =
@@ -686,8 +686,8 @@ defaultConfigWithSpeed speed =
 
 {-| Creates a Kurve that just moves forward.
 -}
-zombieKurve : { color : Color.Color, id : PlayerId, state : Kurve.State } -> Kurve
-zombieKurve { color, id, state } =
+makeZombieKurve : { color : Color.Color, id : PlayerId, state : Kurve.State } -> Kurve
+makeZombieKurve { color, id, state } =
     { color = color
     , id = id
     , controls = ( Set.empty, Set.empty )
