@@ -32,15 +32,11 @@ generateKurves config players =
         generateNewAndPrepend ( id, player ) precedingKurves =
             generateKurve config id numberOfPlayers (List.map (.state >> .position) precedingKurves) player
                 |> Random.map (\kurve -> kurve :: precedingKurves)
-
-        generateReversedKurves : Random.Generator (List Kurve)
-        generateReversedKurves =
-            Dict.foldl
-                (\id ( player, _ ) -> curry (Random.andThen << generateNewAndPrepend) id player)
-                (Random.constant [])
-                players
     in
-    generateReversedKurves |> Random.map List.reverse
+    Dict.foldr
+        (\id ( player, _ ) -> curry (Random.andThen << generateNewAndPrepend) id player)
+        (Random.constant [])
+        players
 
 
 isSafeNewPosition : Config -> Int -> List Position -> Position -> Bool

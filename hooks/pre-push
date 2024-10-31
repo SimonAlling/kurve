@@ -8,4 +8,4 @@ if ! output=$(git status --porcelain) || [ -n "$output" ]; then
     exit 1
 fi
 
-docker build .
+npm run review && npm test
