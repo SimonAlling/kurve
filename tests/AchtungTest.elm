@@ -10,7 +10,8 @@ import Set
 import String
 import Test exposing (Test, describe, test)
 import Types.Angle exposing (Angle(..))
-import Types.Kurve exposing (HoleStatus(..), Kurve)
+import Types.Kurve as Kurve exposing (HoleStatus(..), Kurve)
+import Types.PlayerId exposing (PlayerId)
 import Types.Speed as Speed exposing (Speed(..))
 import Types.Tick as Tick exposing (Tick)
 import World
@@ -36,21 +37,15 @@ basicTests =
                 let
                     currentKurve : Kurve
                     currentKurve =
-                        { color = Color.white
-                        , id = 5
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 100, 100 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 60
+                        makeZombieKurve
+                            { color = Color.white
+                            , id = 5
+                            , state =
+                                { position = ( 100, 100 )
+                                , direction = Angle 0
+                                , holeStatus = Unholy 60
+                                }
                             }
-                        , stateAtSpawn =
-                            { position = ( 100, 100 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 60
-                            }
-                        , reversedInteractions = []
-                        }
 
                     currentRound : Round
                     currentRound =
@@ -80,21 +75,15 @@ basicTests =
                 let
                     currentKurve : Kurve
                     currentKurve =
-                        { color = Color.white
-                        , id = 5
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 2.5, 100 )
-                            , direction = Angle pi
-                            , holeStatus = Unholy 60
+                        makeZombieKurve
+                            { color = Color.white
+                            , id = 5
+                            , state =
+                                { position = ( 2.5, 100 )
+                                , direction = Angle pi
+                                , holeStatus = Unholy 60
+                                }
                             }
-                        , stateAtSpawn =
-                            { position = ( 100, 100 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 60
-                            }
-                        , reversedInteractions = []
-                        }
 
                     initialState : RoundInitialState
                     initialState =
@@ -127,39 +116,27 @@ crashingIntoKurveTests =
                 let
                     red : Kurve
                     red =
-                        { color = Color.red
-                        , id = 0
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 100.5, 100.5 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 60000
+                        makeZombieKurve
+                            { color = Color.red
+                            , id = 0
+                            , state =
+                                { position = ( 100.5, 100.5 )
+                                , direction = Angle 0
+                                , holeStatus = Unholy 60000
+                                }
                             }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
 
                     green : Kurve
                     green =
-                        { color = Color.green
-                        , id = 3
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 98.5, 110.5 )
-                            , direction = Angle (pi / 2)
-                            , holeStatus = Unholy 60000
+                        makeZombieKurve
+                            { color = Color.green
+                            , id = 3
+                            , state =
+                                { position = ( 98.5, 110.5 )
+                                , direction = Angle (pi / 2)
+                                , holeStatus = Unholy 60000
+                                }
                             }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
 
                     initialState : RoundInitialState
                     initialState =
@@ -242,21 +219,15 @@ crashingIntoWallTests =
                             let
                                 green : Kurve
                                 green =
-                                    { color = Color.green
-                                    , id = 3
-                                    , controls = ( Set.empty, Set.empty )
-                                    , state =
-                                        { position = startingPosition
-                                        , direction = direction
-                                        , holeStatus = Unholy 60000
+                                    makeZombieKurve
+                                        { color = Color.green
+                                        , id = 3
+                                        , state =
+                                            { position = startingPosition
+                                            , direction = direction
+                                            , holeStatus = Unholy 60000
+                                            }
                                         }
-                                    , stateAtSpawn =
-                                        { position = ( 0, 0 )
-                                        , direction = Angle 0
-                                        , holeStatus = Unholy 0
-                                        }
-                                    , reversedInteractions = []
-                                    }
 
                                 initialState : RoundInitialState
                                 initialState =
@@ -334,21 +305,15 @@ crashingIntoWallTimingTest =
             let
                 currentKurve : Kurve
                 currentKurve =
-                    { color = Color.white
-                    , id = 5
-                    , controls = ( Set.empty, Set.empty )
-                    , state =
-                        { position = ( 100, 3.5 )
-                        , direction = Angle 0.01
-                        , holeStatus = Unholy 60000
+                    makeZombieKurve
+                        { color = Color.white
+                        , id = 5
+                        , state =
+                            { position = ( 100, 3.5 )
+                            , direction = Angle 0.01
+                            , holeStatus = Unholy 60000
+                            }
                         }
-                    , stateAtSpawn =
-                        { position = ( 0, 0 )
-                        , direction = Angle 0
-                        , holeStatus = Unholy 0
-                        }
-                    , reversedInteractions = []
-                    }
 
                 initialState : RoundInitialState
                 initialState =
@@ -394,39 +359,27 @@ crashingIntoKurveTimingTests =
                             let
                                 red : Kurve
                                 red =
-                                    { color = Color.red
-                                    , id = 0
-                                    , controls = ( Set.empty, Set.empty )
-                                    , state =
-                                        { position = ( 150, y_red )
-                                        , direction = Angle 0
-                                        , holeStatus = Unholy 60000
+                                    makeZombieKurve
+                                        { color = Color.red
+                                        , id = 0
+                                        , state =
+                                            { position = ( 150, y_red )
+                                            , direction = Angle 0
+                                            , holeStatus = Unholy 60000
+                                            }
                                         }
-                                    , stateAtSpawn =
-                                        { position = ( 0, 0 )
-                                        , direction = Angle 0
-                                        , holeStatus = Unholy 0
-                                        }
-                                    , reversedInteractions = []
-                                    }
 
                                 green : Kurve
                                 green =
-                                    { color = Color.green
-                                    , id = 3
-                                    , controls = ( Set.empty, Set.empty )
-                                    , state =
-                                        { position = ( 100, 107.5 )
-                                        , direction = Angle 0.02
-                                        , holeStatus = Unholy 60000
+                                    makeZombieKurve
+                                        { color = Color.green
+                                        , id = 3
+                                        , state =
+                                            { position = ( 100, 107.5 )
+                                            , direction = Angle 0.02
+                                            , holeStatus = Unholy 60000
+                                            }
                                         }
-                                    , stateAtSpawn =
-                                        { position = ( 0, 0 )
-                                        , direction = Angle 0
-                                        , holeStatus = Unholy 0
-                                        }
-                                    , reversedInteractions = []
-                                    }
 
                                 initialState : RoundInitialState
                                 initialState =
@@ -473,39 +426,27 @@ cuttingCornersTests =
                 let
                     red : Kurve
                     red =
-                        { color = Color.red
-                        , id = 0
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 200.5, 100.5 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 60000
+                        makeZombieKurve
+                            { color = Color.red
+                            , id = 0
+                            , state =
+                                { position = ( 200.5, 100.5 )
+                                , direction = Angle 0
+                                , holeStatus = Unholy 60000
+                                }
                             }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
 
                     green : Kurve
                     green =
-                        { color = Color.green
-                        , id = 3
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 100.5, 196.5 )
-                            , direction = Angle (pi / 4)
-                            , holeStatus = Unholy 60000
+                        makeZombieKurve
+                            { color = Color.green
+                            , id = 3
+                            , state =
+                                { position = ( 100.5, 196.5 )
+                                , direction = Angle (pi / 4)
+                                , holeStatus = Unholy 60000
+                                }
                             }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
 
                     initialState : RoundInitialState
                     initialState =
@@ -544,39 +485,27 @@ cuttingCornersTests =
                 let
                     red : Kurve
                     red =
-                        { color = Color.red
-                        , id = 0
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 299.5, 302.5 )
-                            , direction = Angle (-71 * (2 * pi / 360))
-                            , holeStatus = Unholy 60000
+                        makeZombieKurve
+                            { color = Color.red
+                            , id = 0
+                            , state =
+                                { position = ( 299.5, 302.5 )
+                                , direction = Angle (-71 * (2 * pi / 360))
+                                , holeStatus = Unholy 60000
+                                }
                             }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
 
                     green : Kurve
                     green =
-                        { color = Color.green
-                        , id = 3
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 319, 269 )
-                            , direction = Angle (-123 * (2 * pi / 360))
-                            , holeStatus = Unholy 60000
+                        makeZombieKurve
+                            { color = Color.green
+                            , id = 3
+                            , state =
+                                { position = ( 319, 269 )
+                                , direction = Angle (-123 * (2 * pi / 360))
+                                , holeStatus = Unholy 60000
+                                }
                             }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
 
                     initialState : RoundInitialState
                     initialState =
@@ -615,57 +544,39 @@ cuttingCornersTests =
                 let
                     red : Kurve
                     red =
-                        { color = Color.red
-                        , id = 0
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 30.5, 30.5 )
-                            , direction = Angle (-pi / 4)
-                            , holeStatus = Unholy 60000
+                        makeZombieKurve
+                            { color = Color.red
+                            , id = 0
+                            , state =
+                                { position = ( 30.5, 30.5 )
+                                , direction = Angle (-pi / 4)
+                                , holeStatus = Unholy 60000
+                                }
                             }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
 
                     yellow : Kurve
                     yellow =
-                        { color = Color.yellow
-                        , id = 1
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 60.5, 60.5 )
-                            , direction = Angle (-pi / 4)
-                            , holeStatus = Unholy 60000
+                        makeZombieKurve
+                            { color = Color.yellow
+                            , id = 1
+                            , state =
+                                { position = ( 60.5, 60.5 )
+                                , direction = Angle (-pi / 4)
+                                , holeStatus = Unholy 60000
+                                }
                             }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
 
                     green : Kurve
                     green =
-                        { color = Color.green
-                        , id = 3
-                        , controls = ( Set.empty, Set.empty )
-                        , state =
-                            { position = ( 19.5, 98.5 )
-                            , direction = Angle (pi / 4)
-                            , holeStatus = Unholy 60000
+                        makeZombieKurve
+                            { color = Color.green
+                            , id = 3
+                            , state =
+                                { position = ( 19.5, 98.5 )
+                                , direction = Angle (pi / 4)
+                                , holeStatus = Unholy 60000
+                                }
                             }
-                        , stateAtSpawn =
-                            { position = ( 0, 0 )
-                            , direction = Angle 0
-                            , holeStatus = Unholy 0
-                            }
-                        , reversedInteractions = []
-                        }
 
                     initialState : RoundInitialState
                     initialState =
@@ -716,21 +627,15 @@ speedTests =
                             let
                                 green : Kurve
                                 green =
-                                    { color = Color.green
-                                    , id = 3
-                                    , controls = ( Set.empty, Set.empty )
-                                    , state =
-                                        { position = ( 108, 100 )
-                                        , direction = Angle 0
-                                        , holeStatus = Unholy 60000
+                                    makeZombieKurve
+                                        { color = Color.green
+                                        , id = 3
+                                        , state =
+                                            { position = ( 108, 100 )
+                                            , direction = Angle 0
+                                            , holeStatus = Unholy 60000
+                                            }
                                         }
-                                    , stateAtSpawn =
-                                        { position = ( 0, 0 )
-                                        , direction = Angle 0
-                                        , holeStatus = Unholy 0
-                                        }
-                                    , reversedInteractions = []
-                                    }
 
                                 initialState : RoundInitialState
                                 initialState =
@@ -847,4 +752,21 @@ defaultConfigWithSpeed speed =
             { defaultKurveConfig
                 | speed = speed
             }
+    }
+
+
+{-| Creates a Kurve that just moves forward.
+-}
+makeZombieKurve : { color : Color.Color, id : PlayerId, state : Kurve.State } -> Kurve
+makeZombieKurve { color, id, state } =
+    { color = color
+    , id = id
+    , controls = ( Set.empty, Set.empty )
+    , state = state
+    , stateAtSpawn =
+        { position = ( 0, 0 )
+        , direction = Angle 0
+        , holeStatus = Unholy 0
+        }
+    , reversedInteractions = []
     }
