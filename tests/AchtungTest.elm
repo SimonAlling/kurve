@@ -10,10 +10,11 @@ import Set
 import String
 import Test exposing (Test, describe, test)
 import Types.Angle exposing (Angle(..))
-import Types.Kurve as Kurve exposing (HoleStatus(..), Kurve)
+import Types.Kurve as Kurve exposing (HoleStatus(..), Kurve, UserInteraction(..))
 import Types.PlayerId exposing (PlayerId)
 import Types.Speed as Speed exposing (Speed(..))
 import Types.Tick as Tick exposing (Tick)
+import Types.TurningState exposing (TurningState(..))
 import World
 
 
@@ -101,6 +102,61 @@ basicTests =
                                     ( [], kurve :: [] ) ->
                                         Expect.equal kurve.state.position
                                             ( 0.5, 100 )
+
+                                    _ ->
+                                        Expect.fail "Expected exactly one dead Kurve and no alive ones"
+                        }
+        , test "Around the world, touching each wall" <|
+            \_ ->
+                let
+                    greenZombie : Kurve
+                    greenZombie =
+                        makeZombieKurve
+                            { color = Color.green
+                            , id = 3
+                            , state =
+                                { position = ( 4.5, 1.5 )
+                                , direction = Angle 0
+                                , holeStatus = Unholy 60000
+                                }
+                            }
+
+                    green : Kurve
+                    green =
+                        { greenZombie
+                            | reversedInteractions =
+                                makeUserInteractions
+                                    -- Intended to make the Kurve touch each of the four walls on its way around the world.
+                                    [ ( 526, TurningRight )
+                                    , ( 45, NotTurning )
+                                    , ( 420, TurningRight )
+                                    , ( 45, NotTurning )
+                                    , ( 491, TurningRight )
+                                    , ( 44, NotTurning )
+                                    ]
+                        }
+
+                    initialState : RoundInitialState
+                    initialState =
+                        { seedAfterSpawn = Random.initialSeed 0
+                        , spawnedKurves = [ green ]
+                        }
+                in
+                initialState
+                    |> expectRoundOutcome
+                        Config.default
+                        { tickThatShouldEndIt = tickNumber 2011
+                        , howItShouldEnd =
+                            \round ->
+                                case ( round.kurves.alive, round.kurves.dead ) of
+                                    ( [], deadKurve :: [] ) ->
+                                        let
+                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                            theDrawingPositionItNeverMadeItTo =
+                                                World.drawingPosition deadKurve.state.position
+                                        in
+                                        theDrawingPositionItNeverMadeItTo
+                                            |> Expect.equal { leftEdge = 0, topEdge = -1 }
 
                                     _ ->
                                         Expect.fail "Expected exactly one dead Kurve and no alive ones"
@@ -699,3 +755,36 @@ makeZombieKurve { color, id, state } =
         }
     , reversedInteractions = []
     }
+
+
+{-| How many ticks to wait before performing some action, and that action.
+
+The number of ticks to wait is counted from the previous action, not from the beginning of the round.
+
+-}
+type alias CumulativeInteraction =
+    ( Int, TurningState )
+
+
+{-| Makes it easy for a human to "program" a Kurve.
+
+The input is a chronologically ordered list representing how a human will typically think about a Kurve's actions.
+
+-}
+makeUserInteractions : List CumulativeInteraction -> List UserInteraction
+makeUserInteractions cumulativeInteractions =
+    let
+        accumulate : CumulativeInteraction -> ( List CumulativeInteraction, Int ) -> ( List CumulativeInteraction, Int )
+        accumulate ( ticksBeforeAction, turningState ) ( soFar, previousTickNumber ) =
+            let
+                thisTickNumber : Int
+                thisTickNumber =
+                    previousTickNumber + ticksBeforeAction
+            in
+            ( ( thisTickNumber, turningState ) :: soFar, thisTickNumber )
+
+        toUserInteraction : CumulativeInteraction -> UserInteraction
+        toUserInteraction ( n, turningState ) =
+            HappenedBefore (tickNumber n) turningState
+    in
+    List.foldl accumulate ( [], 0 ) cumulativeInteractions |> Tuple.first |> List.map toUserInteraction
