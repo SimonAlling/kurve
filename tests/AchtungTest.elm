@@ -20,7 +20,7 @@ tests : Test
 tests =
     Test.concat
         [ basicTests
-        , crashTests
+        , crashingIntoKurveTests
         , crashTimingTests
         , cuttingCornersTests
         , speedTests
@@ -118,8 +118,8 @@ basicTests =
         ]
 
 
-crashTests : Test
-crashTests =
+crashingIntoKurveTests : Test
+crashingIntoKurveTests =
     describe "Crashing into a Kurve"
         [ test "Hitting a Kurve's tail end is a crash" <|
             \_ ->
@@ -230,13 +230,13 @@ It would be highly surprising (at least to an experienced player) if Green would
 crashTimingTests : Test
 crashTimingTests =
     describe "Crash timing"
-        [ crashingIntoWallTest
-        , crashingIntoKurveTests
+        [ crashingIntoWallTimingTest
+        , crashingIntoKurveTimingTests
         ]
 
 
-crashingIntoWallTest : Test
-crashingIntoWallTest =
+crashingIntoWallTimingTest : Test
+crashingIntoWallTimingTest =
     test "The exact timing of a crash into the wall is predictable for the player" <|
         \_ ->
             let
@@ -285,8 +285,8 @@ crashingIntoWallTest =
                     }
 
 
-crashingIntoKurveTests : Test
-crashingIntoKurveTests =
+crashingIntoKurveTimingTests : Test
+crashingIntoKurveTimingTests =
     describe "The exact timing of a crash into a Kurve is predictable for the player"
         (List.range 0 9
             |> List.map
