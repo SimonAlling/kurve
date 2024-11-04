@@ -25,7 +25,6 @@ import Players exposing (ParticipatingPlayers)
 import Random
 import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
 import Set exposing (Set)
-import Set.Extra as Set
 import Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
 import Thickness exposing (minimumDistanceFor45DegreeDraws, theThickness)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
@@ -287,16 +286,15 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixelPositions holeSta
                         nearbyPositionsY =
                             List.range (currentY - theThickness) (currentY + theThickness)
 
-                        nearbyOccupiedPixelPositions : Set Pixel
+                        nearbyOccupiedPixelPositions : List Pixel
                         nearbyOccupiedPixelPositions =
                             nearbyPositionsX
                                 |> List.concatMap (\x -> nearbyPositionsY |> List.map (\y -> ( x, y )))
-                                |> Set.fromList
-                                |> Set.filter (\pixel -> Set.member pixel occupiedPixelPositions)
+                                |> List.filter (\pixel -> Set.member pixel occupiedPixelPositions)
 
                         crashesIntoKurve : Bool
                         crashesIntoKurve =
-                            nearbyOccupiedPixelPositions |> Set.any (checkCollision current lastChecked)
+                            nearbyOccupiedPixelPositions |> List.any (checkCollision current lastChecked)
 
                         dies : Bool
                         dies =
