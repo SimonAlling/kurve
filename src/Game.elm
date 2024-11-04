@@ -292,7 +292,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixelPositions holeSta
                             nearbyPositionsX
                                 |> List.concatMap (\x -> nearbyPositionsY |> List.map (\y -> ( x, y )))
                                 |> Set.fromList
-                                |> Set.intersect occupiedPixelPositions
+                                |> Set.filter (\pixel -> Set.member pixel occupiedPixelPositions)
 
                         crashesIntoKurve : Bool
                         crashesIntoKurve =
