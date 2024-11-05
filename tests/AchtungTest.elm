@@ -759,7 +759,7 @@ makeZombieKurve { color, id, state } =
 
 {-| How many ticks to wait before performing some action, and that action.
 
-The number of ticks to wait is counted from the previous action, not from the beginning of the round.
+The number of ticks to wait is counted from the previous action (or, for the first action, from the beginning of the round).
 
 -}
 type alias CumulativeInteraction =
