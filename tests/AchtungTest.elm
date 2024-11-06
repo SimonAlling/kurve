@@ -654,7 +654,7 @@ cuttingCornersTests =
                                     _ ->
                                         Expect.fail "Expected exactly one dead Kurve and one alive one"
                         }
-        , test "The perfect overpainting (NOT confirmed in original game)" <|
+        , test "The perfect overpainting (squeezing through a non-existent gap)" <|
             \_ ->
                 let
                     red : Kurve
