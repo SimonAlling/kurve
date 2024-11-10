@@ -27,6 +27,7 @@ tests =
         , crashTimingTests
         , cuttingCornersTests
         , speedTests
+        , stressTests
         ]
 
 
@@ -779,6 +780,73 @@ speedTests =
                                     }
                 )
         )
+
+
+stressTests : Test
+stressTests =
+    describe "Stress tests"
+        [ test "Realistic single-player turtle survival round" <|
+            \_ ->
+                let
+                    greenZombie : Kurve
+                    greenZombie =
+                        makeZombieKurve
+                            { color = Color.green
+                            , id = 3
+                            , state =
+                                { position = ( 32.5, 3.5 )
+                                , direction = Angle 0
+                                , holeStatus = Unholy 60000
+                                }
+                            }
+
+                    green : Kurve
+                    green =
+                        { greenZombie
+                            | reversedInteractions =
+                                List.range 1 20
+                                    |> List.concatMap makeLap
+                                    |> makeUserInteractions
+                        }
+
+                    makeLap : Int -> List CumulativeInteraction
+                    makeLap i =
+                        [ ( 510 - 20 * i, TurningRight )
+                        , ( 45, NotTurning )
+                        , ( 430 - 20 * i, TurningRight )
+                        , ( 45, NotTurning )
+                        , ( 495 - 20 * i, TurningRight )
+                        , ( 44, NotTurning )
+                        , ( 414 - 20 * i, TurningRight )
+                        , ( 45, NotTurning )
+                        ]
+
+                    initialState : RoundInitialState
+                    initialState =
+                        { seedAfterSpawn = Random.initialSeed 0
+                        , spawnedKurves = [ green ]
+                        }
+                in
+                initialState
+                    |> expectRoundOutcome
+                        Config.default
+                        { tickThatShouldEndIt = tickNumber 23875
+                        , howItShouldEnd =
+                            \round ->
+                                case round.kurves.dead of
+                                    [ deadKurve ] ->
+                                        let
+                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                            theDrawingPositionItNeverMadeItTo =
+                                                World.drawingPosition (World.toPixel deadKurve.state.position)
+                                        in
+                                        theDrawingPositionItNeverMadeItTo
+                                            |> Expect.equal { leftEdge = 372, topEdge = 217 }
+
+                                    _ ->
+                                        Expect.fail "Expected exactly one dead Kurve"
+                        }
+        ]
 
 
 {-| A description of when and how a round should end.
