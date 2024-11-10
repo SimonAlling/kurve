@@ -5,7 +5,13 @@ import Config
 import Expect
 import String
 import Test exposing (Test, describe, test)
-import TestHelpers exposing (CumulativeInteraction, defaultConfigWithSpeed, expectRoundOutcome, makeUserInteractions, makeZombieKurve, roundWith, tickNumber)
+import TestHelpers exposing (defaultConfigWithSpeed, expectRoundOutcome)
+import TestScenarioHelpers exposing (CumulativeInteraction, makeUserInteractions, makeZombieKurve, roundWith, tickNumber)
+import TestScenarios.AroundTheWorld
+import TestScenarios.CrashIntoTailEnd90Degrees
+import TestScenarios.CrashIntoTipOfTailEnd
+import TestScenarios.CrashIntoWallBasic
+import TestScenarios.CrashIntoWallExactTiming
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.Speed as Speed exposing (Speed(..))
@@ -32,20 +38,7 @@ basicTests =
     describe "Basic tests"
         [ test "A Kurve that crashes into the wall dies" <|
             \_ ->
-                let
-                    green : Kurve
-                    green =
-                        makeZombieKurve
-                            { color = Color.green
-                            , id = 3
-                            , state =
-                                { position = ( 2.5, 100 )
-                                , direction = Angle pi
-                                , holeStatus = Unholy 60
-                                }
-                            }
-                in
-                roundWith [ green ]
+                roundWith TestScenarios.CrashIntoWallBasic.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 2
@@ -61,35 +54,7 @@ basicTests =
                         }
         , test "Around the world, touching each wall" <|
             \_ ->
-                let
-                    greenZombie : Kurve
-                    greenZombie =
-                        makeZombieKurve
-                            { color = Color.green
-                            , id = 3
-                            , state =
-                                { position = ( 4.5, 1.5 )
-                                , direction = Angle 0
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-
-                    green : Kurve
-                    green =
-                        { greenZombie
-                            | reversedInteractions =
-                                makeUserInteractions
-                                    -- Intended to make the Kurve touch each of the four walls on its way around the world.
-                                    [ ( 526, TurningRight )
-                                    , ( 45, NotTurning )
-                                    , ( 420, TurningRight )
-                                    , ( 45, NotTurning )
-                                    , ( 491, TurningRight )
-                                    , ( 44, NotTurning )
-                                    ]
-                        }
-                in
-                roundWith [ green ]
+                roundWith TestScenarios.AroundTheWorld.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 2011
@@ -116,32 +81,7 @@ crashingIntoKurveTests =
     describe "Crashing into a Kurve"
         [ test "Hitting a Kurve's tail end is a crash" <|
             \_ ->
-                let
-                    red : Kurve
-                    red =
-                        makeZombieKurve
-                            { color = Color.red
-                            , id = 0
-                            , state =
-                                { position = ( 100.5, 100.5 )
-                                , direction = Angle 0
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-
-                    green : Kurve
-                    green =
-                        makeZombieKurve
-                            { color = Color.green
-                            , id = 3
-                            , state =
-                                { position = ( 98.5, 110.5 )
-                                , direction = Angle (pi / 2)
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-                in
-                roundWith [ red, green ]
+                roundWith TestScenarios.CrashIntoTailEnd90Degrees.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 8
@@ -169,32 +109,7 @@ crashingIntoKurveTests =
                         }
         , test "Hitting a Kurve's tail end at a 45-degree angle is a crash" <|
             \_ ->
-                let
-                    red : Kurve
-                    red =
-                        makeZombieKurve
-                            { color = Color.red
-                            , id = 0
-                            , state =
-                                { position = ( 60.5, 60.5 )
-                                , direction = Angle (-pi / 4)
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-
-                    green : Kurve
-                    green =
-                        makeZombieKurve
-                            { color = Color.green
-                            , id = 3
-                            , state =
-                                { position = ( 30.5, 30.5 )
-                                , direction = Angle (-pi / 4)
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-                in
-                roundWith [ red, green ]
+                roundWith TestScenarios.CrashIntoTipOfTailEnd.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 39
@@ -346,20 +261,7 @@ crashingIntoWallTimingTest : Test
 crashingIntoWallTimingTest =
     test "The exact timing of a crash into the wall is predictable for the player" <|
         \_ ->
-            let
-                green : Kurve
-                green =
-                    makeZombieKurve
-                        { color = Color.green
-                        , id = 3
-                        , state =
-                            { position = ( 100, 3.5 )
-                            , direction = Angle 0.01
-                            , holeStatus = Unholy 60000
-                            }
-                        }
-            in
-            roundWith [ green ]
+            roundWith TestScenarios.CrashIntoWallExactTiming.spawnedKurves
                 |> expectRoundOutcome
                     Config.default
                     { tickThatShouldEndIt = tickNumber 251
