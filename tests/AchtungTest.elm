@@ -48,14 +48,8 @@ basicTests =
                                 , holeStatus = Unholy 60
                                 }
                             }
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ green ]
-                        }
                 in
-                initialState
+                roundWith [ green ]
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 2
@@ -98,14 +92,8 @@ basicTests =
                                     , ( 44, NotTurning )
                                     ]
                         }
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ green ]
-                        }
                 in
-                initialState
+                roundWith [ green ]
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 2011
@@ -156,14 +144,8 @@ crashingIntoKurveTests =
                                 , holeStatus = Unholy 60000
                                 }
                             }
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ red, green ]
-                        }
                 in
-                initialState
+                roundWith [ red, green ]
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 8
@@ -215,14 +197,8 @@ crashingIntoKurveTests =
                                 , holeStatus = Unholy 60000
                                 }
                             }
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ red, green ]
-                        }
                 in
-                initialState
+                roundWith [ red, green ]
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 39
@@ -306,14 +282,8 @@ crashingIntoWallTests =
                                             , holeStatus = Unholy 60000
                                             }
                                         }
-
-                                initialState : RoundInitialState
-                                initialState =
-                                    { seedAfterSpawn = Random.initialSeed 0
-                                    , spawnedKurves = [ green ]
-                                    }
                             in
-                            initialState
+                            roundWith [ green ]
                                 |> expectRoundOutcome
                                     Config.default
                                     { tickThatShouldEndIt = tickThatShouldEndIt
@@ -392,14 +362,8 @@ crashingIntoWallTimingTest =
                             , holeStatus = Unholy 60000
                             }
                         }
-
-                initialState : RoundInitialState
-                initialState =
-                    { seedAfterSpawn = Random.initialSeed 0
-                    , spawnedKurves = [ green ]
-                    }
             in
-            initialState
+            roundWith [ green ]
                 |> expectRoundOutcome
                     Config.default
                     { tickThatShouldEndIt = tickNumber 251
@@ -458,14 +422,8 @@ crashingIntoKurveTimingTests =
                                             , holeStatus = Unholy 60000
                                             }
                                         }
-
-                                initialState : RoundInitialState
-                                initialState =
-                                    { seedAfterSpawn = Random.initialSeed 0
-                                    , spawnedKurves = [ red, green ]
-                                    }
                             in
-                            initialState
+                            roundWith [ red, green ]
                                 |> expectRoundOutcome
                                     Config.default
                                     { tickThatShouldEndIt = tickNumber 226
@@ -525,14 +483,8 @@ cuttingCornersTests =
                                 , holeStatus = Unholy 60000
                                 }
                             }
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ red, green ]
-                        }
                 in
-                initialState
+                roundWith [ red, green ]
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 277
@@ -584,14 +536,8 @@ cuttingCornersTests =
                                 , holeStatus = Unholy 60000
                                 }
                             }
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ red, green ]
-                        }
                 in
-                initialState
+                roundWith [ red, green ]
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 40
@@ -655,14 +601,8 @@ cuttingCornersTests =
                                 , holeStatus = Unholy 60000
                                 }
                             }
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ red, yellow, green ]
-                        }
                 in
-                initialState
+                roundWith [ red, yellow, green ]
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 138
@@ -714,14 +654,8 @@ speedTests =
                                             , holeStatus = Unholy 60000
                                             }
                                         }
-
-                                initialState : RoundInitialState
-                                initialState =
-                                    { seedAfterSpawn = Random.initialSeed 0
-                                    , spawnedKurves = [ green ]
-                                    }
                             in
-                            initialState
+                            roundWith [ green ]
                                 |> expectRoundOutcome
                                     (defaultConfigWithSpeed speed)
                                     { tickThatShouldEndIt = expectedEndTick
@@ -782,14 +716,8 @@ stressTests =
                         , ( 414 - 20 * i, TurningRight )
                         , ( 45, NotTurning )
                         ]
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ green ]
-                        }
                 in
-                initialState
+                roundWith [ green ]
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 23875
@@ -914,6 +842,13 @@ makeZombieKurve { color, id, state } =
         , holeStatus = Unholy 0
         }
     , reversedInteractions = []
+    }
+
+
+roundWith : List Kurve -> RoundInitialState
+roundWith spawnedKurves =
+    { seedAfterSpawn = Random.initialSeed 0
+    , spawnedKurves = spawnedKurves
     }
 
 
