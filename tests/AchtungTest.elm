@@ -6,17 +6,21 @@ import Expect
 import String
 import Test exposing (Test, describe, test)
 import TestHelpers exposing (defaultConfigWithSpeed, expectRoundOutcome)
-import TestScenarioHelpers exposing (CumulativeInteraction, makeUserInteractions, makeZombieKurve, roundWith, tickNumber)
+import TestScenarioHelpers exposing (makeZombieKurve, roundWith, tickNumber)
 import TestScenarios.AroundTheWorld
 import TestScenarios.CrashIntoTailEnd90Degrees
 import TestScenarios.CrashIntoTipOfTailEnd
 import TestScenarios.CrashIntoWallBasic
 import TestScenarios.CrashIntoWallExactTiming
+import TestScenarios.CuttingCornersBasic
+import TestScenarios.CuttingCornersPerfectOverpaintingTheoretical
+import TestScenarios.CuttingCornersThreePixelsRealExample
+import TestScenarios.SpeedEffectOnGame
+import TestScenarios.StressTestRealisticTurtleSurvivalRound
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.Speed as Speed exposing (Speed(..))
 import Types.Tick exposing (Tick)
-import Types.TurningState exposing (TurningState(..))
 import World
 
 
@@ -357,32 +361,7 @@ cuttingCornersTests =
     describe "Cutting corners (by painting over them)"
         [ test "It is possible to cut the corner of a Kurve's tail end" <|
             \_ ->
-                let
-                    red : Kurve
-                    red =
-                        makeZombieKurve
-                            { color = Color.red
-                            , id = 0
-                            , state =
-                                { position = ( 200.5, 100.5 )
-                                , direction = Angle 0
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-
-                    green : Kurve
-                    green =
-                        makeZombieKurve
-                            { color = Color.green
-                            , id = 3
-                            , state =
-                                { position = ( 100.5, 196.5 )
-                                , direction = Angle (pi / 4)
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-                in
-                roundWith [ red, green ]
+                roundWith TestScenarios.CuttingCornersBasic.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 277
@@ -410,32 +389,7 @@ cuttingCornersTests =
                         }
         , test "It is possible to paint over three pixels when cutting a corner (real example from original game)" <|
             \_ ->
-                let
-                    red : Kurve
-                    red =
-                        makeZombieKurve
-                            { color = Color.red
-                            , id = 0
-                            , state =
-                                { position = ( 299.5, 302.5 )
-                                , direction = Angle (-71 * (2 * pi / 360))
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-
-                    green : Kurve
-                    green =
-                        makeZombieKurve
-                            { color = Color.green
-                            , id = 3
-                            , state =
-                                { position = ( 319, 269 )
-                                , direction = Angle (-123 * (2 * pi / 360))
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-                in
-                roundWith [ red, green ]
+                roundWith TestScenarios.CuttingCornersThreePixelsRealExample.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 40
@@ -463,44 +417,7 @@ cuttingCornersTests =
                         }
         , test "The perfect overpainting (squeezing through a non-existent gap)" <|
             \_ ->
-                let
-                    red : Kurve
-                    red =
-                        makeZombieKurve
-                            { color = Color.red
-                            , id = 0
-                            , state =
-                                { position = ( 30.5, 30.5 )
-                                , direction = Angle (-pi / 4)
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-
-                    yellow : Kurve
-                    yellow =
-                        makeZombieKurve
-                            { color = Color.yellow
-                            , id = 1
-                            , state =
-                                { position = ( 60.5, 60.5 )
-                                , direction = Angle (-pi / 4)
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-
-                    green : Kurve
-                    green =
-                        makeZombieKurve
-                            { color = Color.green
-                            , id = 3
-                            , state =
-                                { position = ( 19.5, 98.5 )
-                                , direction = Angle (pi / 4)
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-                in
-                roundWith [ red, yellow, green ]
+                roundWith TestScenarios.CuttingCornersPerfectOverpaintingTheoretical.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 138
@@ -540,20 +457,7 @@ speedTests =
                 (\( speed, expectedEndTick ) ->
                     test ("Round ends as expected when speed is " ++ String.fromFloat (Speed.toFloat speed)) <|
                         \_ ->
-                            let
-                                green : Kurve
-                                green =
-                                    makeZombieKurve
-                                        { color = Color.green
-                                        , id = 3
-                                        , state =
-                                            { position = ( 108, 100 )
-                                            , direction = Angle 0
-                                            , holeStatus = Unholy 60000
-                                            }
-                                        }
-                            in
-                            roundWith [ green ]
+                            roundWith TestScenarios.SpeedEffectOnGame.spawnedKurves
                                 |> expectRoundOutcome
                                     (defaultConfigWithSpeed speed)
                                     { tickThatShouldEndIt = expectedEndTick
@@ -581,41 +485,7 @@ stressTests =
     describe "Stress tests"
         [ test "Realistic single-player turtle survival round" <|
             \_ ->
-                let
-                    greenZombie : Kurve
-                    greenZombie =
-                        makeZombieKurve
-                            { color = Color.green
-                            , id = 3
-                            , state =
-                                { position = ( 32.5, 3.5 )
-                                , direction = Angle 0
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-
-                    green : Kurve
-                    green =
-                        { greenZombie
-                            | reversedInteractions =
-                                List.range 1 20
-                                    |> List.concatMap makeLap
-                                    |> makeUserInteractions
-                        }
-
-                    makeLap : Int -> List CumulativeInteraction
-                    makeLap i =
-                        [ ( 510 - 20 * i, TurningRight )
-                        , ( 45, NotTurning )
-                        , ( 430 - 20 * i, TurningRight )
-                        , ( 45, NotTurning )
-                        , ( 495 - 20 * i, TurningRight )
-                        , ( 44, NotTurning )
-                        , ( 414 - 20 * i, TurningRight )
-                        , ( 45, NotTurning )
-                        ]
-                in
-                roundWith [ green ]
+                roundWith TestScenarios.StressTestRealisticTurtleSurvivalRound.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 23875
