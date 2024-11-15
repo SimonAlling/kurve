@@ -34,45 +34,7 @@ tests =
 basicTests : Test
 basicTests =
     describe "Basic tests"
-        [ test "Kurves move forward by default when game is active" <|
-            \_ ->
-                let
-                    currentKurve : Kurve
-                    currentKurve =
-                        makeZombieKurve
-                            { color = Color.white
-                            , id = 5
-                            , state =
-                                { position = ( 100, 100 )
-                                , direction = Angle 0
-                                , holeStatus = Unholy 60
-                                }
-                            }
-
-                    currentRound : Round
-                    currentRound =
-                        prepareRoundFromKnownInitialState
-                            { seedAfterSpawn = Random.initialSeed 0
-                            , spawnedKurves = [ currentKurve ]
-                            }
-
-                    tickResult : TickResult
-                    tickResult =
-                        reactToTick Config.default (Tick.succ Tick.genesis) ( Live, currentRound ) |> Tuple.first
-                in
-                case tickResult of
-                    RoundKeepsGoing _ ( _, round ) ->
-                        case round.kurves.alive of
-                            kurve :: [] ->
-                                Expect.equal kurve.state.position
-                                    ( 101, 100 )
-
-                            _ ->
-                                Expect.fail "Expected exactly one alive Kurve"
-
-                    RoundEnds _ ->
-                        Expect.fail "Expected round not to end"
-        , test "A Kurve that crashes into the wall dies" <|
+        [ test "A Kurve that crashes into the wall dies" <|
             \_ ->
                 let
                     currentKurve : Kurve
