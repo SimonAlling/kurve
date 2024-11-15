@@ -37,11 +37,11 @@ basicTests =
         [ test "A Kurve that crashes into the wall dies" <|
             \_ ->
                 let
-                    currentKurve : Kurve
-                    currentKurve =
+                    green : Kurve
+                    green =
                         makeZombieKurve
-                            { color = Color.white
-                            , id = 5
+                            { color = Color.green
+                            , id = 3
                             , state =
                                 { position = ( 2.5, 100 )
                                 , direction = Angle pi
@@ -52,7 +52,7 @@ basicTests =
                     initialState : RoundInitialState
                     initialState =
                         { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ currentKurve ]
+                        , spawnedKurves = [ green ]
                         }
                 in
                 initialState
@@ -381,11 +381,11 @@ crashingIntoWallTimingTest =
     test "The exact timing of a crash into the wall is predictable for the player" <|
         \_ ->
             let
-                currentKurve : Kurve
-                currentKurve =
+                green : Kurve
+                green =
                     makeZombieKurve
-                        { color = Color.white
-                        , id = 5
+                        { color = Color.green
+                        , id = 3
                         , state =
                             { position = ( 100, 3.5 )
                             , direction = Angle 0.01
@@ -396,7 +396,7 @@ crashingIntoWallTimingTest =
                 initialState : RoundInitialState
                 initialState =
                     { seedAfterSpawn = Random.initialSeed 0
-                    , spawnedKurves = [ currentKurve ]
+                    , spawnedKurves = [ green ]
                     }
             in
             initialState
