@@ -28,6 +28,21 @@ type alias Pixel =
     ( Int, Int )
 
 
+toPixel : Position -> Pixel
+toPixel =
+    Tuple.mapBoth floor floor
+
+
+pixelToRasterShapesPosition : Pixel -> RasterShapes.Position
+pixelToRasterShapesPosition ( x, y ) =
+    { x = x, y = y }
+
+
+rasterShapesPositionToPixel : RasterShapes.Position -> Pixel
+rasterShapesPositionToPixel { x, y } =
+    ( x, y )
+
+
 distanceBetween : Pixel -> Pixel -> Distance
 distanceBetween ( x1, y1 ) ( x2, y2 ) =
     Distance <| sqrt (toFloat ((x2 - x1) ^ 2 + (y2 - y1) ^ 2))
@@ -67,18 +82,3 @@ desiredPixelPositions position1 position2 =
         -- The first element in the list is the starting position, which is assumed to already have been occupied.
         |> List.drop 1
         |> List.map rasterShapesPositionToPixel
-
-
-toPixel : Position -> Pixel
-toPixel =
-    Tuple.mapBoth floor floor
-
-
-pixelToRasterShapesPosition : Pixel -> RasterShapes.Position
-pixelToRasterShapesPosition ( x, y ) =
-    { x = x, y = y }
-
-
-rasterShapesPositionToPixel : RasterShapes.Position -> Pixel
-rasterShapesPositionToPixel { x, y } =
-    ( x, y )
