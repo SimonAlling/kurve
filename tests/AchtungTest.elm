@@ -69,7 +69,7 @@ basicTests =
                                         let
                                             theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                             theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition deadKurve.state.position
+                                                World.drawingPosition (World.toPixel deadKurve.state.position)
                                         in
                                         theDrawingPositionItNeverMadeItTo
                                             |> Expect.equal { leftEdge = 0, topEdge = -1 }
@@ -96,7 +96,7 @@ crashingIntoKurveTests =
                                         let
                                             theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                             theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition deadKurve.state.position
+                                                World.drawingPosition (World.toPixel deadKurve.state.position)
                                         in
                                         Expect.all
                                             [ \() ->
@@ -124,7 +124,7 @@ crashingIntoKurveTests =
                                         let
                                             theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                             theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition deadKurve.state.position
+                                                World.drawingPosition (World.toPixel deadKurve.state.position)
                                         in
                                         Expect.all
                                             [ \() ->
@@ -209,7 +209,7 @@ crashingIntoWallTests =
                                                     let
                                                         theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                                         theDrawingPositionItNeverMadeItTo =
-                                                            World.drawingPosition deadKurve.state.position
+                                                            World.drawingPosition (World.toPixel deadKurve.state.position)
                                                     in
                                                     theDrawingPositionItNeverMadeItTo
                                                         |> Expect.equal drawingPositionItShouldNeverMakeItTo
@@ -276,7 +276,7 @@ crashingIntoWallTimingTest =
                                     let
                                         theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                         theDrawingPositionItNeverMadeItTo =
-                                            World.drawingPosition kurve.state.position
+                                            World.drawingPosition (World.toPixel kurve.state.position)
                                     in
                                     theDrawingPositionItNeverMadeItTo
                                         |> Expect.equal { leftEdge = 349, topEdge = -1 }
@@ -336,7 +336,7 @@ crashingIntoKurveTimingTests =
                                                     let
                                                         theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                                         theDrawingPositionItNeverMadeItTo =
-                                                            World.drawingPosition deadKurve.state.position
+                                                            World.drawingPosition (World.toPixel deadKurve.state.position)
                                                     in
                                                     Expect.all
                                                         [ \() ->
@@ -372,7 +372,7 @@ cuttingCornersTests =
                                         let
                                             theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                             theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition deadKurve.state.position
+                                                World.drawingPosition (World.toPixel deadKurve.state.position)
                                         in
                                         Expect.all
                                             [ \() ->
@@ -400,7 +400,7 @@ cuttingCornersTests =
                                         let
                                             theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                             theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition deadKurve.state.position
+                                                World.drawingPosition (World.toPixel deadKurve.state.position)
                                         in
                                         Expect.all
                                             [ \() ->
@@ -428,7 +428,7 @@ cuttingCornersTests =
                                         let
                                             theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                             theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition secondDeadKurve.state.position
+                                                World.drawingPosition (World.toPixel secondDeadKurve.state.position)
                                         in
                                         Expect.all
                                             [ \() ->
@@ -468,7 +468,7 @@ speedTests =
                                                     let
                                                         theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                                         theDrawingPositionItNeverMadeItTo =
-                                                            World.drawingPosition deadKurve.state.position
+                                                            World.drawingPosition (World.toPixel deadKurve.state.position)
                                                     in
                                                     theDrawingPositionItNeverMadeItTo
                                                         |> Expect.equal { leftEdge = 557, topEdge = 99 }
@@ -496,7 +496,7 @@ stressTests =
                                         let
                                             theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                             theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition deadKurve.state.position
+                                                World.drawingPosition (World.toPixel deadKurve.state.position)
                                         in
                                         theDrawingPositionItNeverMadeItTo
                                             |> Expect.equal { leftEdge = 372, topEdge = 217 }
