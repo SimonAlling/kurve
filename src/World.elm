@@ -2,17 +2,14 @@ module World exposing
     ( DrawingPosition
     , Pixel
     , Position
-    , desiredDrawingPositions
+    , desiredPixelPositions
     , distanceBetween
     , distanceToTicks
     , drawingPosition
-    , hitbox
-    , pixelsToOccupy
+    , toPixel
     )
 
-import List.Cartesian
 import RasterShapes
-import Set exposing (Set)
 import Thickness exposing (theThickness)
 import Types.Distance as Distance exposing (Distance(..))
 import Types.Speed as Speed exposing (Speed)
@@ -31,9 +28,24 @@ type alias Pixel =
     ( Int, Int )
 
 
-distanceBetween : Position -> Position -> Distance
+toPixel : Position -> Pixel
+toPixel =
+    Tuple.mapBoth floor floor
+
+
+pixelToRasterShapesPosition : Pixel -> RasterShapes.Position
+pixelToRasterShapesPosition ( x, y ) =
+    { x = x, y = y }
+
+
+rasterShapesPositionToPixel : RasterShapes.Position -> Pixel
+rasterShapesPositionToPixel { x, y } =
+    ( x, y )
+
+
+distanceBetween : Pixel -> Pixel -> Distance
 distanceBetween ( x1, y1 ) ( x2, y2 ) =
-    Distance <| sqrt ((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
+    Distance <| sqrt (toFloat ((x2 - x1) ^ 2 + (y2 - y1) ^ 2))
 
 
 distanceToTicks : Tickrate -> Speed -> Distance -> Int
@@ -41,83 +53,32 @@ distanceToTicks tickrate speed distance =
     round <| Tickrate.toFloat tickrate * Distance.toFloat distance / Speed.toFloat speed
 
 
-toBresenham : DrawingPosition -> RasterShapes.Position
-toBresenham { leftEdge, topEdge } =
-    { x = leftEdge, y = topEdge }
-
-
-fromBresenham : RasterShapes.Position -> DrawingPosition
-fromBresenham { x, y } =
-    { leftEdge = x, topEdge = y }
-
-
-drawingPosition : Position -> DrawingPosition
+drawingPosition : Pixel -> DrawingPosition
 drawingPosition ( x, y ) =
     { leftEdge = edgeOfSquare x, topEdge = edgeOfSquare y }
 
 
-edgeOfSquare : Float -> Int
+edgeOfSquare : Int -> Int
 edgeOfSquare xOrY =
-    round (xOrY - (theThickness / 2))
+    xOrY - (theThickness // 2)
 
 
-pixelsToOccupy : DrawingPosition -> Set Pixel
-pixelsToOccupy { leftEdge, topEdge } =
+desiredPixelPositions : Position -> Position -> List Pixel
+desiredPixelPositions position1 position2 =
     let
-        rangeFrom : Int -> List Int
-        rangeFrom start =
-            List.range start (start + theThickness - 1)
+        startPixel : Pixel
+        startPixel =
+            toPixel position1
 
-        xs : List Int
-        xs =
-            rangeFrom leftEdge
-
-        ys : List Int
-        ys =
-            rangeFrom topEdge
+        endPixel : Pixel
+        endPixel =
+            toPixel position2
     in
-    List.Cartesian.map2 Tuple.pair xs ys
-        |> Set.fromList
-
-
-desiredDrawingPositions : Position -> Position -> List DrawingPosition
-desiredDrawingPositions position1 position2 =
     RasterShapes.line
-        (drawingPosition position1 |> toBresenham)
-        (drawingPosition position2 |> toBresenham)
+        (pixelToRasterShapesPosition startPixel)
+        (pixelToRasterShapesPosition endPixel)
         -- The RasterShapes library returns the positions in reverse order.
         |> List.reverse
-        -- The first element in the list is the starting position, which is assumed to already have been drawn.
+        -- The first element in the list is the starting position, which is assumed to already have been occupied.
         |> List.drop 1
-        |> List.map fromBresenham
-
-
-hitbox : DrawingPosition -> DrawingPosition -> Set Pixel
-hitbox oldPosition newPosition =
-    let
-        is45DegreeDraw : Bool
-        is45DegreeDraw =
-            oldPosition.leftEdge /= newPosition.leftEdge && oldPosition.topEdge /= newPosition.topEdge
-
-        oldPixels : Set Pixel
-        oldPixels =
-            pixelsToOccupy oldPosition
-
-        newPixels : Set Pixel
-        newPixels =
-            pixelsToOccupy newPosition
-    in
-    if is45DegreeDraw then
-        let
-            oldXs : Set Int
-            oldXs =
-                Set.map Tuple.first oldPixels
-
-            oldYs : Set Int
-            oldYs =
-                Set.map Tuple.second oldPixels
-        in
-        Set.filter (\( x, y ) -> not (Set.member x oldXs) && not (Set.member y oldYs)) newPixels
-
-    else
-        Set.diff newPixels oldPixels
+        |> List.map rasterShapesPositionToPixel

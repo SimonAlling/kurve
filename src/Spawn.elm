@@ -64,7 +64,7 @@ isTooCloseFor numberOfPlayers config point1 point2 =
         maxAllowedMinimumDistance =
             2 * sqrt (config.spawn.protectionAudacity * availableArea / (toFloat numberOfPlayers * pi))
     in
-    Distance.toFloat (distanceBetween point1 point2) < min desiredMinimumDistance maxAllowedMinimumDistance
+    Distance.toFloat (distanceBetween (World.toPixel point1) (World.toPixel point2)) < min desiredMinimumDistance maxAllowedMinimumDistance
 
 
 generateKurve : Config -> PlayerId -> Int -> List Position -> Player -> Random.Generator Kurve
