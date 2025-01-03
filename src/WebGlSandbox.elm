@@ -10,6 +10,7 @@ import Html exposing (Html)
 import Html.Attributes exposing (height, style, width)
 import Math.Matrix4 as Mat4 exposing (Mat4)
 import Math.Vector3 as Vec3 exposing (Vec3, vec3)
+import Rectangle
 import WebGL exposing (Mesh, Shader)
 
 
@@ -26,15 +27,11 @@ main =
 view : Float -> Html msg
 view t =
     WebGL.toHtml
-        [ width 400
-        , height 400
+        [ width 559
+        , height 480
         , style "display" "block"
         ]
-        [ WebGL.entity
-            vertexShader
-            fragmentShader
-            mesh
-            { perspective = perspective (t / 1000) }
+        [ Rectangle.view
         ]
 
 
