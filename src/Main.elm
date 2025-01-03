@@ -24,6 +24,7 @@ import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurve
 import Set exposing (Set)
 import Svg
 import Svg.Attributes
+import TestScenarios.StressTestRealisticTurtleSurvivalRound
 import Time
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -45,12 +46,20 @@ port focusLost : (() -> msg) -> Sub msg
 
 init : () -> ( Model, Cmd Msg )
 init _ =
+    let
+        ( gameState, cmd ) =
+            { seedAfterSpawn = Random.initialSeed 0
+            , spawnedKurves = TestScenarios.StressTestRealisticTurtleSurvivalRound.spawnedKurves
+            }
+                |> prepareReplayRound
+                |> newRoundGameStateAndCmd Config.default
+    in
     ( { pressedButtons = Set.empty
-      , appState = InMenu SplashScreen (Random.initialSeed 1337)
+      , appState = InGame gameState
       , config = Config.default
       , players = initialPlayers
       }
-    , Cmd.none
+    , cmd
     )
 
 
