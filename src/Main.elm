@@ -27,6 +27,7 @@ import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Util exposing (isEven)
 import WebGL
+import World
 
 
 type alias Model =
@@ -348,6 +349,32 @@ view model =
             elmRoot [] [ splashScreen ]
 
         InGame gameState ->
+            let
+                headSquares : List WebGL.Entity
+                headSquares =
+                    case gameState of
+                        Active _ activeGameState ->
+                            case activeGameState of
+                                Spawning spawnState ( _, round ) ->
+                                    -- TODO
+                                    []
+
+                                Moving _ ( _, round ) ->
+                                    round.kurves.alive
+                                        ++ round.kurves.dead
+                                        |> List.map
+                                            (\kurve ->
+                                                let
+                                                    pos =
+                                                        kurve.state.position |> World.toPixel |> World.drawingPosition |> (\{ leftEdge, topEdge } -> ( leftEdge, topEdge ))
+                                                in
+                                                Rectangle.view kurve.color pos
+                                            )
+
+                        RoundOver round _ ->
+                            -- TODO
+                            []
+            in
             elmRoot
                 [ Attr.class "in-game"
                 ]
@@ -362,8 +389,7 @@ view model =
                             , height 480
                             , style "display" "block"
                             ]
-                            [ Rectangle.view Color.red ( 100 + round 100, 100 )
-                            ]
+                            headSquares
                         , pauseOverlay gameState
                         , confirmQuitDialog DialogChoiceMade gameState
                         ]
