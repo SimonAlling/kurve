@@ -12,7 +12,7 @@ import GUI.PauseOverlay exposing (pauseOverlay)
 import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
 import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, tickResultToGameState)
-import Html exposing (Html, canvas, div)
+import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Menu exposing (MenuState(..))
@@ -352,24 +352,9 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ Html.node "kurve-canvas"
-                            []
-                            [ canvas
-                                [ Attr.id "canvas_main"
-                                , Attr.width 559
-                                , Attr.height 480
-                                ]
-                                []
-                            , canvas
-                                [ Attr.id "canvas_overlay"
-                                , Attr.width 559
-                                , Attr.height 480
-                                , Attr.class "overlay"
-                                ]
-                                []
-                            , pauseOverlay gameState
-                            , confirmQuitDialog DialogChoiceMade gameState
-                            ]
+                        [ Html.node "kurve-canvas" [] []
+                        , pauseOverlay gameState
+                        , confirmQuitDialog DialogChoiceMade gameState
                         ]
                     , scoreboard gameState model.players
                     ]

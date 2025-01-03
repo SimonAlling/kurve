@@ -48,6 +48,23 @@
             constructor() {
                 super();
             }
+
+            connectedCallback() {
+                const canvas_main = document.createElement("canvas");
+                canvas_main.id = "canvas_main";
+                canvas_main.width = 559; // TODO softcode
+                canvas_main.height = 480; // TODO softcode
+                this.canvas_main = canvas_main;
+
+                const canvas_overlay = document.createElement("canvas");
+                canvas_overlay.id = "canvas_overlay";
+                canvas_overlay.width = 559; // TODO softcode
+                canvas_overlay.height = 480; // TODO softcode
+                canvas_overlay.classList.add("overlay");
+                this.canvas_overlay = canvas_overlay;
+
+                this.append(canvas_main, canvas_overlay);
+            }
         }
 
         customElements.define("kurve-canvas", KurveCanvas);
