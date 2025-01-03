@@ -10,15 +10,17 @@ import Color
 import Html exposing (Html)
 import Html.Attributes exposing (height, style, width)
 import Rectangle
+import Svg
+import Svg.Attributes
 import WebGL
 
 
 type alias Model =
-    Float
+    Int
 
 
 type alias Msg =
-    Float
+    Int
 
 
 main : Program () Model Msg
@@ -26,17 +28,26 @@ main =
     Browser.element
         { init = \_ -> ( 0, Cmd.none )
         , view = view
-        , subscriptions = \_ -> onAnimationFrameDelta Basics.identity
+        , subscriptions = \_ -> onAnimationFrameDelta (always 1)
         , update = \elapsed currentTime -> ( elapsed + currentTime, Cmd.none )
         }
 
 
 view : Model -> Html Msg
 view t =
-    WebGL.toHtml
+    let
+        pos =
+            ( t, 5 )
+
+        d =
+            pos
+                |> (\( x, y ) ->
+                        "M" ++ String.fromInt x ++ "," ++ String.fromInt y ++ "h3v3h-3"
+                   )
+    in
+    Svg.svg
         [ width 559
         , height 480
         , style "display" "block"
         ]
-        [ Rectangle.view Color.red ( 100 + round (t / 8), 100 )
-        ]
+        [ Svg.path [ Svg.Attributes.d d, Svg.Attributes.fill "black" ] [] ]
