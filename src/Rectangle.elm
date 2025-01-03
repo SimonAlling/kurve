@@ -11,7 +11,7 @@ view ( x, y ) =
         uniforms : Uniforms
         uniforms =
             { position = vec2 (toFloat x) (toFloat y)
-            , size = vec2 20 20
+            , size = vec2 3 3
             , window = vec2 559 480
             , color = vec4 1 0 0 1
             }
