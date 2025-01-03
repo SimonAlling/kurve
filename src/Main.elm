@@ -22,12 +22,14 @@ import Random
 import Rectangle
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
+import Svg
+import Svg.Attributes
 import Time
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Util exposing (isEven)
 import WebGL
-import World exposing (Pixel)
+import World exposing (DrawingPosition, Pixel)
 
 
 type alias Model =
@@ -350,8 +352,8 @@ view model =
 
         InGame gameState ->
             let
-                squares : List WebGL.Entity
-                squares =
+                paths : List (Svg.Svg Msg)
+                paths =
                     case gameState of
                         Active _ activeGameState ->
                             case activeGameState of
@@ -362,17 +364,25 @@ view model =
                                 Moving _ ( _, round ) ->
                                     round.kurves.alive
                                         ++ round.kurves.dead
-                                        |> List.concatMap
+                                        |> List.map
                                             (\kurve ->
                                                 let
                                                     pos =
-                                                        kurve.state.position |> World.toPixel |> World.drawingPosition |> (\{ leftEdge, topEdge } -> ( leftEdge, topEdge ))
+                                                        kurve.state.position |> World.toPixel
 
-                                                    f : Pixel -> Pixel
-                                                    f pixel =
-                                                        pixel |> World.drawingPosition |> (\{ leftEdge, topEdge } -> ( leftEdge, topEdge ))
+                                                    d =
+                                                        (pos :: Set.toList round.occupiedPixelPositions)
+                                                            |> List.map
+                                                                (\pixelPosition ->
+                                                                    let
+                                                                        { leftEdge, topEdge } =
+                                                                            World.drawingPosition pixelPosition
+                                                                    in
+                                                                    "M" ++ String.fromInt leftEdge ++ "," ++ String.fromInt topEdge ++ "h3v3h-3"
+                                                                )
+                                                            |> String.concat
                                                 in
-                                                (pos :: List.map f (Set.toList round.occupiedPixelPositions)) |> List.map (Rectangle.view kurve.color)
+                                                Svg.path [ Svg.Attributes.d d, Svg.Attributes.fill (Color.toCssString kurve.color) ] []
                                             )
 
                         RoundOver round _ ->
@@ -388,12 +398,12 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ WebGL.toHtml
+                        [ Svg.svg
                             [ width 559
                             , height 480
                             , style "display" "block"
                             ]
-                            squares
+                            paths
                         , pauseOverlay gameState
                         , confirmQuitDialog DialogChoiceMade gameState
                         ]
