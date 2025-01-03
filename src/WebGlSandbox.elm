@@ -6,6 +6,7 @@ module WebGlSandbox exposing (..)
 
 import Browser
 import Browser.Events exposing (onAnimationFrameDelta)
+import Color
 import Html exposing (Html)
 import Html.Attributes exposing (height, style, width)
 import Rectangle
@@ -37,5 +38,5 @@ view t =
         , height 480
         , style "display" "block"
         ]
-        [ Rectangle.view ( 100 + round (t / 8), 100 )
+        [ Rectangle.view Color.red ( 100 + round (t / 8), 100 )
         ]
