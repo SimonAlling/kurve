@@ -27,7 +27,7 @@ import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Util exposing (isEven)
 import WebGL
-import World
+import World exposing (Pixel)
 
 
 type alias Model =
@@ -350,8 +350,8 @@ view model =
 
         InGame gameState ->
             let
-                headSquares : List WebGL.Entity
-                headSquares =
+                squares : List WebGL.Entity
+                squares =
                     case gameState of
                         Active _ activeGameState ->
                             case activeGameState of
@@ -362,13 +362,17 @@ view model =
                                 Moving _ ( _, round ) ->
                                     round.kurves.alive
                                         ++ round.kurves.dead
-                                        |> List.map
+                                        |> List.concatMap
                                             (\kurve ->
                                                 let
                                                     pos =
                                                         kurve.state.position |> World.toPixel |> World.drawingPosition |> (\{ leftEdge, topEdge } -> ( leftEdge, topEdge ))
+
+                                                    f : Pixel -> Pixel
+                                                    f pixel =
+                                                        pixel |> World.drawingPosition |> (\{ leftEdge, topEdge } -> ( leftEdge, topEdge ))
                                                 in
-                                                Rectangle.view kurve.color pos
+                                                (pos :: List.map f (Set.toList round.occupiedPixelPositions)) |> List.map (Rectangle.view kurve.color)
                                             )
 
                         RoundOver round _ ->
@@ -389,7 +393,7 @@ view model =
                             , height 480
                             , style "display" "block"
                             ]
-                            headSquares
+                            squares
                         , pauseOverlay gameState
                         , confirmQuitDialog DialogChoiceMade gameState
                         ]
