@@ -5,12 +5,12 @@ import Math.Vector4 exposing (Vec4, vec4)
 import WebGL
 
 
-view : WebGL.Entity
-view =
+view : ( Int, Int ) -> WebGL.Entity
+view ( x, y ) =
     let
         uniforms : Uniforms
         uniforms =
-            { position = vec2 100 200
+            { position = vec2 (toFloat x) (toFloat y)
             , size = vec2 20 20
             , window = vec2 559 480
             , color = vec4 1 0 0 1

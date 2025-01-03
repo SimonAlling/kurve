@@ -37,5 +37,5 @@ view t =
         , height 480
         , style "display" "block"
         ]
-        [ Rectangle.view
+        [ Rectangle.view ( 100 + round (t / 8), 100 )
         ]
