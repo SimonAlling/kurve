@@ -2,7 +2,7 @@ port module Main exposing (Model, Msg(..), main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
-import Canvas exposing (clearEverything, drawSpawnIfAndOnlyIf, encodeSquare)
+import Canvas exposing (Square, clearEverything, drawSpawnIfAndOnlyIf, encodeSquare)
 import Config exposing (Config)
 import Dialog
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
@@ -33,6 +33,8 @@ type alias Model =
     , appState : AppState
     , config : Config
     , players : AllPlayers
+    , bodySquaresToDraw : List Square
+    , headSquaresToDraw : List Square
     }
 
 
@@ -45,6 +47,8 @@ init _ =
       , appState = InMenu SplashScreen (Random.initialSeed 1337)
       , config = Config.default
       , players = initialPlayers
+      , bodySquaresToDraw = []
+      , headSquaresToDraw = []
       }
     , Cmd.none
     )
@@ -116,11 +120,15 @@ update msg ({ config, pressedButtons } as model) =
 
         GameTick tick midRoundState ->
             let
-                ( tickResult, cmd ) =
+                ( tickResult, headSquaresToDraw, bodySquaresToDraw ) =
                     Game.reactToTick config tick midRoundState
             in
-            ( { model | appState = InGame (tickResultToGameState tickResult) }
-            , cmd
+            ( { model
+                | appState = InGame (tickResultToGameState tickResult)
+                , headSquaresToDraw = headSquaresToDraw
+                , bodySquaresToDraw = bodySquaresToDraw
+              }
+            , Cmd.none
             )
 
         ButtonUsed Down button ->
@@ -357,10 +365,9 @@ view model =
                         [ Html.node "kurve-canvas"
                             [ Attr.property "squares_main"
                                 (Encode.list encodeSquare
-                                    [ { position = { leftEdge = 100, topEdge = 200 }, thickness = theThickness, color = "red" }
-                                    ]
+                                    model.bodySquaresToDraw
                                 )
-                            , Attr.property "squares_overlay" (Encode.list encodeSquare [])
+                            , Attr.property "squares_overlay" (Encode.list encodeSquare model.headSquaresToDraw)
                             ]
                             []
                         , pauseOverlay gameState

@@ -1,4 +1,4 @@
-port module Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, encodeSquare, headDrawingCmd)
+port module Canvas exposing (Square, bodySquaresToDraw, clearEverything, drawSpawnIfAndOnlyIf, encodeSquare, headSquaresToDraw)
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)
@@ -38,28 +38,26 @@ port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 port renderOverlay : List Square -> Cmd msg
 
 
-bodyDrawingCmd : List ( Color, DrawingPosition ) -> Cmd msg
-bodyDrawingCmd =
-    render
-        << List.map
-            (\( color, position ) ->
-                { position = position
-                , thickness = theThickness
-                , color = Color.toCssString color
-                }
-            )
+bodySquaresToDraw : List ( Color, DrawingPosition ) -> List Square
+bodySquaresToDraw =
+    List.map
+        (\( color, position ) ->
+            { position = position
+            , thickness = theThickness
+            , color = Color.toCssString color
+            }
+        )
 
 
-headDrawingCmd : List Kurve -> Cmd msg
-headDrawingCmd =
-    renderOverlay
-        << List.map
-            (\kurve ->
-                { position = World.drawingPosition kurve.state.position
-                , thickness = theThickness
-                , color = Color.toCssString kurve.color
-                }
-            )
+headSquaresToDraw : List Kurve -> List Square
+headSquaresToDraw =
+    List.map
+        (\kurve ->
+            { position = World.drawingPosition kurve.state.position
+            , thickness = theThickness
+            , color = Color.toCssString kurve.color
+            }
+        )
 
 
 clearEverything : WorldConfig -> Cmd msg

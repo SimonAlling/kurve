@@ -17,10 +17,11 @@ module Game exposing
     , tickResultToGameState
     )
 
-import Canvas exposing (bodyDrawingCmd, headDrawingCmd)
+import Canvas exposing (Square, bodySquaresToDraw, headSquaresToDraw)
 import Color exposing (Color)
 import Config exposing (Config, KurveConfig)
 import Dialog
+import List exposing (head)
 import Players exposing (ParticipatingPlayers)
 import Random
 import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
@@ -35,7 +36,7 @@ import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Types.TurningState exposing (TurningState)
-import World exposing (DrawingPosition, Pixel, Position, distanceToTicks)
+import World exposing (DrawingPosition, Pixel, Position, distanceToTicks, drawingPosition)
 
 
 type GameState
@@ -133,7 +134,7 @@ prepareRoundFromKnownInitialState initialState =
     round
 
 
-reactToTick : Config -> Tick -> MidRoundState -> ( TickResult, Cmd msg )
+reactToTick : Config -> Tick -> MidRoundState -> ( TickResult, List Square, List Square )
 reactToTick config tick (( _, currentRound ) as midRoundState) =
     let
         ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
@@ -168,10 +169,8 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
                 RoundKeepsGoing tick <| modifyRound (always newCurrentRound) midRoundState
     in
     ( tickResult
-    , [ headDrawingCmd newKurves.alive
-      , bodyDrawingCmd newColoredDrawingPositions
-      ]
-        |> Cmd.batch
+    , headSquaresToDraw newKurves.alive
+    , bodySquaresToDraw newColoredDrawingPositions
     )
 
 
