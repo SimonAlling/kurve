@@ -16,28 +16,35 @@ import WebGL
 
 
 type alias Model =
-    Int
+    { innerModel : InnerModel
+    , deltaSomBlirÖver : Float
+    }
+
+
+type alias InnerModel =
+    { position : Int
+    }
 
 
 type alias Msg =
-    Int
+    Float
 
 
 main : Program () Model Msg
 main =
     Browser.element
-        { init = \_ -> ( 0, Cmd.none )
+        { init = \_ -> ( { innerModel = { position = 0 }, deltaSomBlirÖver = 0 }, Cmd.none )
         , view = view
-        , subscriptions = \_ -> onAnimationFrameDelta (always 1)
-        , update = \elapsed currentTime -> ( elapsed + currentTime, Cmd.none )
+        , subscriptions = \_ -> onAnimationFrameDelta identity
+        , update = update
         }
 
 
 view : Model -> Html Msg
-view t =
+view model =
     let
         pos =
-            ( t, 5 )
+            ( model.innerModel.position, 5 )
 
         d =
             pos
@@ -51,3 +58,36 @@ view t =
         , style "display" "block"
         ]
         [ Svg.path [ Svg.Attributes.d d, Svg.Attributes.fill "black" ] [] ]
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update frameDelta model =
+    let
+        ( deltaSomBlirÖver, nyInnerModel ) =
+            recurse (frameDelta + model.deltaSomBlirÖver) model.innerModel
+    in
+    ( { innerModel = nyInnerModel, deltaSomBlirÖver = deltaSomBlirÖver }, Cmd.none )
+
+
+recurse : Float -> InnerModel -> ( Float, InnerModel )
+recurse timeLeftToConsider innerModel =
+    if timeLeftToConsider >= timestep then
+        let
+            newInnerModel =
+                reactToTick innerModel
+        in
+        recurse (timeLeftToConsider - timestep) newInnerModel
+
+    else
+        ( timeLeftToConsider
+        , innerModel
+        )
+
+
+timestep =
+    1000 / 60
+
+
+reactToTick : InnerModel -> InnerModel
+reactToTick innerModel =
+    { innerModel | position = innerModel.position + 1 }
