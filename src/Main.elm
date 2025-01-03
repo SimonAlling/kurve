@@ -352,21 +352,24 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ canvas
-                            [ Attr.id "canvas_main"
-                            , Attr.width 559
-                            , Attr.height 480
-                            ]
+                        [ Html.node "kurve-canvas"
                             []
-                        , canvas
-                            [ Attr.id "canvas_overlay"
-                            , Attr.width 559
-                            , Attr.height 480
-                            , Attr.class "overlay"
+                            [ canvas
+                                [ Attr.id "canvas_main"
+                                , Attr.width 559
+                                , Attr.height 480
+                                ]
+                                []
+                            , canvas
+                                [ Attr.id "canvas_overlay"
+                                , Attr.width 559
+                                , Attr.height 480
+                                , Attr.class "overlay"
+                                ]
+                                []
+                            , pauseOverlay gameState
+                            , confirmQuitDialog DialogChoiceMade gameState
                             ]
-                            []
-                        , pauseOverlay gameState
-                        , confirmQuitDialog DialogChoiceMade gameState
                         ]
                     , scoreboard gameState model.players
                     ]

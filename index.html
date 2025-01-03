@@ -44,6 +44,15 @@
 
     <script src="./build/ZATACKA.js"></script>
     <script>
+        class KurveCanvas extends HTMLElement {
+            constructor() {
+                super();
+            }
+        }
+
+        customElements.define("kurve-canvas", KurveCanvas);
+
+
         const app = Elm.Main.init({ node: document.getElementById("elm-node") });
 
         function drawSquare(canvas, { position: { leftEdge, topEdge }, thickness, color }) {
