@@ -1,19 +1,41 @@
-port module Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
+port module Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, encodeSquare, headDrawingCmd)
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)
+import Json.Encode as Encode
 import Thickness exposing (theThickness)
 import Types.Kurve exposing (Kurve)
 import World exposing (DrawingPosition)
 
 
-port render : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
+port render : List Square -> Cmd msg
+
+
+type alias Square =
+    { position : DrawingPosition, thickness : Int, color : String }
+
+
+encodeSquare : Square -> Encode.Value
+encodeSquare square =
+    Encode.object
+        [ ( "position", encodeDrawingPosition square.position )
+        , ( "thickness", Encode.int square.thickness )
+        , ( "color", Encode.string square.color )
+        ]
+
+
+encodeDrawingPosition : DrawingPosition -> Encode.Value
+encodeDrawingPosition drawingPosition =
+    Encode.object
+        [ ( "leftEdge", Encode.int drawingPosition.leftEdge )
+        , ( "topEdge", Encode.int drawingPosition.topEdge )
+        ]
 
 
 port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 
 
-port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
+port renderOverlay : List Square -> Cmd msg
 
 
 bodyDrawingCmd : List ( Color, DrawingPosition ) -> Cmd msg

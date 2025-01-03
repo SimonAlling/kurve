@@ -47,9 +47,7 @@
         class KurveCanvas extends HTMLElement {
             constructor() {
                 super();
-            }
 
-            connectedCallback() {
                 const canvas_main = document.createElement("canvas");
                 canvas_main.id = "canvas_main";
                 canvas_main.width = 559; // TODO softcode
@@ -63,7 +61,30 @@
                 canvas_overlay.classList.add("overlay");
                 this.canvas_overlay = canvas_overlay;
 
-                this.append(canvas_main, canvas_overlay);
+            }
+
+            set squares_main(squares) {
+                console.warn("squares_main", squares)
+
+                //TODO: need to clear?
+
+                for (const square of squares) {
+                    drawSquare(this.canvas_main, square);
+                }
+            }
+
+            set squares_overlay(squares) {
+                console.warn("squares_overlay", squares)
+
+                clearRectangleIfCanvasExists(this.canvas_overlay, { x: 0, y: 0, width: this.canvas_overlay.width, height: this.canvas_overlay.height });
+
+                for (const square of squares) {
+                    drawSquare(this.canvas_overlay, square);
+                }
+            }
+
+            connectedCallback() {
+                this.append(this.canvas_main, this.canvas_overlay);
             }
         }
 
@@ -83,24 +104,9 @@
             context?.clearRect(x, y, width, height);
         }
 
-        app.ports.render.subscribe(squares => {
-            const canvas_main = document.getElementById("canvas_main");
-            for (const square of squares) {
-                drawSquare(canvas_main, square);
-            }
-        });
-
         app.ports.clear.subscribe(rectangle => {
             const canvas_main = document.getElementById("canvas_main");
             clearRectangleIfCanvasExists(canvas_main, rectangle);
-        });
-
-        app.ports.renderOverlay.subscribe(squares => {
-            const canvas_overlay = document.getElementById("canvas_overlay");
-            clearRectangleIfCanvasExists(canvas_overlay, { x: 0, y: 0, width: canvas_overlay?.width, height: canvas_overlay?.height }); // Very large numbers don't work; see the commit that added this comment.
-            for (const square of squares) {
-                drawSquare(canvas_overlay, square);
-            }
         });
 
         document.addEventListener("keydown", event => {

@@ -2,7 +2,7 @@ port module Main exposing (Model, Msg(..), main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
-import Canvas exposing (clearEverything, drawSpawnIfAndOnlyIf)
+import Canvas exposing (clearEverything, drawSpawnIfAndOnlyIf, encodeSquare)
 import Config exposing (Config)
 import Dialog
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
@@ -15,11 +15,13 @@ import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoun
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
+import Json.Encode as Encode
 import Menu exposing (MenuState(..))
 import Players exposing (AllPlayers, atLeastOneIsParticipating, everyoneLeaves, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
+import Thickness exposing (theThickness)
 import Time
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -352,7 +354,15 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ Html.node "kurve-canvas" [] []
+                        [ Html.node "kurve-canvas"
+                            [ Attr.property "squares_main"
+                                (Encode.list encodeSquare
+                                    [ { position = { leftEdge = 100, topEdge = 200 }, thickness = theThickness, color = "red" }
+                                    ]
+                                )
+                            , Attr.property "squares_overlay" (Encode.list encodeSquare [])
+                            ]
+                            []
                         , pauseOverlay gameState
                         , confirmQuitDialog DialogChoiceMade gameState
                         ]
