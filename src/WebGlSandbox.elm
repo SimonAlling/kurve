@@ -14,7 +14,15 @@ import Rectangle
 import WebGL exposing (Mesh, Shader)
 
 
-main : Program () Float Float
+type alias Model =
+    Float
+
+
+type alias Msg =
+    Float
+
+
+main : Program () Model Msg
 main =
     Browser.element
         { init = \_ -> ( 0, Cmd.none )
@@ -24,7 +32,7 @@ main =
         }
 
 
-view : Float -> Html msg
+view : Model -> Html Msg
 view t =
     WebGL.toHtml
         [ width 559
