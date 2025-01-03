@@ -2,7 +2,8 @@ port module Main exposing (Model, Msg(..), main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
-import Canvas exposing (clearEverything, drawSpawnIfAndOnlyIf)
+import Browser.Events exposing (onAnimationFrameDelta)
+import Color
 import Config exposing (Config)
 import Dialog
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
@@ -13,17 +14,19 @@ import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
 import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, tickResultToGameState)
 import Html exposing (Html, canvas, div)
-import Html.Attributes as Attr
+import Html.Attributes as Attr exposing (height, style, width)
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import Menu exposing (MenuState(..))
 import Players exposing (AllPlayers, atLeastOneIsParticipating, everyoneLeaves, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
 import Random
+import Rectangle
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
 import Time
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Util exposing (isEven)
+import WebGL
 
 
 type alias Model =
@@ -65,7 +68,8 @@ newRoundGameStateAndCmd config plannedMidRoundState =
             , ticksLeft = config.spawn.numberOfFlickerTicks
             }
             plannedMidRoundState
-    , clearEverything config.world
+    , Cmd.none
+      -- TODO
     )
 
 
@@ -94,7 +98,8 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
                     else
                         { kurvesLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
-            ( Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning )
+            -- TODO
+            ( Spawning newSpawnState, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -352,19 +357,13 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ canvas
-                            [ Attr.id "canvas_main"
-                            , Attr.width 559
-                            , Attr.height 480
+                        [ WebGL.toHtml
+                            [ width 559
+                            , height 480
+                            , style "display" "block"
                             ]
-                            []
-                        , canvas
-                            [ Attr.id "canvas_overlay"
-                            , Attr.width 559
-                            , Attr.height 480
-                            , Attr.class "overlay"
+                            [ Rectangle.view Color.red ( 100 + round 100, 100 )
                             ]
-                            []
                         , pauseOverlay gameState
                         , confirmQuitDialog DialogChoiceMade gameState
                         ]

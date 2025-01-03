@@ -1,4 +1,4 @@
-port module Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
+port module Canvas exposing (clear)
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)

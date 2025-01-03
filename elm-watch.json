@@ -5,6 +5,12 @@
                 "src/Main.elm"
             ],
             "output": "build/ZATACKA.js"
+        },
+        "webgl-sandbox": {
+            "inputs": [
+                "src/WebGlSandbox.elm"
+            ],
+            "output": "build/webgl-sandbox.js"
         }
     }
 }
