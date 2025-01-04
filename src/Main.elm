@@ -275,6 +275,7 @@ tickUntilTimeConsumed config timeLeftToConsider tick midRoundState cmdAcc =
             ( tickResult, newCmd ) =
                 Game.reactToTick config tick midRoundState
 
+            compoundCmd : Cmd msg
             compoundCmd =
                 Cmd.batch [ cmdAcc, newCmd ]
         in
