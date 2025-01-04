@@ -100,12 +100,13 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
             ( Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning )
 
 
-timestep =
-    1000 / 60
-
-
 recurse : Config -> Tick -> Float -> MidRoundState -> Cmd msg -> ( Float, TickResult, Cmd msg )
 recurse config tick timeLeftToConsider midRoundState cmdAcc =
+    let
+        timestep : Float
+        timestep =
+            1000 / Tickrate.toFloat config.kurves.tickrate
+    in
     if timeLeftToConsider >= timestep then
         let
             ( tickResult, newCmd ) =
