@@ -55,7 +55,7 @@ startRound model midRoundState =
         ( gameState, cmd ) =
             newRoundGameStateAndCmd model.config midRoundState
     in
-    ( { model | appState = InGame 0 gameState }, cmd )
+    ( { model | appState = InGame Nothing gameState }, cmd )
 
 
 newRoundGameStateAndCmd : Config -> MidRoundState -> ( GameState, Cmd msg )
@@ -72,7 +72,7 @@ newRoundGameStateAndCmd config plannedMidRoundState =
 
 type Msg
     = SpawnTick SpawnState MidRoundState
-    | GameTick Milliseconds Tick MidRoundState
+    | GameTick (Maybe Milliseconds) Tick MidRoundState
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
     | FocusLost
@@ -111,16 +111,23 @@ update msg ({ config, pressedButtons } as model) =
 
         SpawnTick spawnState plannedMidRoundState ->
             stepSpawnState config spawnState
-                |> Tuple.mapFirst (\makeActiveGameState -> { model | appState = InGame 0 <| Active NotPaused <| makeActiveGameState plannedMidRoundState })
+                |> Tuple.mapFirst (\makeActiveGameState -> { model | appState = InGame Nothing <| Active NotPaused <| makeActiveGameState plannedMidRoundState })
 
-        GameTick timeToConsiderForThisFrame tick midRoundState ->
-            let
-                ( leftoverTimeForNextFrame, tickResult, cmd ) =
-                    tickUntilTimeConsumed config timeToConsiderForThisFrame tick midRoundState Cmd.none
-            in
-            ( { model | appState = InGame leftoverTimeForNextFrame (tickResultToGameState tickResult) }
-            , cmd
-            )
+        GameTick maybeTimeToConsiderForThisFrame tick midRoundState ->
+            case maybeTimeToConsiderForThisFrame of
+                Just timeToConsiderForThisFrame ->
+                    let
+                        ( leftoverTimeForNextFrame, tickResult, cmd ) =
+                            tickUntilTimeConsumed config timeToConsiderForThisFrame (Tick.succ tick) midRoundState Cmd.none
+                    in
+                    ( { model | appState = InGame (Just leftoverTimeForNextFrame) (tickResultToGameState tickResult) }
+                    , cmd
+                    )
+
+                Nothing ->
+                    ( { model | appState = InGame (Just 0) (tickResultToGameState (RoundKeepsGoing tick midRoundState)) }
+                    , Cmd.none
+                    )
 
         ButtonUsed Down button ->
             case model.appState of
@@ -346,7 +353,7 @@ subscriptions model =
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
             InGame leftoverTimeFromPreviousFrame (Active NotPaused (Moving lastTick midRoundState)) ->
-                onAnimationFrameDelta (\delta -> GameTick (delta + leftoverTimeFromPreviousFrame) (Tick.succ lastTick) midRoundState)
+                onAnimationFrameDelta (\delta -> GameTick (Maybe.map ((+) delta) leftoverTimeFromPreviousFrame) lastTick midRoundState)
 
             InGame _ (Active Paused _) ->
                 Sub.none
