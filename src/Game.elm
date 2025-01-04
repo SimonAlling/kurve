@@ -3,6 +3,7 @@ module Game exposing
     , GameState(..)
     , MidRoundState
     , MidRoundStateVariant(..)
+    , Milliseconds
     , Paused(..)
     , SpawnState
     , TickResult(..)
@@ -50,6 +51,10 @@ type Paused
 type ActiveGameState
     = Spawning SpawnState MidRoundState
     | Moving Tick MidRoundState
+
+
+type alias Milliseconds =
+    Float
 
 
 type TickResult
