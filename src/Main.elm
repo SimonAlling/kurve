@@ -71,7 +71,7 @@ newRoundGameStateAndCmd config plannedMidRoundState =
 
 type Msg
     = SpawnTick SpawnState MidRoundState
-    | GameTick { tickToReactTo : Tick } MidRoundState
+    | GameTick { lastTick : Tick } MidRoundState
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
     | FocusLost
@@ -112,10 +112,10 @@ update msg ({ config, pressedButtons } as model) =
             stepSpawnState config spawnState
                 |> Tuple.mapFirst (\makeActiveGameState -> { model | appState = InGame <| Active NotPaused <| makeActiveGameState plannedMidRoundState })
 
-        GameTick { tickToReactTo } midRoundState ->
+        GameTick { lastTick } midRoundState ->
             let
                 ( tickResult, cmd ) =
-                    Game.reactToTick config tickToReactTo midRoundState
+                    Game.reactToTick config (Tick.succ lastTick) midRoundState
             in
             ( { model | appState = InGame (tickResultToGameState tickResult) }
             , cmd
@@ -315,7 +315,7 @@ subscriptions model =
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
             InGame (Active NotPaused (Moving lastTick midRoundState)) ->
-                Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick { tickToReactTo = Tick.succ lastTick } midRoundState)
+                Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick { lastTick = lastTick } midRoundState)
 
             InGame (Active Paused _) ->
                 Sub.none
