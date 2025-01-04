@@ -3,6 +3,7 @@ module Game exposing
     , GameState(..)
     , MidRoundState
     , MidRoundStateVariant(..)
+    , Milliseconds
     , Paused(..)
     , SpawnState
     , TickResult(..)
@@ -50,7 +51,11 @@ type Paused
 
 type ActiveGameState
     = Spawning SpawnState MidRoundState
-    | Moving Tick MidRoundState
+    | Moving Milliseconds Tick MidRoundState
+
+
+type alias Milliseconds =
+    Float
 
 
 type TickResult
@@ -61,8 +66,8 @@ type TickResult
 modifyMidRoundState : (MidRoundState -> MidRoundState) -> GameState -> GameState
 modifyMidRoundState f gameState =
     case gameState of
-        Active p (Moving t midRoundState) ->
-            Active p <| Moving t <| f midRoundState
+        Active p (Moving ms t midRoundState) ->
+            Active p <| Moving ms t <| f midRoundState
 
         Active p (Spawning s midRoundState) ->
             Active p <| Spawning s <| f midRoundState
@@ -175,11 +180,11 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
     )
 
 
-tickResultToGameState : TickResult -> GameState
-tickResultToGameState tickResult =
+tickResultToGameState : Milliseconds -> TickResult -> GameState
+tickResultToGameState timeLeftToConsider tickResult =
     case tickResult of
         RoundKeepsGoing tick s ->
-            Active NotPaused (Moving tick s)
+            Active NotPaused (Moving timeLeftToConsider tick s)
 
         RoundEnds finishedRound ->
             RoundOver finishedRound Dialog.NotOpen

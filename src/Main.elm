@@ -12,7 +12,7 @@ import GUI.Lobby exposing (lobby)
 import GUI.PauseOverlay exposing (pauseOverlay)
 import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
-import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, TickResult(..), firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, tickResultToGameState)
+import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Milliseconds, Paused(..), SpawnState, TickResult(..), firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, tickResultToGameState)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
@@ -32,12 +32,7 @@ type alias Model =
     , appState : AppState
     , config : Config
     , players : AllPlayers
-    , leftoverTime : Milliseconds
     }
-
-
-type alias Milliseconds =
-    Float
 
 
 port focusLost : (() -> msg) -> Sub msg
@@ -49,7 +44,6 @@ init _ =
       , appState = InMenu SplashScreen (Random.initialSeed 1337)
       , config = Config.default
       , players = initialPlayers
-      , leftoverTime = 0
       }
     , Cmd.none
     )
@@ -89,7 +83,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
     case kurvesLeft of
         [] ->
             -- All Kurves have spawned.
-            ( Moving Tick.genesis, Cmd.none )
+            ( Moving 0 Tick.genesis, Cmd.none )
 
         spawning :: waiting ->
             let
@@ -119,15 +113,12 @@ update msg ({ config, pressedButtons } as model) =
             stepSpawnState config spawnState
                 |> Tuple.mapFirst (\makeActiveGameState -> { model | appState = InGame <| Active NotPaused <| makeActiveGameState plannedMidRoundState })
 
-        GameTick frameDelta tick midRoundState ->
+        GameTick timeLeftToConsider tick midRoundState ->
             let
                 ( newLeftoverTime, tickResult, cmd ) =
-                    handleAnimationFrame config (frameDelta + model.leftoverTime) tick midRoundState Cmd.none
+                    handleAnimationFrame config timeLeftToConsider tick midRoundState Cmd.none
             in
-            ( { model
-                | appState = InGame (tickResultToGameState tickResult)
-                , leftoverTime = newLeftoverTime
-              }
+            ( { model | appState = InGame (tickResultToGameState newLeftoverTime tickResult) }
             , cmd
             )
 
@@ -292,7 +283,6 @@ handleAnimationFrame config timeLeftToConsider tick midRoundState cmdAcc =
                 handleAnimationFrame config (timeLeftToConsider - timestep) newTick newMidRoundState compoundCmd
 
             RoundEnds finishedRound ->
-                -- TODO check if sane to use 0 here
                 ( 0, RoundEnds finishedRound, compoundCmd )
 
     else
@@ -325,7 +315,7 @@ handleUserInteraction direction button model =
                 InGame (Active _ (Spawning _ ( Live, _ ))) ->
                     recordInteractionBefore firstUpdateTick
 
-                InGame (Active _ (Moving lastTick ( Live, _ ))) ->
+                InGame (Active _ (Moving _ lastTick ( Live, _ ))) ->
                     recordInteractionBefore (Tick.succ lastTick)
 
                 _ ->
@@ -354,8 +344,8 @@ subscriptions model =
             InGame (Active NotPaused (Spawning spawnState plannedMidRoundState)) ->
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
-            InGame (Active NotPaused (Moving lastTick midRoundState)) ->
-                onAnimationFrameDelta (\delta -> GameTick delta (Tick.succ lastTick) midRoundState)
+            InGame (Active NotPaused (Moving timeLeftFromPreviousFrame lastTick midRoundState)) ->
+                onAnimationFrameDelta (\delta -> GameTick (delta + timeLeftFromPreviousFrame) (Tick.succ lastTick) midRoundState)
 
             InGame (Active Paused _) ->
                 Sub.none
