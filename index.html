@@ -51,11 +51,6 @@
             context?.clearRect(x, y, width, height);
         }
 
-        app.ports.clear.subscribe(rectangle => {
-            const canvas_main = document.getElementById("canvas_main");
-            clearRectangleIfCanvasExists(canvas_main, rectangle);
-        });
-
         document.addEventListener("keydown", event => {
             const isDeveloperCommand = (
                 ["F5", "F12"].includes(event.key)

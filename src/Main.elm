@@ -24,7 +24,6 @@ import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurve
 import Set exposing (Set)
 import Svg
 import Svg.Attributes
-import TestScenarios.SpeedEffectOnGame
 import Time
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -46,20 +45,12 @@ port focusLost : (() -> msg) -> Sub msg
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    let
-        ( gameState, cmd ) =
-            { seedAfterSpawn = Random.initialSeed 0
-            , spawnedKurves = TestScenarios.SpeedEffectOnGame.spawnedKurves
-            }
-                |> prepareReplayRound
-                |> newRoundGameStateAndCmd Config.default
-    in
     ( { pressedButtons = Set.empty
-      , appState = InGame 0 gameState
+      , appState = InMenu SplashScreen (Random.initialSeed 1337)
       , config = Config.default
       , players = initialPlayers
       }
-    , cmd
+    , Cmd.none
     )
 
 
@@ -75,7 +66,10 @@ startRound model midRoundState =
 newRoundGameStateAndCmd : Config -> MidRoundState -> ( GameState, Cmd msg )
 newRoundGameStateAndCmd config plannedMidRoundState =
     ( Active NotPaused <|
-        Moving Tick.genesis
+        Spawning
+            { kurvesLeft = Tuple.second plannedMidRoundState |> .kurves |> .alive
+            , ticksLeft = config.spawn.numberOfFlickerTicks
+            }
             plannedMidRoundState
     , Cmd.none
       -- TODO
