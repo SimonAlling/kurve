@@ -100,36 +100,6 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
             ( Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning )
 
 
-recurse : Config -> Float -> Tick -> MidRoundState -> Cmd msg -> ( Float, TickResult, Cmd msg )
-recurse config timeLeftToConsider tick midRoundState cmdAcc =
-    let
-        timestep : Float
-        timestep =
-            1000 / Tickrate.toFloat config.kurves.tickrate
-    in
-    if timeLeftToConsider >= timestep then
-        let
-            ( tickResult, newCmd ) =
-                Game.reactToTick config tick midRoundState
-
-            compoundCmd =
-                Cmd.batch [ cmdAcc, newCmd ]
-        in
-        case tickResult of
-            RoundKeepsGoing newTick newMidRoundState ->
-                recurse config (timeLeftToConsider - timestep) newTick newMidRoundState compoundCmd
-
-            RoundEnds finishedRound ->
-                -- TODO check if sane to use 0 here
-                ( 0, RoundEnds finishedRound, compoundCmd )
-
-    else
-        ( timeLeftToConsider
-        , RoundKeepsGoing tick midRoundState
-        , cmdAcc
-        )
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ config, pressedButtons } as model) =
     case msg of
@@ -291,6 +261,36 @@ update msg ({ config, pressedButtons } as model) =
                 _ ->
                     -- Not expected to ever happen.
                     ( model, Cmd.none )
+
+
+recurse : Config -> Float -> Tick -> MidRoundState -> Cmd msg -> ( Float, TickResult, Cmd msg )
+recurse config timeLeftToConsider tick midRoundState cmdAcc =
+    let
+        timestep : Float
+        timestep =
+            1000 / Tickrate.toFloat config.kurves.tickrate
+    in
+    if timeLeftToConsider >= timestep then
+        let
+            ( tickResult, newCmd ) =
+                Game.reactToTick config tick midRoundState
+
+            compoundCmd =
+                Cmd.batch [ cmdAcc, newCmd ]
+        in
+        case tickResult of
+            RoundKeepsGoing newTick newMidRoundState ->
+                recurse config (timeLeftToConsider - timestep) newTick newMidRoundState compoundCmd
+
+            RoundEnds finishedRound ->
+                -- TODO check if sane to use 0 here
+                ( 0, RoundEnds finishedRound, compoundCmd )
+
+    else
+        ( timeLeftToConsider
+        , RoundKeepsGoing tick midRoundState
+        , cmdAcc
+        )
 
 
 gameOver : Random.Seed -> Model -> ( Model, Cmd msg )
