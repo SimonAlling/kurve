@@ -118,7 +118,7 @@ update msg ({ config, pressedButtons } as model) =
         GameTick frameDelta tick midRoundState ->
             let
                 ( newLeftoverTime, tickResult, cmd ) =
-                    recurse config (frameDelta + model.leftoverTime) tick midRoundState Cmd.none
+                    handleAnimationFrame config (frameDelta + model.leftoverTime) tick midRoundState Cmd.none
             in
             ( { model
                 | appState = InGame (tickResultToGameState tickResult)
@@ -268,8 +268,8 @@ update msg ({ config, pressedButtons } as model) =
                     ( model, Cmd.none )
 
 
-recurse : Config -> Float -> Tick -> MidRoundState -> Cmd msg -> ( Float, TickResult, Cmd msg )
-recurse config timeLeftToConsider tick midRoundState cmdAcc =
+handleAnimationFrame : Config -> Float -> Tick -> MidRoundState -> Cmd msg -> ( Float, TickResult, Cmd msg )
+handleAnimationFrame config timeLeftToConsider tick midRoundState cmdAcc =
     let
         timestep : Float
         timestep =
@@ -285,7 +285,7 @@ recurse config timeLeftToConsider tick midRoundState cmdAcc =
         in
         case tickResult of
             RoundKeepsGoing newTick newMidRoundState ->
-                recurse config (timeLeftToConsider - timestep) newTick newMidRoundState compoundCmd
+                handleAnimationFrame config (timeLeftToConsider - timestep) newTick newMidRoundState compoundCmd
 
             RoundEnds finishedRound ->
                 -- TODO check if sane to use 0 here
