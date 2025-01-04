@@ -113,12 +113,12 @@ update msg ({ config, pressedButtons } as model) =
             stepSpawnState config spawnState
                 |> Tuple.mapFirst (\makeActiveGameState -> { model | appState = InGame <| Active NotPaused <| makeActiveGameState plannedMidRoundState })
 
-        GameTick timeLeftToConsider tick midRoundState ->
+        GameTick timeToConsiderForThisFrame tick midRoundState ->
             let
-                ( newLeftoverTime, tickResult, cmd ) =
-                    handleAnimationFrame config timeLeftToConsider tick midRoundState Cmd.none
+                ( leftoverTimeForNextFrame, tickResult, cmd ) =
+                    tickUntilTimeConsumed config timeToConsiderForThisFrame tick midRoundState Cmd.none
             in
-            ( { model | appState = InGame (tickResultToGameState newLeftoverTime tickResult) }
+            ( { model | appState = InGame (tickResultToGameState leftoverTimeForNextFrame tickResult) }
             , cmd
             )
 
@@ -263,8 +263,8 @@ update msg ({ config, pressedButtons } as model) =
                     ( model, Cmd.none )
 
 
-handleAnimationFrame : Config -> Milliseconds -> Tick -> MidRoundState -> Cmd msg -> ( Milliseconds, TickResult, Cmd msg )
-handleAnimationFrame config timeLeftToConsider tick midRoundState cmdAcc =
+tickUntilTimeConsumed : Config -> Milliseconds -> Tick -> MidRoundState -> Cmd msg -> ( Milliseconds, TickResult, Cmd msg )
+tickUntilTimeConsumed config timeLeftToConsider tick midRoundState cmdAcc =
     let
         timestep : Milliseconds
         timestep =
@@ -280,7 +280,7 @@ handleAnimationFrame config timeLeftToConsider tick midRoundState cmdAcc =
         in
         case tickResult of
             RoundKeepsGoing newTick newMidRoundState ->
-                handleAnimationFrame config (timeLeftToConsider - timestep) newTick newMidRoundState compoundCmd
+                tickUntilTimeConsumed config (timeLeftToConsider - timestep) newTick newMidRoundState compoundCmd
 
             RoundEnds finishedRound ->
                 ( 0, RoundEnds finishedRound, compoundCmd )
@@ -344,8 +344,8 @@ subscriptions model =
             InGame (Active NotPaused (Spawning spawnState plannedMidRoundState)) ->
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
-            InGame (Active NotPaused (Moving timeLeftFromPreviousFrame lastTick midRoundState)) ->
-                onAnimationFrameDelta (\delta -> GameTick (delta + timeLeftFromPreviousFrame) (Tick.succ lastTick) midRoundState)
+            InGame (Active NotPaused (Moving leftoverTimeFromPreviousFrame lastTick midRoundState)) ->
+                onAnimationFrameDelta (\delta -> GameTick (delta + leftoverTimeFromPreviousFrame) (Tick.succ lastTick) midRoundState)
 
             InGame (Active Paused _) ->
                 Sub.none
