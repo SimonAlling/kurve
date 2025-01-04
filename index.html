@@ -27,21 +27,6 @@
     <script>
         const app = Elm.WebGlSandbox.init({ node: document.getElementById("elm-node") });
 
-        let it = undefined;
-
-        function f_bra(timestamp) {
-            const delta = timestamp - it;
-            it = timestamp;
-            app.ports.requestAnimationFrame.send(delta);
-            window.requestAnimationFrame(f_bra);
-        }
-
-        function f_init(timestamp) {
-            it = timestamp;
-            window.requestAnimationFrame(f_bra);
-        }
-
-        window.requestAnimationFrame(f_init);
     </script>
 
 </body>
