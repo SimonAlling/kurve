@@ -43,6 +43,9 @@ type alias Model =
 port focusLost : (() -> msg) -> Sub msg
 
 
+port requestAnimationFrame : (Float -> msg) -> Sub msg
+
+
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedButtons = Set.empty
@@ -353,7 +356,7 @@ subscriptions model =
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
             InGame leftoverTimeFromPreviousFrame (Active NotPaused (Moving lastTick midRoundState)) ->
-                onAnimationFrameDelta (\delta -> GameTick (delta + leftoverTimeFromPreviousFrame) (Tick.succ lastTick) midRoundState)
+                requestAnimationFrame (\delta -> GameTick (delta + leftoverTimeFromPreviousFrame) (Tick.succ lastTick) midRoundState)
 
             InGame _ (Active Paused _) ->
                 Sub.none

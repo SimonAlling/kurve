@@ -46,10 +46,25 @@
     <script>
         const app = Elm.Main.init({ node: document.getElementById("elm-node") });
 
-        function clearRectangleIfCanvasExists(canvas, { x, y, width, height }) {
-            const context = canvas?.getContext("2d");
-            context?.clearRect(x, y, width, height);
+        let lastFrameTimeMs = undefined;
+
+        const maxFPS = 1000;
+
+        function f_bra() {
+            const timestamp = Date.now();
+            console.warn(timestamp, lastFrameTimeMs, lastFrameTimeMs + (1000 / maxFPS));
+            if (timestamp < lastFrameTimeMs + (1000 / maxFPS)) {
+                window.setTimeout(f_bra, 2);
+                return;
+            }
+
+            const delta = timestamp - lastFrameTimeMs;
+            lastFrameTimeMs = timestamp;
+            app.ports.requestAnimationFrame.send(delta);
+            window.setTimeout(f_bra, 2);
         }
+
+        f_bra();
 
         document.addEventListener("keydown", event => {
             const isDeveloperCommand = (

@@ -1,4 +1,4 @@
-module WebGlSandbox exposing (..)
+port module WebGlSandbox exposing (..)
 
 {-
    Rotating triangle, that is a "hello world" of the WebGL
@@ -13,6 +13,9 @@ import Rectangle
 import Svg
 import Svg.Attributes
 import WebGL
+
+
+port requestAnimationFrame : (Float -> msg) -> Sub msg
 
 
 type alias Model =
@@ -35,7 +38,7 @@ main =
     Browser.element
         { init = \_ -> ( { innerModel = { position = 0 }, deltaSomBlirÖver = 0 }, Cmd.none )
         , view = view
-        , subscriptions = \_ -> onAnimationFrameDelta identity
+        , subscriptions = \_ -> requestAnimationFrame identity
         , update = update
         }
 
