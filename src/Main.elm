@@ -120,7 +120,12 @@ update msg ({ config, pressedButtons } as model) =
                 ( newLeftoverTime, tickResult, cmd ) =
                     recurse config (frameDelta + model.leftoverTime) tick midRoundState Cmd.none
             in
-            ( { model | appState = InGame (tickResultToGameState tickResult), leftoverTime = newLeftoverTime }, cmd )
+            ( { model
+                | appState = InGame (tickResultToGameState tickResult)
+                , leftoverTime = newLeftoverTime
+              }
+            , cmd
+            )
 
         ButtonUsed Down button ->
             case model.appState of
