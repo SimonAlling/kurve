@@ -32,8 +32,12 @@ type alias Model =
     , appState : AppState
     , config : Config
     , players : AllPlayers
-    , leftoverTime : Float
+    , leftoverTime : Milliseconds
     }
+
+
+type alias Milliseconds =
+    Float
 
 
 port focusLost : (() -> msg) -> Sub msg
@@ -74,7 +78,7 @@ newRoundGameStateAndCmd config plannedMidRoundState =
 
 type Msg
     = SpawnTick SpawnState MidRoundState
-    | GameTick Float Tick MidRoundState
+    | GameTick Milliseconds Tick MidRoundState
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
     | FocusLost
@@ -268,10 +272,10 @@ update msg ({ config, pressedButtons } as model) =
                     ( model, Cmd.none )
 
 
-handleAnimationFrame : Config -> Float -> Tick -> MidRoundState -> Cmd msg -> ( Float, TickResult, Cmd msg )
+handleAnimationFrame : Config -> Milliseconds -> Tick -> MidRoundState -> Cmd msg -> ( Milliseconds, TickResult, Cmd msg )
 handleAnimationFrame config timeLeftToConsider tick midRoundState cmdAcc =
     let
-        timestep : Float
+        timestep : Milliseconds
         timestep =
             1000 / Tickrate.toFloat config.kurves.tickrate
     in
