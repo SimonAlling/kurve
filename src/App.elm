@@ -3,21 +3,21 @@ module App exposing
     , modifyGameState
     )
 
-import Game exposing (GameState)
+import Game exposing (GameState, Milliseconds)
 import Menu exposing (MenuState)
 import Random
 
 
 type AppState
     = InMenu MenuState Random.Seed
-    | InGame GameState
+    | InGame Milliseconds GameState
 
 
 modifyGameState : (GameState -> GameState) -> AppState -> AppState
 modifyGameState f appState =
     case appState of
-        InGame gameState ->
-            InGame <| f gameState
+        InGame ms gameState ->
+            InGame ms <| f gameState
 
         _ ->
             appState

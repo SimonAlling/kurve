@@ -51,7 +51,7 @@ type Paused
 
 type ActiveGameState
     = Spawning SpawnState MidRoundState
-    | Moving Milliseconds Tick MidRoundState
+    | Moving Tick MidRoundState
 
 
 type alias Milliseconds =
@@ -66,8 +66,8 @@ type TickResult
 modifyMidRoundState : (MidRoundState -> MidRoundState) -> GameState -> GameState
 modifyMidRoundState f gameState =
     case gameState of
-        Active p (Moving ms t midRoundState) ->
-            Active p <| Moving ms t <| f midRoundState
+        Active p (Moving t midRoundState) ->
+            Active p <| Moving t <| f midRoundState
 
         Active p (Spawning s midRoundState) ->
             Active p <| Spawning s <| f midRoundState
@@ -180,11 +180,11 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
     )
 
 
-tickResultToGameState : Milliseconds -> TickResult -> GameState
-tickResultToGameState leftoverTimeForNextFrame tickResult =
+tickResultToGameState : TickResult -> GameState
+tickResultToGameState tickResult =
     case tickResult of
         RoundKeepsGoing tick s ->
-            Active NotPaused (Moving leftoverTimeForNextFrame tick s)
+            Active NotPaused (Moving tick s)
 
         RoundEnds finishedRound ->
             RoundOver finishedRound Dialog.NotOpen

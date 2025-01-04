@@ -22,7 +22,7 @@ scoreboard gameState players =
             Active _ (Spawning _ ( _, round )) ->
                 content players round
 
-            Active _ (Moving _ _ ( _, round )) ->
+            Active _ (Moving _ ( _, round )) ->
                 content players round
 
             RoundOver round _ ->
