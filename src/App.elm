@@ -10,7 +10,7 @@ import Random
 
 type AppState
     = InMenu MenuState Random.Seed
-    | InGame (Maybe Milliseconds) GameState
+    | InGame Milliseconds GameState
 
 
 modifyGameState : (GameState -> GameState) -> AppState -> AppState
