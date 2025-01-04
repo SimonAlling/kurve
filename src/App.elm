@@ -6,18 +6,19 @@ module App exposing
 import Game exposing (GameState)
 import Menu exposing (MenuState)
 import Random
+import Types.FrameTime exposing (LeftoverFrameTime)
 
 
 type AppState
     = InMenu MenuState Random.Seed
-    | InGame GameState
+    | InGame LeftoverFrameTime GameState
 
 
 modifyGameState : (GameState -> GameState) -> AppState -> AppState
 modifyGameState f appState =
     case appState of
-        InGame gameState ->
-            InGame <| f gameState
+        InGame leftoverFrameTime gameState ->
+            InGame leftoverFrameTime <| f gameState
 
         _ ->
             appState
