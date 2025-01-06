@@ -122,7 +122,7 @@ update msg ({ config, pressedButtons } as model) =
                         Nothing ->
                             Moving Tick.genesis plannedMidRoundState
             in
-            ( { model | appState = InGame <| Active NotPaused <| activeGameState }
+            ( { model | appState = InGame <| Active NotPaused activeGameState }
             , cmd
             )
 
