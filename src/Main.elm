@@ -109,8 +109,13 @@ update msg ({ config, pressedButtons } as model) =
                     ( model, Cmd.none )
 
         SpawnTick spawnState plannedMidRoundState ->
-            stepSpawnState config spawnState
-                |> Tuple.mapFirst (\makeActiveGameState -> { model | appState = InGame <| Active NotPaused <| makeActiveGameState plannedMidRoundState })
+            let
+                ( makeActiveGameState, cmd ) =
+                    stepSpawnState config spawnState
+            in
+            ( { model | appState = InGame <| Active NotPaused <| makeActiveGameState plannedMidRoundState }
+            , cmd
+            )
 
         GameTick { lastTick } midRoundState ->
             let
