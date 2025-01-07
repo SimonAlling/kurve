@@ -19,15 +19,15 @@ consumeFrameTime config delta leftoverTimeFromPreviousFrame lastTick midRoundSta
             1000 / Tickrate.toFloat config.kurves.tickrate
 
         recurse : FrameTime -> Tick -> MidRoundState -> Cmd msg -> ( LeftoverFrameTime, TickResult, Cmd msg )
-        recurse timeLeftToConsume someTick midRoundStateSoFar cmdSoFar =
+        recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar cmdSoFar =
             if timeLeftToConsume >= timestep then
                 let
-                    nextTick : Tick
-                    nextTick =
-                        Tick.succ someTick
+                    incrementedTick : Tick
+                    incrementedTick =
+                        Tick.succ lastTickReactedTo
 
                     ( tickResult, cmdForThisTick ) =
-                        Game.reactToTick config nextTick midRoundStateSoFar
+                        Game.reactToTick config incrementedTick midRoundStateSoFar
 
                     newCmd : Cmd msg
                     newCmd =
@@ -35,14 +35,14 @@ consumeFrameTime config delta leftoverTimeFromPreviousFrame lastTick midRoundSta
                 in
                 case tickResult of
                     RoundKeepsGoing _ newMidRoundState ->
-                        recurse (timeLeftToConsume - timestep) nextTick newMidRoundState newCmd
+                        recurse (timeLeftToConsume - timestep) incrementedTick newMidRoundState newCmd
 
                     RoundEnds finishedRound ->
                         ( 0, RoundEnds finishedRound, newCmd )
 
             else
                 ( timeLeftToConsume
-                , RoundKeepsGoing someTick midRoundStateSoFar
+                , RoundKeepsGoing lastTickReactedTo midRoundStateSoFar
                 , cmdSoFar
                 )
     in
