@@ -23,7 +23,7 @@ import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
 import Time
-import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
+import Types.FrameTime exposing (FrameTime, LeftoverFrameTime, WithLeftoverFrameTime(..))
 import Types.Tick as Tick exposing (Tick)
 import Util exposing (isEven)
 
@@ -55,13 +55,8 @@ startRound model midRoundState =
     let
         ( gameState, cmd ) =
             newRoundGameStateAndCmd model.config midRoundState
-
-        leftoverFrameTime : LeftoverFrameTime
-        leftoverFrameTime =
-            -- The leftover time here shouldn't matter, because it should be set to 0 when the Kurves start moving anyway.
-            MainLoop.noLeftoverTime
     in
-    ( { model | appState = InGame leftoverFrameTime gameState }, cmd )
+    ( { model | appState = InGame gameState }, cmd )
 
 
 newRoundGameStateAndCmd : Config -> MidRoundState -> ( GameState, Cmd msg )
@@ -114,8 +109,8 @@ update msg ({ config, pressedButtons } as model) =
     case msg of
         FocusLost ->
             case model.appState of
-                InGame leftoverFrameTime (Active _ s) ->
-                    ( { model | appState = InGame leftoverFrameTime (Active Paused s) }, Cmd.none )
+                InGame (Active _ s) ->
+                    ( { model | appState = InGame (Active Paused s) }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -132,18 +127,18 @@ update msg ({ config, pressedButtons } as model) =
                             Spawning newSpawnState plannedMidRoundState
 
                         Nothing ->
-                            Moving Tick.genesis plannedMidRoundState
+                            Moving Tick.genesis (WithLeftoverFrameTime MainLoop.noLeftoverTime plannedMidRoundState)
             in
-            ( { model | appState = InGame MainLoop.noLeftoverTime <| Active NotPaused activeGameState }
+            ( { model | appState = InGame <| Active NotPaused activeGameState }
             , cmd
             )
 
         AnimationFrame { delta, leftoverTimeFromPreviousFrame, lastTick } midRoundState ->
             let
-                ( leftoverTimeForNextFrame, tickResult, cmd ) =
-                    MainLoop.consumeFrameTime config delta leftoverTimeFromPreviousFrame lastTick midRoundState
+                ( WithLeftoverFrameTime newLeftoverFrameTime tickResult, cmd ) =
+                    MainLoop.consumeFrameTime config delta lastTick (WithLeftoverFrameTime leftoverTimeFromPreviousFrame midRoundState)
             in
-            ( { model | appState = InGame leftoverTimeForNextFrame (tickResultToGameState tickResult) }
+            ( { model | appState = InGame (tickResultToGameState newLeftoverFrameTime tickResult) }
             , cmd
             )
 
@@ -165,7 +160,7 @@ update msg ({ config, pressedButtons } as model) =
                         _ ->
                             ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, Cmd.none )
 
-                InGame leftoverFrameTime (RoundOver finishedRound dialogState) ->
+                InGame (RoundOver finishedRound dialogState) ->
                     case dialogState of
                         Dialog.NotOpen ->
                             let
@@ -184,7 +179,7 @@ update msg ({ config, pressedButtons } as model) =
                                 Key "Escape" ->
                                     -- Quitting after the final round is not allowed in the original game.
                                     if not gameIsOver then
-                                        ( { model | appState = InGame leftoverFrameTime (RoundOver finishedRound (Dialog.Open Dialog.Cancel)) }, Cmd.none )
+                                        ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open Dialog.Cancel)) }, Cmd.none )
 
                                     else
                                         ( handleUserInteraction Down button model, Cmd.none )
@@ -203,7 +198,7 @@ update msg ({ config, pressedButtons } as model) =
                             let
                                 cancel : ( Model, Cmd msg )
                                 cancel =
-                                    ( { model | appState = InGame leftoverFrameTime (RoundOver finishedRound Dialog.NotOpen) }, Cmd.none )
+                                    ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, Cmd.none )
 
                                 confirm : ( Model, Cmd msg )
                                 confirm =
@@ -211,7 +206,7 @@ update msg ({ config, pressedButtons } as model) =
 
                                 select : Dialog.Option -> ( Model, Cmd msg )
                                 select option =
-                                    ( { model | appState = InGame leftoverFrameTime (RoundOver finishedRound (Dialog.Open option)) }, Cmd.none )
+                                    ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open option)) }, Cmd.none )
                             in
                             case ( button, selectedOption ) of
                                 ( Key "Escape", _ ) ->
@@ -251,10 +246,10 @@ update msg ({ config, pressedButtons } as model) =
                                 _ ->
                                     ( handleUserInteraction Down button model, Cmd.none )
 
-                InGame leftoverFrameTime (Active Paused s) ->
+                InGame (Active Paused s) ->
                     case button of
                         Key "Space" ->
-                            ( { model | appState = InGame leftoverFrameTime (Active NotPaused s) }, Cmd.none )
+                            ( { model | appState = InGame (Active NotPaused s) }, Cmd.none )
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
@@ -275,13 +270,13 @@ update msg ({ config, pressedButtons } as model) =
 
         DialogChoiceMade option ->
             case model.appState of
-                InGame leftoverFrameTime (RoundOver finishedRound (Dialog.Open _)) ->
+                InGame (RoundOver finishedRound (Dialog.Open _)) ->
                     case option of
                         Dialog.Confirm ->
                             goToLobby finishedRound.seed model
 
                         Dialog.Cancel ->
-                            ( { model | appState = InGame leftoverFrameTime (RoundOver finishedRound Dialog.NotOpen) }, Cmd.none )
+                            ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, Cmd.none )
 
                 _ ->
                     -- Not expected to ever happen.
@@ -308,10 +303,10 @@ handleUserInteraction direction button model =
         howToModifyRound : Round -> Round
         howToModifyRound =
             case model.appState of
-                InGame _ (Active _ (Spawning _ ( Live, _ ))) ->
+                InGame (Active _ (Spawning _ ( Live, _ ))) ->
                     recordInteractionBefore firstUpdateTick
 
-                InGame _ (Active _ (Moving lastTick ( Live, _ ))) ->
+                InGame (Active _ (Moving lastTick (WithLeftoverFrameTime _ ( Live, _ )))) ->
                     recordInteractionBefore (Tick.succ lastTick)
 
                 _ ->
@@ -337,10 +332,10 @@ subscriptions model =
             InMenu Lobby _ ->
                 Sub.none
 
-            InGame _ (Active NotPaused (Spawning spawnState plannedMidRoundState)) ->
+            InGame (Active NotPaused (Spawning spawnState plannedMidRoundState)) ->
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
-            InGame leftoverTimeFromPreviousFrame (Active NotPaused (Moving lastTick midRoundState)) ->
+            InGame (Active NotPaused (Moving lastTick (WithLeftoverFrameTime leftoverTimeFromPreviousFrame midRoundState))) ->
                 Browser.Events.onAnimationFrameDelta
                     (\delta ->
                         AnimationFrame
@@ -351,10 +346,10 @@ subscriptions model =
                             midRoundState
                     )
 
-            InGame _ (Active Paused _) ->
+            InGame (Active Paused _) ->
                 Sub.none
 
-            InGame _ (RoundOver _ _) ->
+            InGame (RoundOver _ _) ->
                 Sub.none
 
             InMenu GameOver _ ->
@@ -376,7 +371,7 @@ view model =
         InMenu SplashScreen _ ->
             elmRoot [] [ splashScreen ]
 
-        InGame _ gameState ->
+        InGame gameState ->
             elmRoot
                 [ Attr.class "in-game"
                 ]

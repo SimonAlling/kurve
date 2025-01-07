@@ -1,4 +1,4 @@
-module Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
+module Types.FrameTime exposing (FrameTime, LeftoverFrameTime, WithLeftoverFrameTime(..))
 
 
 type alias FrameTime =
@@ -7,3 +7,7 @@ type alias FrameTime =
 
 type alias LeftoverFrameTime =
     FrameTime
+
+
+type WithLeftoverFrameTime a
+    = WithLeftoverFrameTime LeftoverFrameTime a

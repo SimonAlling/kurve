@@ -31,6 +31,7 @@ import Thickness exposing (theThickness)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle)
 import Types.Distance as Distance exposing (Distance(..))
+import Types.FrameTime exposing (LeftoverFrameTime, WithLeftoverFrameTime(..))
 import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..), modifyReversedInteractions)
 import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
@@ -51,7 +52,7 @@ type Paused
 
 type ActiveGameState
     = Spawning SpawnState MidRoundState
-    | Moving Tick MidRoundState
+    | Moving Tick (WithLeftoverFrameTime MidRoundState)
 
 
 type TickResult
@@ -65,7 +66,7 @@ getCurrentRound gameState =
         Active _ (Spawning _ ( _, round )) ->
             round
 
-        Active _ (Moving _ ( _, round )) ->
+        Active _ (Moving _ (WithLeftoverFrameTime _ ( _, round ))) ->
             round
 
         RoundOver round _ ->
@@ -75,8 +76,8 @@ getCurrentRound gameState =
 modifyMidRoundState : (MidRoundState -> MidRoundState) -> GameState -> GameState
 modifyMidRoundState f gameState =
     case gameState of
-        Active p (Moving t midRoundState) ->
-            Active p <| Moving t <| f midRoundState
+        Active p (Moving t (WithLeftoverFrameTime leftoverFrameTime midRoundState)) ->
+            Active p <| Moving t <| WithLeftoverFrameTime leftoverFrameTime <| f midRoundState
 
         Active p (Spawning s midRoundState) ->
             Active p <| Spawning s <| f midRoundState
@@ -189,11 +190,11 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
     )
 
 
-tickResultToGameState : TickResult -> GameState
-tickResultToGameState tickResult =
+tickResultToGameState : LeftoverFrameTime -> TickResult -> GameState
+tickResultToGameState leftoverFrameTime tickResult =
     case tickResult of
         RoundKeepsGoing tick s ->
-            Active NotPaused (Moving tick s)
+            Active NotPaused (Moving tick (WithLeftoverFrameTime leftoverFrameTime s))
 
         RoundEnds finishedRound ->
             RoundOver finishedRound Dialog.NotOpen
