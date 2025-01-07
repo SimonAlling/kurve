@@ -7,6 +7,7 @@ module Game exposing
     , SpawnState
     , TickResult(..)
     , firstUpdateTick
+    , getCurrentRound
     , modifyMidRoundState
     , modifyRound
     , prepareLiveRound
@@ -56,6 +57,19 @@ type ActiveGameState
 type TickResult
     = RoundKeepsGoing Tick MidRoundState
     | RoundEnds Round
+
+
+getCurrentRound : GameState -> Round
+getCurrentRound gameState =
+    case gameState of
+        Active _ (Spawning _ ( _, round )) ->
+            round
+
+        Active _ (Moving _ ( _, round )) ->
+            round
+
+        RoundOver round _ ->
+            round
 
 
 modifyMidRoundState : (MidRoundState -> MidRoundState) -> GameState -> GameState
