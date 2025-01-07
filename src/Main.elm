@@ -55,8 +55,13 @@ startRound model midRoundState =
     let
         ( gameState, cmd ) =
             newRoundGameStateAndCmd model.config midRoundState
+
+        leftoverFrameTime : LeftoverFrameTime
+        leftoverFrameTime =
+            -- The leftover time here shouldn't matter, because it should be set to 0 when the Kurves start moving anyway.
+            MainLoop.noLeftoverTime
     in
-    ( { model | appState = InGame MainLoop.noLeftoverTime gameState }, cmd )
+    ( { model | appState = InGame leftoverFrameTime gameState }, cmd )
 
 
 newRoundGameStateAndCmd : Config -> MidRoundState -> ( GameState, Cmd msg )

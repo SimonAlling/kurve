@@ -38,7 +38,11 @@ consumeFrameTime config delta leftoverTimeFromPreviousFrame lastTick midRoundSta
                         recurse (timeLeftToConsume - timestep) incrementedTick newMidRoundState newCmd
 
                     RoundEnds finishedRound ->
-                        ( noLeftoverTime, RoundEnds finishedRound, newCmd )
+                        ( -- The leftover time here shouldn't matter, because it should be set to 0 at the start of every round anyway.
+                          noLeftoverTime
+                        , RoundEnds finishedRound
+                        , newCmd
+                        )
 
             else
                 ( timeLeftToConsume
