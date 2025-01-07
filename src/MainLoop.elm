@@ -22,8 +22,12 @@ consumeFrameTime config delta leftoverTimeFromPreviousFrame lastTick midRoundSta
         recurse timeLeftToConsume someTick midRoundStateSoFar cmdSoFar =
             if timeLeftToConsume >= timestep then
                 let
+                    nextTick : Tick
+                    nextTick =
+                        Tick.succ someTick
+
                     ( tickResult, cmdForThisTick ) =
-                        Game.reactToTick config someTick midRoundStateSoFar
+                        Game.reactToTick config nextTick midRoundStateSoFar
 
                     newCmd : Cmd msg
                     newCmd =
@@ -31,7 +35,7 @@ consumeFrameTime config delta leftoverTimeFromPreviousFrame lastTick midRoundSta
                 in
                 case tickResult of
                     RoundKeepsGoing _ newMidRoundState ->
-                        recurse (timeLeftToConsume - timestep) (Tick.succ someTick) newMidRoundState newCmd
+                        recurse (timeLeftToConsume - timestep) nextTick newMidRoundState newCmd
 
                     RoundEnds finishedRound ->
                         ( 0, RoundEnds finishedRound, newCmd )
