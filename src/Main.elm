@@ -127,7 +127,7 @@ update msg ({ config, pressedButtons } as model) =
                             Spawning newSpawnState plannedMidRoundState
 
                         Nothing ->
-                            Moving Tick.genesis ( MainLoop.noLeftoverTime, plannedMidRoundState )
+                            Moving Tick.genesis ( MainLoop.noLeftoverFrameTime, plannedMidRoundState )
             in
             ( { model | appState = InGame <| Active NotPaused activeGameState }
             , cmd

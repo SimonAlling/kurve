@@ -1,4 +1,4 @@
-module MainLoop exposing (consumeAnimationFrame, noLeftoverTime)
+module MainLoop exposing (consumeAnimationFrame, noLeftoverFrameTime)
 
 {-| Based on Isaac Sukin's `MainLoop.js`.
 
@@ -57,6 +57,6 @@ consumeAnimationFrame config delta lastTick ( leftoverTimeFromPreviousFrame, mid
     recurse lastTick ( timeToConsume, midRoundState ) Cmd.none
 
 
-noLeftoverTime : LeftoverFrameTime
-noLeftoverTime =
+noLeftoverFrameTime : LeftoverFrameTime
+noLeftoverFrameTime =
     0
