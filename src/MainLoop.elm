@@ -41,7 +41,7 @@ consumeAnimationFrame config delta lastTick ( leftoverTimeFromPreviousFrame, mid
                         Cmd.batch [ cmdSoFar, cmdForThisTick ]
                 in
                 case tickResult of
-                    RoundKeepsGoing _ newMidRoundState ->
+                    RoundKeepsGoing newMidRoundState ->
                         recurse incrementedTick ( timeLeftToConsume - timestep, newMidRoundState ) newCmd
 
                     RoundEnds finishedRound ->
@@ -50,7 +50,7 @@ consumeAnimationFrame config delta lastTick ( leftoverTimeFromPreviousFrame, mid
                         )
 
             else
-                ( RoundKeepsGoing lastTickReactedTo ( timeLeftToConsume, midRoundStateSoFar )
+                ( RoundKeepsGoing ( timeLeftToConsume, midRoundStateSoFar )
                 , cmdSoFar
                 )
     in
