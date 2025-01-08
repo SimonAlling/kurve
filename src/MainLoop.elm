@@ -31,7 +31,11 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
         timestep =
             1000 / Tickrate.toFloat config.kurves.tickrate
 
-        recurse : Tick -> ( LeftoverFrameTime, MidRoundState ) -> Cmd msg -> ( TickResult ( Tick, LeftoverFrameTime, MidRoundState ), Cmd msg )
+        recurse :
+            Tick
+            -> ( LeftoverFrameTime, MidRoundState )
+            -> Cmd msg
+            -> ( TickResult ( Tick, LeftoverFrameTime, MidRoundState ), Cmd msg )
         recurse lastTickReactedTo ( timeLeftToConsume, midRoundStateSoFar ) cmdSoFar =
             if timeLeftToConsume >= timestep then
                 let
