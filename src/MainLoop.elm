@@ -17,11 +17,11 @@ import Types.Tickrate as Tickrate
 consumeAnimationFrame :
     Config
     -> FrameTime
-    -> Tick
     -> LeftoverFrameTime
+    -> Tick
     -> MidRoundState
     -> ( TickResult ( Tick, LeftoverFrameTime, MidRoundState ), Cmd msg )
-consumeAnimationFrame config delta lastTick leftoverTimeFromPreviousFrame midRoundState =
+consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState =
     let
         timeToConsume : FrameTime
         timeToConsume =
