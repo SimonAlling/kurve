@@ -14,7 +14,7 @@ import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 
 
-consumeAnimationFrame : Config -> FrameTime -> Tick -> ( LeftoverFrameTime, MidRoundState ) -> ( TickResult ( LeftoverFrameTime, MidRoundState ), Cmd msg )
+consumeAnimationFrame : Config -> FrameTime -> Tick -> ( LeftoverFrameTime, MidRoundState ) -> ( TickResult ( Tick, LeftoverFrameTime, MidRoundState ), Cmd msg )
 consumeAnimationFrame config delta lastTick ( leftoverTimeFromPreviousFrame, midRoundState ) =
     let
         timeToConsume : FrameTime
@@ -25,7 +25,7 @@ consumeAnimationFrame config delta lastTick ( leftoverTimeFromPreviousFrame, mid
         timestep =
             1000 / Tickrate.toFloat config.kurves.tickrate
 
-        recurse : Tick -> ( LeftoverFrameTime, MidRoundState ) -> Cmd msg -> ( TickResult ( LeftoverFrameTime, MidRoundState ), Cmd msg )
+        recurse : Tick -> ( LeftoverFrameTime, MidRoundState ) -> Cmd msg -> ( TickResult ( Tick, LeftoverFrameTime, MidRoundState ), Cmd msg )
         recurse lastTickReactedTo ( timeLeftToConsume, midRoundStateSoFar ) cmdSoFar =
             if timeLeftToConsume >= timestep then
                 let
@@ -50,7 +50,7 @@ consumeAnimationFrame config delta lastTick ( leftoverTimeFromPreviousFrame, mid
                         )
 
             else
-                ( RoundKeepsGoing ( timeLeftToConsume, midRoundStateSoFar )
+                ( RoundKeepsGoing ( lastTickReactedTo, timeLeftToConsume, midRoundStateSoFar )
                 , cmdSoFar
                 )
     in
