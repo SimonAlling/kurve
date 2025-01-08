@@ -14,7 +14,12 @@ import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 
 
-consumeAnimationFrame : Config -> FrameTime -> Tick -> ( LeftoverFrameTime, MidRoundState ) -> ( TickResult ( Tick, LeftoverFrameTime, MidRoundState ), Cmd msg )
+consumeAnimationFrame :
+    Config
+    -> FrameTime
+    -> Tick
+    -> ( LeftoverFrameTime, MidRoundState )
+    -> ( TickResult ( Tick, LeftoverFrameTime, MidRoundState ), Cmd msg )
 consumeAnimationFrame config delta lastTick ( leftoverTimeFromPreviousFrame, midRoundState ) =
     let
         timeToConsume : FrameTime
