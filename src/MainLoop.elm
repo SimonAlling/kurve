@@ -18,9 +18,10 @@ consumeAnimationFrame :
     Config
     -> FrameTime
     -> Tick
-    -> ( LeftoverFrameTime, MidRoundState )
+    -> LeftoverFrameTime
+    -> MidRoundState
     -> ( TickResult ( Tick, LeftoverFrameTime, MidRoundState ), Cmd msg )
-consumeAnimationFrame config delta lastTick ( leftoverTimeFromPreviousFrame, midRoundState ) =
+consumeAnimationFrame config delta lastTick leftoverTimeFromPreviousFrame midRoundState =
     let
         timeToConsume : FrameTime
         timeToConsume =
