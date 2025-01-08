@@ -33,10 +33,11 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
 
         recurse :
             Tick
-            -> ( LeftoverFrameTime, MidRoundState )
+            -> LeftoverFrameTime
+            -> MidRoundState
             -> Cmd msg
             -> ( TickResult ( Tick, LeftoverFrameTime, MidRoundState ), Cmd msg )
-        recurse lastTickReactedTo ( timeLeftToConsume, midRoundStateSoFar ) cmdSoFar =
+        recurse lastTickReactedTo timeLeftToConsume midRoundStateSoFar cmdSoFar =
             if timeLeftToConsume >= timestep then
                 let
                     incrementedTick : Tick
@@ -52,7 +53,7 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
                 in
                 case tickResult of
                     RoundKeepsGoing newMidRoundState ->
-                        recurse incrementedTick ( timeLeftToConsume - timestep, newMidRoundState ) newCmd
+                        recurse incrementedTick (timeLeftToConsume - timestep) newMidRoundState newCmd
 
                     RoundEnds finishedRound ->
                         ( RoundEnds finishedRound
@@ -64,7 +65,7 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
                 , cmdSoFar
                 )
     in
-    recurse lastTick ( timeToConsume, midRoundState ) Cmd.none
+    recurse lastTick timeToConsume midRoundState Cmd.none
 
 
 noLeftoverFrameTime : LeftoverFrameTime
