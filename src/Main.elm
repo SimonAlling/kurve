@@ -23,7 +23,7 @@ import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
 import Time
-import Types.FrameTime exposing (FrameTime, LeftoverFrameTime, WithLeftoverFrameTime(..))
+import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
 import Util exposing (isEven)
 
@@ -127,7 +127,7 @@ update msg ({ config, pressedButtons } as model) =
                             Spawning newSpawnState plannedMidRoundState
 
                         Nothing ->
-                            Moving Tick.genesis (WithLeftoverFrameTime MainLoop.noLeftoverTime plannedMidRoundState)
+                            Moving Tick.genesis ( MainLoop.noLeftoverTime, plannedMidRoundState )
             in
             ( { model | appState = InGame <| Active NotPaused activeGameState }
             , cmd
@@ -136,7 +136,7 @@ update msg ({ config, pressedButtons } as model) =
         AnimationFrame { delta, leftoverTimeFromPreviousFrame, lastTick } midRoundState ->
             let
                 ( tickResult, cmd ) =
-                    MainLoop.consumeFrameTime config delta lastTick (WithLeftoverFrameTime leftoverTimeFromPreviousFrame midRoundState)
+                    MainLoop.consumeFrameTime config delta lastTick ( leftoverTimeFromPreviousFrame, midRoundState )
             in
             ( { model | appState = InGame (tickResultToGameState tickResult) }
             , cmd
@@ -306,7 +306,7 @@ handleUserInteraction direction button model =
                 InGame (Active _ (Spawning _ ( Live, _ ))) ->
                     recordInteractionBefore firstUpdateTick
 
-                InGame (Active _ (Moving lastTick (WithLeftoverFrameTime _ ( Live, _ )))) ->
+                InGame (Active _ (Moving lastTick ( _, ( Live, _ ) ))) ->
                     recordInteractionBefore (Tick.succ lastTick)
 
                 _ ->
@@ -335,7 +335,7 @@ subscriptions model =
             InGame (Active NotPaused (Spawning spawnState plannedMidRoundState)) ->
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
-            InGame (Active NotPaused (Moving lastTick (WithLeftoverFrameTime leftoverTimeFromPreviousFrame midRoundState))) ->
+            InGame (Active NotPaused (Moving lastTick ( leftoverTimeFromPreviousFrame, midRoundState ))) ->
                 Browser.Events.onAnimationFrameDelta
                     (\delta ->
                         AnimationFrame

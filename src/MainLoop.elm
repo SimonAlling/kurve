@@ -2,13 +2,13 @@ module MainLoop exposing (consumeFrameTime, noLeftoverTime)
 
 import Config exposing (Config)
 import Game exposing (MidRoundState, TickResult(..))
-import Types.FrameTime exposing (FrameTime, LeftoverFrameTime, WithLeftoverFrameTime(..))
+import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 
 
-consumeFrameTime : Config -> FrameTime -> Tick -> WithLeftoverFrameTime MidRoundState -> ( TickResult (WithLeftoverFrameTime MidRoundState), Cmd msg )
-consumeFrameTime config delta lastTick (WithLeftoverFrameTime leftoverTimeFromPreviousFrame midRoundState) =
+consumeFrameTime : Config -> FrameTime -> Tick -> ( LeftoverFrameTime, MidRoundState ) -> ( TickResult ( LeftoverFrameTime, MidRoundState ), Cmd msg )
+consumeFrameTime config delta lastTick ( leftoverTimeFromPreviousFrame, midRoundState ) =
     let
         timeToConsume : FrameTime
         timeToConsume =
@@ -18,8 +18,8 @@ consumeFrameTime config delta lastTick (WithLeftoverFrameTime leftoverTimeFromPr
         timestep =
             1000 / Tickrate.toFloat config.kurves.tickrate
 
-        recurse : Tick -> WithLeftoverFrameTime MidRoundState -> Cmd msg -> ( TickResult (WithLeftoverFrameTime MidRoundState), Cmd msg )
-        recurse lastTickReactedTo (WithLeftoverFrameTime timeLeftToConsume midRoundStateSoFar) cmdSoFar =
+        recurse : Tick -> ( LeftoverFrameTime, MidRoundState ) -> Cmd msg -> ( TickResult ( LeftoverFrameTime, MidRoundState ), Cmd msg )
+        recurse lastTickReactedTo ( timeLeftToConsume, midRoundStateSoFar ) cmdSoFar =
             if timeLeftToConsume >= timestep then
                 let
                     incrementedTick : Tick
@@ -35,7 +35,7 @@ consumeFrameTime config delta lastTick (WithLeftoverFrameTime leftoverTimeFromPr
                 in
                 case tickResult of
                     RoundKeepsGoing _ newMidRoundState ->
-                        recurse incrementedTick (WithLeftoverFrameTime (timeLeftToConsume - timestep) newMidRoundState) newCmd
+                        recurse incrementedTick ( timeLeftToConsume - timestep, newMidRoundState ) newCmd
 
                     RoundEnds finishedRound ->
                         ( RoundEnds finishedRound
@@ -43,11 +43,11 @@ consumeFrameTime config delta lastTick (WithLeftoverFrameTime leftoverTimeFromPr
                         )
 
             else
-                ( RoundKeepsGoing lastTickReactedTo (WithLeftoverFrameTime timeLeftToConsume midRoundStateSoFar)
+                ( RoundKeepsGoing lastTickReactedTo ( timeLeftToConsume, midRoundStateSoFar )
                 , cmdSoFar
                 )
     in
-    recurse lastTick (WithLeftoverFrameTime timeToConsume midRoundState) Cmd.none
+    recurse lastTick ( timeToConsume, midRoundState ) Cmd.none
 
 
 noLeftoverTime : LeftoverFrameTime
