@@ -190,10 +190,10 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
     )
 
 
-tickResultToGameState : TickResult ( Tick, LeftoverFrameTime, MidRoundState ) -> GameState
+tickResultToGameState : TickResult ( LeftoverFrameTime, Tick, MidRoundState ) -> GameState
 tickResultToGameState tickResult =
     case tickResult of
-        RoundKeepsGoing ( tick, leftoverFrameTime, midRoundState ) ->
+        RoundKeepsGoing ( leftoverFrameTime, tick, midRoundState ) ->
             Active NotPaused (Moving tick ( leftoverFrameTime, midRoundState ))
 
         RoundEnds finishedRound ->

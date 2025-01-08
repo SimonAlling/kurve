@@ -20,7 +20,7 @@ consumeAnimationFrame :
     -> LeftoverFrameTime
     -> Tick
     -> MidRoundState
-    -> ( TickResult ( Tick, LeftoverFrameTime, MidRoundState ), Cmd msg )
+    -> ( TickResult ( LeftoverFrameTime, Tick, MidRoundState ), Cmd msg )
 consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState =
     let
         timeToConsume : FrameTime
@@ -36,7 +36,7 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
             -> Tick
             -> MidRoundState
             -> Cmd msg
-            -> ( TickResult ( Tick, LeftoverFrameTime, MidRoundState ), Cmd msg )
+            -> ( TickResult ( LeftoverFrameTime, Tick, MidRoundState ), Cmd msg )
         recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar cmdSoFar =
             if timeLeftToConsume >= timestep then
                 let
@@ -61,7 +61,7 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
                         )
 
             else
-                ( RoundKeepsGoing ( lastTickReactedTo, timeLeftToConsume, midRoundStateSoFar )
+                ( RoundKeepsGoing ( timeLeftToConsume, lastTickReactedTo, midRoundStateSoFar )
                 , cmdSoFar
                 )
     in
