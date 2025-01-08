@@ -55,7 +55,7 @@ type ActiveGameState
 
 
 type TickResult
-    = RoundKeepsGoing Tick MidRoundState
+    = RoundKeepsGoing MidRoundState
     | RoundEnds Round
 
 
@@ -179,7 +179,7 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
                 RoundEnds newCurrentRound
 
             else
-                RoundKeepsGoing tick <| modifyRound (always newCurrentRound) midRoundState
+                RoundKeepsGoing <| modifyRound (always newCurrentRound) midRoundState
     in
     ( tickResult
     , [ headDrawingCmd newKurves.alive
@@ -189,10 +189,10 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
     )
 
 
-tickResultToGameState : TickResult -> GameState
-tickResultToGameState tickResult =
+tickResultToGameState : Tick -> TickResult -> GameState
+tickResultToGameState tick tickResult =
     case tickResult of
-        RoundKeepsGoing tick s ->
+        RoundKeepsGoing s ->
             Active NotPaused (Moving tick s)
 
         RoundEnds finishedRound ->

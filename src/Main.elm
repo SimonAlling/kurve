@@ -128,10 +128,14 @@ update msg ({ config, pressedButtons } as model) =
 
         GameTick { lastTick } midRoundState ->
             let
+                tick : Tick
+                tick =
+                    Tick.succ lastTick
+
                 ( tickResult, cmd ) =
-                    Game.reactToTick config (Tick.succ lastTick) midRoundState
+                    Game.reactToTick config tick midRoundState
             in
-            ( { model | appState = InGame (tickResultToGameState tickResult) }
+            ( { model | appState = InGame (tickResultToGameState tick tickResult) }
             , cmd
             )
 
