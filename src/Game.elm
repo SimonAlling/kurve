@@ -52,7 +52,7 @@ type Paused
 
 type ActiveGameState
     = Spawning SpawnState MidRoundState
-    | Moving Tick LeftoverFrameTime MidRoundState
+    | Moving LeftoverFrameTime Tick MidRoundState
 
 
 type TickResult a
@@ -194,7 +194,7 @@ tickResultToGameState : TickResult ( LeftoverFrameTime, Tick, MidRoundState ) ->
 tickResultToGameState tickResult =
     case tickResult of
         RoundKeepsGoing ( leftoverFrameTime, tick, midRoundState ) ->
-            Active NotPaused (Moving tick leftoverFrameTime midRoundState)
+            Active NotPaused (Moving leftoverFrameTime tick midRoundState)
 
         RoundEnds finishedRound ->
             RoundOver finishedRound Dialog.NotOpen
