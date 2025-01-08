@@ -127,7 +127,7 @@ update msg ({ config, pressedButtons } as model) =
                             Spawning newSpawnState plannedMidRoundState
 
                         Nothing ->
-                            Moving Tick.genesis ( MainLoop.noLeftoverFrameTime, plannedMidRoundState )
+                            Moving Tick.genesis MainLoop.noLeftoverFrameTime plannedMidRoundState
             in
             ( { model | appState = InGame <| Active NotPaused activeGameState }
             , cmd
@@ -306,7 +306,7 @@ handleUserInteraction direction button model =
                 InGame (Active _ (Spawning _ ( Live, _ ))) ->
                     recordInteractionBefore firstUpdateTick
 
-                InGame (Active _ (Moving lastTick ( _, ( Live, _ ) ))) ->
+                InGame (Active _ (Moving lastTick _ ( Live, _ ))) ->
                     recordInteractionBefore (Tick.succ lastTick)
 
                 _ ->
@@ -335,7 +335,7 @@ subscriptions model =
             InGame (Active NotPaused (Spawning spawnState plannedMidRoundState)) ->
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
-            InGame (Active NotPaused (Moving lastTick ( leftoverTimeFromPreviousFrame, midRoundState ))) ->
+            InGame (Active NotPaused (Moving lastTick leftoverTimeFromPreviousFrame midRoundState)) ->
                 Browser.Events.onAnimationFrameDelta
                     (\delta ->
                         AnimationFrame

@@ -52,7 +52,7 @@ type Paused
 
 type ActiveGameState
     = Spawning SpawnState MidRoundState
-    | Moving Tick ( LeftoverFrameTime, MidRoundState )
+    | Moving Tick LeftoverFrameTime MidRoundState
 
 
 type TickResult a
@@ -66,7 +66,7 @@ getCurrentRound gameState =
         Active _ (Spawning _ ( _, round )) ->
             round
 
-        Active _ (Moving _ ( _, ( _, round ) )) ->
+        Active _ (Moving _ _ ( _, round )) ->
             round
 
         RoundOver round _ ->
@@ -76,8 +76,8 @@ getCurrentRound gameState =
 modifyMidRoundState : (MidRoundState -> MidRoundState) -> GameState -> GameState
 modifyMidRoundState f gameState =
     case gameState of
-        Active p (Moving t ( leftoverFrameTime, midRoundState )) ->
-            Active p <| Moving t <| ( leftoverFrameTime, f midRoundState )
+        Active p (Moving t leftoverFrameTime midRoundState) ->
+            Active p <| Moving t leftoverFrameTime <| f midRoundState
 
         Active p (Spawning s midRoundState) ->
             Active p <| Spawning s <| f midRoundState
@@ -194,7 +194,7 @@ tickResultToGameState : TickResult ( LeftoverFrameTime, Tick, MidRoundState ) ->
 tickResultToGameState tickResult =
     case tickResult of
         RoundKeepsGoing ( leftoverFrameTime, tick, midRoundState ) ->
-            Active NotPaused (Moving tick ( leftoverFrameTime, midRoundState ))
+            Active NotPaused (Moving tick leftoverFrameTime midRoundState)
 
         RoundEnds finishedRound ->
             RoundOver finishedRound Dialog.NotOpen
