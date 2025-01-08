@@ -136,7 +136,7 @@ update msg ({ config, pressedButtons } as model) =
         AnimationFrame { delta, leftoverTimeFromPreviousFrame, lastTick } midRoundState ->
             let
                 ( tickResult, cmd ) =
-                    MainLoop.consumeFrameTime config delta lastTick ( leftoverTimeFromPreviousFrame, midRoundState )
+                    MainLoop.consumeAnimationFrame config delta lastTick ( leftoverTimeFromPreviousFrame, midRoundState )
             in
             ( { model | appState = InGame (tickResultToGameState tickResult) }
             , cmd

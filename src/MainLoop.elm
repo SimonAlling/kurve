@@ -1,4 +1,4 @@
-module MainLoop exposing (consumeFrameTime, noLeftoverTime)
+module MainLoop exposing (consumeAnimationFrame, noLeftoverTime)
 
 import Config exposing (Config)
 import Game exposing (MidRoundState, TickResult(..))
@@ -7,8 +7,8 @@ import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 
 
-consumeFrameTime : Config -> FrameTime -> Tick -> ( LeftoverFrameTime, MidRoundState ) -> ( TickResult ( LeftoverFrameTime, MidRoundState ), Cmd msg )
-consumeFrameTime config delta lastTick ( leftoverTimeFromPreviousFrame, midRoundState ) =
+consumeAnimationFrame : Config -> FrameTime -> Tick -> ( LeftoverFrameTime, MidRoundState ) -> ( TickResult ( LeftoverFrameTime, MidRoundState ), Cmd msg )
+consumeAnimationFrame config delta lastTick ( leftoverTimeFromPreviousFrame, midRoundState ) =
     let
         timeToConsume : FrameTime
         timeToConsume =
