@@ -1,5 +1,12 @@
 module MainLoop exposing (consumeAnimationFrame, noLeftoverTime)
 
+{-| Based on Isaac Sukin's `MainLoop.js`.
+
+  - <https://github.com/IceCreamYou/MainLoop.js/tree/247e7c41fe4bfa7e15ff4cc524d56056feffd306>
+  - <http://www.isaacsukin.com/news/2015/01/detailed-explanation-javascript-game-loops-and-timing>
+
+-}
+
 import Config exposing (Config)
 import Game exposing (MidRoundState, TickResult(..))
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
