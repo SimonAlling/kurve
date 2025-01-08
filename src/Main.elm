@@ -135,10 +135,10 @@ update msg ({ config, pressedButtons } as model) =
 
         AnimationFrame { delta, leftoverTimeFromPreviousFrame, lastTick } midRoundState ->
             let
-                ( WithLeftoverFrameTime newLeftoverFrameTime tickResult, cmd ) =
+                ( tickResult, cmd ) =
                     MainLoop.consumeFrameTime config delta lastTick (WithLeftoverFrameTime leftoverTimeFromPreviousFrame midRoundState)
             in
-            ( { model | appState = InGame (tickResultToGameState newLeftoverFrameTime tickResult) }
+            ( { model | appState = InGame (tickResultToGameState tickResult) }
             , cmd
             )
 

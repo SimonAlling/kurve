@@ -7,7 +7,7 @@ import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 
 
-consumeFrameTime : Config -> FrameTime -> Tick -> WithLeftoverFrameTime MidRoundState -> ( WithLeftoverFrameTime TickResult, Cmd msg )
+consumeFrameTime : Config -> FrameTime -> Tick -> WithLeftoverFrameTime MidRoundState -> ( TickResult (WithLeftoverFrameTime MidRoundState), Cmd msg )
 consumeFrameTime config delta lastTick (WithLeftoverFrameTime leftoverTimeFromPreviousFrame midRoundState) =
     let
         timeToConsume : FrameTime
@@ -18,7 +18,7 @@ consumeFrameTime config delta lastTick (WithLeftoverFrameTime leftoverTimeFromPr
         timestep =
             1000 / Tickrate.toFloat config.kurves.tickrate
 
-        recurse : Tick -> WithLeftoverFrameTime MidRoundState -> Cmd msg -> ( WithLeftoverFrameTime TickResult, Cmd msg )
+        recurse : Tick -> WithLeftoverFrameTime MidRoundState -> Cmd msg -> ( TickResult (WithLeftoverFrameTime MidRoundState), Cmd msg )
         recurse lastTickReactedTo (WithLeftoverFrameTime timeLeftToConsume midRoundStateSoFar) cmdSoFar =
             if timeLeftToConsume >= timestep then
                 let
@@ -38,13 +38,12 @@ consumeFrameTime config delta lastTick (WithLeftoverFrameTime leftoverTimeFromPr
                         recurse incrementedTick (WithLeftoverFrameTime (timeLeftToConsume - timestep) newMidRoundState) newCmd
 
                     RoundEnds finishedRound ->
-                        ( -- The leftover time here shouldn't matter, because it should be set to 0 at the start of every round anyway.
-                          WithLeftoverFrameTime noLeftoverTime <| RoundEnds finishedRound
+                        ( RoundEnds finishedRound
                         , newCmd
                         )
 
             else
-                ( WithLeftoverFrameTime timeLeftToConsume <| RoundKeepsGoing lastTickReactedTo midRoundStateSoFar
+                ( RoundKeepsGoing lastTickReactedTo (WithLeftoverFrameTime timeLeftToConsume midRoundStateSoFar)
                 , cmdSoFar
                 )
     in

@@ -43,7 +43,7 @@ playOutRound config initialState =
         recurse : Tick -> MidRoundState -> ( Tick, Round )
         recurse tick midRoundState =
             let
-                tickResult : TickResult
+                tickResult : TickResult MidRoundState
                 tickResult =
                     reactToTick config (Tick.succ tick) midRoundState |> Tuple.first
             in

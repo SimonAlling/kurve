@@ -31,7 +31,7 @@ import Thickness exposing (theThickness)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle)
 import Types.Distance as Distance exposing (Distance(..))
-import Types.FrameTime exposing (LeftoverFrameTime, WithLeftoverFrameTime(..))
+import Types.FrameTime exposing (WithLeftoverFrameTime(..))
 import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..), modifyReversedInteractions)
 import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
@@ -55,8 +55,8 @@ type ActiveGameState
     | Moving Tick (WithLeftoverFrameTime MidRoundState)
 
 
-type TickResult
-    = RoundKeepsGoing Tick MidRoundState
+type TickResult a
+    = RoundKeepsGoing Tick a
     | RoundEnds Round
 
 
@@ -148,7 +148,7 @@ prepareRoundFromKnownInitialState initialState =
     round
 
 
-reactToTick : Config -> Tick -> MidRoundState -> ( TickResult, Cmd msg )
+reactToTick : Config -> Tick -> MidRoundState -> ( TickResult MidRoundState, Cmd msg )
 reactToTick config tick (( _, currentRound ) as midRoundState) =
     let
         ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
@@ -174,7 +174,7 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
             , seed = newSeed
             }
 
-        tickResult : TickResult
+        tickResult : TickResult MidRoundState
         tickResult =
             if roundIsOver newKurves then
                 RoundEnds newCurrentRound
@@ -190,11 +190,11 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
     )
 
 
-tickResultToGameState : LeftoverFrameTime -> TickResult -> GameState
-tickResultToGameState leftoverFrameTime tickResult =
+tickResultToGameState : TickResult (WithLeftoverFrameTime MidRoundState) -> GameState
+tickResultToGameState tickResult =
     case tickResult of
         RoundKeepsGoing tick s ->
-            Active NotPaused (Moving tick (WithLeftoverFrameTime leftoverFrameTime s))
+            Active NotPaused (Moving tick s)
 
         RoundEnds finishedRound ->
             RoundOver finishedRound Dialog.NotOpen
