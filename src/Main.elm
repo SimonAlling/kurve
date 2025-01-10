@@ -3,7 +3,7 @@ port module Main exposing (Model, Msg(..), main)
 import App exposing (AppState(..), modifyGameState)
 import Browser
 import Browser.Events
-import Canvas exposing (clearEverything, drawSpawnIfAndOnlyIf)
+import Canvas exposing (clearEverything)
 import Config exposing (Config)
 import Dialog
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
@@ -25,7 +25,6 @@ import Set exposing (Set)
 import Time
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
-import Util exposing (isEven)
 
 
 type alias Model =
@@ -101,7 +100,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
                     else
                         { kurvesLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
-            ( Just newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning )
+            ( Just newSpawnState, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

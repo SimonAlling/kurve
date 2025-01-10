@@ -57,13 +57,6 @@
             context?.clearRect(x, y, width, height);
         }
 
-        app.ports.render.subscribe(squares => {
-            const canvas_main = document.getElementById("canvas_main");
-            for (const square of squares) {
-                drawSquare(canvas_main, square);
-            }
-        });
-
         app.ports.clear.subscribe(rectangle => {
             const canvas_main = document.getElementById("canvas_main");
             clearRectangleIfCanvasExists(canvas_main, rectangle);
