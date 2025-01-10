@@ -31,6 +31,7 @@ import Thickness exposing (theThickness)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle)
 import Types.Distance as Distance exposing (Distance(..))
+import Types.FrameTime exposing (LeftoverFrameTime)
 import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..), modifyReversedInteractions)
 import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
@@ -51,11 +52,11 @@ type Paused
 
 type ActiveGameState
     = Spawning SpawnState MidRoundState
-    | Moving Tick MidRoundState
+    | Moving LeftoverFrameTime Tick MidRoundState
 
 
-type TickResult
-    = RoundKeepsGoing MidRoundState
+type TickResult a
+    = RoundKeepsGoing a
     | RoundEnds Round
 
 
@@ -65,7 +66,7 @@ getCurrentRound gameState =
         Active _ (Spawning _ ( _, round )) ->
             round
 
-        Active _ (Moving _ ( _, round )) ->
+        Active _ (Moving _ _ ( _, round )) ->
             round
 
         RoundOver round _ ->
@@ -75,8 +76,8 @@ getCurrentRound gameState =
 modifyMidRoundState : (MidRoundState -> MidRoundState) -> GameState -> GameState
 modifyMidRoundState f gameState =
     case gameState of
-        Active p (Moving t midRoundState) ->
-            Active p <| Moving t <| f midRoundState
+        Active p (Moving t leftoverFrameTime midRoundState) ->
+            Active p <| Moving t leftoverFrameTime <| f midRoundState
 
         Active p (Spawning s midRoundState) ->
             Active p <| Spawning s <| f midRoundState
@@ -147,7 +148,7 @@ prepareRoundFromKnownInitialState initialState =
     round
 
 
-reactToTick : Config -> Tick -> MidRoundState -> ( TickResult, Cmd msg )
+reactToTick : Config -> Tick -> MidRoundState -> ( TickResult MidRoundState, Cmd msg )
 reactToTick config tick (( _, currentRound ) as midRoundState) =
     let
         ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
@@ -173,7 +174,7 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
             , seed = newSeed
             }
 
-        tickResult : TickResult
+        tickResult : TickResult MidRoundState
         tickResult =
             if roundIsOver newKurves then
                 RoundEnds newCurrentRound
@@ -189,11 +190,11 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
     )
 
 
-tickResultToGameState : Tick -> TickResult -> GameState
-tickResultToGameState tick tickResult =
+tickResultToGameState : TickResult ( LeftoverFrameTime, Tick, MidRoundState ) -> GameState
+tickResultToGameState tickResult =
     case tickResult of
-        RoundKeepsGoing s ->
-            Active NotPaused (Moving tick s)
+        RoundKeepsGoing ( leftoverFrameTime, tick, midRoundState ) ->
+            Active NotPaused (Moving leftoverFrameTime tick midRoundState)
 
         RoundEnds finishedRound ->
             RoundOver finishedRound Dialog.NotOpen

@@ -47,7 +47,7 @@ playOutRound config initialState =
                 nextTick =
                     Tick.succ tick
 
-                tickResult : TickResult
+                tickResult : TickResult MidRoundState
                 tickResult =
                     reactToTick config nextTick midRoundState |> Tuple.first
             in

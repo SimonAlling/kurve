@@ -2,6 +2,7 @@ port module Main exposing (Model, Msg(..), main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
+import Browser.Events
 import Canvas exposing (clearEverything, drawSpawnIfAndOnlyIf)
 import Config exposing (Config)
 import Dialog
@@ -15,14 +16,15 @@ import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoun
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
+import MainLoop
 import Menu exposing (MenuState(..))
 import Players exposing (AllPlayers, atLeastOneIsParticipating, everyoneLeaves, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
 import Time
+import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
-import Types.Tickrate as Tickrate
 import Util exposing (isEven)
 
 
@@ -71,7 +73,12 @@ newRoundGameStateAndCmd config plannedMidRoundState =
 
 type Msg
     = SpawnTick SpawnState MidRoundState
-    | GameTick { lastTick : Tick } MidRoundState
+    | AnimationFrame
+        { delta : FrameTime
+        , leftoverTimeFromPreviousFrame : LeftoverFrameTime
+        , lastTick : Tick
+        }
+        MidRoundState
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
     | FocusLost
@@ -120,22 +127,18 @@ update msg ({ config, pressedButtons } as model) =
                             Spawning newSpawnState plannedMidRoundState
 
                         Nothing ->
-                            Moving Tick.genesis plannedMidRoundState
+                            Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
             in
             ( { model | appState = InGame <| Active NotPaused activeGameState }
             , cmd
             )
 
-        GameTick { lastTick } midRoundState ->
+        AnimationFrame { delta, leftoverTimeFromPreviousFrame, lastTick } midRoundState ->
             let
-                tick : Tick
-                tick =
-                    Tick.succ lastTick
-
                 ( tickResult, cmd ) =
-                    Game.reactToTick config tick midRoundState
+                    MainLoop.consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState
             in
-            ( { model | appState = InGame (tickResultToGameState tick tickResult) }
+            ( { model | appState = InGame (tickResultToGameState tickResult) }
             , cmd
             )
 
@@ -303,7 +306,7 @@ handleUserInteraction direction button model =
                 InGame (Active _ (Spawning _ ( Live, _ ))) ->
                     recordInteractionBefore firstUpdateTick
 
-                InGame (Active _ (Moving lastTick ( Live, _ ))) ->
+                InGame (Active _ (Moving _ lastTick ( Live, _ ))) ->
                     recordInteractionBefore (Tick.succ lastTick)
 
                 _ ->
@@ -332,8 +335,16 @@ subscriptions model =
             InGame (Active NotPaused (Spawning spawnState plannedMidRoundState)) ->
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
-            InGame (Active NotPaused (Moving lastTick midRoundState)) ->
-                Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick { lastTick = lastTick } midRoundState)
+            InGame (Active NotPaused (Moving leftoverTimeFromPreviousFrame lastTick midRoundState)) ->
+                Browser.Events.onAnimationFrameDelta
+                    (\delta ->
+                        AnimationFrame
+                            { delta = delta
+                            , leftoverTimeFromPreviousFrame = leftoverTimeFromPreviousFrame
+                            , lastTick = lastTick
+                            }
+                            midRoundState
+                    )
 
             InGame (Active Paused _) ->
                 Sub.none
