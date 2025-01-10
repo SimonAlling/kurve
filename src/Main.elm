@@ -22,6 +22,8 @@ import Players exposing (AllPlayers, atLeastOneIsParticipating, everyoneLeaves, 
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
+import Svg exposing (svg)
+import Svg.Attributes
 import Time
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
@@ -372,6 +374,15 @@ view model =
             elmRoot [] [ splashScreen ]
 
         InGame gameState ->
+            let
+                path_d =
+                    [ ( 100, 200 ), ( 101, 201 ), ( 102, 201 ), ( 103, 202 ) ]
+                        |> List.map
+                            (\( x, y ) ->
+                                "M" ++ String.fromInt x ++ "," ++ String.fromInt y ++ "h3v3h-3"
+                            )
+                        |> String.join " "
+            in
             elmRoot
                 [ Attr.class "in-game"
                 ]
@@ -381,19 +392,13 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ canvas
-                            [ Attr.id "canvas_main"
+                        [ svg
+                            [ Attr.style "display" "block"
                             , Attr.width 559
                             , Attr.height 480
                             ]
-                            []
-                        , canvas
-                            [ Attr.id "canvas_overlay"
-                            , Attr.width 559
-                            , Attr.height 480
-                            , Attr.class "overlay"
+                            [ Svg.path [ Svg.Attributes.d path_d, Svg.Attributes.fill "white" ] []
                             ]
-                            []
                         , pauseOverlay gameState
                         , confirmQuitDialog DialogChoiceMade gameState
                         ]
