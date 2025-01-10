@@ -109,7 +109,8 @@ update msg ({ config, pressedButtons } as model) =
         FocusLost ->
             case model.appState of
                 InGame (Active _ s) ->
-                    ( { model | appState = InGame (Active Paused s) }, Cmd.none )
+                    -- TODO: DO NOT KEEP NotPaused HERE
+                    ( { model | appState = InGame (Active NotPaused s) }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
