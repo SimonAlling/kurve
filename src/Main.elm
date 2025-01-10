@@ -3,7 +3,7 @@ port module Main exposing (Model, Msg(..), main)
 import App exposing (AppState(..), modifyGameState)
 import Browser
 import Browser.Events
-import Canvas exposing (clearEverything)
+import Canvas
 import Config exposing (Config)
 import Dialog
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
