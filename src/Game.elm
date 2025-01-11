@@ -16,6 +16,7 @@ module Game exposing
     , reactToTick
     , recordUserInteraction
     , tickResultToGameState
+    , whatToRender
     )
 
 import Color exposing (Color)
@@ -42,6 +43,32 @@ import World exposing (DrawingPosition, Pixel, Position, distanceToTicks)
 type GameState
     = Active Paused ActiveGameState
     | RoundOver Round Dialog.State
+
+
+whatToRender : GameState -> List ( Color, DrawingPosition )
+whatToRender gameState =
+    case gameState of
+        Active _ activeGameState ->
+            whatToRender_Active activeGameState
+
+        RoundOver _ _ ->
+            Debug.log "render RoundOver" []
+
+
+whatToRender_Active : ActiveGameState -> List ( Color, DrawingPosition )
+whatToRender_Active activeGameState =
+    case activeGameState of
+        Spawning _ _ ->
+            Debug.log "TODO: render Spawning" []
+
+        Moving _ _ ( _, round ) ->
+            round.kurves.alive
+                |> List.map
+                    (\kurve ->
+                        kurve.state.position
+                            |> World.drawingPosition
+                            |> Tuple.pair kurve.color
+                    )
 
 
 type Paused

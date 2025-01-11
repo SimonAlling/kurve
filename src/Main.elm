@@ -376,10 +376,10 @@ view model =
         InGame gameState ->
             let
                 path_d =
-                    [ ( 100, 200 ), ( 101, 201 ), ( 102, 201 ), ( 103, 202 ) ]
+                    Game.whatToRender gameState
                         |> List.map
-                            (\( x, y ) ->
-                                "M" ++ String.fromInt x ++ "," ++ String.fromInt y ++ "h3v3h-3"
+                            (\( color, { leftEdge, topEdge } ) ->
+                                "M" ++ String.fromInt leftEdge ++ "," ++ String.fromInt topEdge ++ "h3v3h-3"
                             )
                         |> String.join " "
             in
