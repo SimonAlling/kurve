@@ -21,7 +21,7 @@ import World exposing (Pixel)
 
 type alias Round =
     { kurves : Kurves
-    , occupiedPixels : Set Pixel
+    , occupiedPixelPositions : Set Pixel
     , initialState : RoundInitialState
     , seed : Random.Seed
     }
