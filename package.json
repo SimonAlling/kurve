@@ -22,6 +22,6 @@
     "sass": "1.43.3"
   },
   "optionalDependencies": {
-    "run-pty": "^4.0.3"
+    "run-pty": "^5.0.0"
   }
 }
