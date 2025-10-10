@@ -23,11 +23,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5.0.0
+
       - name: Setup Node
         uses: actions/setup-node@v5.0.0
         with:
           node-version: 24.10.0
           package-manager-cache: false # I don't know if this is needed, but: https://github.com/actions/setup-node/blob/13427813f706a0f6c9b74603b31103c40ab1c35a/README.md?plain=1#L18
+
       - name: Build
         run: |
           npm ci --omit optional
