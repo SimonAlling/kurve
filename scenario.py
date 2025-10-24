@@ -68,11 +68,11 @@ all_commands: list[str] = SETUP_COMMANDS + SCENARIO_COMMANDS + TEARDOWN_COMMANDS
 
 scanmem_command: str = sequence(all_commands)
 
-print("BEGIN SCANMEM PROGRAM")
+print("BEGIN scanmem program")
 print()
 print("    ", scanmem_command)
 print()
-print("END SCANMEM PROGRAM")
+print("END scanmem program")
 print()
 
 subprocess.run([ "scanmem", process_id, "--errexit", "--command", scanmem_command ])
