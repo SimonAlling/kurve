@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # This script typically needs to be run as root.
-# Usage: sudo scenario.py `pgrep dosbox`
+# Usage: sudo ./scenario.py `pgrep dosbox`
 
 import math
 import subprocess
