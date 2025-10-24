@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# This script typically needs to be run as root.
-# Usage: sudo ./scenario.py
 
 import math
 import subprocess
@@ -123,4 +121,4 @@ time.sleep(1)
 key("space")
 time.sleep(4)
 
-subprocess.run([ "scanmem", str(proc.pid), "--errexit", "--command", scanmem_command ])
+subprocess.run([ "sudo", "scanmem", str(proc.pid), "--errexit", "--command", scanmem_command ])
