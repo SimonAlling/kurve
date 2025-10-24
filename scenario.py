@@ -47,26 +47,25 @@ def set_direction_conventional(player_id: int, conventional_direction: float) ->
 def sequence(commands: list[str]) -> str:
     return ";".join(commands)
 
+def scanmem_program(scenario_commands: list[str]) -> str:
+    return sequence(SETUP_COMMANDS + scenario_commands + TEARDOWN_COMMANDS)
+
 SETUP_COMMANDS: list[str] = [
     "option endianness 1",
-]
-
-SCENARIO_COMMANDS: list[str] = [
-    set_position(RED, 50, 50),
-    set_direction_conventional(RED, 0),
-    set_position(YELLOW, 50, 100),
-    set_direction_conventional(YELLOW, 0),
-    set_position(GREEN, 50, 150),
-    set_direction_conventional(GREEN, 0),
 ]
 
 TEARDOWN_COMMANDS: list[str] = [
     "exit",
 ]
 
-all_commands: list[str] = SETUP_COMMANDS + SCENARIO_COMMANDS + TEARDOWN_COMMANDS
-
-scanmem_command: str = sequence(all_commands)
+scanmem_command: str = scanmem_program([
+    set_position(RED, 50, 50),
+    set_direction_conventional(RED, 0),
+    set_position(YELLOW, 50, 100),
+    set_direction_conventional(YELLOW, 0),
+    set_position(GREEN, 50, 150),
+    set_direction_conventional(GREEN, 0),
+])
 
 print("BEGIN scanmem program")
 print()
