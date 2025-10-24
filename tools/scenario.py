@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 # This script typically needs to be run as root.
-# Usage: sudo ./scenario.py `pgrep dosbox`
+# Usage: sudo ./scenario.py
 
 import math
 import subprocess
-import sys
-
-process_id = sys.argv[1]
+import time
 
 RED = 0
 YELLOW = 1
@@ -74,4 +72,55 @@ print()
 print("END scanmem program")
 print()
 
-subprocess.run([ "scanmem", process_id, "--errexit", "--command", scanmem_command ])
+proc = subprocess.Popen(
+    [ "dosbox", "docs/original-game/ZATACKA.EXE" ],
+    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+)
+
+WINDOW_MATCHES = ["DOSBox", "DOSBox Staging", "DOSBox-X"]
+
+
+def find_and_focus(timeout=15.0):
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        for needle in WINDOW_MATCHES:
+            # search returns one id per line; --sync waits until a match exists
+            res = subprocess.run(
+                ["xdotool", "search", "--onlyvisible", "--name", needle],
+                capture_output=True, text=True
+            )
+            if res.returncode == 0 and res.stdout.strip():
+                # pick the most recent window id (last line)
+                wid = res.stdout.strip().splitlines()[-1]
+                # Activate and focus
+                subprocess.run(["xdotool", "windowactivate", "--sync", wid])
+                subprocess.run(["xdotool", "windowfocus", wid])
+                return wid
+        time.sleep(0.3)
+    return None
+
+wid = find_and_focus()
+if not wid:
+    print("Warning: couldn't find/focus the DOSBox window; key sends may fail.")
+
+
+time.sleep(1.0)  # small settle time after focus
+def key(*keys):
+    subprocess.run(["xdotool", "key", *keys])
+def type_text(s):
+    subprocess.run(["xdotool", "type", s])
+
+
+time.sleep(1)
+key("space")
+time.sleep(1)
+key("1")
+time.sleep(1)
+key("Ctrl")
+time.sleep(1)
+key("Left")
+time.sleep(1)
+key("space")
+time.sleep(4)
+
+subprocess.run([ "scanmem", str(proc.pid), "--errexit", "--command", scanmem_command ])
