@@ -10,14 +10,18 @@ ORANGE = 2
 GREEN = 3
 PINK = 4
 BLUE = 5
+NUMBER_OF_PLAYERS = 6
 
 SIZEOF_FLOAT = 4
 
-BASE_ADDRESS = 0x7FFFD8010FF6
+BASE_ADDRESS = 0x7FFFD8010FF6  # Rendered as "7fffd8010ff6" in scanmem.
 
-X_COORDS_ADDRESS = BASE_ADDRESS
-Y_COORDS_ADDRESS = BASE_ADDRESS + 24
-DIRECTIONS_ADDRESS = BASE_ADDRESS + 48
+space_for_x_coordinates = NUMBER_OF_PLAYERS * SIZEOF_FLOAT
+space_for_y_coordinates = NUMBER_OF_PLAYERS * SIZEOF_FLOAT
+
+x_coordinates_address = BASE_ADDRESS
+y_coordinates_address = BASE_ADDRESS + space_for_x_coordinates
+directions_address = BASE_ADDRESS + space_for_x_coordinates + space_for_y_coordinates
 
 
 def write_float32(address: int, value: float) -> str:
@@ -25,11 +29,11 @@ def write_float32(address: int, value: float) -> str:
 
 
 def set_x(player_id: int, x: float) -> str:
-    return write_float32(X_COORDS_ADDRESS + player_id * SIZEOF_FLOAT, x)
+    return write_float32(x_coordinates_address + player_id * SIZEOF_FLOAT, x)
 
 
 def set_y(player_id: int, y: float) -> str:
-    return write_float32(Y_COORDS_ADDRESS + player_id * SIZEOF_FLOAT, y)
+    return write_float32(y_coordinates_address + player_id * SIZEOF_FLOAT, y)
 
 
 def set_position(player_id: int, x: float, y: float) -> str:
@@ -42,7 +46,7 @@ def set_position(player_id: int, x: float, y: float) -> str:
 
 
 def set_direction_raw(player_id: int, direction: float) -> str:
-    return write_float32(DIRECTIONS_ADDRESS + player_id * SIZEOF_FLOAT, direction)
+    return write_float32(directions_address + player_id * SIZEOF_FLOAT, direction)
 
 
 def set_direction_conventional(player_id: int, conventional_direction: float) -> str:
