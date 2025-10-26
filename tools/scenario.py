@@ -71,11 +71,11 @@ TEARDOWN_COMMANDS: list[str] = [
 
 scanmem_command: str = scanmem_program(
     [
-        set_position(RED, 50, 50),
+        set_position(RED, 200, 50),
         set_direction_conventional(RED, 0),
-        set_position(YELLOW, 50, 100),
+        set_position(YELLOW, 200, 100),
         set_direction_conventional(YELLOW, 0),
-        set_position(GREEN, 50, 150),
+        set_position(GREEN, 200, 150),
         set_direction_conventional(GREEN, 0),
     ],
 )
