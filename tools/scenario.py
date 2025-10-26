@@ -58,16 +58,16 @@ def sequence(commands: list[str]) -> str:
 
 
 def scanmem_program(scenario_commands: list[str]) -> str:
+    SETUP_COMMANDS: list[str] = [
+        "option endianness 1",
+    ]
+
+    TEARDOWN_COMMANDS: list[str] = [
+        "exit",
+    ]
+
     return sequence(SETUP_COMMANDS + scenario_commands + TEARDOWN_COMMANDS)
 
-
-SETUP_COMMANDS: list[str] = [
-    "option endianness 1",
-]
-
-TEARDOWN_COMMANDS: list[str] = [
-    "exit",
-]
 
 scanmem_command: str = scanmem_program(
     [
