@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Usage: see the Git history for this script.
 
 import math
 import subprocess
