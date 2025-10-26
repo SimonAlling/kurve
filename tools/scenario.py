@@ -13,38 +13,49 @@ BLUE = 5
 
 SIZEOF_FLOAT = 4
 
-BASE_ADDRESS = 0x7fffd8010ff6
+BASE_ADDRESS = 0x7FFFD8010FF6
 
 X_COORDS_ADDRESS = BASE_ADDRESS
 Y_COORDS_ADDRESS = BASE_ADDRESS + 24
 DIRECTIONS_ADDRESS = BASE_ADDRESS + 48
 
+
 def write_float32(address: int, value: float) -> str:
     return f"write float32 {hex(address)} {value}"
+
 
 def set_x(player_id: int, x: float) -> str:
     return write_float32(X_COORDS_ADDRESS + player_id * SIZEOF_FLOAT, x)
 
+
 def set_y(player_id: int, y: float) -> str:
     return write_float32(Y_COORDS_ADDRESS + player_id * SIZEOF_FLOAT, y)
 
+
 def set_position(player_id: int, x: float, y: float) -> str:
-    return sequence([
-        set_x(player_id, x),
-        set_y(player_id, y),
-    ])
+    return sequence(
+        [
+            set_x(player_id, x),
+            set_y(player_id, y),
+        ],
+    )
+
 
 def set_direction_raw(player_id: int, direction: float) -> str:
     return write_float32(DIRECTIONS_ADDRESS + player_id * SIZEOF_FLOAT, direction)
 
+
 def set_direction_conventional(player_id: int, conventional_direction: float) -> str:
     return set_direction_raw(player_id, conventional_direction + math.pi / 2)
+
 
 def sequence(commands: list[str]) -> str:
     return ";".join(commands)
 
+
 def scanmem_program(scenario_commands: list[str]) -> str:
     return sequence(SETUP_COMMANDS + scenario_commands + TEARDOWN_COMMANDS)
+
 
 SETUP_COMMANDS: list[str] = [
     "option endianness 1",
@@ -54,14 +65,16 @@ TEARDOWN_COMMANDS: list[str] = [
     "exit",
 ]
 
-scanmem_command: str = scanmem_program([
-    set_position(RED, 50, 50),
-    set_direction_conventional(RED, 0),
-    set_position(YELLOW, 50, 100),
-    set_direction_conventional(YELLOW, 0),
-    set_position(GREEN, 50, 150),
-    set_direction_conventional(GREEN, 0),
-])
+scanmem_command: str = scanmem_program(
+    [
+        set_position(RED, 50, 50),
+        set_direction_conventional(RED, 0),
+        set_position(YELLOW, 50, 100),
+        set_direction_conventional(YELLOW, 0),
+        set_position(GREEN, 50, 150),
+        set_direction_conventional(GREEN, 0),
+    ],
+)
 
 print("BEGIN scanmem program")
 print()
@@ -71,8 +84,9 @@ print("END scanmem program")
 print()
 
 proc = subprocess.Popen(
-    [ "dosbox", "docs/original-game/ZATACKA.EXE" ],
-    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+    ["dosbox", "docs/original-game/ZATACKA.EXE"],
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.DEVNULL,
 )
 
 WINDOW_MATCHES = ["DOSBox", "DOSBox Staging", "DOSBox-X"]
@@ -85,7 +99,8 @@ def find_and_focus(timeout=15.0):
             # search returns one id per line; --sync waits until a match exists
             res = subprocess.run(
                 ["xdotool", "search", "--onlyvisible", "--name", needle],
-                capture_output=True, text=True
+                capture_output=True,
+                text=True,
             )
             if res.returncode == 0 and res.stdout.strip():
                 # pick the most recent window id (last line)
@@ -97,14 +112,19 @@ def find_and_focus(timeout=15.0):
         time.sleep(0.3)
     return None
 
+
 wid = find_and_focus()
 if not wid:
     print("Warning: couldn't find/focus the DOSBox window; key sends may fail.")
 
 
 time.sleep(1.0)  # small settle time after focus
+
+
 def key(*keys):
     subprocess.run(["xdotool", "key", *keys])
+
+
 def type_text(s):
     subprocess.run(["xdotool", "type", s])
 
@@ -121,4 +141,6 @@ time.sleep(1)
 key("space")
 time.sleep(4)
 
-subprocess.run([ "sudo", "scanmem", str(proc.pid), "--errexit", "--command", scanmem_command ])
+subprocess.run(
+    ["sudo", "scanmem", str(proc.pid), "--errexit", "--command", scanmem_command],
+)
