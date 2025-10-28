@@ -4,8 +4,11 @@
 import math
 import subprocess
 import sys
+import time
 
-process_id = sys.argv[1]
+process_id_or_automate = sys.argv[1]
+
+PATH_TO_ORIGINAL_GAME = "docs/original-game/ZATACKA.EXE"
 
 RED = 0
 YELLOW = 1
@@ -72,6 +75,26 @@ def scanmem_program(scenario_commands: list[str]) -> str:
     return sequence(SETUP_COMMANDS + scenario_commands + TEARDOWN_COMMANDS)
 
 
+def find_and_focus_dosbox(timeout: float = 15.0) -> str | None:
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        res = subprocess.run(
+            ["xdotool", "search", "--onlyvisible", "--name", "DOSBox"],
+            capture_output=True,
+            text=True,
+        )
+        if res.returncode == 0 and res.stdout.strip():
+            wid: str = res.stdout.strip().splitlines()[-1]  # (most recent window ID)
+            subprocess.run(["xdotool", "windowactivate", "--sync", wid])
+            subprocess.run(["xdotool", "windowfocus", wid])
+            return wid
+    return None
+
+
+def press_key(key: str) -> None:
+    subprocess.run(["xdotool", "key", key])
+
+
 scanmem_command: str = scanmem_program(
     [
         set_position(RED, 200, 50),
@@ -90,4 +113,39 @@ print()
 print("END scanmem program")
 print()
 
-subprocess.run(["scanmem", process_id, "--errexit", "--command", scanmem_command])
+if process_id_or_automate == "AUTOMATE":
+    proc = subprocess.Popen(
+        ["dosbox", PATH_TO_ORIGINAL_GAME],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+    process_id = str(proc.pid)
+
+    window_id = find_and_focus_dosbox()
+    if window_id is None:
+        print("Warning: couldn't find/focus the DOSBox window; key sends may fail.")
+
+    time.sleep(1.0)  # small settle time after focus
+
+    KEY_RED_LEFT = "1"
+    KEY_YELLOW_LEFT = "Ctrl"
+    KEY_GREEN_LEFT = "Left"
+
+    time.sleep(1)
+    press_key("space")
+    time.sleep(0.5)
+    # Players need to join here in order to be able to participate in the scenario defined above.
+    press_key(KEY_RED_LEFT)
+    press_key(KEY_YELLOW_LEFT)
+    press_key(KEY_GREEN_LEFT)
+    time.sleep(0.5)
+    press_key("space")
+    time.sleep(4)
+
+else:
+    process_id = process_id_or_automate
+
+subprocess.run(
+    ["sudo", "scanmem", process_id, "--errexit", "--command", scanmem_command],
+)
