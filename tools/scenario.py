@@ -93,43 +93,49 @@ def press_key(key: str) -> None:
     subprocess.run(["xdotool", "key", key])
 
 
-if "ZATACKA.EXE" in process_id_or_path_to_original_game:
-    path_to_original_game = process_id_or_path_to_original_game
-    print(f"🚀 Launching original game at {path_to_original_game} …")
+def prepare_and_get_process_id(
+    process_id_or_path_to_original_game: str,
+) -> str:
+    if "ZATACKA.EXE" in process_id_or_path_to_original_game:
+        path_to_original_game = process_id_or_path_to_original_game
+        print(f"🚀 Launching original game at {path_to_original_game} …")
 
-    proc = subprocess.Popen(
-        ["dosbox", path_to_original_game],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
+        proc = subprocess.Popen(
+            ["dosbox", path_to_original_game],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
-    process_id = str(proc.pid)
+        window_id = find_and_focus_dosbox()
+        if window_id is None:
+            print("Warning: couldn't find/focus the DOSBox window; key sends may fail.")
 
-    window_id = find_and_focus_dosbox()
-    if window_id is None:
-        print("Warning: couldn't find/focus the DOSBox window; key sends may fail.")
+        time.sleep(1.0)  # small settle time after focus
 
-    time.sleep(1.0)  # small settle time after focus
+        KEY_RED_LEFT = "1"
+        KEY_YELLOW_LEFT = "Ctrl"
+        KEY_GREEN_LEFT = "Left"
 
-    KEY_RED_LEFT = "1"
-    KEY_YELLOW_LEFT = "Ctrl"
-    KEY_GREEN_LEFT = "Left"
+        time.sleep(1)
+        press_key("space")
+        time.sleep(0.5)
+        # Players need to join here in order to be able to participate in the scenario defined above.
+        press_key(KEY_RED_LEFT)
+        press_key(KEY_YELLOW_LEFT)
+        press_key(KEY_GREEN_LEFT)
+        time.sleep(0.5)
+        press_key("space")
+        time.sleep(4)
 
-    time.sleep(1)
-    press_key("space")
-    time.sleep(0.5)
-    # Players need to join here in order to be able to participate in the scenario defined above.
-    press_key(KEY_RED_LEFT)
-    press_key(KEY_YELLOW_LEFT)
-    press_key(KEY_GREEN_LEFT)
-    time.sleep(0.5)
-    press_key("space")
-    time.sleep(4)
+        return str(proc.pid)
 
-else:
-    process_id = process_id_or_path_to_original_game
-    print(f"📎 Attaching to already running DOSBox with PID {process_id} …")
+    else:
+        process_id = process_id_or_path_to_original_game
+        print(f"📎 Attaching to already running DOSBox with PID {process_id} …")
+        return process_id
 
+
+process_id: str = prepare_and_get_process_id(process_id_or_path_to_original_game)
 
 scanmem_command: str = scanmem_program(
     [
