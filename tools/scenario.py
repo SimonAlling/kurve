@@ -121,7 +121,7 @@ def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
         press_key(KEY_GREEN_LEFT)
         time.sleep(0.5)
         press_key("space")
-        time.sleep(4)
+        time.sleep(3.1)
 
         return str(proc.pid)
 
