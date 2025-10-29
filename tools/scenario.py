@@ -4,8 +4,9 @@
 import math
 import subprocess
 import sys
+import time
 
-process_id = sys.argv[1]
+process_id_or_path_to_original_game = sys.argv[1]
 
 RED = 0
 YELLOW = 1
@@ -72,6 +73,64 @@ def scanmem_program(scenario_commands: list[str]) -> str:
     return sequence(SETUP_COMMANDS + scenario_commands + TEARDOWN_COMMANDS)
 
 
+def find_and_focus_dosbox(timeout: float = 15.0) -> str | None:
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        res = subprocess.run(
+            ["xdotool", "search", "--onlyvisible", "--name", "DOSBox"],
+            capture_output=True,
+            text=True,
+        )
+        if res.returncode == 0 and res.stdout.strip():
+            wid: str = res.stdout.strip().splitlines()[-1]  # (most recent window ID)
+            subprocess.run(["xdotool", "windowactivate", "--sync", wid])
+            subprocess.run(["xdotool", "windowfocus", wid])
+            return wid
+    return None
+
+
+def press_key(key: str) -> None:
+    subprocess.run(["xdotool", "key", key])
+
+
+def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
+    if "ZATACKA.EXE" in process_id_or_path_to_original_game:
+        path_to_original_game = process_id_or_path_to_original_game
+        print(f"🚀 Launching original game at {path_to_original_game} …")
+
+        proc = subprocess.Popen(
+            ["dosbox", path_to_original_game],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+        window_id = find_and_focus_dosbox()
+        if window_id is None:
+            print("Warning: couldn't find/focus the DOSBox window; key sends may fail.")
+
+        KEY_RED_LEFT = "1"
+        KEY_YELLOW_LEFT = "Ctrl"
+        KEY_GREEN_LEFT = "Left"
+
+        time.sleep(2)
+        press_key("space")
+        time.sleep(0.5)
+        # Players need to join here in order to be able to participate in the staged scenario.
+        press_key(KEY_RED_LEFT)
+        press_key(KEY_YELLOW_LEFT)
+        press_key(KEY_GREEN_LEFT)
+        time.sleep(0.5)
+        press_key("space")
+        time.sleep(3.1)
+
+        return str(proc.pid)
+
+    else:
+        process_id = process_id_or_path_to_original_game
+        print(f"📎 Attaching to already running DOSBox with PID {process_id} …")
+        return process_id
+
+
 scanmem_command: str = scanmem_program(
     [
         set_position(RED, 200, 50),
@@ -83,6 +142,8 @@ scanmem_command: str = scanmem_program(
     ],
 )
 
+process_id: str = prepare_and_get_process_id(process_id_or_path_to_original_game)
+
 print("BEGIN scanmem program")
 print()
 print("    ", scanmem_command)
@@ -90,4 +151,6 @@ print()
 print("END scanmem program")
 print()
 
-subprocess.run(["scanmem", process_id, "--errexit", "--command", scanmem_command])
+subprocess.run(
+    ["sudo", "scanmem", process_id, "--errexit", "--command", scanmem_command],
+)
