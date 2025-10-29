@@ -8,6 +8,8 @@ import time
 
 process_id_or_path_to_original_game = sys.argv[1]
 
+subprocess.run(["sudo", "true"])  # Fail early if password hasn't been entered recently.
+
 RED = 0
 YELLOW = 1
 ORANGE = 2
