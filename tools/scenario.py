@@ -93,24 +93,6 @@ def press_key(key: str) -> None:
     subprocess.run(["xdotool", "key", key])
 
 
-scanmem_command: str = scanmem_program(
-    [
-        set_position(RED, 200, 50),
-        set_direction_conventional(RED, 0),
-        set_position(YELLOW, 200, 100),
-        set_direction_conventional(YELLOW, 0),
-        set_position(GREEN, 200, 150),
-        set_direction_conventional(GREEN, 0),
-    ],
-)
-
-print("BEGIN scanmem program")
-print()
-print("    ", scanmem_command)
-print()
-print("END scanmem program")
-print()
-
 if "ZATACKA.EXE" in process_id_or_path_to_original_game:
     path_to_original_game = process_id_or_path_to_original_game
     print(f"🚀 Launching original game at {path_to_original_game} …")
@@ -147,6 +129,25 @@ if "ZATACKA.EXE" in process_id_or_path_to_original_game:
 else:
     process_id = process_id_or_path_to_original_game
     print(f"📎 Attaching to already running DOSBox with PID {process_id} …")
+
+
+scanmem_command: str = scanmem_program(
+    [
+        set_position(RED, 200, 50),
+        set_direction_conventional(RED, 0),
+        set_position(YELLOW, 200, 100),
+        set_direction_conventional(YELLOW, 0),
+        set_position(GREEN, 200, 150),
+        set_direction_conventional(GREEN, 0),
+    ],
+)
+
+print("BEGIN scanmem program")
+print()
+print("    ", scanmem_command)
+print()
+print("END scanmem program")
+print()
 
 subprocess.run(
     ["sudo", "scanmem", process_id, "--errexit", "--command", scanmem_command],
