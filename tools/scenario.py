@@ -117,7 +117,7 @@ def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
         time.sleep(1)
         press_key("space")
         time.sleep(0.5)
-        # Players need to join here in order to be able to participate in the scenario defined above.
+        # Players need to join here in order to be able to participate in the staged scenario.
         press_key(KEY_RED_LEFT)
         press_key(KEY_YELLOW_LEFT)
         press_key(KEY_GREEN_LEFT)
