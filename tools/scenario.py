@@ -93,9 +93,7 @@ def press_key(key: str) -> None:
     subprocess.run(["xdotool", "key", key])
 
 
-def prepare_and_get_process_id(
-    process_id_or_path_to_original_game: str,
-) -> str:
+def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
     if "ZATACKA.EXE" in process_id_or_path_to_original_game:
         path_to_original_game = process_id_or_path_to_original_game
         print(f"🚀 Launching original game at {path_to_original_game} …")
