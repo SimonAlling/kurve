@@ -135,8 +135,6 @@ def prepare_and_get_process_id(
         return process_id
 
 
-process_id: str = prepare_and_get_process_id(process_id_or_path_to_original_game)
-
 scanmem_command: str = scanmem_program(
     [
         set_position(RED, 200, 50),
@@ -147,6 +145,8 @@ scanmem_command: str = scanmem_program(
         set_direction_conventional(GREEN, 0),
     ],
 )
+
+process_id: str = prepare_and_get_process_id(process_id_or_path_to_original_game)
 
 print("BEGIN scanmem program")
 print()
