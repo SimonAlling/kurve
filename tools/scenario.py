@@ -57,6 +57,17 @@ def set_direction_conventional(player_id: int, conventional_direction: float) ->
     return set_direction_raw(player_id, conventional_direction + math.pi / 2)
 
 
+def set_player_state(
+    player_id: int, x: float, y: float, conventional_direction: float
+) -> str:
+    return sequence(
+        [
+            set_position(player_id, x, y),
+            set_direction_conventional(player_id, conventional_direction),
+        ],
+    )
+
+
 def sequence(commands: list[str]) -> str:
     return ";".join(commands)
 
@@ -133,12 +144,9 @@ def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
 
 scanmem_command: str = scanmem_program(
     [
-        set_position(RED, 200, 50),
-        set_direction_conventional(RED, 0),
-        set_position(YELLOW, 200, 100),
-        set_direction_conventional(YELLOW, 0),
-        set_position(GREEN, 200, 150),
-        set_direction_conventional(GREEN, 0),
+        set_player_state(RED, x=200, y=50, conventional_direction=0),
+        set_player_state(YELLOW, x=200, y=100, conventional_direction=0),
+        set_player_state(GREEN, x=200, y=150, conventional_direction=0),
     ],
 )
 
