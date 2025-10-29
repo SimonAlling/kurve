@@ -6,9 +6,7 @@ import subprocess
 import sys
 import time
 
-process_id_or_automate = sys.argv[1]
-
-PATH_TO_ORIGINAL_GAME = "docs/original-game/ZATACKA.EXE"
+process_id_or_path_to_original_game = sys.argv[1]
 
 RED = 0
 YELLOW = 1
@@ -113,9 +111,11 @@ print()
 print("END scanmem program")
 print()
 
-if process_id_or_automate == "AUTOMATE":
+if "ZATACKA.EXE" in process_id_or_path_to_original_game:
+    path_to_original_game = process_id_or_path_to_original_game
+
     proc = subprocess.Popen(
-        ["dosbox", PATH_TO_ORIGINAL_GAME],
+        ["dosbox", path_to_original_game],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
@@ -144,7 +144,7 @@ if process_id_or_automate == "AUTOMATE":
     time.sleep(4)
 
 else:
-    process_id = process_id_or_automate
+    process_id = process_id_or_path_to_original_game
 
 subprocess.run(
     ["sudo", "scanmem", process_id, "--errexit", "--command", scanmem_command],
