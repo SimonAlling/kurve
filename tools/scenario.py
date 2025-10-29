@@ -113,6 +113,7 @@ print()
 
 if "ZATACKA.EXE" in process_id_or_path_to_original_game:
     path_to_original_game = process_id_or_path_to_original_game
+    print(f"🚀 Launching original game at {path_to_original_game} …")
 
     proc = subprocess.Popen(
         ["dosbox", path_to_original_game],
@@ -145,6 +146,7 @@ if "ZATACKA.EXE" in process_id_or_path_to_original_game:
 
 else:
     process_id = process_id_or_path_to_original_game
+    print(f"📎 Attaching to already running DOSBox with PID {process_id} …")
 
 subprocess.run(
     ["sudo", "scanmem", process_id, "--errexit", "--command", scanmem_command],
