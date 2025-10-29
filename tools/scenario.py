@@ -108,13 +108,11 @@ def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
         if window_id is None:
             print("Warning: couldn't find/focus the DOSBox window; key sends may fail.")
 
-        time.sleep(1.0)  # small settle time after focus
-
         KEY_RED_LEFT = "1"
         KEY_YELLOW_LEFT = "Ctrl"
         KEY_GREEN_LEFT = "Left"
 
-        time.sleep(1)
+        time.sleep(2)
         press_key("space")
         time.sleep(0.5)
         # Players need to join here in order to be able to participate in the staged scenario.
