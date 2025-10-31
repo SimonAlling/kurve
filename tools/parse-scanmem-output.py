@@ -55,7 +55,7 @@ ARROWS = [
 NUMBER_OF_ARROWS = len(ARROWS)
 
 
-def illustrate_dir(
+def arrow_for_dir(
     raw_direction: float,
 ) -> str:
     aligned_direction = (
@@ -105,7 +105,7 @@ def main():
             PLAYERS[player_id][1].ljust(7),
             str(x).ljust(COLUMN_WIDTH),
             str(y).ljust(COLUMN_WIDTH),
-            illustrate_dir(dir) + " ",
+            arrow_for_dir(dir) + " ",
             str(dir).ljust(COLUMN_WIDTH),
         )
 
