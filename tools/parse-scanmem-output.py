@@ -61,7 +61,8 @@ def illustrate_dir(
     aligned_direction = (
         raw_direction + pi / NUMBER_OF_ARROWS
     )  # The angle "almost 2π" should be represented by the downward arrow, i.e. index 0, not index n - 1. This addition "pushes it over the edge". The addition will be negated below by rounding down.
-    return ARROWS[int((aligned_direction % (2 * pi)) / (2 * pi) * NUMBER_OF_ARROWS)]
+    arrow_index = int((aligned_direction % (2 * pi)) / (2 * pi) * NUMBER_OF_ARROWS)
+    return ARROWS[arrow_index]
 
 
 def main():
