@@ -92,7 +92,7 @@ def main():
         "          ",
         "x".ljust(COLUMN_WIDTH),
         "y".ljust(COLUMN_WIDTH),
-        "Direction (raw)".ljust(COLUMN_WIDTH),
+        "Direction (0 = down)".ljust(COLUMN_WIDTH),
     )
 
     # Table body:
