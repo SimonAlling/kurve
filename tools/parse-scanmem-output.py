@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import math
 import re
 import struct
 import sys
@@ -41,6 +42,26 @@ def chunk_floats(bs: list[float], n: int) -> list[list[float]]:
     return [bs[i : i + n] for i in range(0, len(bs), n) if len(bs[i : i + n]) == n]
 
 
+ARROWS = [
+    "⬇️",
+    "↘️",
+    "➡️",
+    "↗️",
+    "⬆️",
+    "↖️",
+    "⬅️",
+    "↙️",
+]
+
+
+def illustrate_dir(
+    raw_direction: float,
+) -> str:
+    return ARROWS[
+        round((raw_direction % (2 * math.pi)) / (2 * math.pi) * (len(ARROWS) - 1))
+    ]
+
+
 def main():
     text: str = sys.stdin.read()
 
@@ -68,7 +89,7 @@ def main():
         "          ",
         "x".ljust(COLUMN_WIDTH),
         "y".ljust(COLUMN_WIDTH),
-        "Direction".ljust(COLUMN_WIDTH),
+        "Direction (raw)".ljust(COLUMN_WIDTH),
     )
 
     # Table body:
@@ -81,6 +102,7 @@ def main():
             PLAYERS[player_id][1].ljust(7),
             str(x).ljust(COLUMN_WIDTH),
             str(y).ljust(COLUMN_WIDTH),
+            illustrate_dir(dir) + " ",
             str(dir).ljust(COLUMN_WIDTH),
         )
 
