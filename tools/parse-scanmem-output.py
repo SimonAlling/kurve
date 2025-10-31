@@ -52,14 +52,14 @@ ARROWS = [
     "⬅️",
     "↙️",
 ]
+NUMBER_OF_ARROWS = len(ARROWS)
 
 
 def illustrate_dir(
     raw_direction: float,
 ) -> str:
-    return ARROWS[
-        round((raw_direction % (2 * math.pi)) / (2 * math.pi) * (len(ARROWS) - 1))
-    ]
+    normalized_direction = (raw_direction + math.pi / NUMBER_OF_ARROWS) % (2 * math.pi)
+    return ARROWS[int(normalized_direction / (2 * math.pi) * NUMBER_OF_ARROWS)]
 
 
 def main():
