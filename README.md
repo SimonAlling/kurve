@@ -9,7 +9,7 @@ npm start
 
 Then visit <http://localhost:8000> in your browser.
 
-The original MS-DOS game by Vlaada Chvátil and Rumun Křivánek is included for reference.
+The original MS-DOS game (whose author I haven't been able to determine; see #136) is included for reference.
 To launch it, install [DOSBox](https://www.dosbox.com) and then run `dosbox docs/original-game/ZATACKA.EXE`.
 
 ## Play
