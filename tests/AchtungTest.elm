@@ -1,19 +1,26 @@
 module AchtungTest exposing (tests)
 
 import Color
-import Config exposing (Config, KurveConfig)
+import Config
 import Expect
-import Game exposing (MidRoundState, MidRoundStateVariant(..), TickResult(..), prepareRoundFromKnownInitialState, reactToTick)
-import Random
-import Round exposing (Round, RoundInitialState)
-import Set
 import String
 import Test exposing (Test, describe, test)
+import TestHelpers exposing (defaultConfigWithSpeed, expectRoundOutcome)
+import TestScenarioHelpers exposing (makeZombieKurve, roundWith, tickNumber)
+import TestScenarios.AroundTheWorld
+import TestScenarios.CrashIntoTailEnd90Degrees
+import TestScenarios.CrashIntoTipOfTailEnd
+import TestScenarios.CrashIntoWallBasic
+import TestScenarios.CrashIntoWallExactTiming
+import TestScenarios.CuttingCornersBasic
+import TestScenarios.CuttingCornersPerfectOverpaintingTheoretical
+import TestScenarios.CuttingCornersThreePixelsRealExample
+import TestScenarios.SpeedEffectOnGame
+import TestScenarios.StressTestRealisticTurtleSurvivalRound
 import Types.Angle exposing (Angle(..))
-import Types.Kurve as Kurve exposing (HoleStatus(..), Kurve)
-import Types.PlayerId exposing (PlayerId)
+import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.Speed as Speed exposing (Speed(..))
-import Types.Tick as Tick exposing (Tick)
+import Types.Tick exposing (Tick)
 import World
 
 
@@ -26,72 +33,16 @@ tests =
         , crashTimingTests
         , cuttingCornersTests
         , speedTests
+        , stressTests
         ]
 
 
 basicTests : Test
 basicTests =
     describe "Basic tests"
-        [ test "Kurves move forward by default when game is active" <|
+        [ test "A Kurve that crashes into the wall dies" <|
             \_ ->
-                let
-                    currentKurve : Kurve
-                    currentKurve =
-                        makeZombieKurve
-                            { color = Color.white
-                            , id = 5
-                            , state =
-                                { position = ( 100, 100 )
-                                , direction = Angle 0
-                                , holeStatus = Unholy 60
-                                }
-                            }
-
-                    currentRound : Round
-                    currentRound =
-                        prepareRoundFromKnownInitialState
-                            { seedAfterSpawn = Random.initialSeed 0
-                            , spawnedKurves = [ currentKurve ]
-                            }
-
-                    tickResult : TickResult
-                    tickResult =
-                        reactToTick Config.default (Tick.succ Tick.genesis) ( Live, currentRound ) |> Tuple.first
-                in
-                case tickResult of
-                    RoundKeepsGoing _ ( _, round ) ->
-                        case round.kurves.alive of
-                            kurve :: [] ->
-                                Expect.equal kurve.state.position
-                                    ( 101, 100 )
-
-                            _ ->
-                                Expect.fail "Expected exactly one alive Kurve"
-
-                    RoundEnds _ ->
-                        Expect.fail "Expected round not to end"
-        , test "A Kurve that crashes into the wall dies" <|
-            \_ ->
-                let
-                    currentKurve : Kurve
-                    currentKurve =
-                        makeZombieKurve
-                            { color = Color.white
-                            , id = 5
-                            , state =
-                                { position = ( 2.5, 100 )
-                                , direction = Angle pi
-                                , holeStatus = Unholy 60
-                                }
-                            }
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ currentKurve ]
-                        }
-                in
-                initialState
+                roundWith TestScenarios.CrashIntoWallBasic.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 2
@@ -105,6 +56,27 @@ basicTests =
                                     _ ->
                                         Expect.fail "Expected exactly one dead Kurve and no alive ones"
                         }
+        , test "Around the world, touching each wall" <|
+            \_ ->
+                roundWith TestScenarios.AroundTheWorld.spawnedKurves
+                    |> expectRoundOutcome
+                        Config.default
+                        { tickThatShouldEndIt = tickNumber 2011
+                        , howItShouldEnd =
+                            \round ->
+                                case ( round.kurves.alive, round.kurves.dead ) of
+                                    ( [], deadKurve :: [] ) ->
+                                        let
+                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                            theDrawingPositionItNeverMadeItTo =
+                                                World.drawingPosition deadKurve.state.position
+                                        in
+                                        theDrawingPositionItNeverMadeItTo
+                                            |> Expect.equal { leftEdge = 0, topEdge = -1 }
+
+                                    _ ->
+                                        Expect.fail "Expected exactly one dead Kurve and no alive ones"
+                        }
         ]
 
 
@@ -113,38 +85,7 @@ crashingIntoKurveTests =
     describe "Crashing into a Kurve"
         [ test "Hitting a Kurve's tail end is a crash" <|
             \_ ->
-                let
-                    red : Kurve
-                    red =
-                        makeZombieKurve
-                            { color = Color.red
-                            , id = 0
-                            , state =
-                                { position = ( 100.5, 100.5 )
-                                , direction = Angle 0
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-
-                    green : Kurve
-                    green =
-                        makeZombieKurve
-                            { color = Color.green
-                            , id = 3
-                            , state =
-                                { position = ( 98.5, 110.5 )
-                                , direction = Angle (pi / 2)
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ red, green ]
-                        }
-                in
-                initialState
+                roundWith TestScenarios.CrashIntoTailEnd90Degrees.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 8
@@ -161,6 +102,34 @@ crashingIntoKurveTests =
                                             [ \() ->
                                                 theDrawingPositionItNeverMadeItTo
                                                     |> Expect.equal { leftEdge = 97, topEdge = 101 }
+                                            , \() ->
+                                                deadKurve.color
+                                                    |> Expect.equal Color.green
+                                            ]
+                                            ()
+
+                                    _ ->
+                                        Expect.fail "Expected exactly one dead Kurve and one alive one"
+                        }
+        , test "Hitting a Kurve's tail end at a 45-degree angle is a crash" <|
+            \_ ->
+                roundWith TestScenarios.CrashIntoTipOfTailEnd.spawnedKurves
+                    |> expectRoundOutcome
+                        Config.default
+                        { tickThatShouldEndIt = tickNumber 39
+                        , howItShouldEnd =
+                            \round ->
+                                case ( round.kurves.alive, round.kurves.dead ) of
+                                    ( [ _ ], [ deadKurve ] ) ->
+                                        let
+                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                            theDrawingPositionItNeverMadeItTo =
+                                                World.drawingPosition deadKurve.state.position
+                                        in
+                                        Expect.all
+                                            [ \() ->
+                                                theDrawingPositionItNeverMadeItTo
+                                                    |> Expect.equal { leftEdge = 57, topEdge = 57 }
                                             , \() ->
                                                 deadKurve.color
                                                     |> Expect.equal Color.green
@@ -228,14 +197,8 @@ crashingIntoWallTests =
                                             , holeStatus = Unholy 60000
                                             }
                                         }
-
-                                initialState : RoundInitialState
-                                initialState =
-                                    { seedAfterSpawn = Random.initialSeed 0
-                                    , spawnedKurves = [ green ]
-                                    }
                             in
-                            initialState
+                            roundWith [ green ]
                                 |> expectRoundOutcome
                                     Config.default
                                     { tickThatShouldEndIt = tickThatShouldEndIt
@@ -302,26 +265,7 @@ crashingIntoWallTimingTest : Test
 crashingIntoWallTimingTest =
     test "The exact timing of a crash into the wall is predictable for the player" <|
         \_ ->
-            let
-                currentKurve : Kurve
-                currentKurve =
-                    makeZombieKurve
-                        { color = Color.white
-                        , id = 5
-                        , state =
-                            { position = ( 100, 3.5 )
-                            , direction = Angle 0.01
-                            , holeStatus = Unholy 60000
-                            }
-                        }
-
-                initialState : RoundInitialState
-                initialState =
-                    { seedAfterSpawn = Random.initialSeed 0
-                    , spawnedKurves = [ currentKurve ]
-                    }
-            in
-            initialState
+            roundWith TestScenarios.CrashIntoWallExactTiming.spawnedKurves
                 |> expectRoundOutcome
                     Config.default
                     { tickThatShouldEndIt = tickNumber 251
@@ -380,14 +324,8 @@ crashingIntoKurveTimingTests =
                                             , holeStatus = Unholy 60000
                                             }
                                         }
-
-                                initialState : RoundInitialState
-                                initialState =
-                                    { seedAfterSpawn = Random.initialSeed 0
-                                    , spawnedKurves = [ red, green ]
-                                    }
                             in
-                            initialState
+                            roundWith [ red, green ]
                                 |> expectRoundOutcome
                                     Config.default
                                     { tickThatShouldEndIt = tickNumber 226
@@ -423,38 +361,7 @@ cuttingCornersTests =
     describe "Cutting corners (by painting over them)"
         [ test "It is possible to cut the corner of a Kurve's tail end" <|
             \_ ->
-                let
-                    red : Kurve
-                    red =
-                        makeZombieKurve
-                            { color = Color.red
-                            , id = 0
-                            , state =
-                                { position = ( 200.5, 100.5 )
-                                , direction = Angle 0
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-
-                    green : Kurve
-                    green =
-                        makeZombieKurve
-                            { color = Color.green
-                            , id = 3
-                            , state =
-                                { position = ( 100.5, 196.5 )
-                                , direction = Angle (pi / 4)
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ red, green ]
-                        }
-                in
-                initialState
+                roundWith TestScenarios.CuttingCornersBasic.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 277
@@ -482,38 +389,7 @@ cuttingCornersTests =
                         }
         , test "It is possible to paint over three pixels when cutting a corner (real example from original game)" <|
             \_ ->
-                let
-                    red : Kurve
-                    red =
-                        makeZombieKurve
-                            { color = Color.red
-                            , id = 0
-                            , state =
-                                { position = ( 299.5, 302.5 )
-                                , direction = Angle (-71 * (2 * pi / 360))
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-
-                    green : Kurve
-                    green =
-                        makeZombieKurve
-                            { color = Color.green
-                            , id = 3
-                            , state =
-                                { position = ( 319, 269 )
-                                , direction = Angle (-123 * (2 * pi / 360))
-                                , holeStatus = Unholy 60000
-                                }
-                            }
-
-                    initialState : RoundInitialState
-                    initialState =
-                        { seedAfterSpawn = Random.initialSeed 0
-                        , spawnedKurves = [ red, green ]
-                        }
-                in
-                initialState
+                roundWith TestScenarios.CuttingCornersThreePixelsRealExample.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 40
@@ -539,6 +415,34 @@ cuttingCornersTests =
                                     _ ->
                                         Expect.fail "Expected exactly one dead Kurve and one alive one"
                         }
+        , test "The perfect overpainting (squeezing through a non-existent gap)" <|
+            \_ ->
+                roundWith TestScenarios.CuttingCornersPerfectOverpaintingTheoretical.spawnedKurves
+                    |> expectRoundOutcome
+                        Config.default
+                        { tickThatShouldEndIt = tickNumber 138
+                        , howItShouldEnd =
+                            \round ->
+                                case ( round.kurves.alive, round.kurves.dead ) of
+                                    ( [ _ ], [ secondDeadKurve, _ ] ) ->
+                                        let
+                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                            theDrawingPositionItNeverMadeItTo =
+                                                World.drawingPosition secondDeadKurve.state.position
+                                        in
+                                        Expect.all
+                                            [ \() ->
+                                                theDrawingPositionItNeverMadeItTo
+                                                    |> Expect.equal { leftEdge = 116, topEdge = -1 }
+                                            , \() ->
+                                                secondDeadKurve.color
+                                                    |> Expect.equal Color.green
+                                            ]
+                                            ()
+
+                                    _ ->
+                                        Expect.fail "Expected exactly two dead Kurves and one alive one"
+                        }
         ]
 
 
@@ -553,26 +457,7 @@ speedTests =
                 (\( speed, expectedEndTick ) ->
                     test ("Round ends as expected when speed is " ++ String.fromFloat (Speed.toFloat speed)) <|
                         \_ ->
-                            let
-                                green : Kurve
-                                green =
-                                    makeZombieKurve
-                                        { color = Color.green
-                                        , id = 3
-                                        , state =
-                                            { position = ( 108, 100 )
-                                            , direction = Angle 0
-                                            , holeStatus = Unholy 60000
-                                            }
-                                        }
-
-                                initialState : RoundInitialState
-                                initialState =
-                                    { seedAfterSpawn = Random.initialSeed 0
-                                    , spawnedKurves = [ green ]
-                                    }
-                            in
-                            initialState
+                            roundWith TestScenarios.SpeedEffectOnGame.spawnedKurves
                                 |> expectRoundOutcome
                                     (defaultConfigWithSpeed speed)
                                     { tickThatShouldEndIt = expectedEndTick
@@ -595,107 +480,28 @@ speedTests =
         )
 
 
-{-| A description of when and how a round should end.
--}
-type alias RoundOutcome =
-    { tickThatShouldEndIt : Tick
-    , howItShouldEnd : Round -> Expect.Expectation
-    }
+stressTests : Test
+stressTests =
+    describe "Stress tests"
+        [ test "Realistic single-player turtle survival round" <|
+            \_ ->
+                roundWith TestScenarios.StressTestRealisticTurtleSurvivalRound.spawnedKurves
+                    |> expectRoundOutcome
+                        Config.default
+                        { tickThatShouldEndIt = tickNumber 23875
+                        , howItShouldEnd =
+                            \round ->
+                                case round.kurves.dead of
+                                    [ deadKurve ] ->
+                                        let
+                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                            theDrawingPositionItNeverMadeItTo =
+                                                World.drawingPosition deadKurve.state.position
+                                        in
+                                        theDrawingPositionItNeverMadeItTo
+                                            |> Expect.equal { leftEdge = 372, topEdge = 217 }
 
-
-expectRoundOutcome : Config -> RoundOutcome -> RoundInitialState -> Expect.Expectation
-expectRoundOutcome config { tickThatShouldEndIt, howItShouldEnd } initialState =
-    let
-        ( actualEndTick, actualRoundResult ) =
-            playOutRound config initialState
-    in
-    Expect.all
-        [ \_ ->
-            if actualEndTick == tickThatShouldEndIt then
-                Expect.pass
-
-            else
-                Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it ended on tick " ++ showTick actualEndTick ++ "."
-        , \_ -> howItShouldEnd actualRoundResult
+                                    _ ->
+                                        Expect.fail "Expected exactly one dead Kurve"
+                        }
         ]
-        ()
-
-
-playOutRound : Config -> RoundInitialState -> ( Tick, Round )
-playOutRound config initialState =
-    let
-        recurse : Tick -> MidRoundState -> ( Tick, Round )
-        recurse tick midRoundState =
-            let
-                tickResult : TickResult
-                tickResult =
-                    reactToTick config (Tick.succ tick) midRoundState |> Tuple.first
-            in
-            case tickResult of
-                RoundKeepsGoing nextTick nextMidRoundState ->
-                    recurse nextTick nextMidRoundState
-
-                RoundEnds actualRoundResult ->
-                    let
-                        actualEndTick : Tick
-                        actualEndTick =
-                            Tick.succ tick
-                    in
-                    ( actualEndTick, actualRoundResult )
-
-        round : Round
-        round =
-            prepareRoundFromKnownInitialState initialState
-    in
-    recurse Tick.genesis ( Live, round )
-
-
-showTick : Tick -> String
-showTick =
-    Tick.toInt >> String.fromInt
-
-
-tickNumber : Int -> Tick
-tickNumber n =
-    case Tick.fromInt n of
-        Nothing ->
-            Debug.todo <| "Tick cannot be negative (was " ++ String.fromInt n ++ ")."
-
-        Just tick ->
-            tick
-
-
-defaultConfigWithSpeed : Speed -> Config
-defaultConfigWithSpeed speed =
-    let
-        defaultConfig : Config
-        defaultConfig =
-            Config.default
-
-        defaultKurveConfig : KurveConfig
-        defaultKurveConfig =
-            defaultConfig.kurves
-    in
-    { defaultConfig
-        | kurves =
-            { defaultKurveConfig
-                | speed = speed
-            }
-    }
-
-
-{-| Creates a Kurve that just moves forward.
--}
-makeZombieKurve : { color : Color.Color, id : PlayerId, state : Kurve.State } -> Kurve
-makeZombieKurve { color, id, state } =
-    { color = color
-    , id = id
-    , controls = ( Set.empty, Set.empty )
-    , state = state
-    , stateAtSpawn =
-        { position = ( 0, 0 )
-        , direction = Angle 0
-        , holeStatus = Unholy 0
-        }
-    , reversedInteractions = []
-    }

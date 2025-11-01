@@ -1,0 +1,77 @@
+name: Deployment
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Enables running this workflow manually from the Actions tab.
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages:
+permissions:
+  contents: read
+  pages: write
+  id-token: write # https://github.com/actions/deploy-pages/issues/329#issuecomment-2030341950
+
+concurrency:
+  group: deploy-to-github-pages
+  cancel-in-progress: false
+
+jobs:
+  build-job:
+    name: Build
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5.0.0
+        with:
+          path: elm-version/
+
+      - name: Setup Node
+        uses: actions/setup-node@v5.0.0
+        with:
+          node-version: 24.10.0
+          package-manager-cache: false # I don't know if this is needed, but: https://github.com/actions/setup-node/blob/13427813f706a0f6c9b74603b31103c40ab1c35a/README.md?plain=1#L18
+
+      - name: Build
+        working-directory: elm-version/
+        run: |
+          npm ci --omit optional
+          npm run build
+
+      - name: Checkout legacy JavaScript version
+        uses: actions/checkout@v5.0.0
+        with:
+          path: legacy-javascript-version/
+          ref: master
+          sparse-checkout: |
+            /index.html
+            /ZATACKA.html
+            /favicon.ico
+            /manifest.json
+            /js/
+            /css/
+            /resources/
+          sparse-checkout-cone-mode: false
+
+      - name: Copy legacy JavaScript version
+        run: |
+          cp --recursive legacy-javascript-version/ website-root # Assumption: target directory doesn't already exist; created here.
+
+      - name: Copy Elm version
+        run: |
+          cp --recursive elm-version/_site/ website-root/elm
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5.0.0
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4.0.0
+        with:
+          name: github-pages
+          path: website-root/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4.0.5
+        with:
+          artifact_name: github-pages

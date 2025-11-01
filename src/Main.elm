@@ -2,6 +2,7 @@ port module Main exposing (Model, Msg(..), main)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
+import Browser.Events
 import Canvas exposing (clearEverything, drawSpawnIfAndOnlyIf)
 import Config exposing (Config)
 import Dialog
@@ -15,14 +16,15 @@ import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoun
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
+import MainLoop
 import Menu exposing (MenuState(..))
 import Players exposing (AllPlayers, atLeastOneIsParticipating, everyoneLeaves, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
 import Time
+import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
-import Types.Tickrate as Tickrate
 import Util exposing (isEven)
 
 
@@ -71,18 +73,23 @@ newRoundGameStateAndCmd config plannedMidRoundState =
 
 type Msg
     = SpawnTick SpawnState MidRoundState
-    | GameTick Tick MidRoundState
+    | AnimationFrame
+        { delta : FrameTime
+        , leftoverTimeFromPreviousFrame : LeftoverFrameTime
+        , lastTick : Tick
+        }
+        MidRoundState
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
     | FocusLost
 
 
-stepSpawnState : Config -> SpawnState -> ( MidRoundState -> ActiveGameState, Cmd msg )
+stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, Cmd msg )
 stepSpawnState config { kurvesLeft, ticksLeft } =
     case kurvesLeft of
         [] ->
             -- All Kurves have spawned.
-            ( Moving Tick.genesis, Cmd.none )
+            ( Nothing, Cmd.none )
 
         spawning :: waiting ->
             let
@@ -94,7 +101,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
                     else
                         { kurvesLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
-            ( Spawning newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning )
+            ( Just newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -109,13 +116,27 @@ update msg ({ config, pressedButtons } as model) =
                     ( model, Cmd.none )
 
         SpawnTick spawnState plannedMidRoundState ->
-            stepSpawnState config spawnState
-                |> Tuple.mapFirst (\makeActiveGameState -> { model | appState = InGame <| Active NotPaused <| makeActiveGameState plannedMidRoundState })
+            let
+                ( maybeSpawnState, cmd ) =
+                    stepSpawnState config spawnState
 
-        GameTick tick midRoundState ->
+                activeGameState : ActiveGameState
+                activeGameState =
+                    case maybeSpawnState of
+                        Just newSpawnState ->
+                            Spawning newSpawnState plannedMidRoundState
+
+                        Nothing ->
+                            Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
+            in
+            ( { model | appState = InGame <| Active NotPaused activeGameState }
+            , cmd
+            )
+
+        AnimationFrame { delta, leftoverTimeFromPreviousFrame, lastTick } midRoundState ->
             let
                 ( tickResult, cmd ) =
-                    Game.reactToTick config tick midRoundState
+                    MainLoop.consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState
             in
             ( { model | appState = InGame (tickResultToGameState tickResult) }
             , cmd
@@ -285,7 +306,7 @@ handleUserInteraction direction button model =
                 InGame (Active _ (Spawning _ ( Live, _ ))) ->
                     recordInteractionBefore firstUpdateTick
 
-                InGame (Active _ (Moving lastTick ( Live, _ ))) ->
+                InGame (Active _ (Moving _ lastTick ( Live, _ ))) ->
                     recordInteractionBefore (Tick.succ lastTick)
 
                 _ ->
@@ -314,8 +335,16 @@ subscriptions model =
             InGame (Active NotPaused (Spawning spawnState plannedMidRoundState)) ->
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick spawnState plannedMidRoundState)
 
-            InGame (Active NotPaused (Moving lastTick midRoundState)) ->
-                Time.every (1000 / Tickrate.toFloat model.config.kurves.tickrate) (always <| GameTick (Tick.succ lastTick) midRoundState)
+            InGame (Active NotPaused (Moving leftoverTimeFromPreviousFrame lastTick midRoundState)) ->
+                Browser.Events.onAnimationFrameDelta
+                    (\delta ->
+                        AnimationFrame
+                            { delta = delta
+                            , leftoverTimeFromPreviousFrame = leftoverTimeFromPreviousFrame
+                            , lastTick = lastTick
+                            }
+                            midRoundState
+                    )
 
             InGame (Active Paused _) ->
                 Sub.none

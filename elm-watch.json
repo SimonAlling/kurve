@@ -4,7 +4,7 @@
             "inputs": [
                 "src/Main.elm"
             ],
-            "output": "build/ZATACKA.js"
+            "output": "_site/ZATACKA.js"
         }
     }
 }
