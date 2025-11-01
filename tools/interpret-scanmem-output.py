@@ -43,14 +43,14 @@ def chunk_floats(bs: list[float], n: int) -> list[list[float]]:
 
 
 ARROWS = [
-    "⬇️",
-    "↘️",
-    "➡️",
-    "↗️",
-    "⬆️",
-    "↖️",
-    "⬅️",
-    "↙️",
+    "↓",
+    "↘",
+    "→",
+    "↗",
+    "↑",
+    "↖",
+    "←",
+    "↙",
 ]
 NUMBER_OF_ARROWS = len(ARROWS)
 
@@ -107,7 +107,7 @@ def main():
             PLAYERS[player_id][1].ljust(7),
             str(x).ljust(COLUMN_WIDTH),
             str(y).ljust(COLUMN_WIDTH),
-            arrow_for_dir(dir) + " ",
+            arrow_for_dir(dir),
             str(dir).ljust(COLUMN_WIDTH),
         )
 
