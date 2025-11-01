@@ -59,8 +59,9 @@ def arrow_for_dir(
     raw_direction: float,
 ) -> str:
     aligned_direction = (
+        # The angle "almost 2π" should be represented by the downward arrow, i.e. index 0, not index n - 1. This addition "pushes it over the edge". The addition will be negated below by rounding down.
         raw_direction + pi / NUMBER_OF_ARROWS
-    )  # The angle "almost 2π" should be represented by the downward arrow, i.e. index 0, not index n - 1. This addition "pushes it over the edge". The addition will be negated below by rounding down.
+    )
     arrow_index = int((aligned_direction % (2 * pi)) / (2 * pi) * NUMBER_OF_ARROWS)
     return ARROWS[arrow_index]
 
