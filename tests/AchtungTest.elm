@@ -6,7 +6,7 @@ import Expect
 import String
 import Test exposing (Test, describe, test)
 import TestHelpers exposing (defaultConfigWithSpeed, expectRoundOutcome)
-import TestScenarioHelpers exposing (makeZombieKurve, roundWith, tickNumber)
+import TestScenarioHelpers exposing (makeZombieKurve, playerIds, roundWith, tickNumber)
 import TestScenarios.AroundTheWorld
 import TestScenarios.CrashIntoTailEnd90Degrees
 import TestScenarios.CrashIntoTipOfTailEnd
@@ -190,7 +190,7 @@ crashingIntoWallTests =
                                 green =
                                     makeZombieKurve
                                         { color = Color.green
-                                        , id = 3
+                                        , id = playerIds.green
                                         , state =
                                             { position = startingPosition
                                             , direction = direction
@@ -305,7 +305,7 @@ crashingIntoKurveTimingTests =
                                 red =
                                     makeZombieKurve
                                         { color = Color.red
-                                        , id = 0
+                                        , id = playerIds.red
                                         , state =
                                             { position = ( 150, y_red )
                                             , direction = Angle 0
@@ -317,7 +317,7 @@ crashingIntoKurveTimingTests =
                                 green =
                                     makeZombieKurve
                                         { color = Color.green
-                                        , id = 3
+                                        , id = playerIds.green
                                         , state =
                                             { position = ( 100, 107.5 )
                                             , direction = Angle 0.02

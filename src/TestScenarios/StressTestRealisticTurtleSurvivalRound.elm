@@ -1,7 +1,7 @@
 module TestScenarios.StressTestRealisticTurtleSurvivalRound exposing (spawnedKurves)
 
 import Color
-import TestScenarioHelpers exposing (CumulativeInteraction, makeUserInteractions, makeZombieKurve)
+import TestScenarioHelpers exposing (CumulativeInteraction, makeUserInteractions, makeZombieKurve, playerIds)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.TurningState exposing (TurningState(..))
@@ -11,7 +11,7 @@ greenZombie : Kurve
 greenZombie =
     makeZombieKurve
         { color = Color.green
-        , id = 3
+        , id = playerIds.green
         , state =
             { position = ( 32.5, 3.5 )
             , direction = Angle 0
