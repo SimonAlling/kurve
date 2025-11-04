@@ -2,11 +2,10 @@ module AchtungTest exposing (tests)
 
 import Color
 import Config
-import Expect
 import String
 import Test exposing (Test, describe, test)
 import TestHelpers exposing (defaultConfigWithSpeed, expectRoundOutcome)
-import TestScenarioHelpers exposing (makeZombieKurve, roundWith, tickNumber)
+import TestScenarioHelpers exposing (makeZombieKurve, playerIds, roundWith, tickNumber)
 import TestScenarios.AroundTheWorld
 import TestScenarios.CrashIntoTailEnd90Degrees
 import TestScenarios.CrashIntoTipOfTailEnd
@@ -47,14 +46,13 @@ basicTests =
                         Config.default
                         { tickThatShouldEndIt = tickNumber 2
                         , howItShouldEnd =
-                            \round ->
-                                case ( round.kurves.alive, round.kurves.dead ) of
-                                    ( [], kurve :: [] ) ->
-                                        Expect.equal kurve.state.position
-                                            ( 0.5, 100 )
-
-                                    _ ->
-                                        Expect.fail "Expected exactly one dead Kurve and no alive ones"
+                            { aliveAtTheEnd = []
+                            , deadAtTheEnd =
+                                [ { id = playerIds.green
+                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = -1, topEdge = 99 }
+                                  }
+                                ]
+                            }
                         }
         , test "Around the world, touching each wall" <|
             \_ ->
@@ -63,19 +61,13 @@ basicTests =
                         Config.default
                         { tickThatShouldEndIt = tickNumber 2011
                         , howItShouldEnd =
-                            \round ->
-                                case ( round.kurves.alive, round.kurves.dead ) of
-                                    ( [], deadKurve :: [] ) ->
-                                        let
-                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                            theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition (World.toPixel deadKurve.state.position)
-                                        in
-                                        theDrawingPositionItNeverMadeItTo
-                                            |> Expect.equal { leftEdge = 0, topEdge = -1 }
-
-                                    _ ->
-                                        Expect.fail "Expected exactly one dead Kurve and no alive ones"
+                            { aliveAtTheEnd = []
+                            , deadAtTheEnd =
+                                [ { id = playerIds.green
+                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 0, topEdge = -1 }
+                                  }
+                                ]
+                            }
                         }
         ]
 
@@ -90,26 +82,13 @@ crashingIntoKurveTests =
                         Config.default
                         { tickThatShouldEndIt = tickNumber 8
                         , howItShouldEnd =
-                            \round ->
-                                case ( round.kurves.alive, round.kurves.dead ) of
-                                    ( [ _ ], [ deadKurve ] ) ->
-                                        let
-                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                            theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition (World.toPixel deadKurve.state.position)
-                                        in
-                                        Expect.all
-                                            [ \() ->
-                                                theDrawingPositionItNeverMadeItTo
-                                                    |> Expect.equal { leftEdge = 97, topEdge = 101 }
-                                            , \() ->
-                                                deadKurve.color
-                                                    |> Expect.equal Color.green
-                                            ]
-                                            ()
-
-                                    _ ->
-                                        Expect.fail "Expected exactly one dead Kurve and one alive one"
+                            { aliveAtTheEnd = [ { id = playerIds.red } ]
+                            , deadAtTheEnd =
+                                [ { id = playerIds.green
+                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 97, topEdge = 101 }
+                                  }
+                                ]
+                            }
                         }
         , test "Hitting a Kurve's tail end at a 45-degree angle is a crash" <|
             \_ ->
@@ -118,26 +97,13 @@ crashingIntoKurveTests =
                         Config.default
                         { tickThatShouldEndIt = tickNumber 39
                         , howItShouldEnd =
-                            \round ->
-                                case ( round.kurves.alive, round.kurves.dead ) of
-                                    ( [ _ ], [ deadKurve ] ) ->
-                                        let
-                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                            theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition (World.toPixel deadKurve.state.position)
-                                        in
-                                        Expect.all
-                                            [ \() ->
-                                                theDrawingPositionItNeverMadeItTo
-                                                    |> Expect.equal { leftEdge = 57, topEdge = 57 }
-                                            , \() ->
-                                                deadKurve.color
-                                                    |> Expect.equal Color.green
-                                            ]
-                                            ()
-
-                                    _ ->
-                                        Expect.fail "Expected exactly one dead Kurve and one alive one"
+                            { aliveAtTheEnd = [ { id = playerIds.red } ]
+                            , deadAtTheEnd =
+                                [ { id = playerIds.green
+                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 57, topEdge = 57 }
+                                  }
+                                ]
+                            }
                         }
         ]
 
@@ -190,7 +156,7 @@ crashingIntoWallTests =
                                 green =
                                     makeZombieKurve
                                         { color = Color.green
-                                        , id = 3
+                                        , id = playerIds.green
                                         , state =
                                             { position = startingPosition
                                             , direction = direction
@@ -203,19 +169,13 @@ crashingIntoWallTests =
                                     Config.default
                                     { tickThatShouldEndIt = tickThatShouldEndIt
                                     , howItShouldEnd =
-                                        \round ->
-                                            case ( round.kurves.alive, round.kurves.dead ) of
-                                                ( [], [ deadKurve ] ) ->
-                                                    let
-                                                        theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                                        theDrawingPositionItNeverMadeItTo =
-                                                            World.drawingPosition (World.toPixel deadKurve.state.position)
-                                                    in
-                                                    theDrawingPositionItNeverMadeItTo
-                                                        |> Expect.equal drawingPositionItShouldNeverMakeItTo
-
-                                                _ ->
-                                                    Expect.fail "Expected exactly one dead Kurve and no alive ones"
+                                        { aliveAtTheEnd = []
+                                        , deadAtTheEnd =
+                                            [ { id = playerIds.green
+                                              , theDrawingPositionItNeverMadeItTo = drawingPositionItShouldNeverMakeItTo
+                                              }
+                                            ]
+                                        }
                                     }
                 )
         )
@@ -270,19 +230,13 @@ crashingIntoWallTimingTest =
                     Config.default
                     { tickThatShouldEndIt = tickNumber 251
                     , howItShouldEnd =
-                        \round ->
-                            case ( round.kurves.alive, round.kurves.dead ) of
-                                ( [], [ kurve ] ) ->
-                                    let
-                                        theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                        theDrawingPositionItNeverMadeItTo =
-                                            World.drawingPosition (World.toPixel kurve.state.position)
-                                    in
-                                    theDrawingPositionItNeverMadeItTo
-                                        |> Expect.equal { leftEdge = 349, topEdge = -1 }
-
-                                _ ->
-                                    Expect.fail "Expected exactly one dead Kurve and no alive ones"
+                        { aliveAtTheEnd = []
+                        , deadAtTheEnd =
+                            [ { id = playerIds.green
+                              , theDrawingPositionItNeverMadeItTo = { leftEdge = 349, topEdge = -1 }
+                              }
+                            ]
+                        }
                     }
 
 
@@ -305,7 +259,7 @@ crashingIntoKurveTimingTests =
                                 red =
                                     makeZombieKurve
                                         { color = Color.red
-                                        , id = 0
+                                        , id = playerIds.red
                                         , state =
                                             { position = ( 150, y_red )
                                             , direction = Angle 0
@@ -317,7 +271,7 @@ crashingIntoKurveTimingTests =
                                 green =
                                     makeZombieKurve
                                         { color = Color.green
-                                        , id = 3
+                                        , id = playerIds.green
                                         , state =
                                             { position = ( 100, 107.5 )
                                             , direction = Angle 0.02
@@ -330,26 +284,13 @@ crashingIntoKurveTimingTests =
                                     Config.default
                                     { tickThatShouldEndIt = tickNumber 226
                                     , howItShouldEnd =
-                                        \round ->
-                                            case ( round.kurves.alive, round.kurves.dead ) of
-                                                ( [ _ ], [ deadKurve ] ) ->
-                                                    let
-                                                        theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                                        theDrawingPositionItNeverMadeItTo =
-                                                            World.drawingPosition (World.toPixel deadKurve.state.position)
-                                                    in
-                                                    Expect.all
-                                                        [ \() ->
-                                                            theDrawingPositionItNeverMadeItTo
-                                                                |> Expect.equal { leftEdge = 324, topEdge = 101 }
-                                                        , \() ->
-                                                            deadKurve.color
-                                                                |> Expect.equal Color.green
-                                                        ]
-                                                        ()
-
-                                                _ ->
-                                                    Expect.fail "Expected exactly one dead Kurve and one alive one"
+                                        { aliveAtTheEnd = [ { id = playerIds.red } ]
+                                        , deadAtTheEnd =
+                                            [ { id = playerIds.green
+                                              , theDrawingPositionItNeverMadeItTo = { leftEdge = 324, topEdge = 101 }
+                                              }
+                                            ]
+                                        }
                                     }
                         )
                 )
@@ -366,26 +307,13 @@ cuttingCornersTests =
                         Config.default
                         { tickThatShouldEndIt = tickNumber 277
                         , howItShouldEnd =
-                            \round ->
-                                case ( round.kurves.alive, round.kurves.dead ) of
-                                    ( [ _ ], [ deadKurve ] ) ->
-                                        let
-                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                            theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition (World.toPixel deadKurve.state.position)
-                                        in
-                                        Expect.all
-                                            [ \() ->
-                                                theDrawingPositionItNeverMadeItTo
-                                                    |> Expect.equal { leftEdge = 295, topEdge = -1 }
-                                            , \() ->
-                                                deadKurve.color
-                                                    |> Expect.equal Color.green
-                                            ]
-                                            ()
-
-                                    _ ->
-                                        Expect.fail "Expected exactly one dead Kurve and one alive one"
+                            { aliveAtTheEnd = [ { id = playerIds.red } ]
+                            , deadAtTheEnd =
+                                [ { id = playerIds.green
+                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 295, topEdge = -1 }
+                                  }
+                                ]
+                            }
                         }
         , test "It is possible to paint over three pixels when cutting a corner (real example from original game)" <|
             \_ ->
@@ -394,26 +322,13 @@ cuttingCornersTests =
                         Config.default
                         { tickThatShouldEndIt = tickNumber 40
                         , howItShouldEnd =
-                            \round ->
-                                case ( round.kurves.alive, round.kurves.dead ) of
-                                    ( [ _ ], [ deadKurve ] ) ->
-                                        let
-                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                            theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition (World.toPixel deadKurve.state.position)
-                                        in
-                                        Expect.all
-                                            [ \() ->
-                                                theDrawingPositionItNeverMadeItTo
-                                                    |> Expect.equal { leftEdge = 296, topEdge = 301 }
-                                            , \() ->
-                                                deadKurve.color
-                                                    |> Expect.equal Color.green
-                                            ]
-                                            ()
-
-                                    _ ->
-                                        Expect.fail "Expected exactly one dead Kurve and one alive one"
+                            { aliveAtTheEnd = [ { id = playerIds.red } ]
+                            , deadAtTheEnd =
+                                [ { id = playerIds.green
+                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 296, topEdge = 301 }
+                                  }
+                                ]
+                            }
                         }
         , test "The perfect overpainting (squeezing through a non-existent gap)" <|
             \_ ->
@@ -422,26 +337,16 @@ cuttingCornersTests =
                         Config.default
                         { tickThatShouldEndIt = tickNumber 138
                         , howItShouldEnd =
-                            \round ->
-                                case ( round.kurves.alive, round.kurves.dead ) of
-                                    ( [ _ ], [ secondDeadKurve, _ ] ) ->
-                                        let
-                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                            theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition (World.toPixel secondDeadKurve.state.position)
-                                        in
-                                        Expect.all
-                                            [ \() ->
-                                                theDrawingPositionItNeverMadeItTo
-                                                    |> Expect.equal { leftEdge = 116, topEdge = -1 }
-                                            , \() ->
-                                                secondDeadKurve.color
-                                                    |> Expect.equal Color.green
-                                            ]
-                                            ()
-
-                                    _ ->
-                                        Expect.fail "Expected exactly two dead Kurves and one alive one"
+                            { aliveAtTheEnd = [ { id = playerIds.yellow } ]
+                            , deadAtTheEnd =
+                                [ { id = playerIds.green
+                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 116, topEdge = -1 }
+                                  }
+                                , { id = playerIds.red
+                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 57, topEdge = 57 }
+                                  }
+                                ]
+                            }
                         }
         ]
 
@@ -462,19 +367,13 @@ speedTests =
                                     (defaultConfigWithSpeed speed)
                                     { tickThatShouldEndIt = expectedEndTick
                                     , howItShouldEnd =
-                                        \round ->
-                                            case round.kurves.dead of
-                                                [ deadKurve ] ->
-                                                    let
-                                                        theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                                        theDrawingPositionItNeverMadeItTo =
-                                                            World.drawingPosition (World.toPixel deadKurve.state.position)
-                                                    in
-                                                    theDrawingPositionItNeverMadeItTo
-                                                        |> Expect.equal { leftEdge = 557, topEdge = 99 }
-
-                                                _ ->
-                                                    Expect.fail "Expected exactly one dead Kurve"
+                                        { aliveAtTheEnd = []
+                                        , deadAtTheEnd =
+                                            [ { id = playerIds.green
+                                              , theDrawingPositionItNeverMadeItTo = { leftEdge = 557, topEdge = 99 }
+                                              }
+                                            ]
+                                        }
                                     }
                 )
         )
@@ -490,18 +389,12 @@ stressTests =
                         Config.default
                         { tickThatShouldEndIt = tickNumber 23875
                         , howItShouldEnd =
-                            \round ->
-                                case round.kurves.dead of
-                                    [ deadKurve ] ->
-                                        let
-                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
-                                            theDrawingPositionItNeverMadeItTo =
-                                                World.drawingPosition (World.toPixel deadKurve.state.position)
-                                        in
-                                        theDrawingPositionItNeverMadeItTo
-                                            |> Expect.equal { leftEdge = 372, topEdge = 217 }
-
-                                    _ ->
-                                        Expect.fail "Expected exactly one dead Kurve"
+                            { aliveAtTheEnd = []
+                            , deadAtTheEnd =
+                                [ { id = playerIds.green
+                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 372, topEdge = 217 }
+                                  }
+                                ]
+                            }
                         }
         ]

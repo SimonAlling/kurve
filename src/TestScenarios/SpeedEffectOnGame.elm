@@ -1,7 +1,7 @@
 module TestScenarios.SpeedEffectOnGame exposing (spawnedKurves)
 
 import Color
-import TestScenarioHelpers exposing (makeZombieKurve)
+import TestScenarioHelpers exposing (makeZombieKurve, playerIds)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 
@@ -10,7 +10,7 @@ green : Kurve
 green =
     makeZombieKurve
         { color = Color.green
-        , id = 3
+        , id = playerIds.green
         , state =
             { position = ( 108, 100 )
             , direction = Angle 0

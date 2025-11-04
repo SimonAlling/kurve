@@ -7,15 +7,34 @@ import Config exposing (Config, KurveConfig)
 import Expect
 import Game exposing (MidRoundState, MidRoundStateVariant(..), TickResult(..), prepareRoundFromKnownInitialState, reactToTick)
 import Round exposing (Round, RoundInitialState)
+import Types.PlayerId exposing (PlayerId)
 import Types.Speed exposing (Speed)
 import Types.Tick as Tick exposing (Tick)
+import World exposing (DrawingPosition)
 
 
 {-| A description of when and how a round should end.
 -}
 type alias RoundOutcome =
     { tickThatShouldEndIt : Tick
-    , howItShouldEnd : Round -> Expect.Expectation
+    , howItShouldEnd : RoundEndingInterpretation
+    }
+
+
+type alias RoundEndingInterpretation =
+    { aliveAtTheEnd : List AliveKurve
+    , deadAtTheEnd : List DeadKurve
+    }
+
+
+type alias AliveKurve =
+    { id : PlayerId
+    }
+
+
+type alias DeadKurve =
+    { id : PlayerId
+    , theDrawingPositionItNeverMadeItTo : DrawingPosition
     }
 
 
@@ -32,9 +51,31 @@ expectRoundOutcome config { tickThatShouldEndIt, howItShouldEnd } initialState =
 
             else
                 Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it ended on tick " ++ showTick actualEndTick ++ "."
-        , \_ -> howItShouldEnd actualRoundResult
+        , \_ ->
+            interpretRoundEnding actualRoundResult
+                |> Expect.equal howItShouldEnd
         ]
         ()
+
+
+interpretRoundEnding : Round -> RoundEndingInterpretation
+interpretRoundEnding { kurves } =
+    { aliveAtTheEnd =
+        kurves.alive
+            |> List.map
+                (\kurve ->
+                    { id = kurve.id
+                    }
+                )
+    , deadAtTheEnd =
+        kurves.dead
+            |> List.map
+                (\kurve ->
+                    { id = kurve.id
+                    , theDrawingPositionItNeverMadeItTo = World.drawingPosition (World.toPixel kurve.state.position)
+                    }
+                )
+    }
 
 
 playOutRound : Config -> RoundInitialState -> ( Tick, Round )
