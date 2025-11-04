@@ -2,6 +2,7 @@ module TestScenarioHelpers exposing
     ( CumulativeInteraction
     , makeUserInteractions
     , makeZombieKurve
+    , playerIds
     , roundWith
     , tickNumber
     )
@@ -15,6 +16,24 @@ import Types.Kurve as Kurve exposing (HoleStatus(..), Kurve, UserInteraction(..)
 import Types.PlayerId exposing (PlayerId)
 import Types.Tick as Tick exposing (Tick)
 import Types.TurningState exposing (TurningState)
+
+
+playerIds :
+    { red : PlayerId
+    , yellow : PlayerId
+    , orange : PlayerId
+    , green : PlayerId
+    , pink : PlayerId
+    , blue : PlayerId
+    }
+playerIds =
+    { red = 0
+    , yellow = 1
+    , orange = 2
+    , green = 3
+    , pink = 4
+    , blue = 5
+    }
 
 
 {-| Creates a Kurve that just moves forward.
