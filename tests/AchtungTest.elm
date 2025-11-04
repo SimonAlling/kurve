@@ -12,7 +12,7 @@ import TestScenarios.CrashIntoTipOfTailEnd
 import TestScenarios.CrashIntoWallBasic
 import TestScenarios.CrashIntoWallExactTiming
 import TestScenarios.CuttingCornersBasic
-import TestScenarios.CuttingCornersPerfectOverpaintingTheoretical
+import TestScenarios.CuttingCornersPerfectOverpainting
 import TestScenarios.CuttingCornersThreePixelsRealExample
 import TestScenarios.SpeedEffectOnGame
 import TestScenarios.StressTestRealisticTurtleSurvivalRound
@@ -332,7 +332,7 @@ cuttingCornersTests =
                         }
         , test "The perfect overpainting (squeezing through a non-existent gap)" <|
             \_ ->
-                roundWith TestScenarios.CuttingCornersPerfectOverpaintingTheoretical.spawnedKurves
+                roundWith TestScenarios.CuttingCornersPerfectOverpainting.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
                         { tickThatShouldEndIt = tickNumber 138

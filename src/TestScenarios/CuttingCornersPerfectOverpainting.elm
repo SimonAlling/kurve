@@ -1,4 +1,4 @@
-module TestScenarios.CuttingCornersPerfectOverpaintingTheoretical exposing (spawnedKurves)
+module TestScenarios.CuttingCornersPerfectOverpainting exposing (spawnedKurves)
 
 import Color
 import TestScenarioHelpers exposing (makeZombieKurve, playerIds)
