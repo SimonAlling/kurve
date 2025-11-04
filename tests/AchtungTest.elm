@@ -49,9 +49,14 @@ basicTests =
                         , howItShouldEnd =
                             \round ->
                                 case ( round.kurves.alive, round.kurves.dead ) of
-                                    ( [], kurve :: [] ) ->
-                                        Expect.equal kurve.state.position
-                                            ( 0.5, 100 )
+                                    ( [], [ deadKurve ] ) ->
+                                        let
+                                            theDrawingPositionItNeverMadeItTo : World.DrawingPosition
+                                            theDrawingPositionItNeverMadeItTo =
+                                                World.drawingPosition deadKurve.state.position
+                                        in
+                                        theDrawingPositionItNeverMadeItTo
+                                            |> Expect.equal { leftEdge = -1, topEdge = 99 }
 
                                     _ ->
                                         Expect.fail "Expected exactly one dead Kurve and no alive ones"
@@ -65,7 +70,7 @@ basicTests =
                         , howItShouldEnd =
                             \round ->
                                 case ( round.kurves.alive, round.kurves.dead ) of
-                                    ( [], deadKurve :: [] ) ->
+                                    ( [], [ deadKurve ] ) ->
                                         let
                                             theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                             theDrawingPositionItNeverMadeItTo =
@@ -272,11 +277,11 @@ crashingIntoWallTimingTest =
                     , howItShouldEnd =
                         \round ->
                             case ( round.kurves.alive, round.kurves.dead ) of
-                                ( [], [ kurve ] ) ->
+                                ( [], [ deadKurve ] ) ->
                                     let
                                         theDrawingPositionItNeverMadeItTo : World.DrawingPosition
                                         theDrawingPositionItNeverMadeItTo =
-                                            World.drawingPosition kurve.state.position
+                                            World.drawingPosition deadKurve.state.position
                                     in
                                     theDrawingPositionItNeverMadeItTo
                                         |> Expect.equal { leftEdge = 349, topEdge = -1 }
