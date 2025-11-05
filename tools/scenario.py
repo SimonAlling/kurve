@@ -2,9 +2,12 @@
 # Usage: see the Git history for this script.
 
 import math
+import os
 import subprocess
 import sys
 import time
+
+parent_dir_of_script = os.path.dirname(os.path.abspath(__file__))
 
 process_id_or_path_to_original_game = sys.argv[1]
 
@@ -111,8 +114,15 @@ def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
         path_to_original_game = process_id_or_path_to_original_game
         print(f"🚀 Launching original game at {path_to_original_game} …")
 
+        additional_config_file = os.path.join(parent_dir_of_script, "dosbox.conf")
         proc = subprocess.Popen(
-            ["dosbox", path_to_original_game],
+            [
+                "dosbox",
+                "-userconf",
+                "-conf",
+                additional_config_file,
+                path_to_original_game,
+            ],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
