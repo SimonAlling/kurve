@@ -89,6 +89,21 @@ def scanmem_program(scenario_commands: list[str]) -> str:
     return sequence(SETUP_COMMANDS + scenario_commands + TEARDOWN_COMMANDS)
 
 
+def check_address_space_layout_randomization() -> None:
+    try:
+        aslr_file = open(file="/proc/sys/kernel/randomize_va_space", mode="r")
+        content = aslr_file.read(1)  # We expect a single digit (0, 1 or 2).
+        if content != "0":
+            print(
+                "⚠️  Address space layout randomization (ASLR) seems to be enabled, which may cause this script not to work.",
+            )
+            print("💡 Solution: temporarily disable ASLR while using this script.")
+    except OSError as err:
+        print(
+            f"⚠️  Could not check if address space layout randomization (ASLR) is disabled. Reason: {str(err)}"
+        )
+
+
 def find_and_focus_dosbox(timeout: float = 15.0) -> str | None:
     deadline = time.time() + timeout
     while time.time() < deadline:
@@ -161,6 +176,8 @@ scanmem_command: str = scanmem_program(
         set_player_state(GREEN, x=200, y=150, conventional_direction=0),
     ],
 )
+
+check_address_space_layout_randomization()
 
 process_id: str = prepare_and_get_process_id(process_id_or_path_to_original_game)
 
