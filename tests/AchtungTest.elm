@@ -23,8 +23,6 @@ import TestScenarios.StressTestRealisticTurtleSurvivalRound
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.Speed as Speed exposing (Speed(..))
-import Types.Tick exposing (Tick)
-import World
 
 
 tests : Test
@@ -115,56 +113,67 @@ crashingIntoKurveTests =
 crashingIntoWallTests : Test
 crashingIntoWallTests =
     describe "Crashing into a wall"
-        (let
-            tickThatShouldEndIt : Tick
-            tickThatShouldEndIt =
-                tickNumber 2
-
-            testCases :
-                List
-                    { wallDescription : String
-                    , spawnedKurves : List Kurve
-                    , drawingPositionItShouldNeverMakeItTo : World.DrawingPosition
-                    }
-            testCases =
-                [ { wallDescription = "Top wall"
-                  , spawnedKurves = TestScenarios.CrashIntoWallTop.spawnedKurves
-                  , drawingPositionItShouldNeverMakeItTo = { leftEdge = 99, topEdge = -1 }
-                  }
-                , { wallDescription = "Right wall"
-                  , spawnedKurves = TestScenarios.CrashIntoWallRight.spawnedKurves
-                  , drawingPositionItShouldNeverMakeItTo = { leftEdge = 557, topEdge = 99 }
-                  }
-                , { wallDescription = "Bottom wall"
-                  , spawnedKurves = TestScenarios.CrashIntoWallBottom.spawnedKurves
-                  , drawingPositionItShouldNeverMakeItTo = { leftEdge = 99, topEdge = 478 }
-                  }
-                , { wallDescription = "Left wall"
-                  , spawnedKurves = TestScenarios.CrashIntoWallLeft.spawnedKurves
-                  , drawingPositionItShouldNeverMakeItTo = { leftEdge = -1, topEdge = 99 }
-                  }
-                ]
-         in
-         testCases
-            |> List.map
-                (\{ wallDescription, spawnedKurves, drawingPositionItShouldNeverMakeItTo } ->
-                    test wallDescription <|
-                        \_ ->
-                            roundWith spawnedKurves
-                                |> expectRoundOutcome
-                                    Config.default
-                                    { tickThatShouldEndIt = tickThatShouldEndIt
-                                    , howItShouldEnd =
-                                        { aliveAtTheEnd = []
-                                        , deadAtTheEnd =
-                                            [ { id = playerIds.green
-                                              , theDrawingPositionItNeverMadeItTo = drawingPositionItShouldNeverMakeItTo
-                                              }
-                                            ]
-                                        }
-                                    }
-                )
-        )
+        [ test "Top wall" <|
+            \_ ->
+                roundWith TestScenarios.CrashIntoWallTop.spawnedKurves
+                    |> expectRoundOutcome
+                        Config.default
+                        { tickThatShouldEndIt = tickNumber 2
+                        , howItShouldEnd =
+                            { aliveAtTheEnd = []
+                            , deadAtTheEnd =
+                                [ { id = playerIds.green
+                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 99, topEdge = -1 }
+                                  }
+                                ]
+                            }
+                        }
+        , test "Right wall" <|
+            \_ ->
+                roundWith TestScenarios.CrashIntoWallRight.spawnedKurves
+                    |> expectRoundOutcome
+                        Config.default
+                        { tickThatShouldEndIt = tickNumber 2
+                        , howItShouldEnd =
+                            { aliveAtTheEnd = []
+                            , deadAtTheEnd =
+                                [ { id = playerIds.green
+                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 557, topEdge = 99 }
+                                  }
+                                ]
+                            }
+                        }
+        , test "Bottom wall" <|
+            \_ ->
+                roundWith TestScenarios.CrashIntoWallBottom.spawnedKurves
+                    |> expectRoundOutcome
+                        Config.default
+                        { tickThatShouldEndIt = tickNumber 2
+                        , howItShouldEnd =
+                            { aliveAtTheEnd = []
+                            , deadAtTheEnd =
+                                [ { id = playerIds.green
+                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 99, topEdge = 478 }
+                                  }
+                                ]
+                            }
+                        }
+        , test "Left wall" <|
+            \_ ->
+                roundWith TestScenarios.CrashIntoWallLeft.spawnedKurves
+                    |> expectRoundOutcome
+                        Config.default
+                        { tickThatShouldEndIt = tickNumber 2
+                        , howItShouldEnd =
+                            { aliveAtTheEnd = []
+                            , deadAtTheEnd =
+                                [ { id = playerIds.green
+                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = -1, topEdge = 99 }
+                                  }
+                                ]
+                            }
+                        }
+        ]
 
 
 {-|
