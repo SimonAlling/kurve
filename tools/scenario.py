@@ -108,7 +108,7 @@ def find_and_focus_dosbox(timeout: float = 15.0) -> str | None:
     deadline = time.time() + timeout
     while time.time() < deadline:
         res = subprocess.run(
-            ["xdotool", "search", "--onlyvisible", "--name", "DOSBox"],
+            ["xdotool", "search", "--onlyvisible", "--name", "DOSBox.+ZATACKA"],
             capture_output=True,
             text=True,
         )
