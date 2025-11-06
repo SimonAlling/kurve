@@ -10,6 +10,7 @@ import time
 parent_dir_of_script = os.path.dirname(os.path.abspath(__file__))
 
 process_id_or_path_to_original_game = sys.argv[1]
+raw_base_address = sys.argv[2] # e.g. 7fffd8010ff6
 
 subprocess.run(["sudo", "true"])  # Fail early if password hasn't been entered recently.
 
@@ -23,14 +24,13 @@ NUMBER_OF_PLAYERS = 6
 
 SIZEOF_FLOAT = 4
 
-BASE_ADDRESS = 0x7FFFD8010FF6  # Rendered as "7fffd8010ff6" in scanmem.
-
 space_for_x_coordinates = NUMBER_OF_PLAYERS * SIZEOF_FLOAT
 space_for_y_coordinates = NUMBER_OF_PLAYERS * SIZEOF_FLOAT
 
-x_coordinates_address = BASE_ADDRESS
-y_coordinates_address = BASE_ADDRESS + space_for_x_coordinates
-directions_address = BASE_ADDRESS + space_for_x_coordinates + space_for_y_coordinates
+base_address = int(raw_base_address, 16)
+x_coordinates_address = base_address
+y_coordinates_address = base_address + space_for_x_coordinates
+directions_address = base_address + space_for_x_coordinates + space_for_y_coordinates
 
 
 def write_float32(address: int, value: float) -> str:
