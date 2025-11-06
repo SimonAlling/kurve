@@ -10,7 +10,11 @@ import TestScenarios.AroundTheWorld
 import TestScenarios.CrashIntoTailEnd90Degrees
 import TestScenarios.CrashIntoTipOfTailEnd
 import TestScenarios.CrashIntoWallBasic
+import TestScenarios.CrashIntoWallBottom
 import TestScenarios.CrashIntoWallExactTiming
+import TestScenarios.CrashIntoWallLeft
+import TestScenarios.CrashIntoWallRight
+import TestScenarios.CrashIntoWallTop
 import TestScenarios.CuttingCornersBasic
 import TestScenarios.CuttingCornersPerfectOverpainting
 import TestScenarios.CuttingCornersThreePixelsRealExample
@@ -119,52 +123,34 @@ crashingIntoWallTests =
             testCases :
                 List
                     { wallDescription : String
-                    , startingPosition : World.Position
-                    , direction : Angle
+                    , spawnedKurves : List Kurve
                     , drawingPositionItShouldNeverMakeItTo : World.DrawingPosition
                     }
             testCases =
                 [ { wallDescription = "Top wall"
-                  , startingPosition = ( 100, 2.5 )
-                  , direction = Angle (pi / 2)
+                  , spawnedKurves = TestScenarios.CrashIntoWallTop.spawnedKurves
                   , drawingPositionItShouldNeverMakeItTo = { leftEdge = 99, topEdge = -1 }
                   }
                 , { wallDescription = "Right wall"
-                  , startingPosition = ( 556.5, 100 )
-                  , direction = Angle 0
+                  , spawnedKurves = TestScenarios.CrashIntoWallRight.spawnedKurves
                   , drawingPositionItShouldNeverMakeItTo = { leftEdge = 557, topEdge = 99 }
                   }
                 , { wallDescription = "Bottom wall"
-                  , startingPosition = ( 100, 477.5 )
-                  , direction = Angle (-pi / 2)
+                  , spawnedKurves = TestScenarios.CrashIntoWallBottom.spawnedKurves
                   , drawingPositionItShouldNeverMakeItTo = { leftEdge = 99, topEdge = 478 }
                   }
                 , { wallDescription = "Left wall"
-                  , startingPosition = ( 2.5, 100 )
-                  , direction = Angle pi
+                  , spawnedKurves = TestScenarios.CrashIntoWallLeft.spawnedKurves
                   , drawingPositionItShouldNeverMakeItTo = { leftEdge = -1, topEdge = 99 }
                   }
                 ]
          in
          testCases
             |> List.map
-                (\{ wallDescription, startingPosition, direction, drawingPositionItShouldNeverMakeItTo } ->
+                (\{ wallDescription, spawnedKurves, drawingPositionItShouldNeverMakeItTo } ->
                     test wallDescription <|
                         \_ ->
-                            let
-                                green : Kurve
-                                green =
-                                    makeZombieKurve
-                                        { color = Color.green
-                                        , id = playerIds.green
-                                        , state =
-                                            { position = startingPosition
-                                            , direction = direction
-                                            , holeStatus = Unholy 60000
-                                            }
-                                        }
-                            in
-                            roundWith [ green ]
+                            roundWith spawnedKurves
                                 |> expectRoundOutcome
                                     Config.default
                                     { tickThatShouldEndIt = tickThatShouldEndIt
