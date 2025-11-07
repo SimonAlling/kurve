@@ -14,3 +14,13 @@ jobs:
       - name: Build Docker image
         run: |
           docker build .
+
+  tools:
+    name: Check Tools
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Python formatting
+        uses: astral-sh/ruff-action@v3
+        with:
+          version: 0.14.4
+          src: ./tools
