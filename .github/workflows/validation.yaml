@@ -8,9 +8,9 @@ on:
 jobs:
   validation:
     name: PR Validation Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04.3
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v1.2.0
       - name: Build Docker image
         run: |
           docker build .
