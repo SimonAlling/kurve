@@ -181,7 +181,7 @@ scanmem_command: str = scanmem_program(
     ],
 )
 
-check_that_dosbox_config_file_exists()
+check_that_dosbox_config_file_exists()  # DOSBox 0.74.3 silently ignores if the specified config file doesn't exist.
 
 check_address_space_layout_randomization()
 
