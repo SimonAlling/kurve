@@ -8,7 +8,7 @@ import time
 
 process_id_or_path_to_original_game = sys.argv[1]
 raw_base_address = sys.argv[2]  # e.g. 7fffd8010ff6
-additional_dosbox_config_file = sys.argv[3]  # e.g. tools/dosbox-ubuntu.conf
+additional_dosbox_config_file = sys.argv[3]  # e.g. tools/dosbox-linux.conf
 
 subprocess.run(["sudo", "true"])  # Fail early if password hasn't been entered recently.
 
