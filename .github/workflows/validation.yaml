@@ -8,9 +8,9 @@ on:
 jobs:
   validation:
     name: PR Validation Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v1.2.0
       - name: Build Docker image
         run: |
           docker build .
@@ -19,8 +19,9 @@ jobs:
     name: Check Tools
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1.2.0
       - name: Check Python formatting
-        uses: astral-sh/ruff-action@v3
+        uses: astral-sh/ruff-action@v3.5.1
         with:
           version: 0.14.4
           src: ./tools
