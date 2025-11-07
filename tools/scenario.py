@@ -2,6 +2,7 @@
 # Usage: see the Git history for this script.
 
 import math
+import os
 import subprocess
 import sys
 import time
@@ -85,6 +86,12 @@ def scanmem_program(scenario_commands: list[str]) -> str:
     ]
 
     return sequence(SETUP_COMMANDS + scenario_commands + TEARDOWN_COMMANDS)
+
+
+def check_that_dosbox_config_file_exists() -> None:
+    if not os.path.isfile(additional_dosbox_config_file):
+        print(f"❌ DOSBox config file '{additional_dosbox_config_file}' not found.")
+        exit(1)
 
 
 def check_address_space_layout_randomization() -> None:
@@ -173,6 +180,8 @@ scanmem_command: str = scanmem_program(
         set_player_state(GREEN, x=200, y=150, conventional_direction=0),
     ],
 )
+
+check_that_dosbox_config_file_exists()
 
 check_address_space_layout_randomization()
 
