@@ -10,7 +10,7 @@ import time
 parent_dir_of_script = os.path.dirname(os.path.abspath(__file__))
 
 process_id_or_path_to_original_game = sys.argv[1]
-raw_base_address = sys.argv[2] # e.g. 7fffd8010ff6
+raw_base_address = sys.argv[2]  # e.g. 7fffd8010ff6
 
 subprocess.run(["sudo", "true"])  # Fail early if password hasn't been entered recently.
 
