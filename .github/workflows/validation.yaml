@@ -24,4 +24,5 @@ jobs:
         uses: astral-sh/ruff-action@v3.5.1
         with:
           version: 0.14.4
+          args: format --check --diff
           src: ./tools
