@@ -17,7 +17,7 @@
     "elm-test": "0.19.1-revision12",
     "elm-tooling": "1.6.0",
     "elm-watch": "1.1.0",
-    "esbuild": "0.15.12",
+    "esbuild": "0.25.12",
     "sass": "1.43.3"
   },
   "optionalDependencies": {
