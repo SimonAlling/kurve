@@ -6,7 +6,7 @@
     "install-hooks": "[ -d .git/ ] && cp hooks/* .git/hooks",
     "sass-build": "sass --source-map src/css/:_site/css/",
     "build": "elm-watch make --optimize && npm run sass-build",
-    "check-formatting": "elm-format --validate src/",
+    "check-formatting": "elm-format --validate .",
     "review": "elm-review",
     "test": "elm-test",
     "start": "npm run install-hooks && run-pty % elm-watch hot % esbuild --serve --servedir=./_site/ % sass --watch --source-map src/css/:_site/css/"
