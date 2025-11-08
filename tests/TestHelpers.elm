@@ -7,35 +7,10 @@ import Config exposing (Config, KurveConfig)
 import Expect
 import Game exposing (MidRoundState, MidRoundStateVariant(..), TickResult(..), prepareRoundFromKnownInitialState, reactToTick)
 import Round exposing (Round, RoundInitialState)
-import Types.PlayerId exposing (PlayerId)
+import TestScenarioHelpers exposing (RoundEndingInterpretation, RoundOutcome)
 import Types.Speed exposing (Speed)
 import Types.Tick as Tick exposing (Tick)
-import World exposing (DrawingPosition)
-
-
-{-| A description of when and how a round should end.
--}
-type alias RoundOutcome =
-    { tickThatShouldEndIt : Tick
-    , howItShouldEnd : RoundEndingInterpretation
-    }
-
-
-type alias RoundEndingInterpretation =
-    { aliveAtTheEnd : List AliveKurve
-    , deadAtTheEnd : List DeadKurve
-    }
-
-
-type alias AliveKurve =
-    { id : PlayerId
-    }
-
-
-type alias DeadKurve =
-    { id : PlayerId
-    , theDrawingPositionItNeverMadeItTo : DrawingPosition
-    }
+import World
 
 
 expectRoundOutcome : Config -> RoundOutcome -> RoundInitialState -> Expect.Expectation

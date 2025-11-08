@@ -4,7 +4,7 @@ import Config
 import String
 import Test exposing (Test, describe, test)
 import TestHelpers exposing (defaultConfigWithSpeed, expectRoundOutcome)
-import TestScenarioHelpers exposing (playerIds, roundWith, tickNumber)
+import TestScenarioHelpers exposing (roundWith, tickNumber)
 import TestScenarios.AroundTheWorld
 import TestScenarios.CrashIntoKurveTiming
 import TestScenarios.CrashIntoTailEnd90Degrees
@@ -44,31 +44,13 @@ basicTests =
                 roundWith TestScenarios.CrashIntoWallBasic.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
-                        { tickThatShouldEndIt = tickNumber 2
-                        , howItShouldEnd =
-                            { aliveAtTheEnd = []
-                            , deadAtTheEnd =
-                                [ { id = playerIds.green
-                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = -1, topEdge = 99 }
-                                  }
-                                ]
-                            }
-                        }
+                        TestScenarios.CrashIntoWallBasic.expectedOutcome
         , test "Around the world, touching each wall" <|
             \_ ->
                 roundWith TestScenarios.AroundTheWorld.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
-                        { tickThatShouldEndIt = tickNumber 2011
-                        , howItShouldEnd =
-                            { aliveAtTheEnd = []
-                            , deadAtTheEnd =
-                                [ { id = playerIds.green
-                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 0, topEdge = -1 }
-                                  }
-                                ]
-                            }
-                        }
+                        TestScenarios.AroundTheWorld.expectedOutcome
         ]
 
 
@@ -80,31 +62,13 @@ crashingIntoKurveTests =
                 roundWith TestScenarios.CrashIntoTailEnd90Degrees.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
-                        { tickThatShouldEndIt = tickNumber 8
-                        , howItShouldEnd =
-                            { aliveAtTheEnd = [ { id = playerIds.red } ]
-                            , deadAtTheEnd =
-                                [ { id = playerIds.green
-                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 97, topEdge = 101 }
-                                  }
-                                ]
-                            }
-                        }
+                        TestScenarios.CrashIntoTailEnd90Degrees.expectedOutcome
         , test "Hitting a Kurve's tail end at a 45-degree angle is a crash" <|
             \_ ->
                 roundWith TestScenarios.CrashIntoTipOfTailEnd.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
-                        { tickThatShouldEndIt = tickNumber 39
-                        , howItShouldEnd =
-                            { aliveAtTheEnd = [ { id = playerIds.red } ]
-                            , deadAtTheEnd =
-                                [ { id = playerIds.green
-                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 57, topEdge = 57 }
-                                  }
-                                ]
-                            }
-                        }
+                        TestScenarios.CrashIntoTipOfTailEnd.expectedOutcome
         ]
 
 
@@ -116,61 +80,25 @@ crashingIntoWallTests =
                 roundWith TestScenarios.CrashIntoWallTop.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
-                        { tickThatShouldEndIt = tickNumber 2
-                        , howItShouldEnd =
-                            { aliveAtTheEnd = []
-                            , deadAtTheEnd =
-                                [ { id = playerIds.green
-                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 99, topEdge = -1 }
-                                  }
-                                ]
-                            }
-                        }
+                        TestScenarios.CrashIntoWallTop.expectedOutcome
         , test "Right wall" <|
             \_ ->
                 roundWith TestScenarios.CrashIntoWallRight.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
-                        { tickThatShouldEndIt = tickNumber 2
-                        , howItShouldEnd =
-                            { aliveAtTheEnd = []
-                            , deadAtTheEnd =
-                                [ { id = playerIds.green
-                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 557, topEdge = 99 }
-                                  }
-                                ]
-                            }
-                        }
+                        TestScenarios.CrashIntoWallRight.expectedOutcome
         , test "Bottom wall" <|
             \_ ->
                 roundWith TestScenarios.CrashIntoWallBottom.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
-                        { tickThatShouldEndIt = tickNumber 2
-                        , howItShouldEnd =
-                            { aliveAtTheEnd = []
-                            , deadAtTheEnd =
-                                [ { id = playerIds.green
-                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 99, topEdge = 478 }
-                                  }
-                                ]
-                            }
-                        }
+                        TestScenarios.CrashIntoWallBottom.expectedOutcome
         , test "Left wall" <|
             \_ ->
                 roundWith TestScenarios.CrashIntoWallLeft.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
-                        { tickThatShouldEndIt = tickNumber 2
-                        , howItShouldEnd =
-                            { aliveAtTheEnd = []
-                            , deadAtTheEnd =
-                                [ { id = playerIds.green
-                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = -1, topEdge = 99 }
-                                  }
-                                ]
-                            }
-                        }
+                        TestScenarios.CrashIntoWallLeft.expectedOutcome
         ]
 
 
@@ -221,16 +149,7 @@ crashingIntoWallTimingTest =
             roundWith TestScenarios.CrashIntoWallExactTiming.spawnedKurves
                 |> expectRoundOutcome
                     Config.default
-                    { tickThatShouldEndIt = tickNumber 251
-                    , howItShouldEnd =
-                        { aliveAtTheEnd = []
-                        , deadAtTheEnd =
-                            [ { id = playerIds.green
-                              , theDrawingPositionItNeverMadeItTo = { leftEdge = 349, topEdge = -1 }
-                              }
-                            ]
-                        }
-                    }
+                    TestScenarios.CrashIntoWallExactTiming.expectedOutcome
 
 
 crashingIntoKurveTimingTests : Test
@@ -250,16 +169,7 @@ crashingIntoKurveTimingTests =
                             roundWith (TestScenarios.CrashIntoKurveTiming.spawnedKurves y_red)
                                 |> expectRoundOutcome
                                     Config.default
-                                    { tickThatShouldEndIt = tickNumber 226
-                                    , howItShouldEnd =
-                                        { aliveAtTheEnd = [ { id = playerIds.red } ]
-                                        , deadAtTheEnd =
-                                            [ { id = playerIds.green
-                                              , theDrawingPositionItNeverMadeItTo = { leftEdge = 324, topEdge = 101 }
-                                              }
-                                            ]
-                                        }
-                                    }
+                                    TestScenarios.CrashIntoKurveTiming.expectedOutcome
                         )
                 )
         )
@@ -273,49 +183,19 @@ cuttingCornersTests =
                 roundWith TestScenarios.CuttingCornersBasic.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
-                        { tickThatShouldEndIt = tickNumber 277
-                        , howItShouldEnd =
-                            { aliveAtTheEnd = [ { id = playerIds.red } ]
-                            , deadAtTheEnd =
-                                [ { id = playerIds.green
-                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 295, topEdge = -1 }
-                                  }
-                                ]
-                            }
-                        }
+                        TestScenarios.CuttingCornersBasic.expectedOutcome
         , test "It is possible to paint over three pixels when cutting a corner (real example from original game)" <|
             \_ ->
                 roundWith TestScenarios.CuttingCornersThreePixelsRealExample.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
-                        { tickThatShouldEndIt = tickNumber 40
-                        , howItShouldEnd =
-                            { aliveAtTheEnd = [ { id = playerIds.red } ]
-                            , deadAtTheEnd =
-                                [ { id = playerIds.green
-                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 296, topEdge = 301 }
-                                  }
-                                ]
-                            }
-                        }
+                        TestScenarios.CuttingCornersThreePixelsRealExample.expectedOutcome
         , test "The perfect overpainting (squeezing through a non-existent gap)" <|
             \_ ->
                 roundWith TestScenarios.CuttingCornersPerfectOverpainting.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
-                        { tickThatShouldEndIt = tickNumber 138
-                        , howItShouldEnd =
-                            { aliveAtTheEnd = [ { id = playerIds.yellow } ]
-                            , deadAtTheEnd =
-                                [ { id = playerIds.green
-                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 116, topEdge = -1 }
-                                  }
-                                , { id = playerIds.red
-                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 57, topEdge = 57 }
-                                  }
-                                ]
-                            }
-                        }
+                        TestScenarios.CuttingCornersPerfectOverpainting.expectedOutcome
         ]
 
 
@@ -333,16 +213,7 @@ speedTests =
                             roundWith TestScenarios.SpeedEffectOnGame.spawnedKurves
                                 |> expectRoundOutcome
                                     (defaultConfigWithSpeed speed)
-                                    { tickThatShouldEndIt = expectedEndTick
-                                    , howItShouldEnd =
-                                        { aliveAtTheEnd = []
-                                        , deadAtTheEnd =
-                                            [ { id = playerIds.green
-                                              , theDrawingPositionItNeverMadeItTo = { leftEdge = 557, topEdge = 99 }
-                                              }
-                                            ]
-                                        }
-                                    }
+                                    (TestScenarios.SpeedEffectOnGame.expectedOutcome expectedEndTick)
                 )
         )
 
@@ -355,14 +226,5 @@ stressTests =
                 roundWith TestScenarios.StressTestRealisticTurtleSurvivalRound.spawnedKurves
                     |> expectRoundOutcome
                         Config.default
-                        { tickThatShouldEndIt = tickNumber 23875
-                        , howItShouldEnd =
-                            { aliveAtTheEnd = []
-                            , deadAtTheEnd =
-                                [ { id = playerIds.green
-                                  , theDrawingPositionItNeverMadeItTo = { leftEdge = 372, topEdge = 217 }
-                                  }
-                                ]
-                            }
-                        }
+                        TestScenarios.StressTestRealisticTurtleSurvivalRound.expectedOutcome
         ]

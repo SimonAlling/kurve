@@ -1,7 +1,7 @@
-module TestScenarios.CrashIntoTailEnd90Degrees exposing (spawnedKurves)
+module TestScenarios.CrashIntoTailEnd90Degrees exposing (expectedOutcome, spawnedKurves)
 
 import Color
-import TestScenarioHelpers exposing (makeZombieKurve, playerIds)
+import TestScenarioHelpers exposing (RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 
@@ -35,3 +35,17 @@ green =
 spawnedKurves : List Kurve
 spawnedKurves =
     [ red, green ]
+
+
+expectedOutcome : RoundOutcome
+expectedOutcome =
+    { tickThatShouldEndIt = tickNumber 8
+    , howItShouldEnd =
+        { aliveAtTheEnd = [ { id = playerIds.red } ]
+        , deadAtTheEnd =
+            [ { id = playerIds.green
+              , theDrawingPositionItNeverMadeItTo = { leftEdge = 97, topEdge = 101 }
+              }
+            ]
+        }
+    }

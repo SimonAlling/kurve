@@ -1,7 +1,7 @@
-module TestScenarios.StressTestRealisticTurtleSurvivalRound exposing (spawnedKurves)
+module TestScenarios.StressTestRealisticTurtleSurvivalRound exposing (expectedOutcome, spawnedKurves)
 
 import Color
-import TestScenarioHelpers exposing (CumulativeInteraction, makeUserInteractions, makeZombieKurve, playerIds)
+import TestScenarioHelpers exposing (CumulativeInteraction, RoundOutcome, makeUserInteractions, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.TurningState exposing (TurningState(..))
@@ -46,3 +46,17 @@ makeLap i =
     , ( 414 - 20 * i, TurningRight )
     , ( 45, NotTurning )
     ]
+
+
+expectedOutcome : RoundOutcome
+expectedOutcome =
+    { tickThatShouldEndIt = tickNumber 23875
+    , howItShouldEnd =
+        { aliveAtTheEnd = []
+        , deadAtTheEnd =
+            [ { id = playerIds.green
+              , theDrawingPositionItNeverMadeItTo = { leftEdge = 372, topEdge = 217 }
+              }
+            ]
+        }
+    }

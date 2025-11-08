@@ -1,7 +1,7 @@
-module TestScenarios.CrashIntoWallExactTiming exposing (spawnedKurves)
+module TestScenarios.CrashIntoWallExactTiming exposing (expectedOutcome, spawnedKurves)
 
 import Color
-import TestScenarioHelpers exposing (makeZombieKurve, playerIds)
+import TestScenarioHelpers exposing (RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 
@@ -22,3 +22,17 @@ green =
 spawnedKurves : List Kurve
 spawnedKurves =
     [ green ]
+
+
+expectedOutcome : RoundOutcome
+expectedOutcome =
+    { tickThatShouldEndIt = tickNumber 251
+    , howItShouldEnd =
+        { aliveAtTheEnd = []
+        , deadAtTheEnd =
+            [ { id = playerIds.green
+              , theDrawingPositionItNeverMadeItTo = { leftEdge = 349, topEdge = -1 }
+              }
+            ]
+        }
+    }

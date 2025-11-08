@@ -1,7 +1,7 @@
-module TestScenarios.CuttingCornersPerfectOverpainting exposing (spawnedKurves)
+module TestScenarios.CuttingCornersPerfectOverpainting exposing (expectedOutcome, spawnedKurves)
 
 import Color
-import TestScenarioHelpers exposing (makeZombieKurve, playerIds)
+import TestScenarioHelpers exposing (RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 
@@ -48,3 +48,20 @@ green =
 spawnedKurves : List Kurve
 spawnedKurves =
     [ red, green, yellow ]
+
+
+expectedOutcome : RoundOutcome
+expectedOutcome =
+    { tickThatShouldEndIt = tickNumber 138
+    , howItShouldEnd =
+        { aliveAtTheEnd = [ { id = playerIds.yellow } ]
+        , deadAtTheEnd =
+            [ { id = playerIds.green
+              , theDrawingPositionItNeverMadeItTo = { leftEdge = 116, topEdge = -1 }
+              }
+            , { id = playerIds.red
+              , theDrawingPositionItNeverMadeItTo = { leftEdge = 57, topEdge = 57 }
+              }
+            ]
+        }
+    }
