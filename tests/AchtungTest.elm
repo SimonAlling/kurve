@@ -1,12 +1,12 @@
 module AchtungTest exposing (tests)
 
-import Color
 import Config
 import String
 import Test exposing (Test, describe, test)
 import TestHelpers exposing (defaultConfigWithSpeed, expectRoundOutcome)
-import TestScenarioHelpers exposing (makeZombieKurve, playerIds, roundWith, tickNumber)
+import TestScenarioHelpers exposing (playerIds, roundWith, tickNumber)
 import TestScenarios.AroundTheWorld
+import TestScenarios.CrashIntoKurveTiming
 import TestScenarios.CrashIntoTailEnd90Degrees
 import TestScenarios.CrashIntoTipOfTailEnd
 import TestScenarios.CrashIntoWallBasic
@@ -20,8 +20,6 @@ import TestScenarios.CuttingCornersPerfectOverpainting
 import TestScenarios.CuttingCornersThreePixelsRealExample
 import TestScenarios.SpeedEffectOnGame
 import TestScenarios.StressTestRealisticTurtleSurvivalRound
-import Types.Angle exposing (Angle(..))
-import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.Speed as Speed exposing (Speed(..))
 
 
@@ -249,32 +247,7 @@ crashingIntoKurveTimingTests =
                     test
                         ("When Red's vertical position is " ++ String.fromFloat y_red)
                         (\_ ->
-                            let
-                                red : Kurve
-                                red =
-                                    makeZombieKurve
-                                        { color = Color.red
-                                        , id = playerIds.red
-                                        , state =
-                                            { position = ( 150, y_red )
-                                            , direction = Angle (pi / 2)
-                                            , holeStatus = Unholy 60000
-                                            }
-                                        }
-
-                                green : Kurve
-                                green =
-                                    makeZombieKurve
-                                        { color = Color.green
-                                        , id = playerIds.green
-                                        , state =
-                                            { position = ( 100, 107.5 )
-                                            , direction = Angle (pi / 2 + 0.02)
-                                            , holeStatus = Unholy 60000
-                                            }
-                                        }
-                            in
-                            roundWith [ red, green ]
+                            roundWith (TestScenarios.CrashIntoKurveTiming.spawnedKurves y_red)
                                 |> expectRoundOutcome
                                     Config.default
                                     { tickThatShouldEndIt = tickNumber 226
