@@ -47,7 +47,7 @@ green =
 
 spawnedKurves : List Kurve
 spawnedKurves =
-    [ red, green, yellow ]
+    [ red, yellow, green ]
 
 
 expectedOutcome : RoundOutcome
