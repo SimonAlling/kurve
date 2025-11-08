@@ -46,7 +46,7 @@ makeZombieKurve { color, id, state } =
     , state = state
     , stateAtSpawn =
         { position = ( 0, 0 )
-        , direction = Angle 0
+        , direction = Angle (pi / 2)
         , holeStatus = Unholy 0
         }
     , reversedInteractions = []

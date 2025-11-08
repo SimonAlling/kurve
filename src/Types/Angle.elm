@@ -6,7 +6,7 @@ module Types.Angle exposing
     , sin
     )
 
-{-| Angles are measured in radians.
+{-| Angles are measured in radians. Somewhat unconventionally, 0 is down (not right), to match the original game's internal representation.
 -}
 
 
