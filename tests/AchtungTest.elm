@@ -257,7 +257,7 @@ crashingIntoKurveTimingTests =
                                         , id = playerIds.red
                                         , state =
                                             { position = ( 150, y_red )
-                                            , direction = Angle 0
+                                            , direction = Angle (pi / 2)
                                             , holeStatus = Unholy 60000
                                             }
                                         }
@@ -269,7 +269,7 @@ crashingIntoKurveTimingTests =
                                         , id = playerIds.green
                                         , state =
                                             { position = ( 100, 107.5 )
-                                            , direction = Angle 0.02
+                                            , direction = Angle (pi / 2 + 0.02)
                                             , holeStatus = Unholy 60000
                                             }
                                         }

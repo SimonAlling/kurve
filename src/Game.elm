@@ -345,10 +345,13 @@ updateKurve config turningState occupiedPixels kurve =
 
         newPosition : Position
         newPosition =
-            ( x + distanceTraveledSinceLastTick * Angle.cos newDirection
-            , -- The coordinate system is traditionally "flipped" (wrt standard math) such that the Y axis points downwards.
-              -- Therefore, we have to use minus instead of plus for the Y-axis calculation.
-              y - distanceTraveledSinceLastTick * Angle.sin newDirection
+            -- This is based on how the original MS-DOS game works:
+            --
+            --   * The coordinate system is "flipped" (wrt standard math) such that the Y axis points downwards.
+            --   * Directions are zeroed around down, not right as in standard math.
+            --
+            ( x + distanceTraveledSinceLastTick * Angle.sin newDirection
+            , y + distanceTraveledSinceLastTick * Angle.cos newDirection
             )
 
         ( confirmedDrawingPositions, fate ) =
