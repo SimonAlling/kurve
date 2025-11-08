@@ -1,5 +1,7 @@
 module TestScenarioHelpers exposing
     ( CumulativeInteraction
+    , RoundEndingInterpretation
+    , RoundOutcome
     , makeUserInteractions
     , makeZombieKurve
     , playerIds
@@ -16,6 +18,7 @@ import Types.Kurve as Kurve exposing (HoleStatus(..), Kurve, UserInteraction(..)
 import Types.PlayerId exposing (PlayerId)
 import Types.Tick as Tick exposing (Tick)
 import Types.TurningState exposing (TurningState)
+import World exposing (DrawingPosition)
 
 
 playerIds :
@@ -101,3 +104,28 @@ tickNumber n =
 
         Just tick ->
             tick
+
+
+{-| A description of when and how a round should end.
+-}
+type alias RoundOutcome =
+    { tickThatShouldEndIt : Tick
+    , howItShouldEnd : RoundEndingInterpretation
+    }
+
+
+type alias RoundEndingInterpretation =
+    { aliveAtTheEnd : List AliveKurve
+    , deadAtTheEnd : List DeadKurve
+    }
+
+
+type alias AliveKurve =
+    { id : PlayerId
+    }
+
+
+type alias DeadKurve =
+    { id : PlayerId
+    , theDrawingPositionItNeverMadeItTo : DrawingPosition
+    }

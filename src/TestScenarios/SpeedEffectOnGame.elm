@@ -1,9 +1,10 @@
-module TestScenarios.SpeedEffectOnGame exposing (spawnedKurves)
+module TestScenarios.SpeedEffectOnGame exposing (expectedOutcome, spawnedKurves)
 
 import Color
-import TestScenarioHelpers exposing (makeZombieKurve, playerIds)
+import TestScenarioHelpers exposing (RoundOutcome, makeZombieKurve, playerIds)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
+import Types.Tick exposing (Tick)
 
 
 green : Kurve
@@ -22,3 +23,17 @@ green =
 spawnedKurves : List Kurve
 spawnedKurves =
     [ green ]
+
+
+expectedOutcome : Tick -> RoundOutcome
+expectedOutcome expectedEndTick =
+    { tickThatShouldEndIt = expectedEndTick
+    , howItShouldEnd =
+        { aliveAtTheEnd = []
+        , deadAtTheEnd =
+            [ { id = playerIds.green
+              , theDrawingPositionItNeverMadeItTo = { leftEdge = 557, topEdge = 99 }
+              }
+            ]
+        }
+    }
