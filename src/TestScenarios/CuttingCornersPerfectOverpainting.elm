@@ -25,8 +25,21 @@ yellow =
         { color = Color.yellow
         , id = playerIds.yellow
         , state =
-            { position = ( 60.5, 60.5 )
-            , direction = Angle (pi / 4)
+            { position = ( 88.5, 88.5 )
+            , direction = Angle (5 * pi / 4)
+            , holeStatus = Unholy 60000
+            }
+        }
+
+
+orange : Kurve
+orange =
+    makeZombieKurve
+        { color = Color.orange
+        , id = playerIds.orange
+        , state =
+            { position = ( 100, 400 )
+            , direction = Angle (pi / 2)
             , holeStatus = Unholy 60000
             }
         }
@@ -47,17 +60,20 @@ green =
 
 spawnedKurves : List Kurve
 spawnedKurves =
-    [ red, yellow, green ]
+    [ red, yellow, orange, green ]
 
 
 expectedOutcome : RoundOutcome
 expectedOutcome =
     { tickThatShouldEndIt = tickNumber 138
     , howItShouldEnd =
-        { aliveAtTheEnd = [ { id = playerIds.yellow } ]
+        { aliveAtTheEnd = [ { id = playerIds.orange } ]
         , deadAtTheEnd =
             [ { id = playerIds.green
               , theDrawingPositionItNeverMadeItTo = { leftEdge = 116, topEdge = -1 }
+              }
+            , { id = playerIds.yellow
+              , theDrawingPositionItNeverMadeItTo = { leftEdge = 58, topEdge = 58 }
               }
             , { id = playerIds.red
               , theDrawingPositionItNeverMadeItTo = { leftEdge = 57, topEdge = 57 }
