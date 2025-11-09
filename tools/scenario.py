@@ -23,6 +23,11 @@ NUMBER_OF_PLAYERS = 6
 
 SIZEOF_FLOAT = 4
 
+foo = {
+    "a": 1,
+    "a": 2,
+}
+
 space_for_x_coordinates = NUMBER_OF_PLAYERS * SIZEOF_FLOAT
 space_for_y_coordinates = NUMBER_OF_PLAYERS * SIZEOF_FLOAT
 
