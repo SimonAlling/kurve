@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Usage: see the Git history for this script.
 
-import math
+from math import pi
 import os
 import subprocess
 import sys
@@ -169,9 +169,9 @@ def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
 
 scanmem_command: str = scanmem_program(
     [
-        set_player_state(RED, x=200, y=50, direction=math.pi / 2),
-        set_player_state(YELLOW, x=200, y=100, direction=math.pi / 2),
-        set_player_state(GREEN, x=200, y=150, direction=math.pi / 2),
+        set_player_state(RED, x=200, y=50, direction=pi / 2),
+        set_player_state(YELLOW, x=200, y=100, direction=pi / 2),
+        set_player_state(GREEN, x=200, y=150, direction=pi / 2),
     ],
 )
 
