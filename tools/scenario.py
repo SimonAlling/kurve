@@ -141,18 +141,23 @@ def check_address_space_layout_randomization() -> None:
 
 
 def find_and_focus_dosbox(timeout: float = 15.0) -> str | None:
-    deadline = time.time() + timeout
-    while time.time() < deadline:
-        res = subprocess.run(
-            ["xdotool", "search", "--onlyvisible", "--name", "DOSBox.+ZATACKA"],
-            capture_output=True,
-            text=True,
-        )
-        if res.returncode == 0 and res.stdout.strip():
-            wid: str = res.stdout.strip().splitlines()[-1]  # (most recent window ID)
-            subprocess.run(["xdotool", "windowactivate", "--sync", wid])
-            subprocess.run(["xdotool", "windowfocus", wid])
-            return wid
+    res = subprocess.run(
+        [
+            "xdotool",
+            "search",
+            "--sync",
+            "--onlyvisible",
+            "--name",
+            "DOSBox.+ZATACKA",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if res.returncode == 0 and res.stdout.strip():
+        wid: str = res.stdout.strip().splitlines()[-1]  # (most recent window ID)
+        subprocess.run(["xdotool", "windowactivate", "--sync", wid])
+        subprocess.run(["xdotool", "windowfocus", wid])
+        return wid
     return None
 
 
