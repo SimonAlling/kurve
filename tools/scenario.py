@@ -140,7 +140,7 @@ def check_address_space_layout_randomization() -> None:
         )
 
 
-def find_and_focus_dosbox() -> str | None:
+def find_and_focus_dosbox() -> str:
     res = subprocess.run(
         [
             "xdotool",
@@ -158,7 +158,8 @@ def find_and_focus_dosbox() -> str | None:
         subprocess.run(["xdotool", "windowactivate", "--sync", wid])
         subprocess.run(["xdotool", "windowfocus", wid])
         return wid
-    return None
+    print("❌ Couldn't find the DOSBox window.")
+    exit(1)
 
 
 def press_key(key: str) -> None:
@@ -182,10 +183,7 @@ def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
             stderr=subprocess.DEVNULL,
         )
 
-        window_id = find_and_focus_dosbox()
-        if window_id is None:
-            print("❌ Couldn't find/focus the DOSBox window.")
-            exit(1)
+        find_and_focus_dosbox()
 
         time.sleep(2)
         press_key("space")
