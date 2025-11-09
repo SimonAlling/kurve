@@ -142,7 +142,8 @@ def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
 
         window_id = find_and_focus_dosbox()
         if window_id is None:
-            print("Warning: couldn't find/focus the DOSBox window; key sends may fail.")
+            print("❌ Couldn't find/focus the DOSBox window.")
+            exit(1)
 
         KEY_RED_LEFT = "1"
         KEY_YELLOW_LEFT = "Ctrl"
