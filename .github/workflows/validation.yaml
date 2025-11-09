@@ -26,3 +26,5 @@ jobs:
           version: 0.14.4
           args: format --check --diff
           src: ./tools
+      - name: Check Python lint
+        run: ruff check
