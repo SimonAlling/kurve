@@ -154,10 +154,10 @@ def find_and_focus_dosbox() -> str:
         text=True,
     )
     if res.returncode == 0 and res.stdout.strip():
-        wid: str = res.stdout.strip().splitlines()[-1]  # (most recent window ID)
-        subprocess.run(["xdotool", "windowactivate", "--sync", wid])
-        subprocess.run(["xdotool", "windowfocus", wid])
-        return wid
+        window_id: str = res.stdout.strip().splitlines()[-1]  # (most recent window ID)
+        subprocess.run(["xdotool", "windowactivate", "--sync", window_id])
+        subprocess.run(["xdotool", "windowfocus", window_id])
+        return window_id
     print("❌ Couldn't find the DOSBox window.")
     exit(1)
 
