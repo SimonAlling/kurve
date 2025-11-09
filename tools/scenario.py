@@ -185,7 +185,6 @@ def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
         time.sleep(2)
         press_key("space")
         time.sleep(0.5)
-        # Players need to join here in order to be able to participate in the staged scenario.
         for player_id in SCENARIO.keys():
             JOIN_PLAYER[player_id]()
         time.sleep(0.5)
