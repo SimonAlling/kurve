@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import time
+from typing import Callable, NoReturn, TypedDict
 
 process_id_or_path_to_original_game = sys.argv[1]
 raw_base_address = sys.argv[2]  # e.g. 7fffd8010ff6
@@ -21,6 +22,21 @@ PINK = 4
 BLUE = 5
 NUMBER_OF_PLAYERS = 6
 
+
+def exitBecauseBlueIsNotSupported():
+    print("❌ Blue (the player) isn't supported yet.")
+    exit(1)
+
+
+JOIN_PLAYER: dict[int, Callable[[], None | NoReturn]] = {
+    RED: lambda: press_key("1"),
+    YELLOW: lambda: press_key("Ctrl"),
+    ORANGE: lambda: press_key("M"),
+    GREEN: lambda: press_key("Left"),
+    PINK: lambda: press_key("KP_Divide"),
+    BLUE: exitBecauseBlueIsNotSupported,
+}
+
 SIZEOF_FLOAT = 4
 
 space_for_x_coordinates = NUMBER_OF_PLAYERS * SIZEOF_FLOAT
@@ -30,6 +46,27 @@ base_address = int(raw_base_address, 16)
 x_coordinates_address = base_address
 y_coordinates_address = base_address + space_for_x_coordinates
 directions_address = base_address + space_for_x_coordinates + space_for_y_coordinates
+
+
+PlayerState = TypedDict("PlayerState", {"x": float, "y": float, "direction": float})
+
+SCENARIO: dict[int, PlayerState] = {
+    RED: {
+        "x": 200,
+        "y": 50,
+        "direction": pi / 2,
+    },
+    YELLOW: {
+        "x": 200,
+        "y": 100,
+        "direction": pi / 2,
+    },
+    GREEN: {
+        "x": 200,
+        "y": 150,
+        "direction": pi / 2,
+    },
+}
 
 
 def write_float32(address: int, value: float) -> str:
@@ -145,20 +182,14 @@ def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
             print("❌ Couldn't find/focus the DOSBox window.")
             exit(1)
 
-        KEY_RED_LEFT = "1"
-        KEY_YELLOW_LEFT = "Ctrl"
-        KEY_GREEN_LEFT = "Left"
-
         time.sleep(2)
         press_key("space")
         time.sleep(0.5)
-        # Players need to join here in order to be able to participate in the staged scenario.
-        press_key(KEY_RED_LEFT)
-        press_key(KEY_YELLOW_LEFT)
-        press_key(KEY_GREEN_LEFT)
+        for player_id in SCENARIO.keys():
+            JOIN_PLAYER[player_id]()
         time.sleep(0.5)
         press_key("space")
-        time.sleep(3.1)
+        time.sleep(len(SCENARIO) + 0.1)
 
         return str(proc.pid)
 
@@ -170,9 +201,13 @@ def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
 
 scanmem_command: str = scanmem_program(
     [
-        set_player_state(RED, x=200, y=50, direction=pi / 2),
-        set_player_state(YELLOW, x=200, y=100, direction=pi / 2),
-        set_player_state(GREEN, x=200, y=150, direction=pi / 2),
+        set_player_state(
+            player_id,
+            x=player_state["x"],
+            y=player_state["y"],
+            direction=player_state["direction"],
+        )
+        for player_id, player_state in SCENARIO.items()
     ],
 )
 
