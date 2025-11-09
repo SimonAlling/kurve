@@ -20,12 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1.2.0
-      - name: Install Ruff
+      - name: Check Python formatting
         uses: astral-sh/ruff-action@v3.5.1
         with:
           version: 0.14.4
-          args: --version
-      - name: Check Python formatting
-        run: ruff format --check --diff
+          args: format --check --diff
+          src: ./tools
       - name: Check Python lint
         run: ruff check
