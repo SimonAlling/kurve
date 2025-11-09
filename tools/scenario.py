@@ -140,7 +140,7 @@ def check_address_space_layout_randomization() -> None:
         )
 
 
-def find_and_focus_dosbox(timeout: float = 15.0) -> str | None:
+def find_and_focus_dosbox() -> str | None:
     res = subprocess.run(
         [
             "xdotool",
