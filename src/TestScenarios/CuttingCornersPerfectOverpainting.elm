@@ -67,10 +67,13 @@ expectedOutcome : RoundOutcome
 expectedOutcome =
     { tickThatShouldEndIt = tickNumber 138
     , howItShouldEnd =
-        { aliveAtTheEnd = [ { id = playerIds.yellow } ]
+        { aliveAtTheEnd = [ { id = playerIds.orange } ]
         , deadAtTheEnd =
             [ { id = playerIds.green
               , theDrawingPositionItNeverMadeItTo = { leftEdge = 116, topEdge = -1 }
+              }
+            , { id = playerIds.yellow
+              , theDrawingPositionItNeverMadeItTo = { leftEdge = 58, topEdge = 58 }
               }
             , { id = playerIds.red
               , theDrawingPositionItNeverMadeItTo = { leftEdge = 57, topEdge = 57 }
