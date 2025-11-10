@@ -125,6 +125,13 @@ def check_that_dosbox_config_file_exists() -> None:
         exit(1)
 
 
+def check_that_dosbox_is_not_already_open() -> None:
+    window_id = find_dosbox(have_just_launched_it=False)
+    if window_id is not None:
+        print("❌ DOSBox seems to already be open. Please close it.")
+        exit(1)
+
+
 def check_address_space_layout_randomization() -> None:
     try:
         aslr_file = open(file="/proc/sys/kernel/randomize_va_space", mode="r")
@@ -141,12 +148,30 @@ def check_address_space_layout_randomization() -> None:
 
 
 def find_and_focus_dosbox() -> str:
+    window_id = find_dosbox(have_just_launched_it=True)
+    if window_id is None:
+        print("❌ Couldn't find the DOSBox window.")
+        exit(1)
+    subprocess.run(["xdotool", "windowactivate", "--sync", window_id])
+    subprocess.run(["xdotool", "windowfocus", window_id])
+    return window_id
+
+
+def find_dosbox(have_just_launched_it: bool) -> str | None:
     res = subprocess.run(
         [
             "xdotool",
             "search",
-            "--sync",
-            "--onlyvisible",
+        ]
+        + (
+            [
+                "--sync",
+                "--onlyvisible",
+            ]
+            if have_just_launched_it
+            else []
+        )
+        + [
             "--name",
             "DOSBox.+ZATACKA",
         ],
@@ -155,11 +180,8 @@ def find_and_focus_dosbox() -> str:
     )
     if res.returncode == 0 and res.stdout.strip():
         window_id: str = res.stdout.strip().splitlines()[-1]  # (most recent window ID)
-        subprocess.run(["xdotool", "windowactivate", "--sync", window_id])
-        subprocess.run(["xdotool", "windowfocus", window_id])
         return window_id
-    print("❌ Couldn't find the DOSBox window.")
-    exit(1)
+    return None
 
 
 def press_key(key: str) -> None:
@@ -215,6 +237,8 @@ scanmem_command: str = scanmem_program(
 )
 
 check_that_dosbox_config_file_exists()  # DOSBox 0.74.3 silently ignores if the specified config file doesn't exist.
+
+check_that_dosbox_is_not_already_open()
 
 check_address_space_layout_randomization()
 
