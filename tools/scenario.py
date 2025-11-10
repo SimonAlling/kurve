@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Usage: see the Git history for this script.
 
+from enum import Enum
 from math import pi
 import os
 import subprocess
@@ -12,13 +13,17 @@ path_to_original_game = sys.argv[1]
 raw_base_address = sys.argv[2]  # e.g. 7fffd8010ff6
 additional_dosbox_config_file = sys.argv[3]  # e.g. tools/dosbox-linux.conf
 
-RED = 0
-YELLOW = 1
-ORANGE = 2
-GREEN = 3
-PINK = 4
-BLUE = 5
-NUMBER_OF_PLAYERS = 6
+
+class PlayerId(Enum):
+    RED = 0
+    YELLOW = 1
+    ORANGE = 2
+    GREEN = 3
+    PINK = 4
+    BLUE = 5
+
+
+NUMBER_OF_PLAYERS = len(PlayerId)
 
 
 def exitBecauseBlueIsNotSupported():
@@ -26,13 +31,13 @@ def exitBecauseBlueIsNotSupported():
     exit(1)
 
 
-JOIN_PLAYER: dict[int, Callable[[], None | NoReturn]] = {
-    RED: lambda: press_key("1"),
-    YELLOW: lambda: press_key("Ctrl"),
-    ORANGE: lambda: press_key("M"),
-    GREEN: lambda: press_key("Left"),
-    PINK: lambda: press_key("KP_Divide"),
-    BLUE: exitBecauseBlueIsNotSupported,
+JOIN_PLAYER: dict[PlayerId, Callable[[], None | NoReturn]] = {
+    PlayerId.RED: lambda: press_key("1"),
+    PlayerId.YELLOW: lambda: press_key("Ctrl"),
+    PlayerId.ORANGE: lambda: press_key("M"),
+    PlayerId.GREEN: lambda: press_key("Left"),
+    PlayerId.PINK: lambda: press_key("KP_Divide"),
+    PlayerId.BLUE: exitBecauseBlueIsNotSupported,
 }
 
 SIZEOF_FLOAT = 4
@@ -48,18 +53,18 @@ directions_address = base_address + space_for_x_coordinates + space_for_y_coordi
 
 PlayerState = TypedDict("PlayerState", {"x": float, "y": float, "direction": float})
 
-SCENARIO: dict[int, PlayerState] = {
-    RED: {
+SCENARIO: dict[PlayerId, PlayerState] = {
+    PlayerId.RED: {
         "x": 200,
         "y": 50,
         "direction": pi / 2,
     },
-    YELLOW: {
+    PlayerId.YELLOW: {
         "x": 200,
         "y": 100,
         "direction": pi / 2,
     },
-    GREEN: {
+    PlayerId.GREEN: {
         "x": 200,
         "y": 150,
         "direction": pi / 2,
@@ -71,15 +76,15 @@ def write_float32(address: int, value: float) -> str:
     return f"write float32 {hex(address)} {value}"
 
 
-def set_x(player_id: int, x: float) -> str:
-    return write_float32(x_coordinates_address + player_id * SIZEOF_FLOAT, x)
+def set_x(player_id: PlayerId, x: float) -> str:
+    return write_float32(x_coordinates_address + player_id.value * SIZEOF_FLOAT, x)
 
 
-def set_y(player_id: int, y: float) -> str:
-    return write_float32(y_coordinates_address + player_id * SIZEOF_FLOAT, y)
+def set_y(player_id: PlayerId, y: float) -> str:
+    return write_float32(y_coordinates_address + player_id.value * SIZEOF_FLOAT, y)
 
 
-def set_position(player_id: int, x: float, y: float) -> str:
+def set_position(player_id: PlayerId, x: float, y: float) -> str:
     return sequence(
         [
             set_x(player_id, x),
@@ -88,11 +93,11 @@ def set_position(player_id: int, x: float, y: float) -> str:
     )
 
 
-def set_direction(player_id: int, direction: float) -> str:
-    return write_float32(directions_address + player_id * SIZEOF_FLOAT, direction)
+def set_direction(player_id: PlayerId, direction: float) -> str:
+    return write_float32(directions_address + player_id.value * SIZEOF_FLOAT, direction)
 
 
-def set_player_state(player_id: int, x: float, y: float, direction: float) -> str:
+def set_player_state(player_id: PlayerId, x: float, y: float, direction: float) -> str:
     return sequence(
         [
             set_position(player_id, x, y),
