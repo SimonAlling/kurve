@@ -12,8 +12,6 @@ path_to_original_game = sys.argv[1]
 raw_base_address = sys.argv[2]  # e.g. 7fffd8010ff6
 additional_dosbox_config_file = sys.argv[3]  # e.g. tools/dosbox-linux.conf
 
-subprocess.run(["sudo", "true"])  # Fail early if password hasn't been entered recently.
-
 RED = 0
 YELLOW = 1
 ORANGE = 2
@@ -220,6 +218,10 @@ def prepare_and_get_process_id(path_to_original_game: str) -> str:
 
 
 def main() -> None:
+    subprocess.run(
+        ["sudo", "true"]
+    )  # Fail early if password hasn't been entered recently.
+
     scanmem_command: str = scanmem_program(
         [
             set_player_state(
