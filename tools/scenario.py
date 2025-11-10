@@ -8,7 +8,7 @@ import sys
 import time
 from typing import Callable, NoReturn, TypedDict
 
-process_id_or_path_to_original_game = sys.argv[1]
+path_to_original_game = sys.argv[1]
 raw_base_address = sys.argv[2]  # e.g. 7fffd8010ff6
 additional_dosbox_config_file = sys.argv[3]  # e.g. tools/dosbox-linux.conf
 
@@ -188,42 +188,35 @@ def press_key(key: str) -> None:
     subprocess.run(["xdotool", "key", key])
 
 
-def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
-    if "ZATACKA.EXE" in process_id_or_path_to_original_game:
-        path_to_original_game = process_id_or_path_to_original_game
-        print(f"🚀 Launching original game at {path_to_original_game} …")
+def prepare_and_get_process_id(path_to_original_game: str) -> str:
+    print(f"🚀 Launching original game at {path_to_original_game} …")
 
-        proc = subprocess.Popen(
-            [
-                "dosbox",
-                "-userconf",
-                "-conf",
-                additional_dosbox_config_file,
-                path_to_original_game,
-            ],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+    proc = subprocess.Popen(
+        [
+            "dosbox",
+            "-userconf",
+            "-conf",
+            additional_dosbox_config_file,
+            path_to_original_game,
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
 
-        time.sleep(2)  # Prevents intermittent failure to find/focus DOSBox.
+    time.sleep(2)  # Prevents intermittent failure to find/focus DOSBox.
 
-        find_and_focus_dosbox()
+    find_and_focus_dosbox()
 
-        time.sleep(2)
-        press_key("space")
-        time.sleep(0.5)
-        for player_id in SCENARIO.keys():
-            JOIN_PLAYER[player_id]()
-        time.sleep(0.5)
-        press_key("space")
-        time.sleep(len(SCENARIO) + 0.1)
+    time.sleep(2)
+    press_key("space")
+    time.sleep(0.5)
+    for player_id in SCENARIO.keys():
+        JOIN_PLAYER[player_id]()
+    time.sleep(0.5)
+    press_key("space")
+    time.sleep(len(SCENARIO) + 0.1)
 
-        return str(proc.pid)
-
-    else:
-        process_id = process_id_or_path_to_original_game
-        print(f"📎 Attaching to already running DOSBox with PID {process_id} …")
-        return process_id
+    return str(proc.pid)
 
 
 def main() -> None:
@@ -245,7 +238,7 @@ def main() -> None:
 
     check_address_space_layout_randomization()
 
-    process_id: str = prepare_and_get_process_id(process_id_or_path_to_original_game)
+    process_id: str = prepare_and_get_process_id(path_to_original_game)
 
     print("BEGIN scanmem program")
     print()
