@@ -226,33 +226,38 @@ def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
         return process_id
 
 
-scanmem_command: str = scanmem_program(
-    [
-        set_player_state(
-            player_id,
-            x=player_state["x"],
-            y=player_state["y"],
-            direction=player_state["direction"],
-        )
-        for player_id, player_state in SCENARIO.items()
-    ],
-)
+def main() -> None:
+    scanmem_command: str = scanmem_program(
+        [
+            set_player_state(
+                player_id,
+                x=player_state["x"],
+                y=player_state["y"],
+                direction=player_state["direction"],
+            )
+            for player_id, player_state in SCENARIO.items()
+        ],
+    )
 
-check_that_dosbox_config_file_exists()  # DOSBox 0.74.3 silently ignores if the specified config file doesn't exist.
+    check_that_dosbox_config_file_exists()  # DOSBox 0.74.3 silently ignores if the specified config file doesn't exist.
 
-check_that_dosbox_is_not_already_open()
+    check_that_dosbox_is_not_already_open()
 
-check_address_space_layout_randomization()
+    check_address_space_layout_randomization()
 
-process_id: str = prepare_and_get_process_id(process_id_or_path_to_original_game)
+    process_id: str = prepare_and_get_process_id(process_id_or_path_to_original_game)
 
-print("BEGIN scanmem program")
-print()
-print("    ", scanmem_command)
-print()
-print("END scanmem program")
-print()
+    print("BEGIN scanmem program")
+    print()
+    print("    ", scanmem_command)
+    print()
+    print("END scanmem program")
+    print()
 
-subprocess.run(
-    ["sudo", "scanmem", process_id, "--errexit", "--command", scanmem_command],
-)
+    subprocess.run(
+        ["sudo", "scanmem", process_id, "--errexit", "--command", scanmem_command],
+    )
+
+
+if __name__ == "__main__":
+    main()
