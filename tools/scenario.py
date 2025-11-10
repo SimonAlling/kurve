@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Usage: see the Git history for this script.
 
+from dataclasses import dataclass
 from enum import Enum
 from math import pi
 import os
@@ -51,6 +52,47 @@ y_coordinates_address = base_address + space_for_x_coordinates
 directions_address = base_address + space_for_x_coordinates + space_for_y_coordinates
 
 
+@dataclass
+class RawCommand:
+    command: str
+
+
+def evaluate_RawCommand(expr: RawCommand) -> str:
+    return expr.command
+
+
+@dataclass
+class WriteFloat32:
+    address: int
+    value: float
+
+
+def evaluate_WriteFloat32(expr: WriteFloat32) -> str:
+    return f"write float32 {hex(expr.address)} {expr.value}"
+
+
+@dataclass
+class Sequence:
+    actions: list["Expr"]
+
+
+def evaluate_Sequence(expr: Sequence) -> str:
+    return ";".join([evaluate(action) for action in expr.actions])
+
+
+type Expr = Sequence | WriteFloat32 | RawCommand
+
+
+def evaluate(expr: Expr) -> str:
+    match expr:
+        case Sequence():
+            return evaluate_Sequence(expr)
+        case WriteFloat32():
+            return evaluate_WriteFloat32(expr)
+        case RawCommand():
+            return evaluate_RawCommand(expr)
+
+
 PlayerState = TypedDict("PlayerState", {"x": float, "y": float, "direction": float})
 
 SCENARIO: dict[PlayerId, PlayerState] = {
@@ -72,19 +114,19 @@ SCENARIO: dict[PlayerId, PlayerState] = {
 }
 
 
-def write_float32(address: int, value: float) -> str:
-    return f"write float32 {hex(address)} {value}"
+def write_float32(address: int, value: float) -> Expr:
+    return WriteFloat32(address, value)
 
 
-def set_x(player_id: PlayerId, x: float) -> str:
+def set_x(player_id: PlayerId, x: float) -> Expr:
     return write_float32(x_coordinates_address + player_id.value * SIZEOF_FLOAT, x)
 
 
-def set_y(player_id: PlayerId, y: float) -> str:
+def set_y(player_id: PlayerId, y: float) -> Expr:
     return write_float32(y_coordinates_address + player_id.value * SIZEOF_FLOAT, y)
 
 
-def set_position(player_id: PlayerId, x: float, y: float) -> str:
+def set_position(player_id: PlayerId, x: float, y: float) -> Expr:
     return sequence(
         [
             set_x(player_id, x),
@@ -93,11 +135,11 @@ def set_position(player_id: PlayerId, x: float, y: float) -> str:
     )
 
 
-def set_direction(player_id: PlayerId, direction: float) -> str:
+def set_direction(player_id: PlayerId, direction: float) -> Expr:
     return write_float32(directions_address + player_id.value * SIZEOF_FLOAT, direction)
 
 
-def set_player_state(player_id: PlayerId, x: float, y: float, direction: float) -> str:
+def set_player_state(player_id: PlayerId, x: float, y: float, direction: float) -> Expr:
     return sequence(
         [
             set_position(player_id, x, y),
@@ -106,20 +148,20 @@ def set_player_state(player_id: PlayerId, x: float, y: float, direction: float) 
     )
 
 
-def sequence(commands: list[str]) -> str:
-    return ";".join(commands)
+def sequence(commands: list[Expr]) -> Expr:
+    return Sequence(commands)
 
 
-def scanmem_program(scenario_commands: list[str]) -> str:
-    SETUP_COMMANDS: list[str] = [
-        "option endianness 1",
+def scanmem_program(scenario_commands: list[Expr]) -> str:
+    SETUP_COMMANDS: list[Expr] = [
+        RawCommand("option endianness 1"),
     ]
 
-    TEARDOWN_COMMANDS: list[str] = [
-        "exit",
+    TEARDOWN_COMMANDS: list[Expr] = [
+        RawCommand("exit"),
     ]
 
-    return sequence(SETUP_COMMANDS + scenario_commands + TEARDOWN_COMMANDS)
+    return evaluate(sequence(SETUP_COMMANDS + scenario_commands + TEARDOWN_COMMANDS))
 
 
 def check_that_dosbox_config_file_exists() -> None:
