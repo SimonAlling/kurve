@@ -205,6 +205,8 @@ def prepare_and_get_process_id(process_id_or_path_to_original_game: str) -> str:
             stderr=subprocess.DEVNULL,
         )
 
+        time.sleep(2)  # Prevents intermittent failure to find/focus DOSBox.
+
         find_and_focus_dosbox()
 
         time.sleep(2)
