@@ -245,14 +245,14 @@ def main() -> None:
 
     check_address_space_layout_randomization()
 
-    process_id: str = prepare_and_get_process_id(path_to_original_game)
-
     print("BEGIN scanmem program")
     print()
     print("    ", scanmem_command)
     print()
     print("END scanmem program")
     print()
+
+    process_id: str = prepare_and_get_process_id(path_to_original_game)
 
     subprocess.run(
         ["sudo", "scanmem", process_id, "--errexit", "--command", scanmem_command],
