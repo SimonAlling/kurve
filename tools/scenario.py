@@ -13,6 +13,8 @@ path_to_original_game = sys.argv[1]
 raw_base_address = sys.argv[2]  # e.g. 7fffd8010ff6
 additional_dosbox_config_file = sys.argv[3]  # e.g. tools/dosbox-linux.conf
 
+ENV_VAR_DRY_RUN = "KURVE_DRY_RUN"
+
 
 class PlayerId(Enum):
     RED = 0
@@ -223,6 +225,8 @@ def prepare_and_get_process_id(path_to_original_game: str) -> str:
 
 
 def main() -> None:
+    is_dry_run = os.environ.get(ENV_VAR_DRY_RUN) == "true"
+
     subprocess.run(
         ["sudo", "true"]
     )  # Fail early if password hasn't been entered recently.
@@ -251,6 +255,12 @@ def main() -> None:
     print()
     print("END scanmem program")
     print()
+
+    if is_dry_run:
+        print(
+            f"💡 Environment variable {ENV_VAR_DRY_RUN} specified. Not launching original game."
+        )
+        return
 
     process_id: str = prepare_and_get_process_id(path_to_original_game)
 
