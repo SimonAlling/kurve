@@ -13,7 +13,7 @@ path_to_original_game = sys.argv[1]
 raw_base_address = sys.argv[2]  # e.g. 7fffd8010ff6
 additional_dosbox_config_file = sys.argv[3]  # e.g. tools/dosbox-linux.conf
 
-ENV_VAR_DRY_RUN = "KURVE_DRY_RUN"
+ENV_VAR_DRY_RUN = "DRY_RUN"
 
 
 class PlayerId(Enum):
