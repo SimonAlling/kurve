@@ -225,7 +225,7 @@ def prepare_and_get_process_id(path_to_original_game: str) -> str:
 
 
 def main() -> None:
-    is_dry_run = os.environ.get(ENV_VAR_DRY_RUN) == "true"
+    is_dry_run = bool(os.environ.get(ENV_VAR_DRY_RUN))
 
     subprocess.run(
         ["sudo", "true"]
