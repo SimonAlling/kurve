@@ -258,13 +258,13 @@ def main() -> None:
     print("END scanmem program")
     print()
 
+    participating_players = list(SCENARIO.keys())
+
     if is_dry_run:
         print(
             f"💡 Environment variable {ENV_VAR_DRY_RUN} specified. Not launching original game."
         )
         return
-
-    participating_players = list(SCENARIO.keys())
 
     process_id: str = launch_original_game(path_to_original_game, participating_players)
 
