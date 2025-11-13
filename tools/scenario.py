@@ -112,7 +112,7 @@ def sequence(commands: list[str]) -> str:
     return ";".join(commands)
 
 
-def scanmem_program(scenario_commands: list[str]) -> str:
+def make_scanmem_program(scenario_commands: list[str]) -> str:
     SETUP_COMMANDS: list[str] = [
         "option endianness 1",
     ]
@@ -231,7 +231,7 @@ def main() -> None:
         ["sudo", "true"]
     )  # Fail early if password hasn't been entered recently.
 
-    scanmem_command: str = scanmem_program(
+    scanmem_program: str = make_scanmem_program(
         [
             set_player_state(
                 player_id,
@@ -251,7 +251,7 @@ def main() -> None:
 
     print("BEGIN scanmem program")
     print()
-    print("    ", scanmem_command)
+    print("    ", scanmem_program)
     print()
     print("END scanmem program")
     print()
@@ -265,7 +265,7 @@ def main() -> None:
     process_id: str = prepare_and_get_process_id(path_to_original_game)
 
     subprocess.run(
-        ["sudo", "scanmem", process_id, "--errexit", "--command", scanmem_command],
+        ["sudo", "scanmem", process_id, "--errexit", "--command", scanmem_program],
     )
 
 
