@@ -193,7 +193,9 @@ def press_key(key: str) -> None:
     subprocess.run(["xdotool", "key", key])
 
 
-def launch_original_game(path_to_original_game: str) -> str:
+def launch_original_game(
+    path_to_original_game: str, participating_players: list[PlayerId]
+) -> str:
     print(f"🚀 Launching original game at {path_to_original_game} …")
 
     proc = subprocess.Popen(
@@ -215,11 +217,11 @@ def launch_original_game(path_to_original_game: str) -> str:
     time.sleep(2)
     press_key("space")
     time.sleep(0.5)
-    for player_id in SCENARIO.keys():
+    for player_id in participating_players:
         JOIN_PLAYER[player_id]()
     time.sleep(0.5)
     press_key("space")
-    time.sleep(len(SCENARIO) + 0.1)
+    time.sleep(len(participating_players) + 0.1)
 
     return str(proc.pid)
 
@@ -262,7 +264,9 @@ def main() -> None:
         )
         return
 
-    process_id: str = launch_original_game(path_to_original_game)
+    participating_players = list(SCENARIO.keys())
+
+    process_id: str = launch_original_game(path_to_original_game, participating_players)
 
     subprocess.run(
         ["sudo", "scanmem", process_id, "--errexit", "--command", scanmem_program],
