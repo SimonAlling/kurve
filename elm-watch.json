@@ -1,5 +1,11 @@
 {
     "targets": {
+        "scenario-in-original-game": {
+            "inputs": [
+                "tools/ScenarioInOriginalGame/ScenarioCLI.elm"
+            ],
+            "output": "tools/ScenarioInOriginalGame/ScenarioCLI.js"
+        },
         "zatacka": {
             "inputs": [
                 "src/Main.elm"

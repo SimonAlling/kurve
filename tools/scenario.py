@@ -2,12 +2,12 @@
 # Usage: see the Git history for this script.
 
 from enum import Enum
-from math import pi
+import json
 import os
 import subprocess
 import sys
 import time
-from typing import Callable, NoReturn, TypedDict
+from typing import Callable, Literal, NoReturn, TypedDict
 
 path_to_original_game = sys.argv[1]
 raw_base_address = sys.argv[2]  # e.g. 7fffd8010ff6
@@ -41,87 +41,6 @@ JOIN_PLAYER: dict[PlayerId, Callable[[], None | NoReturn]] = {
     PlayerId.PINK: lambda: press_key("KP_Divide"),
     PlayerId.BLUE: exitBecauseBlueIsNotSupported,
 }
-
-SIZEOF_FLOAT = 4
-
-space_for_x_coordinates = NUMBER_OF_PLAYERS * SIZEOF_FLOAT
-space_for_y_coordinates = NUMBER_OF_PLAYERS * SIZEOF_FLOAT
-
-base_address = int(raw_base_address, 16)
-x_coordinates_address = base_address
-y_coordinates_address = base_address + space_for_x_coordinates
-directions_address = base_address + space_for_x_coordinates + space_for_y_coordinates
-
-
-PlayerState = TypedDict("PlayerState", {"x": float, "y": float, "direction": float})
-
-SCENARIO: dict[PlayerId, PlayerState] = {
-    PlayerId.RED: {
-        "x": 200,
-        "y": 50,
-        "direction": pi / 2,
-    },
-    PlayerId.YELLOW: {
-        "x": 200,
-        "y": 100,
-        "direction": pi / 2,
-    },
-    PlayerId.GREEN: {
-        "x": 200,
-        "y": 150,
-        "direction": pi / 2,
-    },
-}
-
-
-def write_float32(address: int, value: float) -> str:
-    return f"write float32 {hex(address)} {value}"
-
-
-def set_x(player_id: PlayerId, x: float) -> str:
-    return write_float32(x_coordinates_address + player_id.value * SIZEOF_FLOAT, x)
-
-
-def set_y(player_id: PlayerId, y: float) -> str:
-    return write_float32(y_coordinates_address + player_id.value * SIZEOF_FLOAT, y)
-
-
-def set_position(player_id: PlayerId, x: float, y: float) -> str:
-    return sequence(
-        [
-            set_x(player_id, x),
-            set_y(player_id, y),
-        ],
-    )
-
-
-def set_direction(player_id: PlayerId, direction: float) -> str:
-    return write_float32(directions_address + player_id.value * SIZEOF_FLOAT, direction)
-
-
-def set_player_state(player_id: PlayerId, x: float, y: float, direction: float) -> str:
-    return sequence(
-        [
-            set_position(player_id, x, y),
-            set_direction(player_id, direction),
-        ],
-    )
-
-
-def sequence(commands: list[str]) -> str:
-    return ";".join(commands)
-
-
-def make_scanmem_program(scenario_commands: list[str]) -> str:
-    SETUP_COMMANDS: list[str] = [
-        "option endianness 1",
-    ]
-
-    TEARDOWN_COMMANDS: list[str] = [
-        "exit",
-    ]
-
-    return sequence(SETUP_COMMANDS + scenario_commands + TEARDOWN_COMMANDS)
 
 
 def check_that_dosbox_config_file_exists() -> None:
@@ -226,6 +145,58 @@ def launch_original_game(
     return str(proc.pid)
 
 
+class CompiledScenario(TypedDict):
+    participatingPlayersById: list[int]
+    scanmemProgram: str
+
+
+type CompilationResultAsJson = CompilationSuccess | CompilationFailure
+
+
+class CompilationSuccess(TypedDict):
+    compilationSuccess: Literal[True]
+    compiledScenario: CompiledScenario
+
+
+class CompilationFailure(TypedDict):
+    compilationSuccess: Literal[False]
+    compilationErrorMessage: str
+
+
+def compile_scenario() -> CompiledScenario:
+    subprocess.run(["npm", "run", "build:scenario-in-original-game"])
+
+    path_to_glue_javascript = os.path.join(
+        os.path.dirname(sys.argv[0]), "compile-scenario-glue.cjs"
+    )
+    res = subprocess.run(
+        ["node", path_to_glue_javascript, raw_base_address],
+        encoding="utf-8",
+        capture_output=True,
+    )
+
+    exit_code = res.returncode
+    if exit_code != 0:
+        print(f"❌ Unexpected exit code from {path_to_glue_javascript}: {exit_code}")
+        exit(1)
+
+    try:
+        result: CompilationResultAsJson = json.loads(
+            res.stdout
+        )  # This is blind trust. 👀
+    except json.JSONDecodeError as e:
+        print("❌ Scenario decoding failed.")
+        print(e)
+        exit(1)
+
+    if result["compilationSuccess"] is True:
+        return result["compiledScenario"]
+    else:
+        print("❌ Scenario compilation failed.")
+        print(result["compilationErrorMessage"])
+        exit(1)
+
+
 def main() -> None:
     is_dry_run = bool(os.environ.get(ENV_VAR_DRY_RUN))
 
@@ -239,17 +210,9 @@ def main() -> None:
 
     check_address_space_layout_randomization()
 
-    scanmem_program: str = make_scanmem_program(
-        [
-            set_player_state(
-                player_id,
-                x=player_state["x"],
-                y=player_state["y"],
-                direction=player_state["direction"],
-            )
-            for player_id, player_state in SCENARIO.items()
-        ],
-    )
+    compiled_scenario = compile_scenario()
+
+    scanmem_program = compiled_scenario["scanmemProgram"]
 
     print("BEGIN scanmem program")
     print()
@@ -258,7 +221,9 @@ def main() -> None:
     print("END scanmem program")
     print()
 
-    participating_players = list(SCENARIO.keys())
+    participating_players = [
+        PlayerId(i) for i in compiled_scenario["participatingPlayersById"]
+    ]
 
     if is_dry_run:
         print(
