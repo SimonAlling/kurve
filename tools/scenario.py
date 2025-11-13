@@ -233,6 +233,12 @@ def main() -> None:
         ["sudo", "true"]
     )  # Fail early if password hasn't been entered recently.
 
+    check_that_dosbox_config_file_exists()  # DOSBox 0.74.3 silently ignores if the specified config file doesn't exist.
+
+    check_that_dosbox_is_not_already_open()
+
+    check_address_space_layout_randomization()
+
     scanmem_program: str = make_scanmem_program(
         [
             set_player_state(
@@ -244,12 +250,6 @@ def main() -> None:
             for player_id, player_state in SCENARIO.items()
         ],
     )
-
-    check_that_dosbox_config_file_exists()  # DOSBox 0.74.3 silently ignores if the specified config file doesn't exist.
-
-    check_that_dosbox_is_not_already_open()
-
-    check_address_space_layout_randomization()
 
     print("BEGIN scanmem program")
     print()
