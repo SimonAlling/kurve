@@ -193,7 +193,7 @@ def press_key(key: str) -> None:
     subprocess.run(["xdotool", "key", key])
 
 
-def prepare_and_get_process_id(path_to_original_game: str) -> str:
+def launch_original_game(path_to_original_game: str) -> str:
     print(f"🚀 Launching original game at {path_to_original_game} …")
 
     proc = subprocess.Popen(
@@ -262,7 +262,7 @@ def main() -> None:
         )
         return
 
-    process_id: str = prepare_and_get_process_id(path_to_original_game)
+    process_id: str = launch_original_game(path_to_original_game)
 
     subprocess.run(
         ["sudo", "scanmem", process_id, "--errexit", "--command", scanmem_program],
