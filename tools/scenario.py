@@ -251,7 +251,7 @@ def main() -> None:
 
     print("BEGIN scanmem program")
     print()
-    print("    ", scanmem_program)
+    print(scanmem_program)
     print()
     print("END scanmem program")
     print()
