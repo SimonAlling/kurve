@@ -13,7 +13,7 @@ tests =
         [ test "Scenario with Red and Green in parallel on my laptop" <|
             \_ -> compileScenario "7fffd8010ff6" scenario_RedAndGreenInParallel |> Expect.equal expectedResult_RedAndGreenInParallel
         , test "Scenario with all players in WSL on my main PC" <|
-            \_ -> compileScenario "7fffc1c65ff6" scenario_AllPlayers |> Expect.equal expectedResult_Chaotic
+            \_ -> compileScenario "7fffc1c65ff6" scenario_AllPlayers |> Expect.equal expectedResult_AllPlayers
         , test "Invalid base address" <|
             \_ -> compileScenario "LOL" [] |> Expect.equal (CompilationFailure "Invalid base address: LOL")
         ]
@@ -85,8 +85,8 @@ scenario_AllPlayers =
     ]
 
 
-expectedResult_Chaotic : CompilationResult
-expectedResult_Chaotic =
+expectedResult_AllPlayers : CompilationResult
+expectedResult_AllPlayers =
     CompilationSuccess
         { participating = [ Red, Yellow, Orange, Green, Pink, Blue ]
         , compiledProgram = "option endianness 1;write float32 0x7fffc1c65ff6 10;write float32 0x7fffc1c6600e 10;write float32 0x7fffc1c66026 1.5707963267948966;write float32 0x7fffc1c65ffa 10;write float32 0x7fffc1c66012 50;write float32 0x7fffc1c6602a 0;write float32 0x7fffc1c65ffe 200;write float32 0x7fffc1c66016 200;write float32 0x7fffc1c6602e 2.5;write float32 0x7fffc1c66002 200;write float32 0x7fffc1c6601a 250;write float32 0x7fffc1c66032 2.356194490192345;write float32 0x7fffc1c66006 500;write float32 0x7fffc1c6601e 477;write float32 0x7fffc1c66036 -1.5707963267948966;write float32 0x7fffc1c6600a 400;write float32 0x7fffc1c66022 234.5;write float32 0x7fffc1c6603a 0.01;exit"
