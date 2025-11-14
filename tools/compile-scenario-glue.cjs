@@ -9,7 +9,7 @@ if (baseAddress === undefined) {
 
 try {
     const app = Elm.ScenarioCLI.init({
-        flags: { baseAddress },
+        flags: { elmFlag_baseAddress: baseAddress },
     });
 
     app.ports.outputToOutsideWorld.subscribe((outputFromElm) => {
