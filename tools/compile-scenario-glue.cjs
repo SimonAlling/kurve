@@ -7,11 +7,17 @@ if (baseAddress === undefined) {
     process.exit(1);
 }
 
-const app = Elm.ScenarioCLI.init({
-    flags: { baseAddress },
-});
+try {
+    const app = Elm.ScenarioCLI.init({
+        flags: { baseAddress },
+    });
 
-app.ports.outputToOutsideWorld.subscribe((outputFromElm) => {
-    console.log(JSON.stringify(outputFromElm));
-    process.exit(0);
-});
+    app.ports.outputToOutsideWorld.subscribe((outputFromElm) => {
+        console.log(JSON.stringify(outputFromElm));
+        process.exit(0);
+    });
+} catch (caught) {
+    console.error("Elm initialization failed.");
+    console.error(String(caught));
+    process.exit(1);
+}

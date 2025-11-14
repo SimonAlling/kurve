@@ -178,6 +178,7 @@ def compile_scenario() -> CompiledScenario:
     exit_code = res.returncode
     if exit_code != 0:
         print(f"❌ Unexpected exit code from {path_to_glue_javascript}: {exit_code}")
+        print(res.stderr)
         exit(1)
 
     try:
