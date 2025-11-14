@@ -24,32 +24,28 @@ toModMem =
 
 stepToModMem : ScenarioStep -> List ModMemCmd
 stepToModMem ( playerId, { x, y, direction } ) =
-    List.concat
-        [ setX x playerId
-        , setY y playerId
-        , setDirection direction playerId
-        ]
+    [ setX x playerId
+    , setY y playerId
+    , setDirection direction playerId
+    ]
 
 
-setX : Float -> PlayerId -> List ModMemCmd
+setX : Float -> PlayerId -> ModMemCmd
 setX x playerId =
-    [ ModifyMemory
+    ModifyMemory
         (relativeAddressFor playerId X)
         x
-    ]
 
 
-setY : Float -> PlayerId -> List ModMemCmd
+setY : Float -> PlayerId -> ModMemCmd
 setY y playerId =
-    [ ModifyMemory
+    ModifyMemory
         (relativeAddressFor playerId Y)
         y
-    ]
 
 
-setDirection : Float -> PlayerId -> List ModMemCmd
+setDirection : Float -> PlayerId -> ModMemCmd
 setDirection direction playerId =
-    [ ModifyMemory
+    ModifyMemory
         (relativeAddressFor playerId Dir)
         direction
-    ]
