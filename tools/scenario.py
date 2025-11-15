@@ -25,9 +25,6 @@ class PlayerId(Enum):
     BLUE = 5
 
 
-NUMBER_OF_PLAYERS = len(PlayerId)
-
-
 def exitBecauseBlueIsNotSupported():
     print("❌ Blue (the player) isn't supported yet.")
     exit(1)
