@@ -114,7 +114,7 @@ def press_key(key: str) -> None:
 
 def launch_original_game(
     path_to_original_game: str, participating_players: list[PlayerId]
-) -> str:
+) -> int:
     print(f"🚀 Launching original game at {path_to_original_game} …")
 
     proc = subprocess.Popen(
@@ -142,7 +142,7 @@ def launch_original_game(
     press_key("space")
     time.sleep(len(participating_players) + 0.1)
 
-    return str(proc.pid)
+    return proc.pid
 
 
 class CompiledScenario(TypedDict):
@@ -232,10 +232,10 @@ def main() -> None:
         )
         return
 
-    process_id: str = launch_original_game(path_to_original_game, participating_players)
+    process_id: int = launch_original_game(path_to_original_game, participating_players)
 
     subprocess.run(
-        ["sudo", "scanmem", process_id, "--errexit", "--command", scanmem_program],
+        ["sudo", "scanmem", str(process_id), "--errexit", "--command", scanmem_program],
     )
 
 
