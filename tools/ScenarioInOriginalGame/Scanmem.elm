@@ -23,21 +23,16 @@ compile baseAddress core =
 
 
 compileCore : AbsoluteAddress -> List ModMemCmd -> List ScanmemCommand
-compileCore baseAddress modMemCmds =
-    case modMemCmds of
-        [] ->
-            []
-
-        head :: tail ->
-            case head of
-                ModifyMemory relativeAddress newValue ->
-                    let
-                        serializedAddress : String
-                        serializedAddress =
-                            resolveAddress baseAddress relativeAddress |> serializeAddress
-                    in
-                    ("write float32 " ++ serializedAddress ++ " " ++ String.fromFloat newValue)
-                        :: compileCore baseAddress tail
+compileCore baseAddress =
+    List.map
+        (\(ModifyMemory relativeAddress newValue) ->
+            let
+                serializedAddress : String
+                serializedAddress =
+                    resolveAddress baseAddress relativeAddress |> serializeAddress
+            in
+            "write float32 " ++ serializedAddress ++ " " ++ String.fromFloat newValue
+        )
 
 
 setupCommands : List ScanmemCommand
