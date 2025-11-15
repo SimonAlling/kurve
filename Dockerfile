@@ -9,6 +9,7 @@ RUN npm ci
 COPY elm.json .
 COPY elm-watch.json .
 COPY review review
+COPY tools tools
 COPY tests tests
 COPY src src
 RUN npm run check-formatting
