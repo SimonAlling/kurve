@@ -194,7 +194,7 @@ def compile_scenario() -> CompiledScenario:
             res.stdout
         )  # This is blind trust. 👀
     except json.JSONDecodeError as e:
-        print("❌ Scenario decoding failed.")
+        print("❌ Scenario compilation result could not be parsed.")
         print(e)
         exit(1)
 
