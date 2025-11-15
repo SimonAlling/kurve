@@ -1,20 +1,20 @@
-module MemoryLayout exposing (PlayerProp(..), relativeAddressFor)
+module MemoryLayout exposing (StateComponent(..), relativeAddressFor)
 
 import ModMem exposing (RelativeAddress(..))
 import OriginalGamePlayers exposing (PlayerId, playerIndex)
 
 
-type PlayerProp
+type StateComponent
     = X
     | Y
     | Dir
 
 
-relativeAddressFor : PlayerId -> PlayerProp -> RelativeAddress
-relativeAddressFor playerId property =
+relativeAddressFor : PlayerId -> StateComponent -> RelativeAddress
+relativeAddressFor playerId stateComponent =
     let
         (RelativeAddress arrayStart) =
-            case property of
+            case stateComponent of
                 X ->
                     xsAddress
 

@@ -1,6 +1,6 @@
 module ScenarioCore exposing (Scenario, toModMem)
 
-import MemoryLayout exposing (PlayerProp(..), relativeAddressFor)
+import MemoryLayout exposing (StateComponent(..), relativeAddressFor)
 import ModMem exposing (ModMemCmd(..))
 import OriginalGamePlayers exposing (PlayerId)
 
