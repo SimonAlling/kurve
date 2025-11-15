@@ -118,9 +118,11 @@ def press_key(key: str) -> None:
     subprocess.run(["xdotool", "key", key])
 
 
-def launch_original_game(
-    path_to_original_game: str, participating_players: list[PlayerId]
-) -> int:
+def launch_original_game_and_stage_scenario(
+    path_to_original_game: str,
+    participating_players: list[PlayerId],
+    scanmem_program: str,
+) -> None:
     print(f"🚀 Launching original game at {path_to_original_game} …")
 
     proc = subprocess.Popen(
@@ -148,7 +150,7 @@ def launch_original_game(
     press_key("space")
     time.sleep(len(participating_players) + 0.1)
 
-    return proc.pid
+    stage_scenario(proc.pid, scanmem_program)
 
 
 class CompiledScenario(TypedDict):
@@ -238,9 +240,11 @@ def main() -> None:
         )
         return
 
-    process_id: int = launch_original_game(path_to_original_game, participating_players)
-
-    stage_scenario(process_id, scanmem_program)
+    launch_original_game_and_stage_scenario(
+        path_to_original_game,
+        participating_players,
+        scanmem_program,
+    )
 
 
 if __name__ == "__main__":
