@@ -7,7 +7,7 @@ module ModMem exposing
     , serializeAddress
     )
 
-import Hex exposing (hex)
+import Hex exposing (hex, parseHex)
 import Integer exposing (Integer, add)
 
 
@@ -25,7 +25,7 @@ type ModMemCmd
 
 parseAddress : String -> Maybe AbsoluteAddress
 parseAddress =
-    drop0xPrefixIfPresent >> Integer.fromHexString >> Maybe.map AbsoluteAddress
+    parseHex >> Maybe.map AbsoluteAddress
 
 
 serializeAddress : AbsoluteAddress -> String
@@ -36,13 +36,3 @@ serializeAddress (AbsoluteAddress address) =
 resolveAddress : AbsoluteAddress -> RelativeAddress -> AbsoluteAddress
 resolveAddress (AbsoluteAddress base) (RelativeAddress relative) =
     AbsoluteAddress <| add base (Integer.fromSafeInt relative)
-
-
-drop0xPrefixIfPresent : String -> String
-drop0xPrefixIfPresent s =
-    case String.toList s of
-        '0' :: 'x' :: rest ->
-            String.fromList rest
-
-        _ ->
-            s
