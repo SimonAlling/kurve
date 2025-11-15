@@ -243,7 +243,8 @@ def main() -> None:
 
     check_that_dosbox_config_file_exists()  # DOSBox 0.74.3 silently ignores if the specified config file doesn't exist.
 
-    check_that_dosbox_is_not_already_open()
+    if not is_dry_run:
+        check_that_dosbox_is_not_already_open()
 
     check_address_space_layout_randomization()
 
