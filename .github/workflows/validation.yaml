@@ -28,8 +28,9 @@ jobs:
           src: ./tools
       - name: Check Python lint
         run: ruff check ./tools
-      - name: Check scenario script
-        run: |
-          sudo apt-get install --yes xdotool
-          DRY_RUN=true ./tools/scenario.py docs/original-game/ZATACKA.EXE 0x7fffd8010ff6 tools/dosbox-linux.conf
-          DRY_RUN=true ./tools/scenario.py docs/original-game/ZATACKA.EXE 0x7fffc1c65ff6 tools/dosbox-wsl.conf
+      - name: Install xdotool
+        run: sudo apt-get install --yes xdotool
+      - name: Dry-run scenario script (Linux)
+        run: DRY_RUN=true ./tools/scenario.py docs/original-game/ZATACKA.EXE 0x7fffd8010ff6 tools/dosbox-linux.conf
+      - name: Dry-run scenario script (WSL)
+        run: DRY_RUN=true ./tools/scenario.py docs/original-game/ZATACKA.EXE 0x7fffc1c65ff6 tools/dosbox-wsl.conf
