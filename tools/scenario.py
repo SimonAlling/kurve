@@ -221,7 +221,7 @@ def main() -> None:
 
     compiled_scenario = compile_scenario()
 
-    scanmem_program = compiled_scenario["scanmemProgram"]
+    scanmem_program: str = compiled_scenario["scanmemProgram"]
 
     print("BEGIN scanmem program")
     print()
