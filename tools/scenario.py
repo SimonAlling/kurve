@@ -169,26 +169,32 @@ class CompilationFailure(TypedDict):
 
 
 def compile_scenario() -> CompiledScenario:
-    subprocess.run(["npm", "run", "build:scenario-in-original-game"])
+    npm_process = subprocess.run(["npm", "run", "build:scenario-in-original-game"])
+    npm_exit_code = npm_process.returncode
+    if npm_exit_code != 0:
+        print("❌ Elm compilation failed.")
+        exit(1)
 
     path_to_glue_javascript = os.path.join(
         os.path.dirname(sys.argv[0]), "compile-scenario-glue.cjs"
     )
-    res = subprocess.run(
+
+    node_process = subprocess.run(
         ["node", path_to_glue_javascript, raw_base_address],
         encoding="utf-8",
         capture_output=True,
     )
-
-    exit_code = res.returncode
-    if exit_code != 0:
-        print(f"❌ Unexpected exit code from {path_to_glue_javascript}: {exit_code}")
-        print(res.stderr)
+    node_exit_code = node_process.returncode
+    if node_exit_code != 0:
+        print(
+            f"❌ Unexpected exit code from {path_to_glue_javascript}: {node_exit_code}"
+        )
+        print(node_process.stderr)
         exit(1)
 
     try:
         result: CompilationResultAsJson = json.loads(
-            res.stdout
+            node_process.stdout
         )  # This is blind trust. 👀
     except json.JSONDecodeError as e:
         print("❌ Scenario compilation result could not be parsed.")
