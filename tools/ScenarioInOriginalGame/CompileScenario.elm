@@ -24,7 +24,7 @@ compileScenario rawBaseAddress scenario =
                 }
 
         Nothing ->
-            CompilationFailure ("Invalid base address: " ++ rawBaseAddress)
+            CompilationFailure ("Cannot parse base address: " ++ rawBaseAddress ++ " (must be hexadecimal, with or without '0x' prefix)")
 
 
 participatingPlayers : Scenario -> List PlayerId
