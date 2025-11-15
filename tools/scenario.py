@@ -189,6 +189,12 @@ def find_dosbox(have_just_launched_it: bool) -> str | None:
     return None
 
 
+def stage_scenario(process_id: int, scanmem_program: str) -> None:
+    subprocess.run(
+        ["sudo", "scanmem", str(process_id), "--errexit", "--command", scanmem_program],
+    )
+
+
 def press_key(key: str) -> None:
     subprocess.run(["xdotool", "key", key])
 
@@ -268,9 +274,7 @@ def main() -> None:
 
     process_id: int = launch_original_game(path_to_original_game, participating_players)
 
-    subprocess.run(
-        ["sudo", "scanmem", str(process_id), "--errexit", "--command", scanmem_program],
-    )
+    stage_scenario(process_id, scanmem_program)
 
 
 if __name__ == "__main__":
