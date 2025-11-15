@@ -14,6 +14,8 @@ tests =
             \_ -> compileScenario "7fffd8010ff6" scenario_RedAndGreenInParallel |> Expect.equal expectedResult_RedAndGreenInParallel
         , test "Scenario with all players in WSL on my main PC" <|
             \_ -> compileScenario "7fffc1c65ff6" scenario_AllPlayers |> Expect.equal expectedResult_AllPlayers
+        , test "Base address with '0x' prefix and capital letters" <|
+            \_ -> compileScenario "0x7FFFD8010FF6" scenario_RedAndGreenInParallel |> Expect.equal expectedResult_RedAndGreenInParallel
         , test "Invalid base address" <|
             \_ -> compileScenario "LOL" [] |> Expect.equal (CompilationFailure "Invalid base address: LOL")
         ]
