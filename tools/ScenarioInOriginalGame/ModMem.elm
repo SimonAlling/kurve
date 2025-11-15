@@ -35,4 +35,4 @@ serializeAddress (AbsoluteAddress address) =
 
 resolveAddress : AbsoluteAddress -> RelativeAddress -> AbsoluteAddress
 resolveAddress (AbsoluteAddress base) (RelativeAddress relative) =
-    AbsoluteAddress <| add base (Integer.fromSafeInt relative)
+    AbsoluteAddress (add base (Integer.fromSafeInt relative))
