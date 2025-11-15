@@ -6,7 +6,7 @@
     "install-hooks": "[ -d .git/ ] && cp hooks/* .git/hooks",
     "sass-build": "sass --source-map src/css/:_site/css/",
     "build": "elm-watch make --optimize && npm run sass-build",
-    "build:scenario-in-original-game": "elm make --optimize tools/ScenarioInOriginalGame/ScenarioCLI.elm --output tools/ScenarioInOriginalGame/ScenarioCLI.js",
+    "build:scenario-in-original-game": "elm make --optimize tools/ScenarioInOriginalGame/ScenarioAPI.elm --output tools/ScenarioInOriginalGame/ScenarioAPI.js",
     "check-formatting": "elm-format --validate .",
     "review": "elm-review",
     "test": "elm-test",

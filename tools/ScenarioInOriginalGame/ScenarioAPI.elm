@@ -1,4 +1,4 @@
-port module ScenarioCLI exposing (main)
+port module ScenarioAPI exposing (main)
 
 import CompileScenario exposing (CompilationResult(..), compileScenario)
 import Json.Encode as Encode

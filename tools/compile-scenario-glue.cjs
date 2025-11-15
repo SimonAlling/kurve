@@ -1,4 +1,4 @@
-const { Elm } = require("./ScenarioInOriginalGame/ScenarioCLI.js");
+const { Elm } = require("./ScenarioInOriginalGame/ScenarioAPI.js");
 
 const baseAddress = process.argv[2];
 
@@ -8,7 +8,7 @@ if (baseAddress === undefined) {
 }
 
 try {
-    const app = Elm.ScenarioCLI.init({
+    const app = Elm.ScenarioAPI.init({
         flags: { elmFlag_baseAddress: baseAddress },
     });
 
