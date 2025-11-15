@@ -1,4 +1,4 @@
-module OriginalGamePlayers exposing (PlayerId(..), playerIndex)
+module OriginalGamePlayers exposing (PlayerId(..), numberOfPlayers, playerIndex)
 
 
 type PlayerId
@@ -8,6 +8,11 @@ type PlayerId
     | Green
     | Pink
     | Blue
+
+
+numberOfPlayers : Int
+numberOfPlayers =
+    6
 
 
 playerIndex : PlayerId -> Int

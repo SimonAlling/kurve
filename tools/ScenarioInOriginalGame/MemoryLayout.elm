@@ -1,7 +1,7 @@
 module MemoryLayout exposing (StateComponent(..), relativeAddressFor)
 
 import ModMem exposing (RelativeAddress(..))
-import OriginalGamePlayers exposing (PlayerId, playerIndex)
+import OriginalGamePlayers exposing (PlayerId, numberOfPlayers, playerIndex)
 
 
 type StateComponent
@@ -29,13 +29,6 @@ relativeAddressFor playerId stateComponent =
             playerIndex playerId
     in
     RelativeAddress (arrayStart + index * sizeOfFloat)
-
-
-{-| There are 6 players in the original game.
--}
-numberOfPlayers : Int
-numberOfPlayers =
-    6
 
 
 {-| The x coordinates are stored first.
