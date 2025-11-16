@@ -1,9 +1,11 @@
-module CompileScenario exposing (CompilationResult(..), compileWithArgs)
+module CompileScenario exposing (CompilationResult(..), commandLineWrapper, compileWithArgs)
 
+import Json.Encode as Encode
 import ModMem exposing (AbsoluteAddress, parseAddress)
-import OriginalGamePlayers exposing (PlayerId)
+import OriginalGamePlayers exposing (PlayerId, playerIndex)
 import Scanmem
 import ScenarioCore exposing (Scenario, toModMem)
+import TheScenario exposing (theScenario)
 
 
 type CompilationResult
@@ -15,6 +17,11 @@ type alias CompiledScenario =
     { participating : List PlayerId
     , compiledProgram : String
     }
+
+
+commandLineWrapper : List String -> String
+commandLineWrapper commandLineArgs =
+    compileWithArgs commandLineArgs theScenario |> encodeCompilationResultAsJson |> Encode.encode 0
 
 
 compileWithArgs : List String -> Scenario -> CompilationResult
@@ -48,6 +55,32 @@ parseArguments commandLineArgs =
 
         _ ->
             Rejected <| "Unexpected number of arguments. Expected 1, but got " ++ (List.length commandLineArgs |> String.fromInt) ++ "."
+
+
+{-| This is the external API.
+
+The keys are deliberately long to make them unique and therefore searchable.
+
+-}
+encodeCompilationResultAsJson : CompilationResult -> Encode.Value
+encodeCompilationResultAsJson result =
+    case result of
+        CompilationSuccess { participating, compiledProgram } ->
+            Encode.object
+                [ ( "compilationSuccess", Encode.bool True )
+                , ( "compiledScenario"
+                  , Encode.object
+                        [ ( "participatingPlayersById", Encode.list Encode.int (List.map playerIndex participating) )
+                        , ( "scanmemProgram", Encode.string compiledProgram )
+                        ]
+                  )
+                ]
+
+        CompilationFailure errorMessage ->
+            Encode.object
+                [ ( "compilationSuccess", Encode.bool False )
+                , ( "compilationErrorMessage", Encode.string errorMessage )
+                ]
 
 
 participatingPlayers : Scenario -> List PlayerId
