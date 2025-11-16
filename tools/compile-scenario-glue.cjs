@@ -1,15 +1,9 @@
 const { Elm } = require("./ScenarioInOriginalGame/ScenarioAPI.js");
 
-const baseAddress = process.argv[2];
-
-if (baseAddress === undefined) {
-    console.error("Must specify base address.");
-    process.exit(1);
-}
 
 try {
     const app = Elm.ScenarioAPI.init({
-        flags: { elmFlag_baseAddress: baseAddress },
+        flags: { elmFlag_commandLineArgs: process.argv.slice(2) },
     });
 
     app.ports.outputToOutsideWorld.subscribe((outputFromElm) => {

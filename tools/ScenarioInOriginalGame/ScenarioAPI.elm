@@ -8,7 +8,7 @@ import TheScenario exposing (theScenario)
 
 
 type alias Flags =
-    { elmFlag_baseAddress : String
+    { elmFlag_commandLineArgs : List String
     }
 
 
@@ -33,8 +33,8 @@ main =
 
 
 init : Flags -> ( Model, Cmd Msg )
-init { elmFlag_baseAddress } =
-    ( (), compileScenario elmFlag_baseAddress theScenario |> encodeCompilationResultAsJson |> outputToOutsideWorld )
+init { elmFlag_commandLineArgs } =
+    ( (), compileScenario elmFlag_commandLineArgs theScenario |> encodeCompilationResultAsJson |> outputToOutsideWorld )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
