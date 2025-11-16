@@ -1,6 +1,6 @@
 module ScenarioInOriginalGameTest exposing (tests)
 
-import CompileScenario exposing (CompilationResult(..), compileScenario)
+import CompileScenario exposing (CompilationResult(..), compileWithArgs)
 import Expect
 import OriginalGamePlayers exposing (PlayerId(..))
 import ScenarioCore exposing (Scenario)
@@ -11,17 +11,17 @@ tests : Test
 tests =
     describe "Scenario compilation"
         [ test "Scenario with Red and Green in parallel on my laptop" <|
-            \_ -> compileScenario [ "7fffd8010ff6" ] scenario_RedAndGreenInParallel |> Expect.equal expectedResult_RedAndGreenInParallel
+            \_ -> compileWithArgs [ "7fffd8010ff6" ] scenario_RedAndGreenInParallel |> Expect.equal expectedResult_RedAndGreenInParallel
         , test "Scenario with all players in WSL on my main PC" <|
-            \_ -> compileScenario [ "7fffc1c65ff6" ] scenario_AllPlayers |> Expect.equal expectedResult_AllPlayers
+            \_ -> compileWithArgs [ "7fffc1c65ff6" ] scenario_AllPlayers |> Expect.equal expectedResult_AllPlayers
         , test "Base address with '0x' prefix and capital letters" <|
-            \_ -> compileScenario [ "0x7FFFD8010FF6" ] scenario_RedAndGreenInParallel |> Expect.equal expectedResult_RedAndGreenInParallel
+            \_ -> compileWithArgs [ "0x7FFFD8010FF6" ] scenario_RedAndGreenInParallel |> Expect.equal expectedResult_RedAndGreenInParallel
         , test "Invalid base address" <|
-            \_ -> compileScenario [ "LOL" ] [] |> Expect.equal (CompilationFailure "Cannot parse base address: LOL (must be hexadecimal, with or without '0x' prefix)")
+            \_ -> compileWithArgs [ "LOL" ] [] |> Expect.equal (CompilationFailure "Cannot parse base address: LOL (must be hexadecimal, with or without '0x' prefix)")
         , test "Too few arguments" <|
-            \_ -> compileScenario [] [] |> Expect.equal (CompilationFailure "Unexpected number of arguments. Expected 1, but got 0.")
+            \_ -> compileWithArgs [] [] |> Expect.equal (CompilationFailure "Unexpected number of arguments. Expected 1, but got 0.")
         , test "Too many arguments" <|
-            \_ -> compileScenario [ "foo", "bar" ] [] |> Expect.equal (CompilationFailure "Unexpected number of arguments. Expected 1, but got 2.")
+            \_ -> compileWithArgs [ "foo", "bar" ] [] |> Expect.equal (CompilationFailure "Unexpected number of arguments. Expected 1, but got 2.")
         ]
 
 

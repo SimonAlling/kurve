@@ -1,6 +1,6 @@
 port module ScenarioAPI exposing (main)
 
-import CompileScenario exposing (CompilationResult(..), compileScenario)
+import CompileScenario exposing (CompilationResult(..), compileWithArgs)
 import Json.Encode as Encode
 import OriginalGamePlayers exposing (playerIndex)
 import Platform
@@ -34,7 +34,7 @@ main =
 
 init : Flags -> ( Model, Cmd Msg )
 init { elmFlag_commandLineArgs } =
-    ( (), compileScenario elmFlag_commandLineArgs theScenario |> encodeCompilationResultAsJson |> Encode.encode 0 |> outputToOutsideWorld )
+    ( (), compileWithArgs elmFlag_commandLineArgs theScenario |> encodeCompilationResultAsJson |> Encode.encode 0 |> outputToOutsideWorld )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

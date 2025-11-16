@@ -1,4 +1,4 @@
-module CompileScenario exposing (CompilationResult(..), compileScenario)
+module CompileScenario exposing (CompilationResult(..), compileWithArgs)
 
 import ModMem exposing (AbsoluteAddress, parseAddress)
 import OriginalGamePlayers exposing (PlayerId)
@@ -17,8 +17,8 @@ type alias CompiledScenario =
     }
 
 
-compileScenario : List String -> Scenario -> CompilationResult
-compileScenario commandLineArgs scenario =
+compileWithArgs : List String -> Scenario -> CompilationResult
+compileWithArgs commandLineArgs scenario =
     case parseArguments commandLineArgs of
         Accepted baseAddress ->
             CompilationSuccess
