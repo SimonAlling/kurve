@@ -1,6 +1,6 @@
 module ScenarioInOriginalGameTest exposing (tests)
 
-import CompileScenario exposing (CompilationResult(..), compileWithArgs)
+import CompileScenario exposing (CompilationResult(..), compileScenario)
 import Expect
 import OriginalGamePlayers exposing (PlayerId(..))
 import ScenarioCore exposing (Scenario)
@@ -12,37 +12,37 @@ tests =
     describe "Scenario compilation"
         [ test "Scenario with Red and Green in parallel on my laptop" <|
             \_ ->
-                compileWithArgs
+                compileScenario
                     [ "7fffd8010ff6" ]
                     scenario_RedAndGreenInParallel
                     |> Expect.equal expectedResult_RedAndGreenInParallel
         , test "Scenario with all players in WSL on my main PC" <|
             \_ ->
-                compileWithArgs
+                compileScenario
                     [ "7fffc1c65ff6" ]
                     scenario_AllPlayers
                     |> Expect.equal expectedResult_AllPlayers
         , test "Base address with '0x' prefix and capital letters" <|
             \_ ->
-                compileWithArgs
+                compileScenario
                     [ "0x7FFFD8010FF6" ]
                     scenario_RedAndGreenInParallel
                     |> Expect.equal expectedResult_RedAndGreenInParallel
         , test "Invalid base address" <|
             \_ ->
-                compileWithArgs
+                compileScenario
                     [ "LOL" ]
                     scenario_Empty
                     |> Expect.equal (CompilationFailure "Cannot parse base address: LOL (must be hexadecimal, with or without '0x' prefix).")
         , test "Too few arguments" <|
             \_ ->
-                compileWithArgs
+                compileScenario
                     []
                     scenario_Empty
                     |> Expect.equal (CompilationFailure "Unexpected number of arguments. Expected 1, but got 0.")
         , test "Too many arguments" <|
             \_ ->
-                compileWithArgs
+                compileScenario
                     [ "foo", "bar" ]
                     scenario_Empty
                     |> Expect.equal (CompilationFailure "Unexpected number of arguments. Expected 1, but got 2.")
