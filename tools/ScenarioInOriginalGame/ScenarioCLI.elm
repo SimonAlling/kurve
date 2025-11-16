@@ -24,7 +24,7 @@ main : Program Flags Model Msg
 main =
     Platform.worker
         { init = init
-        , update = update
+        , update = never
         , subscriptions = \_ -> Sub.none
         }
 
@@ -32,8 +32,3 @@ main =
 init : Flags -> ( Model, Cmd Msg )
 init { elmFlag_commandLineArgs } =
     ( (), commandLineWrapper elmFlag_commandLineArgs |> outputToOutsideWorld )
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update _ model =
-    ( model, Cmd.none )
