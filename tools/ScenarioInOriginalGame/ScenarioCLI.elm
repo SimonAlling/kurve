@@ -4,12 +4,12 @@ import CompileScenario exposing (commandLineWrapper)
 import Platform
 
 
+port outputToOutsideWorld : String -> Cmd msg
+
+
 type alias Flags =
     { elmFlag_commandLineArgs : List String
     }
-
-
-port outputToOutsideWorld : String -> Cmd msg
 
 
 type alias Model =
