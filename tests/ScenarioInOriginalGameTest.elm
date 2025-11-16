@@ -32,21 +32,26 @@ tests =
             \_ ->
                 compileWithArgs
                     [ "LOL" ]
-                    []
+                    scenario_Empty
                     |> Expect.equal (CompilationFailure "Cannot parse base address: LOL (must be hexadecimal, with or without '0x' prefix).")
         , test "Too few arguments" <|
             \_ ->
                 compileWithArgs
                     []
-                    []
+                    scenario_Empty
                     |> Expect.equal (CompilationFailure "Unexpected number of arguments. Expected 1, but got 0.")
         , test "Too many arguments" <|
             \_ ->
                 compileWithArgs
                     [ "foo", "bar" ]
-                    []
+                    scenario_Empty
                     |> Expect.equal (CompilationFailure "Unexpected number of arguments. Expected 1, but got 2.")
         ]
+
+
+scenario_Empty : Scenario
+scenario_Empty =
+    []
 
 
 scenario_RedAndGreenInParallel : Scenario
