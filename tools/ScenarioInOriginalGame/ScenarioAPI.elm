@@ -12,7 +12,7 @@ type alias Flags =
     }
 
 
-port outputToOutsideWorld : Encode.Value -> Cmd msg
+port outputToOutsideWorld : String -> Cmd msg
 
 
 type alias Model =
@@ -34,7 +34,7 @@ main =
 
 init : Flags -> ( Model, Cmd Msg )
 init { elmFlag_commandLineArgs } =
-    ( (), compileScenario elmFlag_commandLineArgs theScenario |> encodeCompilationResultAsJson |> outputToOutsideWorld )
+    ( (), compileScenario elmFlag_commandLineArgs theScenario |> encodeCompilationResultAsJson |> Encode.encode 0 |> outputToOutsideWorld )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

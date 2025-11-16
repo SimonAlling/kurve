@@ -7,7 +7,7 @@ try {
     });
 
     app.ports.outputToOutsideWorld.subscribe((outputFromElm) => {
-        console.log(JSON.stringify(outputFromElm));
+        console.log(outputFromElm);
         process.exit(0);
     });
 } catch (caught) {
