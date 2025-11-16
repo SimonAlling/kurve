@@ -51,7 +51,7 @@ parseArguments commandLineArgs =
                     Accepted baseAddress
 
                 Nothing ->
-                    Rejected <| "Cannot parse base address: " ++ rawBaseAddress ++ " (must be hexadecimal, with or without '0x' prefix)"
+                    Rejected <| "Cannot parse base address: " ++ rawBaseAddress ++ " (must be hexadecimal, with or without '0x' prefix)."
 
         _ ->
             Rejected <| "Unexpected number of arguments. Expected 1, but got " ++ (List.length commandLineArgs |> String.fromInt) ++ "."

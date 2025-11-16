@@ -17,7 +17,7 @@ tests =
         , test "Base address with '0x' prefix and capital letters" <|
             \_ -> compileWithArgs [ "0x7FFFD8010FF6" ] scenario_RedAndGreenInParallel |> Expect.equal expectedResult_RedAndGreenInParallel
         , test "Invalid base address" <|
-            \_ -> compileWithArgs [ "LOL" ] [] |> Expect.equal (CompilationFailure "Cannot parse base address: LOL (must be hexadecimal, with or without '0x' prefix)")
+            \_ -> compileWithArgs [ "LOL" ] [] |> Expect.equal (CompilationFailure "Cannot parse base address: LOL (must be hexadecimal, with or without '0x' prefix).")
         , test "Too few arguments" <|
             \_ -> compileWithArgs [] [] |> Expect.equal (CompilationFailure "Unexpected number of arguments. Expected 1, but got 0.")
         , test "Too many arguments" <|
