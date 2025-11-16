@@ -15,11 +15,15 @@ type alias Flags =
 port outputToOutsideWorld : Encode.Value -> Cmd msg
 
 
+type alias Model =
+    ()
+
+
 type alias Msg =
     Never
 
 
-main : Program Flags () Msg
+main : Program Flags Model Msg
 main =
     Platform.worker
         { init = init
@@ -28,12 +32,12 @@ main =
         }
 
 
-init : Flags -> ( (), Cmd Msg )
+init : Flags -> ( Model, Cmd Msg )
 init { elmFlag_baseAddress } =
     ( (), compileScenario elmFlag_baseAddress theScenario |> encodeCompilationResultAsJson |> outputToOutsideWorld )
 
 
-update : Msg -> () -> ( (), Cmd Msg )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update _ model =
     ( model, Cmd.none )
 
