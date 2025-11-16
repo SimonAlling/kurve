@@ -1,6 +1,5 @@
 const { Elm } = require("./ScenarioInOriginalGame/ScenarioCLI.js");
 
-
 try {
     const app = Elm.ScenarioCLI.init({
         flags: { elmFlag_commandLineArgs: process.argv.slice(2) },
