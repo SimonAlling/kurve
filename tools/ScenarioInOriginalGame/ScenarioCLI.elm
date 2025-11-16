@@ -25,7 +25,7 @@ main =
     Platform.worker
         { init = init
         , update = never
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = always Sub.none
         }
 
 
