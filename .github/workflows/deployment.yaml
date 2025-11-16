@@ -35,7 +35,7 @@ jobs:
       - name: Build
         working-directory: elm-version/
         run: |
-          npm ci --omit optional
+          npm ci --omit optional --no-audit
           npm run build
 
       - name: Checkout legacy JavaScript version
