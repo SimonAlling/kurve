@@ -1,6 +1,6 @@
 port module ScenarioCLI exposing (main)
 
-import CompileScenario exposing (commandLineWrapper)
+import CompileScenario exposing (compileAndSerialize)
 import Platform
 
 
@@ -31,4 +31,4 @@ main =
 
 init : Flags -> ( Model, Cmd Msg )
 init { elmFlag_commandLineArgs } =
-    ( (), commandLineWrapper elmFlag_commandLineArgs |> outputToOutsideWorld )
+    ( (), compileAndSerialize elmFlag_commandLineArgs |> outputToOutsideWorld )

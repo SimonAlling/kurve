@@ -1,4 +1,4 @@
-module CompileScenario exposing (CompilationResult(..), commandLineWrapper, compileScenario)
+module CompileScenario exposing (CompilationResult(..), compileAndSerialize, compileScenario)
 
 import Json.Encode as Encode
 import ModMem exposing (AbsoluteAddress, parseAddress)
@@ -19,8 +19,8 @@ type alias CompiledScenario =
     }
 
 
-commandLineWrapper : List String -> String
-commandLineWrapper commandLineArgs =
+compileAndSerialize : List String -> String
+compileAndSerialize commandLineArgs =
     compileScenario commandLineArgs theScenario |> encodeCompilationResultAsJson |> Encode.encode 0
 
 
