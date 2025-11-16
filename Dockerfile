@@ -9,9 +9,11 @@ RUN npm ci
 COPY elm.json .
 COPY elm-watch.json .
 COPY review review
+COPY tools/ScenarioInOriginalGame tools/ScenarioInOriginalGame
 COPY tests tests
 COPY src src
 RUN npm run check-formatting
 RUN npm run review
 RUN npm run build
+RUN npm run build:scenario-in-original-game
 RUN npm test
