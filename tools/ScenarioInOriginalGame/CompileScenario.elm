@@ -7,11 +7,14 @@ import ScenarioCore exposing (Scenario, toModMem)
 
 
 type CompilationResult
-    = CompilationSuccess
-        { participating : List PlayerId
-        , compiledProgram : String
-        }
+    = CompilationSuccess CompiledScenario
     | CompilationFailure String
+
+
+type alias CompiledScenario =
+    { participating : List PlayerId
+    , compiledProgram : String
+    }
 
 
 compileScenario : List String -> Scenario -> CompilationResult
