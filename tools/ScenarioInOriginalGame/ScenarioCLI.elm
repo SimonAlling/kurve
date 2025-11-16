@@ -1,4 +1,4 @@
-port module ScenarioAPI exposing (main)
+port module ScenarioCLI exposing (main)
 
 import CompileScenario exposing (commandLineWrapper)
 import Platform
