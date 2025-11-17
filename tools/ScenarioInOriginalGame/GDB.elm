@@ -1,0 +1,109 @@
+module GDB exposing (compile)
+
+import MemoryLayout exposing (StateComponent(..), relativeAddressFor)
+import ModMem exposing (AbsoluteAddress, ModMemCmd(..), resolveAddress, serializeAddress)
+import OriginalGamePlayers exposing (PlayerId(..))
+
+
+type alias GdbCommand =
+    String
+
+
+compile : AbsoluteAddress -> List ModMemCmd -> String
+compile baseAddress core =
+    let
+        coreCommands : List GdbCommand
+        coreCommands =
+            compileCore baseAddress core
+    in
+    List.concat
+        [ setupCommands
+        , coreCommands
+        , teardownCommands
+        ]
+        |> String.join "\n"
+
+
+compileCore : AbsoluteAddress -> List ModMemCmd -> List GdbCommand
+compileCore baseAddress =
+    List.foldr
+        (\(ModifyMemory relativeAddress newValue) compiledContinuation ->
+            let
+                serializedAddress : String
+                serializedAddress =
+                    resolveAddress baseAddress relativeAddress |> serializeAddress
+
+                applyWorkaroundForRedYIfApplicable : List GdbCommand -> List GdbCommand
+                applyWorkaroundForRedYIfApplicable =
+                    if relativeAddress == relativeAddressFor Red Y then
+                        applyWorkaroundForRedY serializedAddress
+
+                    else
+                        identity
+            in
+            [ emptyLineForVisualSeparation
+            , "watch *(float*)" ++ serializedAddress
+            , "commands"
+            , "set {float}" ++ serializedAddress ++ " = " ++ String.fromFloat newValue
+            , "delete $bpnum"
+            ]
+                ++ compiledContinuation
+                ++ closeWatchBlock
+                |> applyWorkaroundForRedYIfApplicable
+        )
+        []
+
+
+setupCommands : List GdbCommand
+setupCommands =
+    [ "set pagination off"
+    , "set logging off"
+    ]
+
+
+teardownCommands : List GdbCommand
+teardownCommands =
+    [ "continue"
+    , "exit"
+    ]
+
+
+{-| The original game writes a couple of times to Red's y address before writing the actual value. We have to wait for the "real" write before we write our value; otherwise it's just immediately overwritten.
+-}
+applyWorkaroundForRedY : String -> List GdbCommand -> List GdbCommand
+applyWorkaroundForRedY serializedAddress compiledGdbCommands =
+    let
+        numberOfBogusWritesToRedYAddress : Int
+        numberOfBogusWritesToRedYAddress =
+            2
+
+        ignoreBogusWrite : List GdbCommand
+        ignoreBogusWrite =
+            [ emptyLineForVisualSeparation
+            , "watch *(float*)" ++ serializedAddress
+            , "commands"
+            , "x/4bx " ++ serializedAddress -- (just print the bytes)
+            , "delete $bpnum"
+            ]
+    in
+    concatRepeat numberOfBogusWritesToRedYAddress ignoreBogusWrite
+        ++ compiledGdbCommands
+        ++ concatRepeat numberOfBogusWritesToRedYAddress closeWatchBlock
+
+
+emptyLineForVisualSeparation : String
+emptyLineForVisualSeparation =
+    ""
+
+
+closeWatchBlock : List GdbCommand
+closeWatchBlock =
+    [ "continue"
+    , "end"
+    , emptyLineForVisualSeparation
+    ]
+
+
+concatRepeat : Int -> List a -> List a
+concatRepeat n xs =
+    List.repeat n xs |> List.concat

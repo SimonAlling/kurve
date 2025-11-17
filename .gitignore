@@ -6,3 +6,4 @@ node_modules
 *.js
 *.css
 elm-stuff
+.compiled-scenario.gdb

@@ -105,9 +105,13 @@ def find_dosbox(have_just_launched_it: bool) -> str | None:
     return None
 
 
-def stage_scenario(process_id: int, scanmem_program: str) -> None:
-    subprocess.run(
-        ["sudo", "scanmem", str(process_id), "--errexit", "--command", scanmem_program],
+def stage_scenario(process_id: int, gdb_program_file: str) -> None:
+    subprocess.Popen(
+        ["sudo", "gdb", "-p", str(process_id), "--command", gdb_program_file],
+        # We have to suppress stdio, otherwise gdb kind of doesn't really quit and makes everything typed into the terminal invisible, at least in WSL.
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
     )
 
 
@@ -118,7 +122,7 @@ def press_key(key: str) -> None:
 def launch_original_game_and_stage_scenario(
     path_to_original_game: str,
     participating_players: list[PlayerId],
-    scanmem_program: str,
+    gdb_program_file: str,
 ) -> None:
     print(f"🚀 Launching original game at {path_to_original_game} …")
 
@@ -138,6 +142,8 @@ def launch_original_game_and_stage_scenario(
 
     find_and_focus_dosbox()
 
+    stage_scenario(proc.pid, gdb_program_file)
+
     time.sleep(2)
     press_key("space")
     time.sleep(0.5)
@@ -145,14 +151,11 @@ def launch_original_game_and_stage_scenario(
         JOIN_PLAYER[player_id]()
     time.sleep(0.5)
     press_key("space")
-    time.sleep(len(participating_players) + 0.1)
-
-    stage_scenario(proc.pid, scanmem_program)
 
 
 class CompiledScenario(TypedDict):
     participatingPlayersById: list[int]
-    scanmemProgram: str
+    gdbProgram: str
 
 
 type CompilationResultAsJson = CompilationSuccess | CompilationFailure
@@ -224,13 +227,13 @@ def main() -> None:
 
     compiled_scenario = compile_scenario()
 
-    scanmem_program: str = compiled_scenario["scanmemProgram"]
+    gdb_program = compiled_scenario["gdbProgram"]
 
-    print("BEGIN scanmem program")
+    print("BEGIN gdb program")
     print()
-    print(scanmem_program)
+    print(gdb_program.strip())
     print()
-    print("END scanmem program")
+    print("END gdb program")
     print()
 
     participating_players = [
@@ -243,10 +246,15 @@ def main() -> None:
         )
         return
 
+    GDB_COMMAND_FILE = ".compiled-scenario.gdb"
+    with open(GDB_COMMAND_FILE, "+w") as f:
+        print(f"📝 Writing {GDB_COMMAND_FILE} …")
+        f.write(gdb_program)
+
     launch_original_game_and_stage_scenario(
         path_to_original_game,
         participating_players,
-        scanmem_program,
+        GDB_COMMAND_FILE,
     )
 
 
