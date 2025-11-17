@@ -24,15 +24,16 @@ compile baseAddress core =
 
 compileCore : AbsoluteAddress -> List ModMemCmd -> List ScanmemCommand
 compileCore baseAddress =
-    List.map
-        (\(ModifyMemory relativeAddress newValue) ->
+    List.foldr
+        (\(ModifyMemory relativeAddress newValue) compiledContinuation ->
             let
                 serializedAddress : String
                 serializedAddress =
                     resolveAddress baseAddress relativeAddress |> serializeAddress
             in
-            "write float32 " ++ serializedAddress ++ " " ++ String.fromFloat newValue
+            ("write float32 " ++ serializedAddress ++ " " ++ String.fromFloat newValue) :: compiledContinuation
         )
+        []
 
 
 setupCommands : List ScanmemCommand
