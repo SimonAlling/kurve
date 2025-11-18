@@ -231,7 +231,7 @@ def main() -> None:
 
     print("BEGIN gdb program")
     print()
-    print(gdb_program.strip())
+    print(gdb_program)
     print()
     print("END gdb program")
     print()
