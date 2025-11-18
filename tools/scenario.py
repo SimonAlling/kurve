@@ -227,7 +227,7 @@ def main() -> None:
 
     compiled_scenario = compile_scenario()
 
-    gdb_program = compiled_scenario["gdbProgram"]
+    gdb_program: str = compiled_scenario["gdbProgram"]
 
     print("BEGIN gdb program")
     print()
