@@ -85,10 +85,16 @@ applyWorkaroundForRedY serializedAddress compiledGdbCommands =
             , "x/4bx " ++ serializedAddress -- (just print the bytes)
             , "delete $bpnum"
             ]
+
+        workaroundOpening : List GdbCommand
+        workaroundOpening =
+            ignoreBogusWrite |> List.repeat numberOfBogusWritesToRedYAddress |> List.concat
+
+        workaroundClosing : List GdbCommand
+        workaroundClosing =
+            closeWatchBlock |> List.repeat numberOfBogusWritesToRedYAddress |> List.concat
     in
-    concatRepeat numberOfBogusWritesToRedYAddress ignoreBogusWrite
-        ++ compiledGdbCommands
-        ++ concatRepeat numberOfBogusWritesToRedYAddress closeWatchBlock
+    workaroundOpening ++ compiledGdbCommands ++ workaroundClosing
 
 
 emptyLineForVisualSeparation : String
@@ -102,8 +108,3 @@ closeWatchBlock =
     , "end"
     , emptyLineForVisualSeparation
     ]
-
-
-concatRepeat : Int -> List a -> List a
-concatRepeat n xs =
-    List.repeat n xs |> List.concat
