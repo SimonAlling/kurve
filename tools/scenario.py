@@ -246,15 +246,15 @@ def main() -> None:
         )
         return
 
-    GDB_COMMAND_FILE = ".compiled-scenario.gdb"
-    with open(GDB_COMMAND_FILE, "+w") as f:
-        print(f"📝 Writing {GDB_COMMAND_FILE} …")
+    GDB_PROGRAM_FILE = ".compiled-scenario.gdb"
+    with open(GDB_PROGRAM_FILE, "+w") as f:
+        print(f"📝 Writing {GDB_PROGRAM_FILE} …")
         f.write(gdb_program)
 
     launch_original_game_and_stage_scenario(
         path_to_original_game,
         participating_players,
-        GDB_COMMAND_FILE,
+        GDB_PROGRAM_FILE,
     )
 
 
