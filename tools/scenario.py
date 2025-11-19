@@ -226,18 +226,17 @@ def main() -> None:
 
     scanmem_program: str = compiled_scenario["scanmemProgram"]
 
-    print("BEGIN scanmem program")
-    print()
-    print(scanmem_program)
-    print()
-    print("END scanmem program")
-    print()
-
     participating_players = [
         PlayerId(i) for i in compiled_scenario["participatingPlayersById"]
     ]
 
     if is_dry_run:
+        print("BEGIN scanmem program")
+        print()
+        print(scanmem_program)
+        print()
+        print("END scanmem program")
+        print()
         print(
             f"💡 Environment variable {ENV_VAR_DRY_RUN} specified. Not launching original game."
         )
