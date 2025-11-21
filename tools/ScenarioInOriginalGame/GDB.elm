@@ -29,7 +29,8 @@ compileCore baseAddress =
     let
         whatToDoAfterSettingLastWatchpoint : List GdbCommand
         whatToDoAfterSettingLastWatchpoint =
-            [ "exit" ]
+            [ "exit" -- Otherwise gdb remains attached until DOSBox is closed. See the PR/commit that added this comment for details about why that's problematic.
+            ]
     in
     List.foldr
         (\(ModifyMemory relativeAddress newValue) compiledContinuation ->
