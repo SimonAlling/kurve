@@ -23,13 +23,10 @@ COLUMN_WIDTH = 20
 def parse_dump(lines: list[str]) -> bytes:
     all_bytes: list[int] = []
 
-    found_data: bool = False
     for line in lines:
-        if found_data:
+        if line.startswith("0x"):
             for token in HEX_BYTE_RE.findall(line):
                 all_bytes.append(int(token, 16))
-        if line.startswith("> dump"):
-            found_data = True
 
     return bytes(all_bytes)
 
