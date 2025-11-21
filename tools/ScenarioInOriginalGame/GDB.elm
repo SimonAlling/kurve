@@ -27,8 +27,8 @@ compile baseAddress core =
 compileCore : AbsoluteAddress -> List ModMemCmd -> List GdbCommand
 compileCore baseAddress =
     let
-        whatToDoAfterSettingLastWatchpoint : List GdbCommand
-        whatToDoAfterSettingLastWatchpoint =
+        whatToDoAfterHittingLastWatchpoint : List GdbCommand
+        whatToDoAfterHittingLastWatchpoint =
             [ "exit" -- Otherwise gdb remains attached until DOSBox is closed. See the PR/commit that added this comment for details about why that's problematic.
             ]
     in
@@ -57,7 +57,7 @@ compileCore baseAddress =
                 ++ closeWatchBlock
                 |> applyWorkaroundForRedYIfApplicable
         )
-        whatToDoAfterSettingLastWatchpoint
+        whatToDoAfterHittingLastWatchpoint
 
 
 setupCommands : List GdbCommand
