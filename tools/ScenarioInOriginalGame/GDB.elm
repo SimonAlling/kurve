@@ -26,6 +26,11 @@ compile baseAddress core =
 
 compileCore : AbsoluteAddress -> List ModMemCmd -> List GdbCommand
 compileCore baseAddress =
+    let
+        whatToDoAfterSettingLastWatchpoint : List GdbCommand
+        whatToDoAfterSettingLastWatchpoint =
+            [ "exit" ]
+    in
     List.foldr
         (\(ModifyMemory relativeAddress newValue) compiledContinuation ->
             let
@@ -51,7 +56,7 @@ compileCore baseAddress =
                 ++ closeWatchBlock
                 |> applyWorkaroundForRedYIfApplicable
         )
-        []
+        whatToDoAfterSettingLastWatchpoint
 
 
 setupCommands : List GdbCommand
@@ -64,7 +69,6 @@ setupCommands =
 teardownCommands : List GdbCommand
 teardownCommands =
     [ "continue"
-    , "exit"
     ]
 
 
