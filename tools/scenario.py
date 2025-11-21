@@ -229,18 +229,17 @@ def main() -> None:
 
     gdb_program: str = compiled_scenario["gdbProgram"]
 
-    print("BEGIN gdb program")
-    print()
-    print(gdb_program)
-    print()
-    print("END gdb program")
-    print()
-
     participating_players = [
         PlayerId(i) for i in compiled_scenario["participatingPlayersById"]
     ]
 
     if is_dry_run:
+        print("BEGIN gdb program")
+        print()
+        print(gdb_program)
+        print()
+        print("END gdb program")
+        print()
         print(
             f"💡 Environment variable {ENV_VAR_DRY_RUN} specified. Not launching original game."
         )
