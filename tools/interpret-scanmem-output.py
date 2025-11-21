@@ -20,14 +20,30 @@ NUMBER_OF_PLAYERS = len(PLAYERS)
 COLUMN_WIDTH = 20
 
 
-def parse_dump(text: str) -> bytes:
+def parse_dump(lines: list[str]) -> bytes:
     all_bytes: list[int] = []
 
-    for line in text.splitlines():
-        for token in HEX_BYTE_RE.findall(line):
-            all_bytes.append(int(token, 16))
+    found_data: bool = False
+    for line in lines:
+        if found_data:
+            for token in HEX_BYTE_RE.findall(line):
+                all_bytes.append(int(token, 16))
+        if line.startswith("> dump"):
+            found_data = True
 
     return bytes(all_bytes)
+
+
+def is_process_not_found_error(lines: list[str]) -> bool:
+    return any(
+        [line.startswith("error: ") and "No such process" in line for line in lines]
+    )
+
+
+def is_some_scanmem_error(lines: list[str]) -> bool:
+    return any(
+        [line.startswith("error: ") and "read memory failed" in line for line in lines]
+    )
 
 
 def to_float32_le(b: bytes) -> float:
@@ -70,11 +86,17 @@ def arrow_for_dir(
 def main():
     text: str = sys.stdin.read()
 
-    if text == "":
-        print("⚠️  Empty input on stdin. Is the game running?")
+    lines = text.splitlines()
+
+    if is_process_not_found_error(lines):
+        print("⚠️  Process not found. Is the game running?")
         sys.exit(1)
 
-    raw_bytes: bytes = parse_dump(text)
+    if is_some_scanmem_error(lines):
+        print("⚠️  Read memory failed. Maybe the game is currently starting.")
+        sys.exit(1)
+
+    raw_bytes: bytes = parse_dump(lines)
 
     values: list[float] = []
     offset: int = 0
