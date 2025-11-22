@@ -46,12 +46,87 @@ tests =
                     [ "foo", "bar" ]
                     scenario_Empty
                     |> Expect.equal (CompilationFailure "Unexpected number of arguments. Expected 1, but got 2.")
+        , test "No players" <|
+            \_ ->
+                compileScenario
+                    [ "0xdeadbeef" ]
+                    scenario_Empty
+                    |> Expect.equal (CompilationFailure "Scenario must have at least 2 players, but had 0.")
+        , test "Only one player" <|
+            \_ ->
+                compileScenario
+                    [ "0xdeadbeef" ]
+                    scenario_OnlyOnePlayer
+                    |> Expect.equal (CompilationFailure "Scenario must have at least 2 players, but had 1.")
+        , test "Duplicate player" <|
+            \_ ->
+                compileScenario
+                    [ "0xdeadbeef" ]
+                    scenario_DuplicatePlayer
+                    |> Expect.equal (CompilationFailure "Red specified more than once.")
+        , test "Players in wrong order" <|
+            \_ ->
+                compileScenario
+                    [ "0xdeadbeef" ]
+                    scenario_WrongOrder
+                    |> Expect.equal (CompilationFailure "Players must be specified in this order: Red, Yellow, Orange, Green, Pink, Blue.")
         ]
 
 
 scenario_Empty : Scenario
 scenario_Empty =
     []
+
+
+scenario_OnlyOnePlayer : Scenario
+scenario_OnlyOnePlayer =
+    [ ( Red
+      , { x = 0
+        , y = 0
+        , direction = 0
+        }
+      )
+    ]
+
+
+scenario_DuplicatePlayer : Scenario
+scenario_DuplicatePlayer =
+    [ ( Red
+      , { x = 0
+        , y = 0
+        , direction = 0
+        }
+      )
+    , ( Red
+      , { x = 5
+        , y = 5
+        , direction = 5
+        }
+      )
+    ]
+
+
+scenario_WrongOrder : Scenario
+scenario_WrongOrder =
+    [ ( Red
+      , { x = 0
+        , y = 0
+        , direction = 0
+        }
+      )
+    , ( Green
+      , { x = 5
+        , y = 5
+        , direction = 5
+        }
+      )
+    , ( Yellow
+      , { x = 10
+        , y = 10
+        , direction = 10
+        }
+      )
+    ]
 
 
 scenario_RedAndGreenInParallel : Scenario

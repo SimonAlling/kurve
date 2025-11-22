@@ -1,8 +1,8 @@
-module ScenarioCore exposing (Scenario, toModMem)
+module ScenarioCore exposing (Scenario, ScenarioCheckResult(..), checkScenario, toModMem)
 
 import MemoryLayout exposing (StateComponent(..), relativeAddressFor)
 import ModMem exposing (ModMemCmd(..))
-import OriginalGamePlayers exposing (PlayerId)
+import OriginalGamePlayers exposing (PlayerId, allPlayers, playerIndex, playerName)
 import ScenarioComments exposing (setStateComponentComment)
 
 
@@ -53,3 +53,44 @@ setDirection direction playerId =
         (setStateComponentComment Dir playerId)
         (relativeAddressFor playerId Dir)
         direction
+
+
+type ScenarioCheckResult
+    = GoodScenario Scenario
+    | BadScenario String
+
+
+checkScenario : Scenario -> ScenarioCheckResult
+checkScenario scenario =
+    let
+        participatingCount : Int
+        participatingCount =
+            List.length scenario
+    in
+    if participatingCount < 2 then
+        BadScenario <| "Scenario must have at least 2 players, but had " ++ String.fromInt participatingCount ++ "."
+
+    else
+        let
+            checkStep : ScenarioStep -> ScenarioCheckResult -> ScenarioCheckResult
+            checkStep step checkedSoFar =
+                case checkedSoFar of
+                    GoodScenario stepsSoFar ->
+                        let
+                            playerId : PlayerId
+                            playerId =
+                                Tuple.first step
+                        in
+                        if List.any (\( seenPlayerId, _ ) -> seenPlayerId == playerId) stepsSoFar then
+                            BadScenario <| playerName playerId ++ " specified more than once."
+
+                        else if List.any (\( seenPlayerId, _ ) -> playerIndex seenPlayerId > playerIndex playerId) stepsSoFar then
+                            BadScenario <| "Players must be specified in this order: " ++ (List.map playerName allPlayers |> String.join ", ") ++ "."
+
+                        else
+                            GoodScenario (stepsSoFar ++ [ step ])
+
+                    bad ->
+                        bad
+        in
+        List.foldl checkStep (GoodScenario []) scenario
