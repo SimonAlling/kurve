@@ -1,9 +1,9 @@
 module CompileScenario exposing (CompilationResult(..), compileAndSerialize, compileScenario)
 
+import GDB
 import Json.Encode as Encode
 import ModMem exposing (AbsoluteAddress, parseAddress)
 import OriginalGamePlayers exposing (PlayerId, playerIndex)
-import Scanmem
 import ScenarioCore exposing (Scenario, toModMem)
 import TheScenario exposing (theScenario)
 
@@ -30,7 +30,7 @@ compileScenario commandLineArgs scenario =
         Accepted baseAddress ->
             CompilationSuccess
                 { participating = participatingPlayers scenario
-                , compiledProgram = scenario |> toModMem |> Scanmem.compile baseAddress
+                , compiledProgram = scenario |> toModMem |> GDB.compile baseAddress
                 }
 
         Rejected reason ->
@@ -71,7 +71,7 @@ encodeCompilationResultAsJson result =
                 , ( "compiledScenario"
                   , Encode.object
                         [ ( "participatingPlayersById", Encode.list Encode.int (List.map playerIndex participating) )
-                        , ( "scanmemProgram", Encode.string compiledProgram )
+                        , ( "gdbProgram", Encode.string compiledProgram )
                         ]
                   )
                 ]

@@ -37,6 +37,15 @@ def is_process_not_found_error(lines: list[str]) -> bool:
     )
 
 
+def is_operation_not_permitted_error(lines: list[str]) -> bool:
+    return any(
+        [
+            line.startswith("error: ") and "Operation not permitted" in line
+            for line in lines
+        ]
+    )
+
+
 def is_some_scanmem_error(lines: list[str]) -> bool:
     return any(
         [line.startswith("error: ") and "read memory failed" in line for line in lines]
@@ -87,6 +96,10 @@ def main():
 
     if is_process_not_found_error(lines):
         print("⚠️  Process not found. Is the game running?")
+        sys.exit(1)
+
+    if is_operation_not_permitted_error(lines):
+        print("⚠️  Read memory failed. Maybe it is currently being modified.")
         sys.exit(1)
 
     if is_some_scanmem_error(lines):
