@@ -49,11 +49,12 @@ compileCore baseAddress =
                         identity
             in
             [ emptyLineForVisualSeparation
-            , makeComment description
+            , "print \"⏳ " ++ description ++ "\""
             , "watch *(float*)" ++ serializedAddress
             , "commands"
             , "set {float}" ++ serializedAddress ++ " = " ++ String.fromFloat newValue
             , "delete $bpnum"
+            , "print \"✅ " ++ description ++ "\""
             ]
                 ++ compiledContinuation
                 ++ closeWatchBlock
@@ -89,11 +90,12 @@ applyWorkaroundForRedY serializedAddress compiledGdbCommands =
         ignoreBogusWrite : List GdbCommand
         ignoreBogusWrite =
             [ emptyLineForVisualSeparation
-            , makeComment (ignoreBogusWriteComment Y Red)
+            , "print \"⏳ " ++ ignoreBogusWriteComment Y Red ++ "\""
             , "watch *(float*)" ++ serializedAddress
             , "commands"
             , "x/4bx " ++ serializedAddress -- (just print the bytes)
             , "delete $bpnum"
+            , "print \"✅ " ++ ignoreBogusWriteComment Y Red ++ "\""
             ]
 
         workaroundOpening : List GdbCommand
@@ -118,8 +120,3 @@ closeWatchBlock =
     , "end"
     , emptyLineForVisualSeparation
     ]
-
-
-makeComment : String -> GdbCommand
-makeComment =
-    String.append "# "
