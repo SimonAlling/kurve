@@ -63,7 +63,9 @@ compileCore baseAddress =
 setupCommands : List GdbCommand
 setupCommands =
     [ "set pagination off"
-    , "set logging enabled off"
+    , "set logging file gdb-log.txt"
+    , "set logging overwrite on" -- Otherwise gdb appends to the log file, instead of overwriting it.
+    , "set logging enabled on" -- Must be after the other `set logging` commands for them to have effect.
     ]
 
 

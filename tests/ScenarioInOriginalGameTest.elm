@@ -79,7 +79,9 @@ expectedResult_RedAndGreenInParallel =
             String.trim <|
                 """
 set pagination off
-set logging enabled off
+set logging file gdb-log.txt
+set logging overwrite on
+set logging enabled on
 
 watch *(float*)0x7fffd8010ff6
 commands
@@ -199,7 +201,9 @@ expectedResult_AllPlayers =
             String.trim <|
                 """
 set pagination off
-set logging enabled off
+set logging file gdb-log.txt
+set logging overwrite on
+set logging enabled on
 
 watch *(float*)0x7fffc1c65ff6
 commands
