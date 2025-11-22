@@ -3,7 +3,7 @@ module GDB exposing (compile)
 import MemoryLayout exposing (StateComponent(..), relativeAddressFor)
 import ModMem exposing (AbsoluteAddress, ModMemCmd(..), resolveAddress, serializeAddress)
 import OriginalGamePlayers exposing (PlayerId(..))
-import ScenarioComments exposing (ignoreBogusWriteComment)
+import ScenarioComments exposing (ignoreBogusWriteComment, sectionEnd, sectionStart)
 
 
 type alias GdbCommand =
@@ -49,11 +49,12 @@ compileCore baseAddress =
                         identity
             in
             [ emptyLineForVisualSeparation
-            , makeComment description
+            , print (sectionStart description)
             , "watch *(float*)" ++ serializedAddress
             , "commands"
             , "set {float}" ++ serializedAddress ++ " = " ++ String.fromFloat newValue
             , "delete $bpnum"
+            , print (sectionEnd description)
             ]
                 ++ compiledContinuation
                 ++ closeWatchBlock
@@ -89,11 +90,12 @@ applyWorkaroundForRedY serializedAddress compiledGdbCommands =
         ignoreBogusWrite : List GdbCommand
         ignoreBogusWrite =
             [ emptyLineForVisualSeparation
-            , makeComment (ignoreBogusWriteComment Y Red)
+            , print (sectionStart (ignoreBogusWriteComment Y Red))
             , "watch *(float*)" ++ serializedAddress
             , "commands"
             , "x/4bx " ++ serializedAddress -- (just print the bytes)
             , "delete $bpnum"
+            , print (sectionEnd (ignoreBogusWriteComment Y Red))
             ]
 
         workaroundOpening : List GdbCommand
@@ -112,14 +114,16 @@ emptyLineForVisualSeparation =
     ""
 
 
+{-| Creates a command that prints the given string, as long as it doesn't contain characters with special meaning in C, like `"` and `\`.
+-}
+print : String -> GdbCommand
+print s =
+    "print \"" ++ s ++ "\""
+
+
 closeWatchBlock : List GdbCommand
 closeWatchBlock =
     [ "continue"
     , "end"
     , emptyLineForVisualSeparation
     ]
-
-
-makeComment : String -> GdbCommand
-makeComment =
-    String.append "# "

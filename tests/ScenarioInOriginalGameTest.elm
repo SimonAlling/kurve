@@ -83,53 +83,61 @@ set logging file gdb-log.txt
 set logging overwrite on
 set logging enabled on
 
-# 🟥 Set Red's x
+print "⏳ 🟥 Set Red's x"
 watch *(float*)0x7fffd8010ff6
 commands
 set {float}0x7fffd8010ff6 = 10
 delete $bpnum
+print "✅ 🟥 Set Red's x"
 
-# 🔧 Ignore bogus write to Red's y
+print "⏳ 🔧 Ignore bogus write to Red's y"
 watch *(float*)0x7fffd801100e
 commands
 x/4bx 0x7fffd801100e
 delete $bpnum
+print "✅ 🔧 Ignore bogus write to Red's y"
 
-# 🔧 Ignore bogus write to Red's y
+print "⏳ 🔧 Ignore bogus write to Red's y"
 watch *(float*)0x7fffd801100e
 commands
 x/4bx 0x7fffd801100e
 delete $bpnum
+print "✅ 🔧 Ignore bogus write to Red's y"
 
-# 🟥 Set Red's y
+print "⏳ 🟥 Set Red's y"
 watch *(float*)0x7fffd801100e
 commands
 set {float}0x7fffd801100e = 10
 delete $bpnum
+print "✅ 🟥 Set Red's y"
 
-# 🟥 Set Red's direction
+print "⏳ 🟥 Set Red's direction"
 watch *(float*)0x7fffd8011026
 commands
 set {float}0x7fffd8011026 = 1.5707963267948966
 delete $bpnum
+print "✅ 🟥 Set Red's direction"
 
-# 🟩 Set Green's x
+print "⏳ 🟩 Set Green's x"
 watch *(float*)0x7fffd8011002
 commands
 set {float}0x7fffd8011002 = 200
 delete $bpnum
+print "✅ 🟩 Set Green's x"
 
-# 🟩 Set Green's y
+print "⏳ 🟩 Set Green's y"
 watch *(float*)0x7fffd801101a
 commands
 set {float}0x7fffd801101a = 150
 delete $bpnum
+print "✅ 🟩 Set Green's y"
 
-# 🟩 Set Green's direction
+print "⏳ 🟩 Set Green's direction"
 watch *(float*)0x7fffd8011032
 commands
 set {float}0x7fffd8011032 = 1.5707963267948966
 delete $bpnum
+print "✅ 🟩 Set Green's direction"
 exit
 continue
 end
@@ -213,125 +221,145 @@ set logging file gdb-log.txt
 set logging overwrite on
 set logging enabled on
 
-# 🟥 Set Red's x
+print "⏳ 🟥 Set Red's x"
 watch *(float*)0x7fffc1c65ff6
 commands
 set {float}0x7fffc1c65ff6 = 10
 delete $bpnum
+print "✅ 🟥 Set Red's x"
 
-# 🔧 Ignore bogus write to Red's y
+print "⏳ 🔧 Ignore bogus write to Red's y"
 watch *(float*)0x7fffc1c6600e
 commands
 x/4bx 0x7fffc1c6600e
 delete $bpnum
+print "✅ 🔧 Ignore bogus write to Red's y"
 
-# 🔧 Ignore bogus write to Red's y
+print "⏳ 🔧 Ignore bogus write to Red's y"
 watch *(float*)0x7fffc1c6600e
 commands
 x/4bx 0x7fffc1c6600e
 delete $bpnum
+print "✅ 🔧 Ignore bogus write to Red's y"
 
-# 🟥 Set Red's y
+print "⏳ 🟥 Set Red's y"
 watch *(float*)0x7fffc1c6600e
 commands
 set {float}0x7fffc1c6600e = 10
 delete $bpnum
+print "✅ 🟥 Set Red's y"
 
-# 🟥 Set Red's direction
+print "⏳ 🟥 Set Red's direction"
 watch *(float*)0x7fffc1c66026
 commands
 set {float}0x7fffc1c66026 = 1.5707963267948966
 delete $bpnum
+print "✅ 🟥 Set Red's direction"
 
-# 🟨 Set Yellow's x
+print "⏳ 🟨 Set Yellow's x"
 watch *(float*)0x7fffc1c65ffa
 commands
 set {float}0x7fffc1c65ffa = 10
 delete $bpnum
+print "✅ 🟨 Set Yellow's x"
 
-# 🟨 Set Yellow's y
+print "⏳ 🟨 Set Yellow's y"
 watch *(float*)0x7fffc1c66012
 commands
 set {float}0x7fffc1c66012 = 50
 delete $bpnum
+print "✅ 🟨 Set Yellow's y"
 
-# 🟨 Set Yellow's direction
+print "⏳ 🟨 Set Yellow's direction"
 watch *(float*)0x7fffc1c6602a
 commands
 set {float}0x7fffc1c6602a = 0
 delete $bpnum
+print "✅ 🟨 Set Yellow's direction"
 
-# 🟧 Set Orange's x
+print "⏳ 🟧 Set Orange's x"
 watch *(float*)0x7fffc1c65ffe
 commands
 set {float}0x7fffc1c65ffe = 200
 delete $bpnum
+print "✅ 🟧 Set Orange's x"
 
-# 🟧 Set Orange's y
+print "⏳ 🟧 Set Orange's y"
 watch *(float*)0x7fffc1c66016
 commands
 set {float}0x7fffc1c66016 = 200
 delete $bpnum
+print "✅ 🟧 Set Orange's y"
 
-# 🟧 Set Orange's direction
+print "⏳ 🟧 Set Orange's direction"
 watch *(float*)0x7fffc1c6602e
 commands
 set {float}0x7fffc1c6602e = 2.5
 delete $bpnum
+print "✅ 🟧 Set Orange's direction"
 
-# 🟩 Set Green's x
+print "⏳ 🟩 Set Green's x"
 watch *(float*)0x7fffc1c66002
 commands
 set {float}0x7fffc1c66002 = 200
 delete $bpnum
+print "✅ 🟩 Set Green's x"
 
-# 🟩 Set Green's y
+print "⏳ 🟩 Set Green's y"
 watch *(float*)0x7fffc1c6601a
 commands
 set {float}0x7fffc1c6601a = 250
 delete $bpnum
+print "✅ 🟩 Set Green's y"
 
-# 🟩 Set Green's direction
+print "⏳ 🟩 Set Green's direction"
 watch *(float*)0x7fffc1c66032
 commands
 set {float}0x7fffc1c66032 = 2.356194490192345
 delete $bpnum
+print "✅ 🟩 Set Green's direction"
 
-# 🟪 Set Pink's x
+print "⏳ 🟪 Set Pink's x"
 watch *(float*)0x7fffc1c66006
 commands
 set {float}0x7fffc1c66006 = 500
 delete $bpnum
+print "✅ 🟪 Set Pink's x"
 
-# 🟪 Set Pink's y
+print "⏳ 🟪 Set Pink's y"
 watch *(float*)0x7fffc1c6601e
 commands
 set {float}0x7fffc1c6601e = 477
 delete $bpnum
+print "✅ 🟪 Set Pink's y"
 
-# 🟪 Set Pink's direction
+print "⏳ 🟪 Set Pink's direction"
 watch *(float*)0x7fffc1c66036
 commands
 set {float}0x7fffc1c66036 = -1.5707963267948966
 delete $bpnum
+print "✅ 🟪 Set Pink's direction"
 
-# 🟦 Set Blue's x
+print "⏳ 🟦 Set Blue's x"
 watch *(float*)0x7fffc1c6600a
 commands
 set {float}0x7fffc1c6600a = 400
 delete $bpnum
+print "✅ 🟦 Set Blue's x"
 
-# 🟦 Set Blue's y
+print "⏳ 🟦 Set Blue's y"
 watch *(float*)0x7fffc1c66022
 commands
 set {float}0x7fffc1c66022 = 234.5
 delete $bpnum
+print "✅ 🟦 Set Blue's y"
 
-# 🟦 Set Blue's direction
+print "⏳ 🟦 Set Blue's direction"
 watch *(float*)0x7fffc1c6603a
 commands
 set {float}0x7fffc1c6603a = 0.01
 delete $bpnum
+print "✅ 🟦 Set Blue's direction"
 exit
 continue
 end
