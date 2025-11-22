@@ -6,12 +6,12 @@ import OriginalGamePlayers exposing (PlayerId(..), playerName)
 
 sectionStart : String -> String
 sectionStart description =
-    String.fromChar startSectionIcon ++ " " ++ description
+    String.fromChar sectionStartIcon ++ " " ++ description
 
 
 sectionEnd : String -> String
 sectionEnd description =
-    String.fromChar endSectionIcon ++ " " ++ description
+    String.fromChar sectionEndIcon ++ " " ++ description
 
 
 setStateComponentComment : StateComponent -> PlayerId -> String
@@ -51,13 +51,13 @@ workaroundIcon =
     '🔧'
 
 
-startSectionIcon : Char
-startSectionIcon =
+sectionStartIcon : Char
+sectionStartIcon =
     '⏳'
 
 
-endSectionIcon : Char
-endSectionIcon =
+sectionEndIcon : Char
+sectionEndIcon =
     '✅'
 
 
