@@ -3,7 +3,7 @@ module GDB exposing (compile)
 import MemoryLayout exposing (StateComponent(..), relativeAddressFor)
 import ModMem exposing (AbsoluteAddress, ModMemCmd(..), resolveAddress, serializeAddress)
 import OriginalGamePlayers exposing (PlayerId(..))
-import ScenarioComments exposing (ignoreBogusWriteComment)
+import ScenarioComments exposing (ignoreBogusWriteComment, sectionEnd, sectionStart)
 
 
 type alias GdbCommand =
@@ -49,12 +49,12 @@ compileCore baseAddress =
                         identity
             in
             [ emptyLineForVisualSeparation
-            , "print \"⏳ " ++ description ++ "\""
+            , print (sectionStart description)
             , "watch *(float*)" ++ serializedAddress
             , "commands"
             , "set {float}" ++ serializedAddress ++ " = " ++ String.fromFloat newValue
             , "delete $bpnum"
-            , "print \"✅ " ++ description ++ "\""
+            , print (sectionEnd description)
             ]
                 ++ compiledContinuation
                 ++ closeWatchBlock
@@ -90,12 +90,12 @@ applyWorkaroundForRedY serializedAddress compiledGdbCommands =
         ignoreBogusWrite : List GdbCommand
         ignoreBogusWrite =
             [ emptyLineForVisualSeparation
-            , "print \"⏳ " ++ ignoreBogusWriteComment Y Red ++ "\""
+            , print (sectionStart (ignoreBogusWriteComment Y Red))
             , "watch *(float*)" ++ serializedAddress
             , "commands"
             , "x/4bx " ++ serializedAddress -- (just print the bytes)
             , "delete $bpnum"
-            , "print \"✅ " ++ ignoreBogusWriteComment Y Red ++ "\""
+            , print (sectionEnd (ignoreBogusWriteComment Y Red))
             ]
 
         workaroundOpening : List GdbCommand
@@ -112,6 +112,13 @@ applyWorkaroundForRedY serializedAddress compiledGdbCommands =
 emptyLineForVisualSeparation : String
 emptyLineForVisualSeparation =
     ""
+
+
+{-| Watch out for characters with special meaning in C, like `"` and `\`.
+-}
+print : String -> GdbCommand
+print s =
+    "print \"" ++ s ++ "\""
 
 
 closeWatchBlock : List GdbCommand

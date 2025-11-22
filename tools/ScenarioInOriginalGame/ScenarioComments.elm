@@ -1,7 +1,17 @@
-module ScenarioComments exposing (ignoreBogusWriteComment, setStateComponentComment)
+module ScenarioComments exposing (ignoreBogusWriteComment, sectionEnd, sectionStart, setStateComponentComment)
 
 import MemoryLayout exposing (StateComponent(..))
 import OriginalGamePlayers exposing (PlayerId(..), playerName)
+
+
+sectionStart : String -> String
+sectionStart description =
+    String.fromChar startSectionIcon ++ " " ++ description
+
+
+sectionEnd : String -> String
+sectionEnd description =
+    String.fromChar endSectionIcon ++ " " ++ description
 
 
 setStateComponentComment : StateComponent -> PlayerId -> String
@@ -39,6 +49,16 @@ playerIcon playerId =
 workaroundIcon : Char
 workaroundIcon =
     '🔧'
+
+
+startSectionIcon : Char
+startSectionIcon =
+    '⏳'
+
+
+endSectionIcon : Char
+endSectionIcon =
+    '✅'
 
 
 showStateComponent : StateComponent -> String
