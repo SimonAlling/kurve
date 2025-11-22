@@ -4,7 +4,7 @@ import GDB
 import Json.Encode as Encode
 import ModMem exposing (AbsoluteAddress, parseAddress)
 import OriginalGamePlayers exposing (PlayerId, playerIndex)
-import ScenarioCore exposing (Scenario, toModMem)
+import ScenarioCore exposing (Scenario, checkScenario, toModMem)
 import TheScenario exposing (theScenario)
 
 
@@ -28,10 +28,15 @@ compileScenario : List String -> Scenario -> CompilationResult
 compileScenario commandLineArgs scenario =
     case parseArguments commandLineArgs of
         Accepted baseAddress ->
-            CompilationSuccess
-                { participating = participatingPlayers scenario
-                , compiledProgram = scenario |> toModMem |> GDB.compile baseAddress
-                }
+            case checkScenario scenario of
+                Ok checkedScenario ->
+                    CompilationSuccess
+                        { participating = participatingPlayers scenario
+                        , compiledProgram = checkedScenario |> toModMem |> GDB.compile baseAddress
+                        }
+
+                Err reason ->
+                    CompilationFailure reason
 
         Rejected reason ->
             CompilationFailure reason
