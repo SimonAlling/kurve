@@ -79,7 +79,7 @@ expectedResult_RedAndGreenInParallel =
             String.trim <|
                 """
 set pagination off
-set logging off
+set logging enabled off
 
 watch *(float*)0x7fffd8010ff6
 commands
@@ -199,7 +199,7 @@ expectedResult_AllPlayers =
             String.trim <|
                 """
 set pagination off
-set logging off
+set logging enabled off
 
 watch *(float*)0x7fffc1c65ff6
 commands

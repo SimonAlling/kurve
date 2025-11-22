@@ -63,7 +63,7 @@ compileCore baseAddress =
 setupCommands : List GdbCommand
 setupCommands =
     [ "set pagination off"
-    , "set logging off"
+    , "set logging enabled off"
     ]
 
 
