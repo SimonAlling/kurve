@@ -68,9 +68,9 @@ checkScenario scenario =
     else
         let
             checkStep : ScenarioStep -> Result String Scenario -> Result String Scenario
-            checkStep step checkedSoFar =
-                case checkedSoFar of
-                    Ok stepsSoFar ->
+            checkStep step =
+                Result.andThen
+                    (\stepsSoFar ->
                         let
                             playerId : PlayerId
                             playerId =
@@ -88,8 +88,6 @@ checkScenario scenario =
 
                         else
                             Ok (stepsSoFar ++ [ step ])
-
-                    bad ->
-                        bad
+                    )
         in
         List.foldl checkStep (Ok []) scenario
