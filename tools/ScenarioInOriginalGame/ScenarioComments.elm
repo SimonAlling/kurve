@@ -1,16 +1,16 @@
-module ScenarioComments exposing (commentIgnoreBogusWrite, commentSetStateComponent)
+module ScenarioComments exposing (ignoreBogusWriteComment, setStateComponentComment)
 
 import MemoryLayout exposing (StateComponent(..))
 import OriginalGamePlayers exposing (PlayerId(..), playerName)
 
 
-commentSetStateComponent : StateComponent -> PlayerId -> String
-commentSetStateComponent stateComponent playerId =
+setStateComponentComment : StateComponent -> PlayerId -> String
+setStateComponentComment stateComponent playerId =
     String.fromChar (playerIcon playerId) ++ " Set " ++ playerName playerId ++ "'s " ++ showStateComponent stateComponent
 
 
-commentIgnoreBogusWrite : StateComponent -> PlayerId -> String
-commentIgnoreBogusWrite stateComponent playerId =
+ignoreBogusWriteComment : StateComponent -> PlayerId -> String
+ignoreBogusWriteComment stateComponent playerId =
     String.fromChar workaroundIcon ++ " Ignore bogus write to " ++ playerName playerId ++ "'s " ++ showStateComponent stateComponent
 
 

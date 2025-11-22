@@ -3,7 +3,7 @@ module ScenarioCore exposing (Scenario, toModMem)
 import MemoryLayout exposing (StateComponent(..), relativeAddressFor)
 import ModMem exposing (ModMemCmd(..))
 import OriginalGamePlayers exposing (PlayerId)
-import ScenarioComments exposing (commentSetStateComponent)
+import ScenarioComments exposing (setStateComponentComment)
 
 
 type alias Scenario =
@@ -34,7 +34,7 @@ stepToModMem ( playerId, { x, y, direction } ) =
 setX : Float -> PlayerId -> ModMemCmd
 setX x playerId =
     ModifyMemory
-        (commentSetStateComponent X playerId)
+        (setStateComponentComment X playerId)
         (relativeAddressFor playerId X)
         x
 
@@ -42,7 +42,7 @@ setX x playerId =
 setY : Float -> PlayerId -> ModMemCmd
 setY y playerId =
     ModifyMemory
-        (commentSetStateComponent Y playerId)
+        (setStateComponentComment Y playerId)
         (relativeAddressFor playerId Y)
         y
 
@@ -50,6 +50,6 @@ setY y playerId =
 setDirection : Float -> PlayerId -> ModMemCmd
 setDirection direction playerId =
     ModifyMemory
-        (commentSetStateComponent Dir playerId)
+        (setStateComponentComment Dir playerId)
         (relativeAddressFor playerId Dir)
         direction

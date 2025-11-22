@@ -3,7 +3,7 @@ module GDB exposing (compile)
 import MemoryLayout exposing (StateComponent(..), relativeAddressFor)
 import ModMem exposing (AbsoluteAddress, ModMemCmd(..), resolveAddress, serializeAddress)
 import OriginalGamePlayers exposing (PlayerId(..))
-import ScenarioComments exposing (commentIgnoreBogusWrite)
+import ScenarioComments exposing (ignoreBogusWriteComment)
 
 
 type alias GdbCommand =
@@ -89,7 +89,7 @@ applyWorkaroundForRedY serializedAddress compiledGdbCommands =
         ignoreBogusWrite : List GdbCommand
         ignoreBogusWrite =
             [ emptyLineForVisualSeparation
-            , makeComment (commentIgnoreBogusWrite Y Red)
+            , makeComment (ignoreBogusWriteComment Y Red)
             , "watch *(float*)" ++ serializedAddress
             , "commands"
             , "x/4bx " ++ serializedAddress -- (just print the bytes)
