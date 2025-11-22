@@ -1,4 +1,4 @@
-module ScenarioCore exposing (Scenario, ScenarioCheckResult(..), checkScenario, toModMem)
+module ScenarioCore exposing (Scenario, checkScenario, toModMem)
 
 import MemoryLayout exposing (StateComponent(..), relativeAddressFor)
 import ModMem exposing (ModMemCmd(..))
@@ -55,12 +55,7 @@ setDirection direction playerId =
         direction
 
 
-type ScenarioCheckResult
-    = GoodScenario Scenario
-    | BadScenario String
-
-
-checkScenario : Scenario -> ScenarioCheckResult
+checkScenario : Scenario -> Result String Scenario
 checkScenario scenario =
     let
         participatingCount : Int
@@ -68,14 +63,14 @@ checkScenario scenario =
             List.length scenario
     in
     if participatingCount < 2 then
-        BadScenario <| "Scenario must have at least 2 players, but had " ++ String.fromInt participatingCount ++ "."
+        Err <| "Scenario must have at least 2 players, but had " ++ String.fromInt participatingCount ++ "."
 
     else
         let
-            checkStep : ScenarioStep -> ScenarioCheckResult -> ScenarioCheckResult
+            checkStep : ScenarioStep -> Result String Scenario -> Result String Scenario
             checkStep step checkedSoFar =
                 case checkedSoFar of
-                    GoodScenario stepsSoFar ->
+                    Ok stepsSoFar ->
                         let
                             playerId : PlayerId
                             playerId =
@@ -86,15 +81,15 @@ checkScenario scenario =
                                 List.map Tuple.first stepsSoFar
                         in
                         if List.member playerId seenPlayerIds then
-                            BadScenario <| playerName playerId ++ " specified more than once."
+                            Err <| playerName playerId ++ " specified more than once."
 
                         else if List.any (\seenPlayerId -> playerIndex seenPlayerId > playerIndex playerId) seenPlayerIds then
-                            BadScenario <| "Players must be specified in this order: " ++ (List.map playerName allPlayers |> String.join ", ") ++ "."
+                            Err <| "Players must be specified in this order: " ++ (List.map playerName allPlayers |> String.join ", ") ++ "."
 
                         else
-                            GoodScenario (stepsSoFar ++ [ step ])
+                            Ok (stepsSoFar ++ [ step ])
 
                     bad ->
                         bad
         in
-        List.foldl checkStep (GoodScenario []) scenario
+        List.foldl checkStep (Ok []) scenario
