@@ -3,6 +3,7 @@ module GDB exposing (compile)
 import MemoryLayout exposing (StateComponent(..), relativeAddressFor)
 import ModMem exposing (AbsoluteAddress, ModMemCmd(..), resolveAddress, serializeAddress)
 import OriginalGamePlayers exposing (PlayerId(..))
+import ScenarioComments exposing (commentIgnoreBogusWrite)
 
 
 type alias GdbCommand =
@@ -33,7 +34,7 @@ compileCore baseAddress =
             ]
     in
     List.foldr
-        (\(ModifyMemory relativeAddress newValue) compiledContinuation ->
+        (\(ModifyMemory description relativeAddress newValue) compiledContinuation ->
             let
                 serializedAddress : String
                 serializedAddress =
@@ -48,6 +49,7 @@ compileCore baseAddress =
                         identity
             in
             [ emptyLineForVisualSeparation
+            , makeComment description
             , "watch *(float*)" ++ serializedAddress
             , "commands"
             , "set {float}" ++ serializedAddress ++ " = " ++ String.fromFloat newValue
@@ -87,6 +89,7 @@ applyWorkaroundForRedY serializedAddress compiledGdbCommands =
         ignoreBogusWrite : List GdbCommand
         ignoreBogusWrite =
             [ emptyLineForVisualSeparation
+            , makeComment (commentIgnoreBogusWrite Y Red)
             , "watch *(float*)" ++ serializedAddress
             , "commands"
             , "x/4bx " ++ serializedAddress -- (just print the bytes)
@@ -115,3 +118,8 @@ closeWatchBlock =
     , "end"
     , emptyLineForVisualSeparation
     ]
+
+
+makeComment : String -> GdbCommand
+makeComment =
+    String.append "# "

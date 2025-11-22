@@ -20,7 +20,11 @@ type RelativeAddress
 
 
 type ModMemCmd
-    = ModifyMemory RelativeAddress Float
+    = ModifyMemory Description RelativeAddress Float
+
+
+type alias Description =
+    String
 
 
 parseAddress : String -> Maybe AbsoluteAddress
