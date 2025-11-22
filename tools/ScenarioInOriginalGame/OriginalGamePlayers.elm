@@ -1,4 +1,4 @@
-module OriginalGamePlayers exposing (PlayerId(..), numberOfPlayers, playerIndex)
+module OriginalGamePlayers exposing (PlayerId(..), numberOfPlayers, playerIndex, playerName)
 
 
 type PlayerId
@@ -35,3 +35,25 @@ playerIndex playerId =
 
         Blue ->
             5
+
+
+playerName : PlayerId -> String
+playerName playerId =
+    case playerId of
+        Red ->
+            "Red"
+
+        Yellow ->
+            "Yellow"
+
+        Orange ->
+            "Orange"
+
+        Green ->
+            "Green"
+
+        Pink ->
+            "Pink"
+
+        Blue ->
+            "Blue"
