@@ -80,11 +80,15 @@ checkScenario scenario =
                             playerId : PlayerId
                             playerId =
                                 Tuple.first step
+
+                            seenPlayerIds : List PlayerId
+                            seenPlayerIds =
+                                List.map Tuple.first stepsSoFar
                         in
-                        if List.any (\( seenPlayerId, _ ) -> seenPlayerId == playerId) stepsSoFar then
+                        if List.member playerId seenPlayerIds then
                             BadScenario <| playerName playerId ++ " specified more than once."
 
-                        else if List.any (\( seenPlayerId, _ ) -> playerIndex seenPlayerId > playerIndex playerId) stepsSoFar then
+                        else if List.any (\seenPlayerId -> playerIndex seenPlayerId > playerIndex playerId) seenPlayerIds then
                             BadScenario <| "Players must be specified in this order: " ++ (List.map playerName allPlayers |> String.join ", ") ++ "."
 
                         else
