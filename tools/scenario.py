@@ -108,7 +108,7 @@ def find_dosbox(have_just_launched_it: bool) -> str | None:
 def stage_scenario(process_id: int, gdb_program_file: str) -> None:
     subprocess.Popen(
         ["sudo", "gdb", "--pid", str(process_id), "--command", gdb_program_file],
-        # We have to suppress stdio, otherwise gdb kind of doesn't really quit and makes everything typed into the terminal invisible, at least in WSL.
+        # We have to suppress stdio, otherwise gdb kind of takes over the terminal permanently and makes everything typed into it invisible, at least in WSL.
         stdin=subprocess.DEVNULL,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
