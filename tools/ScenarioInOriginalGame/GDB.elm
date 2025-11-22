@@ -114,7 +114,7 @@ emptyLineForVisualSeparation =
     ""
 
 
-{-| Watch out for characters with special meaning in C, like `"` and `\`.
+{-| Creates a command that prints the given string, as long as it doesn't contain characters with special meaning in C, like `"` and `\`.
 -}
 print : String -> GdbCommand
 print s =
