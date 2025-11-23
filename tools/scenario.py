@@ -7,7 +7,7 @@ import os
 import subprocess
 import sys
 import time
-from typing import Callable, Literal, NoReturn, TypedDict
+from typing import Callable, Literal, TypedDict
 
 path_to_original_game = sys.argv[1]
 raw_base_address = sys.argv[2]  # e.g. 7fffd8010ff6
@@ -25,18 +25,13 @@ class PlayerId(Enum):
     BLUE = 5
 
 
-def exitBecauseBlueIsNotSupported():
-    print("❌ Blue (the player) isn't supported yet.")
-    exit(1)
-
-
-JOIN_PLAYER: dict[PlayerId, Callable[[], None | NoReturn]] = {
+JOIN_PLAYER: dict[PlayerId, Callable[[], None]] = {
     PlayerId.RED: lambda: press_key("1"),
     PlayerId.YELLOW: lambda: press_key("Ctrl"),
     PlayerId.ORANGE: lambda: press_key("M"),
     PlayerId.GREEN: lambda: press_key("Left"),
     PlayerId.PINK: lambda: press_key("KP_Divide"),
-    PlayerId.BLUE: exitBecauseBlueIsNotSupported,
+    PlayerId.BLUE: lambda: click_mouse_button(),
 }
 
 
@@ -117,6 +112,12 @@ def stage_scenario(process_id: int, gdb_program_file: str) -> None:
 
 def press_key(key: str) -> None:
     subprocess.run(["xdotool", "key", key])
+
+
+def click_mouse_button() -> None:
+    mouse_button = 1  # (left click)
+    subprocess.run(["xdotool", "mousedown", str(mouse_button)])
+    subprocess.run(["xdotool", "mouseup", str(mouse_button)])
 
 
 def launch_original_game_and_stage_scenario(
