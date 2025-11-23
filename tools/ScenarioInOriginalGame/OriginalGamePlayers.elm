@@ -1,4 +1,4 @@
-module OriginalGamePlayers exposing (PlayerId(..), numberOfPlayers, playerIndex, playerName)
+module OriginalGamePlayers exposing (PlayerId(..), allPlayers, numberOfPlayers, playerIndex, playerName)
 
 
 type PlayerId
@@ -10,9 +10,16 @@ type PlayerId
     | Blue
 
 
+{-| All players in the order they appear in the original game.
+-}
+allPlayers : List PlayerId
+allPlayers =
+    [ Red, Yellow, Orange, Green, Pink, Blue ]
+
+
 numberOfPlayers : Int
 numberOfPlayers =
-    6
+    List.length allPlayers
 
 
 playerIndex : PlayerId -> Int
