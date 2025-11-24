@@ -246,6 +246,11 @@ def main() -> None:
         )
         return
 
+    if PlayerId.BLUE in participating_players:
+        print(
+            "💡 Blue is participating; make sure to keep the cursor within the DOSBox window."
+        )
+
     GDB_PROGRAM_FILE = ".compiled-scenario.gdb"
     with open(GDB_PROGRAM_FILE, "+w") as f:
         print(f"📝 Writing {GDB_PROGRAM_FILE} …")
