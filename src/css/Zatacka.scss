@@ -112,6 +112,23 @@ $minWidthForCenteredCanvas: (
     opacity: 0.5;
 }
 
+.replayOverlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+}
+
+.replayOverlay div {
+    display: flex;
+}
+
+.singleLetterInTheCorner {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+}
+
 .largeDigit {
     width: 28px;
     height: 43px;
