@@ -104,7 +104,7 @@ $minWidthForCenteredCanvas: (
     height: 100%;
 }
 
-.pauseOverlay {
+.textOverlay {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -112,14 +112,7 @@ $minWidthForCenteredCanvas: (
     opacity: 0.5;
 }
 
-.replayOverlay {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.5;
-}
-
-.replayOverlay div {
+.textOverlay div {
     display: flex;
 }
 
