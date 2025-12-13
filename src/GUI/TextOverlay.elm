@@ -1,7 +1,7 @@
 module GUI.TextOverlay exposing (textOverlay)
 
 import Color
-import GUI.Text as Text
+import GUI.Text
 import Game exposing (ActiveGameState(..), GameState(..), MidRoundStateVariant(..), Paused(..))
 import Html exposing (Html, div, p)
 import Html.Attributes as Attr
@@ -38,14 +38,14 @@ content gameState =
 
 pressSpaceToContinue : Html msg
 pressSpaceToContinue =
-    p [] <| Text.string (Text.Size 2) Color.white "Press Space to continue"
+    p [] <| GUI.Text.string (GUI.Text.Size 2) Color.white "Press Space to continue"
 
 
 fullReplayTextInTheMiddle : Html msg
 fullReplayTextInTheMiddle =
     Html.div
         []
-        (Text.string (Text.Size 3) Color.white "REPLAY")
+        (GUI.Text.string (GUI.Text.Size 3) Color.white "REPLAY")
 
 
 singleReplayLetterInTheCorner : Html msg
@@ -53,7 +53,7 @@ singleReplayLetterInTheCorner =
     Html.div
         [ Attr.class "singleLetterInTheCorner"
         ]
-        (Text.string (Text.Size 2) Color.white "R")
+        (GUI.Text.string (GUI.Text.Size 2) Color.white "R")
 
 
 nothing : Html msg
