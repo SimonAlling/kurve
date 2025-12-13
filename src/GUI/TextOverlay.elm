@@ -48,7 +48,7 @@ fullReplayTextInTheMiddle =
 
 singleReplayLetterInTheCorner : Html msg
 singleReplayLetterInTheCorner =
-    Html.div
+    div
         [ Attr.class "singleLetterInTheCorner"
         ]
         (GUI.Text.string (GUI.Text.Size 2) Color.white "R")
