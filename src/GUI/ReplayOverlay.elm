@@ -25,9 +25,6 @@ content gameState =
         Active _ (Moving _ _ ( Replay, _ )) ->
             singleLetterInTheCorner
 
-        RoundOver _ _ ->
-            singleLetterInTheCorner
-
         _ ->
             nothing
 
