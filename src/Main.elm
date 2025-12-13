@@ -9,9 +9,9 @@ import Dialog
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
-import GUI.PauseOverlay exposing (pauseOverlay)
 import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
+import GUI.TextOverlay exposing (textOverlay)
 import Game exposing (ActiveGameState(..), GameState(..), MidRoundState, MidRoundStateVariant(..), Paused(..), SpawnState, firstUpdateTick, modifyMidRoundState, modifyRound, prepareLiveRound, prepareReplayRound, recordUserInteraction, tickResultToGameState)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
@@ -394,7 +394,7 @@ view model =
                             , Attr.class "overlay"
                             ]
                             []
-                        , pauseOverlay gameState
+                        , textOverlay gameState
                         , confirmQuitDialog DialogChoiceMade gameState
                         ]
                     , scoreboard gameState model.players
