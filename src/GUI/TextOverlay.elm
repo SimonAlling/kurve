@@ -43,9 +43,7 @@ pressSpaceToContinue =
 
 fullReplayTextInTheMiddle : Html msg
 fullReplayTextInTheMiddle =
-    Html.div
-        []
-        (GUI.Text.string (GUI.Text.Size 3) Color.white "REPLAY")
+    p [] <| GUI.Text.string (GUI.Text.Size 3) Color.white "REPLAY"
 
 
 singleReplayLetterInTheCorner : Html msg
