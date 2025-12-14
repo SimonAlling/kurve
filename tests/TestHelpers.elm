@@ -7,9 +7,7 @@ import Config exposing (Config, KurveConfig)
 import Expect
 import Game
     exposing
-        ( LiveOrReplay(..)
-        , MidRoundState
-        , TickResult(..)
+        ( TickResult(..)
         , prepareRoundFromKnownInitialState
         , reactToTick
         )
@@ -63,14 +61,14 @@ interpretRoundEnding { kurves } =
 playOutRound : Config -> RoundInitialState -> ( Tick, Round )
 playOutRound config initialState =
     let
-        recurse : Tick -> MidRoundState -> ( Tick, Round )
+        recurse : Tick -> Round -> ( Tick, Round )
         recurse tick midRoundState =
             let
                 nextTick : Tick
                 nextTick =
                     Tick.succ tick
 
-                tickResult : TickResult MidRoundState
+                tickResult : TickResult Round
                 tickResult =
                     reactToTick config nextTick midRoundState |> Tuple.first
             in
@@ -90,7 +88,7 @@ playOutRound config initialState =
         round =
             prepareRoundFromKnownInitialState initialState
     in
-    recurse Tick.genesis ( Live, round )
+    recurse Tick.genesis round
 
 
 showTick : Tick -> String

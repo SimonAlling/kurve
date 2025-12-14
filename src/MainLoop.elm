@@ -8,7 +8,8 @@ module MainLoop exposing (consumeAnimationFrame, noLeftoverFrameTime)
 -}
 
 import Config exposing (Config)
-import Game exposing (MidRoundState, TickResult(..))
+import Game exposing (TickResult(..))
+import Round exposing (Round)
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -19,8 +20,8 @@ consumeAnimationFrame :
     -> FrameTime
     -> LeftoverFrameTime
     -> Tick
-    -> MidRoundState
-    -> ( TickResult ( LeftoverFrameTime, Tick, MidRoundState ), Cmd msg )
+    -> Round
+    -> ( TickResult ( LeftoverFrameTime, Tick, Round ), Cmd msg )
 consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState =
     let
         timeToConsume : FrameTime
@@ -34,9 +35,9 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
         recurse :
             LeftoverFrameTime
             -> Tick
-            -> MidRoundState
+            -> Round
             -> Cmd msg
-            -> ( TickResult ( LeftoverFrameTime, Tick, MidRoundState ), Cmd msg )
+            -> ( TickResult ( LeftoverFrameTime, Tick, Round ), Cmd msg )
         recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar cmdSoFar =
             if timeLeftToConsume >= timestep then
                 let

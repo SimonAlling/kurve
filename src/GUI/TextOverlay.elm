@@ -19,7 +19,7 @@ textOverlay gameState =
 content : GameState -> List (Html msg)
 content gameState =
     case gameState of
-        Active Paused _ ->
+        Active _ Paused _ ->
             [ pressSpaceToContinue ]
 
         _ ->
