@@ -22,7 +22,10 @@ content gameState =
         Active _ Paused _ ->
             [ pressSpaceToContinue ]
 
-        _ ->
+        Active _ NotPaused _ ->
+            []
+
+        RoundOver _ _ ->
             []
 
 
