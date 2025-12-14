@@ -1,15 +1,13 @@
 module Game exposing
     ( ActiveGameState(..)
     , GameState(..)
-    , MidRoundState
-    , MidRoundStateVariant(..)
+    , LiveOrReplay(..)
     , Paused(..)
     , SpawnState
     , TickResult(..)
     , firstUpdateTick
     , getCurrentRound
     , modifyMidRoundState
-    , modifyRound
     , prepareLiveRound
     , prepareReplayRound
     , prepareRoundFromKnownInitialState
@@ -41,7 +39,7 @@ import World exposing (DrawingPosition, Pixel, Position, distanceToTicks)
 
 
 type GameState
-    = Active Paused ActiveGameState
+    = Active LiveOrReplay Paused ActiveGameState
     | RoundOver Round Dialog.State
 
 
@@ -51,8 +49,8 @@ type Paused
 
 
 type ActiveGameState
-    = Spawning SpawnState MidRoundState
-    | Moving LeftoverFrameTime Tick MidRoundState
+    = Spawning SpawnState Round
+    | Moving LeftoverFrameTime Tick Round
 
 
 type TickResult a
@@ -63,41 +61,32 @@ type TickResult a
 getCurrentRound : GameState -> Round
 getCurrentRound gameState =
     case gameState of
-        Active _ (Spawning _ ( _, round )) ->
+        Active _ _ (Spawning _ round) ->
             round
 
-        Active _ (Moving _ _ ( _, round )) ->
+        Active _ _ (Moving _ _ round) ->
             round
 
         RoundOver round _ ->
             round
 
 
-modifyMidRoundState : (MidRoundState -> MidRoundState) -> GameState -> GameState
+modifyMidRoundState : (Round -> Round) -> GameState -> GameState
 modifyMidRoundState f gameState =
     case gameState of
-        Active p (Moving t leftoverFrameTime midRoundState) ->
-            Active p <| Moving t leftoverFrameTime <| f midRoundState
+        Active p liveOrReplay (Moving t leftoverFrameTime midRoundState) ->
+            Active p liveOrReplay <| Moving t leftoverFrameTime <| f midRoundState
 
-        Active p (Spawning s midRoundState) ->
-            Active p <| Spawning s <| f midRoundState
+        Active p liveOrReplay (Spawning s midRoundState) ->
+            Active p liveOrReplay <| Spawning s <| f midRoundState
 
         _ ->
             gameState
 
 
-type alias MidRoundState =
-    ( MidRoundStateVariant, Round )
-
-
-type MidRoundStateVariant
+type LiveOrReplay
     = Live
     | Replay
-
-
-modifyRound : (Round -> Round) -> MidRoundState -> MidRoundState
-modifyRound =
-    Tuple.mapSecond
 
 
 type alias SpawnState =
@@ -112,7 +101,7 @@ firstUpdateTick =
     Tick.succ Tick.genesis
 
 
-prepareLiveRound : Config -> Random.Seed -> ParticipatingPlayers -> Set String -> MidRoundState
+prepareLiveRound : Config -> Random.Seed -> ParticipatingPlayers -> Set String -> Round
 prepareLiveRound config seed players pressedButtons =
     let
         recordInitialInteractions : List Kurve -> List Kurve
@@ -122,12 +111,12 @@ prepareLiveRound config seed players pressedButtons =
         ( theKurves, seedAfterSpawn ) =
             Random.step (generateKurves config players) seed |> Tuple.mapFirst recordInitialInteractions
     in
-    ( Live, prepareRoundFromKnownInitialState { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves } )
+    prepareRoundFromKnownInitialState { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves }
 
 
-prepareReplayRound : RoundInitialState -> MidRoundState
+prepareReplayRound : RoundInitialState -> Round
 prepareReplayRound initialState =
-    ( Replay, prepareRoundFromKnownInitialState initialState )
+    prepareRoundFromKnownInitialState initialState
 
 
 prepareRoundFromKnownInitialState : RoundInitialState -> Round
@@ -148,8 +137,8 @@ prepareRoundFromKnownInitialState initialState =
     round
 
 
-reactToTick : Config -> Tick -> MidRoundState -> ( TickResult MidRoundState, Cmd msg )
-reactToTick config tick (( _, currentRound ) as midRoundState) =
+reactToTick : Config -> Tick -> Round -> ( TickResult Round, Cmd msg )
+reactToTick config tick currentRound =
     let
         ( newKurvesGenerator, newOccupiedPixels, newColoredDrawingPositions ) =
             List.foldr
@@ -174,13 +163,13 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
             , seed = newSeed
             }
 
-        tickResult : TickResult MidRoundState
+        tickResult : TickResult Round
         tickResult =
             if roundIsOver newKurves then
                 RoundEnds newCurrentRound
 
             else
-                RoundKeepsGoing <| modifyRound (always newCurrentRound) midRoundState
+                RoundKeepsGoing newCurrentRound
     in
     ( tickResult
     , [ headDrawingCmd newKurves.alive
@@ -190,11 +179,11 @@ reactToTick config tick (( _, currentRound ) as midRoundState) =
     )
 
 
-tickResultToGameState : TickResult ( LeftoverFrameTime, Tick, MidRoundState ) -> GameState
-tickResultToGameState tickResult =
+tickResultToGameState : LiveOrReplay -> TickResult ( LeftoverFrameTime, Tick, Round ) -> GameState
+tickResultToGameState liveOrReplay tickResult =
     case tickResult of
         RoundKeepsGoing ( leftoverFrameTime, tick, midRoundState ) ->
-            Active NotPaused (Moving leftoverFrameTime tick midRoundState)
+            Active liveOrReplay NotPaused (Moving leftoverFrameTime tick midRoundState)
 
         RoundEnds finishedRound ->
             RoundOver finishedRound Dialog.NotOpen
