@@ -2,7 +2,7 @@ module GUI.TextOverlay exposing (textOverlay)
 
 import Color
 import GUI.Text
-import Game exposing (ActiveGameState(..), GameState(..), MidRoundStateVariant(..), Paused(..))
+import Game exposing (GameState(..), LiveOrReplay(..), PausedOrNot(..))
 import Html exposing (Html, div, p)
 import Html.Attributes as Attr
 
@@ -19,22 +19,13 @@ textOverlay gameState =
 content : GameState -> List (Html msg)
 content gameState =
     case gameState of
-        Active Paused (Spawning _ ( Live, _ )) ->
+        Active Live Paused _ ->
             [ pressSpaceToContinue ]
 
-        Active Paused (Moving _ _ ( Live, _ )) ->
-            [ pressSpaceToContinue ]
-
-        Active NotPaused (Spawning _ ( Replay, _ )) ->
+        Active Replay NotPaused _ ->
             [ replayIndicator ]
 
-        Active NotPaused (Moving _ _ ( Replay, _ )) ->
-            [ replayIndicator ]
-
-        Active Paused (Spawning _ ( Replay, _ )) ->
-            [ replayIndicator, pressSpaceToContinue ]
-
-        Active Paused (Moving _ _ ( Replay, _ )) ->
+        Active Replay Paused _ ->
             [ replayIndicator, pressSpaceToContinue ]
 
         _ ->
