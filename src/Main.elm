@@ -18,7 +18,7 @@ import Game
         , GameState(..)
         , LiveOrReplay(..)
         , MidRoundState
-        , Paused(..)
+        , PausedOrNot(..)
         , SpawnState
         , firstUpdateTick
         , modifyMidRoundState

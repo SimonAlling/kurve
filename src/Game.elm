@@ -3,7 +3,7 @@ module Game exposing
     , GameState(..)
     , LiveOrReplay(..)
     , MidRoundState
-    , Paused(..)
+    , PausedOrNot(..)
     , SpawnState
     , TickResult(..)
     , firstUpdateTick
@@ -41,11 +41,11 @@ import World exposing (DrawingPosition, Pixel, Position, distanceToTicks)
 
 
 type GameState
-    = Active Paused ActiveGameState
+    = Active PausedOrNot ActiveGameState
     | RoundOver Round Dialog.State
 
 
-type Paused
+type PausedOrNot
     = Paused
     | NotPaused
 
