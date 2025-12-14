@@ -19,17 +19,17 @@ textOverlay gameState =
 content : GameState -> List (Html msg)
 content gameState =
     case gameState of
-        Active Live NotPaused _ ->
-            []
-
         Active Live Paused _ ->
             [ pressSpaceToContinue ]
 
-        Active Replay NotPaused _ ->
-            [ replayIndicator ]
+        Active Live NotPaused _ ->
+            []
 
         Active Replay Paused _ ->
             [ replayIndicator, pressSpaceToContinue ]
+
+        Active Replay NotPaused _ ->
+            [ replayIndicator ]
 
         RoundOver _ _ ->
             []
