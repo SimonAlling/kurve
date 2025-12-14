@@ -2,7 +2,7 @@ module GUI.TextOverlay exposing (textOverlay)
 
 import Color
 import GUI.Text
-import Game exposing (GameState(..), Paused(..))
+import Game exposing (GameState(..), PausedOrNot(..))
 import Html exposing (Html, div, p)
 import Html.Attributes as Attr
 

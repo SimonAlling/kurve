@@ -12,13 +12,35 @@ import GUI.Lobby exposing (lobby)
 import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
 import GUI.TextOverlay exposing (textOverlay)
-import Game exposing (ActiveGameState(..), GameState(..), LiveOrReplay(..), Paused(..), SpawnState, firstUpdateTick, modifyMidRoundState, prepareLiveRound, prepareReplayRound, recordUserInteraction, tickResultToGameState)
+import Game
+    exposing
+        ( ActiveGameState(..)
+        , GameState(..)
+        , LiveOrReplay(..)
+        , PausedOrNot(..)
+        , SpawnState
+        , firstUpdateTick
+        , modifyMidRoundState
+        , prepareLiveRound
+        , prepareReplayRound
+        , recordUserInteraction
+        , tickResultToGameState
+        )
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import MainLoop
 import Menu exposing (MenuState(..))
-import Players exposing (AllPlayers, atLeastOneIsParticipating, everyoneLeaves, handlePlayerJoiningOrLeaving, includeResultsFrom, initialPlayers, participating)
+import Players
+    exposing
+        ( AllPlayers
+        , atLeastOneIsParticipating
+        , everyoneLeaves
+        , handlePlayerJoiningOrLeaving
+        , includeResultsFrom
+        , initialPlayers
+        , participating
+        )
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)

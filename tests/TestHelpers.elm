@@ -5,7 +5,12 @@ module TestHelpers exposing
 
 import Config exposing (Config, KurveConfig)
 import Expect
-import Game exposing (TickResult(..), prepareRoundFromKnownInitialState, reactToTick)
+import Game
+    exposing
+        ( TickResult(..)
+        , prepareRoundFromKnownInitialState
+        , reactToTick
+        )
 import Round exposing (Round, RoundInitialState)
 import TestScenarioHelpers exposing (RoundEndingInterpretation, RoundOutcome)
 import Types.Speed exposing (Speed)
