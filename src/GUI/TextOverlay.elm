@@ -27,10 +27,10 @@ content gameState =
             pressSpaceToContinue
 
         Active _ (Spawning _ ( Replay, _ )) ->
-            fullReplayTextInTheMiddle
+            replayIndicator
 
         Active _ (Moving _ _ ( Replay, _ )) ->
-            singleReplayLetterInTheCorner
+            replayIndicator
 
         _ ->
             nothing
@@ -41,13 +41,8 @@ pressSpaceToContinue =
     p [] <| GUI.Text.string (GUI.Text.Size 2) Color.white "Press Space to continue"
 
 
-fullReplayTextInTheMiddle : Html msg
-fullReplayTextInTheMiddle =
-    p [] <| GUI.Text.string (GUI.Text.Size 3) Color.white "REPLAY"
-
-
-singleReplayLetterInTheCorner : Html msg
-singleReplayLetterInTheCorner =
+replayIndicator : Html msg
+replayIndicator =
     p
         [ Attr.class "textInUpperLeftCorner"
         ]
