@@ -133,7 +133,13 @@ update msg ({ config, pressedButtons } as model) =
         FocusLost ->
             case model.appState of
                 InGame (Active liveOrReplay _ s) ->
-                    ( { model | appState = InGame (Active liveOrReplay Paused s) }, Cmd.none )
+                    case liveOrReplay of
+                        Live ->
+                            ( { model | appState = InGame (Active liveOrReplay Paused s) }, Cmd.none )
+
+                        Replay ->
+                            -- Not important to pause on focus lost when replaying.
+                            ( model, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -273,6 +279,20 @@ update msg ({ config, pressedButtons } as model) =
                     case button of
                         Key "Space" ->
                             ( { model | appState = InGame (Active liveOrReplay NotPaused s) }, Cmd.none )
+
+                        _ ->
+                            ( handleUserInteraction Down button model, Cmd.none )
+
+                InGame (Active liveOrReplay NotPaused s) ->
+                    case button of
+                        Key "Space" ->
+                            case liveOrReplay of
+                                Live ->
+                                    -- Pausing a live round is not allowed because it's highly disruptive.
+                                    ( model, Cmd.none )
+
+                                Replay ->
+                                    ( { model | appState = InGame (Active liveOrReplay Paused s) }, Cmd.none )
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )

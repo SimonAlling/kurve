@@ -26,7 +26,8 @@ content gameState =
             []
 
         Active Replay Paused _ ->
-            [ replayIndicator, pressSpaceToContinue ]
+            -- Hint on how to continue deliberately omitted here. See the PR/commit that added this comment for details.
+            [ replayIndicator ]
 
         Active Replay NotPaused _ ->
             [ replayIndicator ]
