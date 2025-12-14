@@ -16,8 +16,8 @@ import Game
     exposing
         ( ActiveGameState(..)
         , GameState(..)
+        , LiveOrReplay(..)
         , MidRoundState
-        , MidRoundStateVariant(..)
         , Paused(..)
         , SpawnState
         , firstUpdateTick

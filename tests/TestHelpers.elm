@@ -7,8 +7,8 @@ import Config exposing (Config, KurveConfig)
 import Expect
 import Game
     exposing
-        ( MidRoundState
-        , MidRoundStateVariant(..)
+        ( LiveOrReplay(..)
+        , MidRoundState
         , TickResult(..)
         , prepareRoundFromKnownInitialState
         , reactToTick

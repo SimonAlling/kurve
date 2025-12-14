@@ -1,8 +1,8 @@
 module Game exposing
     ( ActiveGameState(..)
     , GameState(..)
+    , LiveOrReplay(..)
     , MidRoundState
-    , MidRoundStateVariant(..)
     , Paused(..)
     , SpawnState
     , TickResult(..)
@@ -87,10 +87,10 @@ modifyMidRoundState f gameState =
 
 
 type alias MidRoundState =
-    ( MidRoundStateVariant, Round )
+    ( LiveOrReplay, Round )
 
 
-type MidRoundStateVariant
+type LiveOrReplay
     = Live
     | Replay
 
