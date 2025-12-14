@@ -13,25 +13,19 @@ textOverlay gameState =
         [ Attr.class "overlay"
         , Attr.class "textOverlay"
         ]
-        [ content gameState
-        ]
+        (content gameState)
 
 
-content : GameState -> Html msg
+content : GameState -> List (Html msg)
 content gameState =
     case gameState of
         Active Paused _ ->
-            pressSpaceToContinue
+            [ pressSpaceToContinue ]
 
         _ ->
-            nothing
+            []
 
 
 pressSpaceToContinue : Html msg
 pressSpaceToContinue =
     p [] <| GUI.Text.string (GUI.Text.Size 2) Color.white "Press Space to continue"
-
-
-nothing : Html msg
-nothing =
-    Html.div [] []
