@@ -13,6 +13,10 @@ html, body {
     height: 100%;
 }
 
+p {
+    line-height: 0; // Prevents extra "padding" below the actual letters (which are effectively 8 × 8 bitmap images).
+}
+
 body {
     background-color: black;
     overflow: hidden;
