@@ -116,6 +116,12 @@ $minWidthForCenteredCanvas: (
     opacity: 0.5;
 }
 
+.textInUpperLeftCorner {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+}
+
 .largeDigit {
     width: 28px;
     height: 43px;
