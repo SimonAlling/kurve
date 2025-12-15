@@ -305,9 +305,6 @@ update msg ({ config, pressedButtons } as model) =
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
 
-                _ ->
-                    ( handleUserInteraction Down button model, Cmd.none )
-
         ButtonUsed Up key ->
             ( handleUserInteraction Up key model, Cmd.none )
 
