@@ -285,26 +285,29 @@ update msg ({ config, pressedButtons } as model) =
                             ( handleUserInteraction Down button model, Cmd.none )
 
                 InGame (Active liveOrReplay NotPaused s) ->
-                    case button of
-                        Key "KeyR" ->
-                            case liveOrReplay of
-                                Live ->
+                    case liveOrReplay of
+                        Live ->
+                            case button of
+                                Key "KeyR" ->
                                     ( model, Cmd.none )
 
-                                Replay ->
-                                    startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
-
-                        Key "Space" ->
-                            case liveOrReplay of
-                                Live ->
+                                Key "Space" ->
                                     -- Pausing a live round is not allowed because it's highly disruptive.
                                     ( model, Cmd.none )
 
-                                Replay ->
+                                _ ->
+                                    ( handleUserInteraction Down button model, Cmd.none )
+
+                        Replay ->
+                            case button of
+                                Key "KeyR" ->
+                                    startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
+
+                                Key "Space" ->
                                     ( { model | appState = InGame (Active liveOrReplay Paused s) }, Cmd.none )
 
-                        _ ->
-                            ( handleUserInteraction Down button model, Cmd.none )
+                                _ ->
+                                    ( handleUserInteraction Down button model, Cmd.none )
 
                 InMenu GameOver seed ->
                     case button of
