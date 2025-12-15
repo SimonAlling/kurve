@@ -353,7 +353,7 @@ update msg ({ config, pressedButtons } as model) =
 
 replaySkipStepInMs : FrameTime
 replaySkipStepInMs =
-    1000
+    5000
 
 
 gameOver : Random.Seed -> Model -> ( Model, Cmd msg )
