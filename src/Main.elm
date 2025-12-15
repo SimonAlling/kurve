@@ -287,16 +287,7 @@ update msg ({ config, pressedButtons } as model) =
                 InGame (Active liveOrReplay NotPaused s) ->
                     case liveOrReplay of
                         Live ->
-                            case button of
-                                Key "KeyR" ->
-                                    ( model, Cmd.none )
-
-                                Key "Space" ->
-                                    -- Pausing a live round is not allowed because it's highly disruptive.
-                                    ( model, Cmd.none )
-
-                                _ ->
-                                    ( handleUserInteraction Down button model, Cmd.none )
+                            ( handleUserInteraction Down button model, Cmd.none )
 
                         Replay ->
                             case button of
