@@ -286,6 +286,25 @@ update msg ({ config, pressedButtons } as model) =
 
                 InGame (Active liveOrReplay NotPaused s) ->
                     case button of
+                        Key "ArrowRight" ->
+                            case liveOrReplay of
+                                Live ->
+                                    ( handleUserInteraction Down button model, Cmd.none )
+
+                                Replay ->
+                                    case s of
+                                        Spawning _ _ ->
+                                            ( model, Cmd.none )
+
+                                        Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
+                                            let
+                                                ( tickResult, cmd ) =
+                                                    MainLoop.consumeAnimationFrame config replaySkipStepInMs leftoverTimeFromPreviousFrame lastTick midRoundState
+                                            in
+                                            ( { model | appState = InGame (tickResultToGameState liveOrReplay tickResult) }
+                                            , cmd
+                                            )
+
                         Key "KeyR" ->
                             case liveOrReplay of
                                 Live ->
@@ -330,6 +349,11 @@ update msg ({ config, pressedButtons } as model) =
                 _ ->
                     -- Not expected to ever happen.
                     ( model, Cmd.none )
+
+
+replaySkipStepInMs : FrameTime
+replaySkipStepInMs =
+    1000
 
 
 gameOver : Random.Seed -> Model -> ( Model, Cmd msg )
