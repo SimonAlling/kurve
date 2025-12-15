@@ -20,6 +20,7 @@ import Game
         , PausedOrNot(..)
         , SpawnState
         , firstUpdateTick
+        , getActiveRound
         , modifyMidRoundState
         , prepareLiveRound
         , prepareReplayRound
@@ -285,6 +286,14 @@ update msg ({ config, pressedButtons } as model) =
 
                 InGame (Active liveOrReplay NotPaused s) ->
                     case button of
+                        Key "KeyR" ->
+                            case liveOrReplay of
+                                Live ->
+                                    ( model, Cmd.none )
+
+                                Replay ->
+                                    startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
+
                         Key "Space" ->
                             case liveOrReplay of
                                 Live ->
