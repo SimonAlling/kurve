@@ -284,43 +284,30 @@ update msg ({ config, pressedButtons } as model) =
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
 
-                InGame (Active liveOrReplay NotPaused s) ->
+                InGame (Active Live NotPaused _) ->
+                    ( handleUserInteraction Down button model, Cmd.none )
+
+                InGame (Active Replay NotPaused s) ->
                     case button of
                         Key "ArrowRight" ->
-                            case liveOrReplay of
-                                Live ->
-                                    ( handleUserInteraction Down button model, Cmd.none )
+                            case s of
+                                Spawning _ _ ->
+                                    ( model, Cmd.none )
 
-                                Replay ->
-                                    case s of
-                                        Spawning _ _ ->
-                                            ( model, Cmd.none )
-
-                                        Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
-                                            let
-                                                ( tickResult, cmd ) =
-                                                    MainLoop.consumeAnimationFrame config replaySkipStepInMs leftoverTimeFromPreviousFrame lastTick midRoundState
-                                            in
-                                            ( { model | appState = InGame (tickResultToGameState liveOrReplay tickResult) }
-                                            , cmd
-                                            )
+                                Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
+                                    let
+                                        ( tickResult, cmd ) =
+                                            MainLoop.consumeAnimationFrame config replaySkipStepInMs leftoverTimeFromPreviousFrame lastTick midRoundState
+                                    in
+                                    ( { model | appState = InGame (tickResultToGameState Replay tickResult) }
+                                    , cmd
+                                    )
 
                         Key "KeyR" ->
-                            case liveOrReplay of
-                                Live ->
-                                    ( model, Cmd.none )
-
-                                Replay ->
-                                    startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
+                            startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
 
                         Key "Space" ->
-                            case liveOrReplay of
-                                Live ->
-                                    -- Pausing a live round is not allowed because it's highly disruptive.
-                                    ( model, Cmd.none )
-
-                                Replay ->
-                                    ( { model | appState = InGame (Active liveOrReplay Paused s) }, Cmd.none )
+                            ( { model | appState = InGame (Active Replay Paused s) }, Cmd.none )
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
