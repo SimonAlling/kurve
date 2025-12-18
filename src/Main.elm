@@ -3,7 +3,6 @@ port module Main exposing (Model, Msg(..), main)
 import App exposing (AppState(..), modifyGameState)
 import Browser
 import Browser.Events
-import Canvas exposing (clearEverything, drawSpawnIfAndOnlyIf)
 import Config exposing (Config)
 import Dialog
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
@@ -45,10 +44,10 @@ import Players
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
+import TestScenarios.StressTestRealisticTurtleSurvivalRound
 import Time
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
-import Util exposing (isEven)
 
 
 type alias Model =
@@ -64,12 +63,20 @@ port focusLost : (() -> msg) -> Sub msg
 
 init : () -> ( Model, Cmd Msg )
 init _ =
+    let
+        ( gameState, cmd ) =
+            { seedAfterSpawn = Random.initialSeed 0
+            , spawnedKurves = TestScenarios.StressTestRealisticTurtleSurvivalRound.spawnedKurves
+            }
+                |> prepareReplayRound
+                |> newRoundGameStateAndCmd Config.default Replay
+    in
     ( { pressedButtons = Set.empty
-      , appState = InMenu SplashScreen (Random.initialSeed 1337)
+      , appState = InGame gameState
       , config = Config.default
       , players = initialPlayers
       }
-    , Cmd.none
+    , cmd
     )
 
 
@@ -90,7 +97,7 @@ newRoundGameStateAndCmd config liveOrReplay plannedMidRoundState =
             , ticksLeft = config.spawn.numberOfFlickerTicks
             }
             plannedMidRoundState
-    , clearEverything config.world
+    , Cmd.none
     )
 
 
@@ -125,7 +132,7 @@ stepSpawnState config { kurvesLeft, ticksLeft } =
                     else
                         { kurvesLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
             in
-            ( Just newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning )
+            ( Just newSpawnState, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

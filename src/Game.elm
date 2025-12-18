@@ -17,7 +17,6 @@ module Game exposing
     , tickResultToGameState
     )
 
-import Canvas exposing (bodyDrawingCmd, headDrawingCmd)
 import Color exposing (Color)
 import Config exposing (Config, KurveConfig)
 import Dialog
@@ -180,10 +179,7 @@ reactToTick config tick currentRound =
                 RoundKeepsGoing newCurrentRound
     in
     ( tickResult
-    , [ headDrawingCmd newKurves.alive
-      , bodyDrawingCmd newColoredDrawingPositions
-      ]
-        |> Cmd.batch
+    , Cmd.none
     )
 
 
