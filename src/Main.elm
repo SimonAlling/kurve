@@ -297,7 +297,7 @@ update msg ({ config, pressedButtons } as model) =
                                 Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
                                     let
                                         ( tickResult, cmd ) =
-                                            MainLoop.consumeAnimationFrame config replaySkipStepInMs leftoverTimeFromPreviousFrame lastTick midRoundState
+                                            MainLoop.consumeAnimationFrame config (toFloat config.replay.skipStepInMs) leftoverTimeFromPreviousFrame lastTick midRoundState
                                     in
                                     ( { model | appState = InGame (tickResultToGameState Replay tickResult) }
                                     , cmd
@@ -336,11 +336,6 @@ update msg ({ config, pressedButtons } as model) =
                 _ ->
                     -- Not expected to ever happen.
                     ( model, Cmd.none )
-
-
-replaySkipStepInMs : FrameTime
-replaySkipStepInMs =
-    5000
 
 
 gameOver : Random.Seed -> Model -> ( Model, Cmd msg )

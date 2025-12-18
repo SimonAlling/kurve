@@ -45,6 +45,9 @@ default =
     , game =
         { isGameOver = defaultGameOverCondition
         }
+    , replay =
+        { skipStepInMs = 5000
+        }
     }
 
 
@@ -73,6 +76,7 @@ type alias Config =
     , spawn : SpawnConfig
     , world : WorldConfig
     , game : GameConfig
+    , replay : ReplayConfig
     }
 
 
@@ -102,6 +106,11 @@ type alias WorldConfig =
 
 type alias GameConfig =
     { isGameOver : ParticipatingPlayers -> Bool
+    }
+
+
+type alias ReplayConfig =
+    { skipStepInMs : Int
     }
 
 
