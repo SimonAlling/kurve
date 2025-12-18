@@ -74,9 +74,13 @@
                 this.appendChild(this._canvas);
                 this._ctx.fillStyle = "red";
 
+                const path = new Path2D();
+
                 for (const d of this.drawingPositions) {
-                    this._ctx.fillRect(d.x, d.y, 1, 1);
+                    path.rect(d.x, d.y, 1, 1);
                 }
+
+                this._ctx.fill(path);
             }
         }
 
