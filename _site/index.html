@@ -44,6 +44,36 @@
 
     <script src="./ZATACKA.js"></script>
     <script>
+        class MyCanvas extends HTMLElement {
+            constructor() {
+                super();
+                this._drawingPositions = [];
+            }
+
+            get drawingPositions() {
+                return this._drawingPositions;
+            }
+
+            set drawingPositions(value) {
+                if (Object.is(this._drawingPositions, value)) return; // Ignore no-op assignments; Elm may reassign same value according to ChatGPT.
+
+                this._drawingPositions = value;
+                this.render();
+            }
+
+            connectedCallback() {
+                this.render();
+            }
+
+            render() {
+                this.innerHTML = `
+                    <pre>${JSON.stringify(this._drawingPositions, null, 2)}</pre>
+                `;
+            }
+        }
+
+        customElements.define("my-canvas", MyCanvas);
+
         const app = Elm.Main.init({ node: document.getElementById("elm-node") });
 
         document.addEventListener("keydown", event => {

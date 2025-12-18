@@ -29,6 +29,7 @@ import Game
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
+import Json.Encode as Encode
 import MainLoop
 import Menu exposing (MenuState(..))
 import Players
@@ -48,7 +49,7 @@ import TestScenarios.StressTestRealisticTurtleSurvivalRound
 import Time
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
-import World
+import World exposing (DrawingPosition)
 
 
 type alias Model =
@@ -468,6 +469,7 @@ view model =
                                             []
                                     )
                             )
+                        , Html.node "my-canvas" [ Attr.property "drawingPositions" (encodeDrawingPositions drawingPositions) ] []
                         , canvas
                             [ Attr.id "canvas_main"
                             , Attr.width 559
@@ -502,3 +504,13 @@ main =
         , subscriptions = subscriptions
         , view = view
         }
+
+
+encodeDrawingPositions : List World.DrawingPosition -> Encode.Value
+encodeDrawingPositions drawingPositions =
+    Encode.list encodeDP drawingPositions
+
+
+encodeDP : DrawingPosition -> Encode.Value
+encodeDP dp =
+    Encode.object [ ( "x", Encode.int dp.leftEdge ), ( "y", Encode.int dp.topEdge ) ]
