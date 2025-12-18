@@ -48,6 +48,7 @@ import TestScenarios.StressTestRealisticTurtleSurvivalRound
 import Time
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
+import World
 
 
 type alias Model =
@@ -435,6 +436,16 @@ view model =
             elmRoot [] [ splashScreen ]
 
         InGame gameState ->
+            let
+                drawingPositions : List World.DrawingPosition
+                drawingPositions =
+                    case gameState of
+                        Active _ _ (Moving _ _ { kurves }) ->
+                            kurves.alive |> List.map (\k -> k.state.position |> World.drawingPosition)
+
+                        _ ->
+                            []
+            in
             elmRoot
                 [ Attr.class "in-game"
                 ]
@@ -444,7 +455,20 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ canvas
+                        [ div
+                            []
+                            (drawingPositions
+                                |> List.map
+                                    (\dp ->
+                                        div
+                                            [ Attr.class "head_EXPERIMENTAL"
+                                            , Attr.style "left" (String.fromInt dp.leftEdge ++ "px")
+                                            , Attr.style "top" (String.fromInt dp.topEdge ++ "px")
+                                            ]
+                                            []
+                                    )
+                            )
+                        , canvas
                             [ Attr.id "canvas_main"
                             , Attr.width 559
                             , Attr.height 480
