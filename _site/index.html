@@ -48,6 +48,11 @@
             constructor() {
                 super();
                 this._drawingPositions = [];
+                const canvas = document.createElement("canvas");
+                canvas.width = 559;
+                canvas.height = 480;
+                this._canvas = canvas;
+                this._ctx = canvas.getContext("2d");
             }
 
             get drawingPositions() {
@@ -66,9 +71,12 @@
             }
 
             render() {
-                this.innerHTML = `
-                    <pre>${JSON.stringify(this._drawingPositions, null, 2)}</pre>
-                `;
+                this.appendChild(this._canvas);
+                this._ctx.fillStyle = "red";
+
+                for (const d of this.drawingPositions) {
+                    this._ctx.fillRect(d.x, d.y, 1, 1);
+                }
             }
         }
 
