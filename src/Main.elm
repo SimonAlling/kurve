@@ -289,6 +289,20 @@ update msg ({ config, pressedButtons } as model) =
 
                 InGame (Active Replay NotPaused s) ->
                     case button of
+                        Key "ArrowRight" ->
+                            case s of
+                                Spawning _ _ ->
+                                    ( model, Cmd.none )
+
+                                Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
+                                    let
+                                        ( tickResult, cmd ) =
+                                            MainLoop.consumeAnimationFrame config (toFloat config.replay.skipStepInMs) leftoverTimeFromPreviousFrame lastTick midRoundState
+                                    in
+                                    ( { model | appState = InGame (tickResultToGameState Replay tickResult) }
+                                    , cmd
+                                    )
+
                         Key "KeyR" ->
                             startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
 
