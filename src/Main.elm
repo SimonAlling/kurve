@@ -49,7 +49,7 @@ import TestScenarios.StressTestRealisticTurtleSurvivalRound
 import Time
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
-import World exposing (DrawingPosition)
+import World
 
 
 type alias Model =
@@ -446,6 +446,15 @@ view model =
 
                         _ ->
                             []
+
+                pixels : List World.Pixel
+                pixels =
+                    case gameState of
+                        Active _ _ (Moving _ _ { occupiedPixels }) ->
+                            occupiedPixels |> Set.toList
+
+                        _ ->
+                            []
             in
             elmRoot
                 [ Attr.class "in-game"
@@ -469,7 +478,7 @@ view model =
                                             []
                                     )
                             )
-                        , Html.node "my-canvas" [ Attr.property "drawingPositions" (encodeDrawingPositions drawingPositions) ] []
+                        , Html.node "my-canvas" [ Attr.property "drawingPositions" (encodePixels pixels) ] []
                         , canvas
                             [ Attr.id "canvas_main"
                             , Attr.width 559
@@ -506,11 +515,11 @@ main =
         }
 
 
-encodeDrawingPositions : List World.DrawingPosition -> Encode.Value
-encodeDrawingPositions drawingPositions =
-    Encode.list encodeDP drawingPositions
+encodePixels : List World.Pixel -> Encode.Value
+encodePixels pixels =
+    Encode.list encodeP pixels
 
 
-encodeDP : DrawingPosition -> Encode.Value
-encodeDP dp =
-    Encode.object [ ( "x", Encode.int dp.leftEdge ), ( "y", Encode.int dp.topEdge ) ]
+encodeP : World.Pixel -> Encode.Value
+encodeP ( x, y ) =
+    Encode.object [ ( "x", Encode.int x ), ( "y", Encode.int y ) ]
