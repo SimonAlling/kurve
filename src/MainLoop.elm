@@ -7,6 +7,7 @@ module MainLoop exposing (consumeAnimationFrame, noLeftoverFrameTime)
 
 -}
 
+import Canvas exposing (drawingCmd)
 import Config exposing (Config)
 import Game exposing (TickResult(..))
 import Round exposing (Round)
@@ -45,12 +46,12 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
                     incrementedTick =
                         Tick.succ lastTickReactedTo
 
-                    ( tickResult, cmdForThisTick ) =
+                    ( tickResult, whatToDrawForThisTick ) =
                         Game.reactToTick config incrementedTick midRoundStateSoFar
 
                     newCmd : Cmd msg
                     newCmd =
-                        Cmd.batch [ cmdSoFar, cmdForThisTick ]
+                        Cmd.batch [ cmdSoFar, whatToDrawForThisTick |> drawingCmd ]
                 in
                 case tickResult of
                     RoundKeepsGoing newMidRoundState ->
