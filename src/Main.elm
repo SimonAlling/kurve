@@ -3,7 +3,7 @@ port module Main exposing (Model, Msg(..), main)
 import App exposing (AppState(..), modifyGameState)
 import Browser
 import Browser.Events
-import Canvas exposing (clearEverything, drawSpawnIfAndOnlyIf)
+import Canvas exposing (clearEverything, drawSpawnIfAndOnlyIf, drawingCmd)
 import Config exposing (Config)
 import Dialog
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
@@ -165,11 +165,11 @@ update msg ({ config, pressedButtons } as model) =
 
         AnimationFrame liveOrReplay { delta, leftoverTimeFromPreviousFrame, lastTick } midRoundState ->
             let
-                ( tickResult, cmd ) =
+                ( tickResult, whatToDraw ) =
                     MainLoop.consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState
             in
             ( { model | appState = InGame (tickResultToGameState liveOrReplay tickResult) }
-            , cmd
+            , drawingCmd whatToDraw
             )
 
         ButtonUsed Down button ->
@@ -296,11 +296,11 @@ update msg ({ config, pressedButtons } as model) =
 
                                 Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
                                     let
-                                        ( tickResult, cmd ) =
+                                        ( tickResult, whatToDraw ) =
                                             MainLoop.consumeAnimationFrame config (toFloat config.replay.skipStepInMs) leftoverTimeFromPreviousFrame lastTick midRoundState
                                     in
                                     ( { model | appState = InGame (tickResultToGameState Replay tickResult) }
-                                    , cmd
+                                    , drawingCmd whatToDraw
                                     )
 
                         Key "KeyR" ->

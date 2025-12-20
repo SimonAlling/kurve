@@ -7,7 +7,7 @@ module MainLoop exposing (consumeAnimationFrame, noLeftoverFrameTime)
 
 -}
 
-import Canvas exposing (drawingCmd)
+import Canvas exposing (WhatToDraw, mergeWhatToDraw, nothingToDraw)
 import Config exposing (Config)
 import Game exposing (TickResult(..))
 import Round exposing (Round)
@@ -22,7 +22,7 @@ consumeAnimationFrame :
     -> LeftoverFrameTime
     -> Tick
     -> Round
-    -> ( TickResult ( LeftoverFrameTime, Tick, Round ), Cmd msg )
+    -> ( TickResult ( LeftoverFrameTime, Tick, Round ), WhatToDraw )
 consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState =
     let
         timeToConsume : FrameTime
@@ -37,9 +37,9 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
             LeftoverFrameTime
             -> Tick
             -> Round
-            -> Cmd msg
-            -> ( TickResult ( LeftoverFrameTime, Tick, Round ), Cmd msg )
-        recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar cmdSoFar =
+            -> WhatToDraw
+            -> ( TickResult ( LeftoverFrameTime, Tick, Round ), WhatToDraw )
+        recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar whatToDrawSoFar =
             if timeLeftToConsume >= timestep then
                 let
                     incrementedTick : Tick
@@ -49,25 +49,25 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
                     ( tickResult, whatToDrawForThisTick ) =
                         Game.reactToTick config incrementedTick midRoundStateSoFar
 
-                    newCmd : Cmd msg
-                    newCmd =
-                        Cmd.batch [ cmdSoFar, whatToDrawForThisTick |> drawingCmd ]
+                    newWhatToDraw : WhatToDraw
+                    newWhatToDraw =
+                        mergeWhatToDraw whatToDrawSoFar whatToDrawForThisTick
                 in
                 case tickResult of
                     RoundKeepsGoing newMidRoundState ->
-                        recurse (timeLeftToConsume - timestep) incrementedTick newMidRoundState newCmd
+                        recurse (timeLeftToConsume - timestep) incrementedTick newMidRoundState newWhatToDraw
 
                     RoundEnds finishedRound ->
                         ( RoundEnds finishedRound
-                        , newCmd
+                        , newWhatToDraw
                         )
 
             else
                 ( RoundKeepsGoing ( timeLeftToConsume, lastTickReactedTo, midRoundStateSoFar )
-                , cmdSoFar
+                , whatToDrawSoFar
                 )
     in
-    recurse timeToConsume lastTick midRoundState Cmd.none
+    recurse timeToConsume lastTick midRoundState nothingToDraw
 
 
 noLeftoverFrameTime : LeftoverFrameTime
