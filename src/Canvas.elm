@@ -1,4 +1,4 @@
-port module Canvas exposing (bodyDrawingCmd, clearEverything, drawSpawnIfAndOnlyIf, headDrawingCmd)
+port module Canvas exposing (WhatToDraw, clearEverything, drawSpawnIfAndOnlyIf, drawingCmd)
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)
@@ -14,6 +14,20 @@ port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 
 
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
+
+
+type alias WhatToDraw =
+    { headDrawing : List Kurve
+    , bodyDrawing : List ( Color, DrawingPosition )
+    }
+
+
+drawingCmd : WhatToDraw -> Cmd msg
+drawingCmd whatToDraw =
+    [ headDrawingCmd whatToDraw.headDrawing
+    , bodyDrawingCmd whatToDraw.bodyDrawing
+    ]
+        |> Cmd.batch
 
 
 bodyDrawingCmd : List ( Color, DrawingPosition ) -> Cmd msg
