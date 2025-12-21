@@ -1,4 +1,4 @@
-port module Canvas exposing (RenderAction, clearEverything, draw, drawSpawnIfAndOnlyIf, drawingCmd, mergeRenderAction, nothingToDraw)
+port module Canvas exposing (RenderAction, clearEverything, draw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, drawingCmd, mergeRenderAction, nothingToDraw)
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)
@@ -63,6 +63,16 @@ mergeWhatToDraw whatFirst whatThen =
     }
 
 
+drawSpawnsPermanently : List Kurve -> Cmd msg
+drawSpawnsPermanently kurves =
+    kurves
+        |> List.map
+            (\kurve ->
+                ( kurve.color, World.drawingPosition kurve.state.position )
+            )
+        |> bodyDrawingCmd
+
+
 drawingCmd : RenderAction -> Cmd msg
 drawingCmd renderAction =
     case renderAction of
@@ -108,25 +118,10 @@ clearEverything { width, height } =
         ]
 
 
-drawSpawnIfAndOnlyIf : Bool -> Kurve -> Cmd msg
-drawSpawnIfAndOnlyIf shouldBeVisible kurve =
-    let
-        drawingPosition : DrawingPosition
-        drawingPosition =
-            World.drawingPosition kurve.state.position
-    in
+drawSpawnIfAndOnlyIf : Bool -> Kurve -> List Kurve -> Cmd msg
+drawSpawnIfAndOnlyIf shouldBeVisible kurve alreadySpawnedKurves =
     if shouldBeVisible then
-        render <|
-            List.singleton
-                { position = drawingPosition
-                , thickness = theThickness
-                , color = Color.toCssString kurve.color
-                }
+        headDrawingCmd (kurve :: alreadySpawnedKurves)
 
     else
-        clear
-            { x = drawingPosition.leftEdge
-            , y = drawingPosition.topEdge
-            , width = theThickness
-            , height = theThickness
-            }
+        headDrawingCmd alreadySpawnedKurves

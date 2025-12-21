@@ -3,7 +3,7 @@ port module Main exposing (Model, Msg(..), main)
 import App exposing (AppState(..), modifyGameState)
 import Browser
 import Browser.Events
-import Canvas exposing (clearEverything, drawSpawnIfAndOnlyIf, drawingCmd)
+import Canvas exposing (clearEverything, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, drawingCmd)
 import Config exposing (Config)
 import Dialog
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
@@ -87,6 +87,7 @@ newRoundGameStateAndCmd config liveOrReplay plannedMidRoundState =
     ( Active liveOrReplay NotPaused <|
         Spawning
             { kurvesLeft = plannedMidRoundState |> .kurves |> .alive
+            , alreadySpawnedKurves = []
             , ticksLeft = config.spawn.numberOfFlickerTicks
             }
             plannedMidRoundState
@@ -109,23 +110,23 @@ type Msg
 
 
 stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, Cmd msg )
-stepSpawnState config { kurvesLeft, ticksLeft } =
+stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
     case kurvesLeft of
         [] ->
             -- All Kurves have spawned.
-            ( Nothing, Cmd.none )
+            ( Nothing, drawSpawnsPermanently alreadySpawnedKurves )
 
         spawning :: waiting ->
             let
                 newSpawnState : SpawnState
                 newSpawnState =
                     if ticksLeft == 0 then
-                        { kurvesLeft = waiting, ticksLeft = config.spawn.numberOfFlickerTicks }
+                        { kurvesLeft = waiting, alreadySpawnedKurves = spawning :: alreadySpawnedKurves, ticksLeft = config.spawn.numberOfFlickerTicks }
 
                     else
-                        { kurvesLeft = spawning :: waiting, ticksLeft = ticksLeft - 1 }
+                        { kurvesLeft = spawning :: waiting, alreadySpawnedKurves = alreadySpawnedKurves, ticksLeft = ticksLeft - 1 }
             in
-            ( Just newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning )
+            ( Just newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning alreadySpawnedKurves )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
