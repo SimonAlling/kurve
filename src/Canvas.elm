@@ -2,7 +2,6 @@ port module Canvas exposing (RenderAction, clearEverything, draw, drawSpawnIfAnd
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)
-import Round exposing (Round)
 import Thickness exposing (theThickness)
 import Types.Kurve exposing (Kurve)
 import World exposing (DrawingPosition)

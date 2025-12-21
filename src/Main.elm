@@ -21,7 +21,6 @@ import Game
         , SpawnState
         , firstUpdateTick
         , getActiveRound
-        , getCurrentRound
         , modifyMidRoundState
         , prepareLiveRound
         , prepareReplayRound
