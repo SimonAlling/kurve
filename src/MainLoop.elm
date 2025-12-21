@@ -49,17 +49,17 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
                     ( tickResult, renderActionForThisTick ) =
                         Game.reactToTick config incrementedTick midRoundStateSoFar
 
-                    newWhatToDraw : RenderAction
-                    newWhatToDraw =
+                    newRenderAction : RenderAction
+                    newRenderAction =
                         mergeRenderAction renderActionSoFar renderActionForThisTick
                 in
                 case tickResult of
                     RoundKeepsGoing newMidRoundState ->
-                        recurse (timeLeftToConsume - timestep) incrementedTick newMidRoundState newWhatToDraw
+                        recurse (timeLeftToConsume - timestep) incrementedTick newMidRoundState newRenderAction
 
                     RoundEnds finishedRound ->
                         ( RoundEnds finishedRound
-                        , newWhatToDraw
+                        , newRenderAction
                         )
 
             else
