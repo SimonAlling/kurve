@@ -1,4 +1,4 @@
-port module Canvas exposing (WhatToDraw, clearEverything, drawSpawnIfAndOnlyIf, drawingCmd, mergeWhatToDraw, nothingToDraw)
+port module Canvas exposing (WhatToDraw, clearEverything, draw, drawSpawnIfAndOnlyIf, drawingCmd, mergeWhatToDraw, nothingToDraw)
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)
@@ -19,6 +19,13 @@ port renderOverlay : List { position : DrawingPosition, thickness : Int, color :
 type alias WhatToDraw =
     { headDrawing : List Kurve
     , bodyDrawing : List ( Color, DrawingPosition )
+    }
+
+
+draw : List Kurve -> List ( Color, DrawingPosition ) -> WhatToDraw
+draw aliveKurves newColoredDrawingPositions =
+    { headDrawing = aliveKurves
+    , bodyDrawing = newColoredDrawingPositions
     }
 
 
