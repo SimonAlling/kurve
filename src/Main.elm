@@ -77,10 +77,10 @@ init _ =
 startRound : LiveOrReplay -> Model -> Round -> ( Model, RenderAction )
 startRound liveOrReplay model midRoundState =
     let
-        ( gameState, whatToDraw ) =
+        ( gameState, renderAction ) =
             newRoundGameStateAndCmd model.config liveOrReplay midRoundState
     in
-    ( { model | appState = InGame gameState }, whatToDraw )
+    ( { model | appState = InGame gameState }, renderAction )
 
 
 newRoundGameStateAndCmd : Config -> LiveOrReplay -> Round -> ( GameState, RenderAction )
@@ -153,7 +153,7 @@ updateish msg ({ config, pressedButtons } as model) =
 
         SpawnTick liveOrReplay spawnState plannedMidRoundState ->
             let
-                ( maybeSpawnState, whatToDraw ) =
+                ( maybeSpawnState, renderAction ) =
                     stepSpawnState config spawnState
 
                 activeGameState : ActiveGameState
@@ -166,16 +166,16 @@ updateish msg ({ config, pressedButtons } as model) =
                             Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
             in
             ( { model | appState = InGame <| Active liveOrReplay NotPaused activeGameState }
-            , whatToDraw
+            , renderAction
             )
 
         AnimationFrame liveOrReplay { delta, leftoverTimeFromPreviousFrame, lastTick } midRoundState ->
             let
-                ( tickResult, whatToDraw ) =
+                ( tickResult, renderAction ) =
                     MainLoop.consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState
             in
             ( { model | appState = InGame (tickResultToGameState liveOrReplay tickResult) }
-            , whatToDraw
+            , renderAction
             )
 
         ButtonUsed Down button ->
@@ -302,11 +302,11 @@ updateish msg ({ config, pressedButtons } as model) =
 
                                 Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
                                     let
-                                        ( tickResult, whatToDraw ) =
+                                        ( tickResult, renderAction ) =
                                             MainLoop.consumeAnimationFrame config (toFloat config.replay.skipStepInMs) leftoverTimeFromPreviousFrame lastTick midRoundState
                                     in
                                     ( { model | appState = InGame (tickResultToGameState Replay tickResult) }
-                                    , whatToDraw
+                                    , renderAction
                                     )
 
                         Key "KeyR" ->
