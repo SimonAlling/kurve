@@ -7,7 +7,7 @@ module MainLoop exposing (consumeAnimationFrame, noLeftoverFrameTime)
 
 -}
 
-import Canvas exposing (WhatToDraw(..), mergeWhatToDraw)
+import Canvas exposing (RenderAction(..), mergeWhatToDraw)
 import Config exposing (Config)
 import Game exposing (TickResult(..))
 import Round exposing (Round)
@@ -22,7 +22,7 @@ consumeAnimationFrame :
     -> LeftoverFrameTime
     -> Tick
     -> Round
-    -> ( TickResult ( LeftoverFrameTime, Tick, Round ), WhatToDraw )
+    -> ( TickResult ( LeftoverFrameTime, Tick, Round ), RenderAction )
 consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState =
     let
         timeToConsume : FrameTime
@@ -37,8 +37,8 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
             LeftoverFrameTime
             -> Tick
             -> Round
-            -> WhatToDraw
-            -> ( TickResult ( LeftoverFrameTime, Tick, Round ), WhatToDraw )
+            -> RenderAction
+            -> ( TickResult ( LeftoverFrameTime, Tick, Round ), RenderAction )
         recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar whatToDrawSoFar =
             if timeLeftToConsume >= timestep then
                 let
@@ -49,7 +49,7 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
                     ( tickResult, whatToDrawForThisTick ) =
                         Game.reactToTick config incrementedTick midRoundStateSoFar
 
-                    newWhatToDraw : WhatToDraw
+                    newWhatToDraw : RenderAction
                     newWhatToDraw =
                         mergeWhatToDraw whatToDrawSoFar whatToDrawForThisTick
                 in

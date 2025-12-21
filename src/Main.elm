@@ -3,7 +3,7 @@ port module Main exposing (Model, Msg(..), main)
 import App exposing (AppState(..), modifyGameState)
 import Browser
 import Browser.Events
-import Canvas exposing (WhatToDraw(..), clearEverything, drawSpawnIfAndOnlyIf, drawingCmd)
+import Canvas exposing (RenderAction(..), clearEverything, drawSpawnIfAndOnlyIf, drawingCmd)
 import Config exposing (Config)
 import Dialog
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
@@ -74,7 +74,7 @@ init _ =
     )
 
 
-startRound : LiveOrReplay -> Model -> Round -> ( Model, WhatToDraw )
+startRound : LiveOrReplay -> Model -> Round -> ( Model, RenderAction )
 startRound liveOrReplay model midRoundState =
     let
         ( gameState, whatToDraw ) =
@@ -83,7 +83,7 @@ startRound liveOrReplay model midRoundState =
     ( { model | appState = InGame gameState }, whatToDraw )
 
 
-newRoundGameStateAndCmd : Config -> LiveOrReplay -> Round -> ( GameState, WhatToDraw )
+newRoundGameStateAndCmd : Config -> LiveOrReplay -> Round -> ( GameState, RenderAction )
 newRoundGameStateAndCmd config liveOrReplay plannedMidRoundState =
     ( Active liveOrReplay NotPaused <|
         Spawning
@@ -109,7 +109,7 @@ type Msg
     | FocusLost
 
 
-stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, WhatToDraw )
+stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, RenderAction )
 stepSpawnState config { kurvesLeft, ticksLeft } =
     case kurvesLeft of
         [] ->
@@ -134,7 +134,7 @@ update msg =
     updateish msg >> Tuple.mapSecond drawingCmd
 
 
-updateish : Msg -> Model -> ( Model, WhatToDraw )
+updateish : Msg -> Model -> ( Model, RenderAction )
 updateish msg ({ config, pressedButtons } as model) =
     case msg of
         FocusLost ->
@@ -232,15 +232,15 @@ updateish msg ({ config, pressedButtons } as model) =
 
                         Dialog.Open selectedOption ->
                             let
-                                cancel : ( Model, WhatToDraw )
+                                cancel : ( Model, RenderAction )
                                 cancel =
                                     ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, LeaveAsIs )
 
-                                confirm : ( Model, WhatToDraw )
+                                confirm : ( Model, RenderAction )
                                 confirm =
                                     goToLobby finishedRound.seed model
 
-                                select : Dialog.Option -> ( Model, WhatToDraw )
+                                select : Dialog.Option -> ( Model, RenderAction )
                                 select option =
                                     ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open option)) }, LeaveAsIs )
                             in
@@ -344,12 +344,12 @@ updateish msg ({ config, pressedButtons } as model) =
                     ( model, LeaveAsIs )
 
 
-gameOver : Random.Seed -> Model -> ( Model, WhatToDraw )
+gameOver : Random.Seed -> Model -> ( Model, RenderAction )
 gameOver seed model =
     ( { model | appState = InMenu GameOver seed }, LeaveAsIs )
 
 
-goToLobby : Random.Seed -> Model -> ( Model, WhatToDraw )
+goToLobby : Random.Seed -> Model -> ( Model, RenderAction )
 goToLobby seed model =
     ( { model | appState = InMenu Lobby seed, players = everyoneLeaves model.players }, LeaveAsIs )
 

@@ -1,4 +1,4 @@
-port module Canvas exposing (BodyDraw(..), WhatToDraw(..), clearEverything, drawSpawnIfAndOnlyIf, drawingCmd, mergeWhatToDraw)
+port module Canvas exposing (BodyDraw(..), RenderAction(..), clearEverything, drawSpawnIfAndOnlyIf, drawingCmd, mergeWhatToDraw)
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)
@@ -17,7 +17,7 @@ port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
-type WhatToDraw
+type RenderAction
     = LeaveAsIs
     | Tell Told
 
@@ -33,7 +33,7 @@ type BodyDraw
     | Clear DrawingPosition { width : Int, height : Int }
 
 
-mergeWhatToDraw : WhatToDraw -> WhatToDraw -> WhatToDraw
+mergeWhatToDraw : RenderAction -> RenderAction -> RenderAction
 mergeWhatToDraw whatFirst whatThen =
     case ( whatFirst, whatThen ) of
         ( LeaveAsIs, LeaveAsIs ) ->
@@ -56,7 +56,7 @@ mergeTold toldFirst toldThen =
     }
 
 
-drawingCmd : WhatToDraw -> Cmd msg
+drawingCmd : RenderAction -> Cmd msg
 drawingCmd whatToDraw =
     case whatToDraw of
         LeaveAsIs ->
@@ -100,7 +100,7 @@ headDrawingCmd =
             )
 
 
-clearEverything : WorldConfig -> WhatToDraw
+clearEverything : WorldConfig -> RenderAction
 clearEverything { width, height } =
     Tell
         { headDrawing = []
@@ -108,7 +108,7 @@ clearEverything { width, height } =
         }
 
 
-drawSpawnIfAndOnlyIf : Bool -> Kurve -> WhatToDraw
+drawSpawnIfAndOnlyIf : Bool -> Kurve -> RenderAction
 drawSpawnIfAndOnlyIf shouldBeVisible kurve =
     let
         drawingPosition : DrawingPosition
