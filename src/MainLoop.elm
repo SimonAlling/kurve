@@ -39,19 +39,19 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
             -> Round
             -> RenderAction
             -> ( TickResult ( LeftoverFrameTime, Tick, Round ), RenderAction )
-        recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar whatToDrawSoFar =
+        recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar renderActionSoFar =
             if timeLeftToConsume >= timestep then
                 let
                     incrementedTick : Tick
                     incrementedTick =
                         Tick.succ lastTickReactedTo
 
-                    ( tickResult, whatToDrawForThisTick ) =
+                    ( tickResult, renderActionForThisTick ) =
                         Game.reactToTick config incrementedTick midRoundStateSoFar
 
                     newRenderAction : RenderAction
                     newRenderAction =
-                        mergeRenderAction whatToDrawSoFar whatToDrawForThisTick
+                        mergeRenderAction renderActionSoFar renderActionForThisTick
                 in
                 case tickResult of
                     RoundKeepsGoing newMidRoundState ->
@@ -64,7 +64,7 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
 
             else
                 ( RoundKeepsGoing ( timeLeftToConsume, lastTickReactedTo, midRoundStateSoFar )
-                , whatToDrawSoFar
+                , renderActionSoFar
                 )
     in
     recurse timeToConsume lastTick midRoundState nothingToDraw
