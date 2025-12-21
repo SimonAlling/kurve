@@ -45,14 +45,14 @@ mergeRenderAction actionFirst actionThen =
         ( Draw whatToDraw, LeaveAsIs ) ->
             Draw whatToDraw
 
-        ( Draw whatToDrawFirst, Draw whatToDrawThen ) ->
-            Draw <| mergeWhatToDraw whatToDrawFirst whatToDrawThen
+        ( Draw whatFirst, Draw whatThen ) ->
+            Draw <| mergeWhatToDraw whatFirst whatThen
 
 
 mergeWhatToDraw : WhatToDraw -> WhatToDraw -> WhatToDraw
-mergeWhatToDraw whatToDrawFirst whatToDrawThen =
-    { headDrawing = whatToDrawThen.headDrawing
-    , bodyDrawing = whatToDrawFirst.bodyDrawing ++ whatToDrawThen.bodyDrawing
+mergeWhatToDraw whatFirst whatThen =
+    { headDrawing = whatThen.headDrawing
+    , bodyDrawing = whatFirst.bodyDrawing ++ whatThen.bodyDrawing
     }
 
 
