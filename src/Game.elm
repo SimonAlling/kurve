@@ -17,7 +17,7 @@ module Game exposing
     , tickResultToGameState
     )
 
-import Canvas exposing (RenderAction(..), draw)
+import Canvas exposing (RenderAction, draw)
 import Color exposing (Color)
 import Config exposing (Config, KurveConfig)
 import Dialog
