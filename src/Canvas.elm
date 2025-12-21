@@ -1,4 +1,4 @@
-port module Canvas exposing (BodyDraw(..), RenderAction(..), clearEverything, drawSpawnIfAndOnlyIf, drawingCmd, mergeWhatToDraw)
+port module Canvas exposing (BodyDraw(..), RenderAction(..), clearEverything, drawSpawnIfAndOnlyIf, drawingCmd, mergeRenderAction)
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)
@@ -33,8 +33,8 @@ type BodyDraw
     | Clear DrawingPosition { width : Int, height : Int }
 
 
-mergeWhatToDraw : RenderAction -> RenderAction -> RenderAction
-mergeWhatToDraw whatFirst whatThen =
+mergeRenderAction : RenderAction -> RenderAction -> RenderAction
+mergeRenderAction whatFirst whatThen =
     case ( whatFirst, whatThen ) of
         ( LeaveAsIs, LeaveAsIs ) ->
             LeaveAsIs
