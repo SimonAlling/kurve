@@ -46,11 +46,11 @@ mergeRenderAction whatFirst whatThen =
             Tell told
 
         ( Tell toldFirst, Tell toldThen ) ->
-            Tell <| mergeTold toldFirst toldThen
+            Tell <| mergeWhatToDraw toldFirst toldThen
 
 
-mergeTold : WhatToDraw -> WhatToDraw -> WhatToDraw
-mergeTold toldFirst toldThen =
+mergeWhatToDraw : WhatToDraw -> WhatToDraw -> WhatToDraw
+mergeWhatToDraw toldFirst toldThen =
     { headDrawing = toldThen.headDrawing
     , bodyDrawing = toldFirst.bodyDrawing ++ toldThen.bodyDrawing
     }
