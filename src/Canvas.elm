@@ -91,7 +91,7 @@ bodyDrawingCmd =
                                 , color = Color.toCssString color
                                 }
 
-                    Clear position size ->
+                    ClearOne position size ->
                         clear { x = position.leftEdge, y = position.topEdge, width = size.width, height = size.height }
             )
 
@@ -112,7 +112,7 @@ clearEverything : WorldConfig -> RenderAction
 clearEverything { width, height } =
     Draw
         { headDrawing = []
-        , bodyDrawing = List.singleton (Clear { leftEdge = 0, topEdge = 0 } { width = width, height = height })
+        , bodyDrawing = List.singleton (ClearOne { leftEdge = 0, topEdge = 0 } { width = width, height = height })
         }
 
 
@@ -132,10 +132,10 @@ drawSpawnIfAndOnlyIf shouldBeVisible kurve =
     else
         Draw
             { headDrawing = []
-            , bodyDrawing = List.singleton (Clear drawingPosition { width = theThickness, height = theThickness })
+            , bodyDrawing = List.singleton (ClearOne drawingPosition { width = theThickness, height = theThickness })
             }
 
 
 type BodyDraw
     = DrawOne ( Color, DrawingPosition )
-    | Clear DrawingPosition { width : Int, height : Int }
+    | ClearOne DrawingPosition { width : Int, height : Int }
