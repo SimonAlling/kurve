@@ -28,11 +28,6 @@ type alias WhatToDraw =
     }
 
 
-type BodyDraw
-    = DrawOne ( Color, DrawingPosition )
-    | Clear DrawingPosition { width : Int, height : Int }
-
-
 mergeRenderAction : RenderAction -> RenderAction -> RenderAction
 mergeRenderAction actionFirst actionThen =
     case ( actionFirst, actionThen ) of
@@ -126,3 +121,8 @@ drawSpawnIfAndOnlyIf shouldBeVisible kurve =
             { headDrawing = []
             , bodyDrawing = List.singleton (Clear drawingPosition { width = theThickness, height = theThickness })
             }
+
+
+type BodyDraw
+    = DrawOne ( Color, DrawingPosition )
+    | Clear DrawingPosition { width : Int, height : Int }
