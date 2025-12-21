@@ -19,10 +19,10 @@ port renderOverlay : List { position : DrawingPosition, thickness : Int, color :
 
 type RenderAction
     = LeaveAsIs
-    | Tell Told
+    | Tell WhatToDraw
 
 
-type alias Told =
+type alias WhatToDraw =
     { headDrawing : List Kurve
     , bodyDrawing : List BodyDraw
     }
@@ -49,7 +49,7 @@ mergeRenderAction whatFirst whatThen =
             Tell <| mergeTold toldFirst toldThen
 
 
-mergeTold : Told -> Told -> Told
+mergeTold : WhatToDraw -> WhatToDraw -> WhatToDraw
 mergeTold toldFirst toldThen =
     { headDrawing = toldThen.headDrawing
     , bodyDrawing = toldFirst.bodyDrawing ++ toldThen.bodyDrawing
