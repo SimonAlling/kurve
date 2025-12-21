@@ -29,7 +29,7 @@ type alias WhatToDraw =
 
 
 type BodyDraw
-    = Draw ( Color, DrawingPosition )
+    = DrawOne ( Color, DrawingPosition )
     | Clear DrawingPosition { width : Int, height : Int }
 
 
@@ -75,7 +75,7 @@ bodyDrawingCmd =
         << List.map
             (\bodyDraw ->
                 case bodyDraw of
-                    Draw ( color, position ) ->
+                    DrawOne ( color, position ) ->
                         render <|
                             List.singleton
                                 { position = position
@@ -118,7 +118,7 @@ drawSpawnIfAndOnlyIf shouldBeVisible kurve =
     if shouldBeVisible then
         Tell
             { headDrawing = []
-            , bodyDrawing = List.singleton (Draw ( kurve.color, drawingPosition ))
+            , bodyDrawing = List.singleton (DrawOne ( kurve.color, drawingPosition ))
             }
 
     else

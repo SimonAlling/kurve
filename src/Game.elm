@@ -182,7 +182,7 @@ reactToTick config tick currentRound =
     ( tickResult
     , Tell
         { headDrawing = newKurves.alive
-        , bodyDrawing = newColoredDrawingPositions |> List.map Draw
+        , bodyDrawing = newColoredDrawingPositions |> List.map DrawOne
         }
     )
 
