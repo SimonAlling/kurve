@@ -7,7 +7,7 @@ module MainLoop exposing (consumeAnimationFrame, noLeftoverFrameTime)
 
 -}
 
-import Canvas exposing (RenderAction(..), mergeRenderAction)
+import Canvas exposing (RenderAction(..), mergeRenderAction, nothingToDraw)
 import Config exposing (Config)
 import Game exposing (TickResult(..))
 import Round exposing (Round)
@@ -67,7 +67,7 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
                 , renderActionSoFar
                 )
     in
-    recurse timeToConsume lastTick midRoundState LeaveAsIs
+    recurse timeToConsume lastTick midRoundState nothingToDraw
 
 
 noLeftoverFrameTime : LeftoverFrameTime

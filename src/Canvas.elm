@@ -1,4 +1,4 @@
-port module Canvas exposing (BodyDraw(..), RenderAction(..), clearEverything, drawSpawnIfAndOnlyIf, drawingCmd, mergeRenderAction)
+port module Canvas exposing (RenderAction, clearEverything, draw, drawSpawnIfAndOnlyIf, drawingCmd, mergeRenderAction, nothingToDraw)
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)
@@ -26,6 +26,19 @@ type alias WhatToDraw =
     { headDrawing : List Kurve
     , bodyDrawing : List BodyDraw
     }
+
+
+draw : List Kurve -> List ( Color, DrawingPosition ) -> RenderAction
+draw aliveKurves newColoredDrawingPositions =
+    Draw
+        { headDrawing = aliveKurves
+        , bodyDrawing = newColoredDrawingPositions |> List.map DrawOne
+        }
+
+
+nothingToDraw : RenderAction
+nothingToDraw =
+    LeaveAsIs
 
 
 mergeRenderAction : RenderAction -> RenderAction -> RenderAction
