@@ -1,7 +1,8 @@
-port module Canvas exposing (BodyDraw(..), WhatToDraw, clearEverything, drawSpawnIfAndOnlyIf, drawingCmd, mergeWhatToDraw, nothingToDraw)
+port module Canvas exposing (BodyDraw(..), WhatToDraw(..), clearEverything, drawSpawnIfAndOnlyIf, drawingCmd, mergeWhatToDraw)
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)
+import Round exposing (Round)
 import Thickness exposing (theThickness)
 import Types.Kurve exposing (Kurve)
 import World exposing (DrawingPosition)
@@ -21,32 +22,51 @@ type BodyDraw
     | Clear DrawingPosition { width : Int, height : Int }
 
 
-type alias WhatToDraw =
+type WhatToDraw
+    = LeaveAsIs
+    | Tell Told
+
+
+type alias Told =
     { headDrawing : List Kurve
     , bodyDrawing : List BodyDraw
     }
 
 
-nothingToDraw : WhatToDraw
-nothingToDraw =
-    { headDrawing = []
-    , bodyDrawing = []
-    }
-
-
 mergeWhatToDraw : WhatToDraw -> WhatToDraw -> WhatToDraw
 mergeWhatToDraw whatFirst whatThen =
-    { headDrawing = whatThen.headDrawing
-    , bodyDrawing = whatFirst.bodyDrawing ++ whatThen.bodyDrawing
+    case ( whatFirst, whatThen ) of
+        ( LeaveAsIs, LeaveAsIs ) ->
+            LeaveAsIs
+
+        ( LeaveAsIs, Tell told ) ->
+            Tell told
+
+        ( Tell told, LeaveAsIs ) ->
+            Tell told
+
+        ( Tell toldFirst, Tell toldThen ) ->
+            Tell <| mergeTold toldFirst toldThen
+
+
+mergeTold : Told -> Told -> Told
+mergeTold toldFirst toldThen =
+    { headDrawing = toldThen.headDrawing
+    , bodyDrawing = toldFirst.bodyDrawing ++ toldThen.bodyDrawing
     }
 
 
 drawingCmd : WhatToDraw -> Cmd msg
 drawingCmd whatToDraw =
-    [ headDrawingCmd whatToDraw.headDrawing
-    , bodyDrawingCmd whatToDraw.bodyDrawing
-    ]
-        |> Cmd.batch
+    case whatToDraw of
+        LeaveAsIs ->
+            Cmd.none
+
+        Tell told ->
+            [ headDrawingCmd told.headDrawing
+            , bodyDrawingCmd told.bodyDrawing
+            ]
+                |> Cmd.batch
 
 
 bodyDrawingCmd : List BodyDraw -> Cmd msg
@@ -82,9 +102,10 @@ headDrawingCmd =
 
 clearEverything : WorldConfig -> WhatToDraw
 clearEverything { width, height } =
-    { headDrawing = []
-    , bodyDrawing = List.singleton (Clear { leftEdge = 0, topEdge = 0 } { width = width, height = height })
-    }
+    Tell
+        { headDrawing = []
+        , bodyDrawing = List.singleton (Clear { leftEdge = 0, topEdge = 0 } { width = width, height = height })
+        }
 
 
 drawSpawnIfAndOnlyIf : Bool -> Kurve -> WhatToDraw
@@ -95,11 +116,13 @@ drawSpawnIfAndOnlyIf shouldBeVisible kurve =
             World.drawingPosition kurve.state.position
     in
     if shouldBeVisible then
-        { headDrawing = []
-        , bodyDrawing = List.singleton (Draw ( kurve.color, drawingPosition ))
-        }
+        Tell
+            { headDrawing = []
+            , bodyDrawing = List.singleton (Draw ( kurve.color, drawingPosition ))
+            }
 
     else
-        { headDrawing = []
-        , bodyDrawing = List.singleton (Clear drawingPosition { width = theThickness, height = theThickness })
-        }
+        Tell
+            { headDrawing = []
+            , bodyDrawing = List.singleton (Clear drawingPosition { width = theThickness, height = theThickness })
+            }
