@@ -17,11 +17,6 @@ port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
-type BodyDraw
-    = Draw ( Color, DrawingPosition )
-    | Clear DrawingPosition { width : Int, height : Int }
-
-
 type WhatToDraw
     = LeaveAsIs
     | Tell Told
@@ -31,6 +26,11 @@ type alias Told =
     { headDrawing : List Kurve
     , bodyDrawing : List BodyDraw
     }
+
+
+type BodyDraw
+    = Draw ( Color, DrawingPosition )
+    | Clear DrawingPosition { width : Int, height : Int }
 
 
 mergeWhatToDraw : WhatToDraw -> WhatToDraw -> WhatToDraw
