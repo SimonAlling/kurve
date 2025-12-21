@@ -1,4 +1,4 @@
-port module Canvas exposing (WhatToDraw, clearEverything, drawSpawnIfAndOnlyIf, drawingCmd, mergeWhatToDraw, nothingToDraw)
+port module Canvas exposing (BodyDraw(..), WhatToDraw, clearEverything, drawSpawnIfAndOnlyIf, drawingCmd, mergeWhatToDraw, nothingToDraw)
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)
@@ -16,9 +16,14 @@ port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
+type BodyDraw
+    = Draw ( Color, DrawingPosition )
+    | Clear DrawingPosition { width : Int, height : Int }
+
+
 type alias WhatToDraw =
     { headDrawing : List Kurve
-    , bodyDrawing : List ( Color, DrawingPosition )
+    , bodyDrawing : List BodyDraw
     }
 
 
@@ -44,15 +49,22 @@ drawingCmd whatToDraw =
         |> Cmd.batch
 
 
-bodyDrawingCmd : List ( Color, DrawingPosition ) -> Cmd msg
+bodyDrawingCmd : List BodyDraw -> Cmd msg
 bodyDrawingCmd =
-    render
+    Cmd.batch
         << List.map
-            (\( color, position ) ->
-                { position = position
-                , thickness = theThickness
-                , color = Color.toCssString color
-                }
+            (\bodyDraw ->
+                case bodyDraw of
+                    Draw ( color, position ) ->
+                        render <|
+                            List.singleton
+                                { position = position
+                                , thickness = theThickness
+                                , color = Color.toCssString color
+                                }
+
+                    Clear position size ->
+                        clear { x = position.leftEdge, y = position.topEdge, width = size.width, height = size.height }
             )
 
 
@@ -68,15 +80,14 @@ headDrawingCmd =
             )
 
 
-clearEverything : WorldConfig -> Cmd msg
+clearEverything : WorldConfig -> WhatToDraw
 clearEverything { width, height } =
-    Cmd.batch
-        [ renderOverlay []
-        , clear { x = 0, y = 0, width = width, height = height }
-        ]
+    { headDrawing = []
+    , bodyDrawing = List.singleton (Clear { leftEdge = 0, topEdge = 0 } { width = width, height = height })
+    }
 
 
-drawSpawnIfAndOnlyIf : Bool -> Kurve -> Cmd msg
+drawSpawnIfAndOnlyIf : Bool -> Kurve -> WhatToDraw
 drawSpawnIfAndOnlyIf shouldBeVisible kurve =
     let
         drawingPosition : DrawingPosition
@@ -84,17 +95,11 @@ drawSpawnIfAndOnlyIf shouldBeVisible kurve =
             World.drawingPosition kurve.state.position
     in
     if shouldBeVisible then
-        render <|
-            List.singleton
-                { position = drawingPosition
-                , thickness = theThickness
-                , color = Color.toCssString kurve.color
-                }
+        { headDrawing = []
+        , bodyDrawing = List.singleton (Draw ( kurve.color, drawingPosition ))
+        }
 
     else
-        clear
-            { x = drawingPosition.leftEdge
-            , y = drawingPosition.topEdge
-            , width = theThickness
-            , height = theThickness
-            }
+        { headDrawing = []
+        , bodyDrawing = List.singleton (Clear drawingPosition { width = theThickness, height = theThickness })
+        }
