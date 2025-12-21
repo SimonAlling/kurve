@@ -1,4 +1,4 @@
-port module Canvas exposing (WhatToDraw, clearEverything, draw, drawSpawnIfAndOnlyIf, drawingCmd, mergeWhatToDraw, nothingToDraw)
+port module Canvas exposing (RenderAction, clearEverything, draw, drawSpawnIfAndOnlyIf, drawingCmd, mergeRenderAction, nothingToDraw)
 
 import Color exposing (Color)
 import Config exposing (WorldConfig)
@@ -16,24 +16,44 @@ port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
+type RenderAction
+    = LeaveAsIs
+    | Draw WhatToDraw
+
+
 type alias WhatToDraw =
     { headDrawing : List Kurve
     , bodyDrawing : List ( Color, DrawingPosition )
     }
 
 
-draw : List Kurve -> List ( Color, DrawingPosition ) -> WhatToDraw
+draw : List Kurve -> List ( Color, DrawingPosition ) -> RenderAction
 draw aliveKurves newColoredDrawingPositions =
-    { headDrawing = aliveKurves
-    , bodyDrawing = newColoredDrawingPositions
-    }
+    Draw
+        { headDrawing = aliveKurves
+        , bodyDrawing = newColoredDrawingPositions
+        }
 
 
-nothingToDraw : WhatToDraw
+nothingToDraw : RenderAction
 nothingToDraw =
-    { headDrawing = []
-    , bodyDrawing = []
-    }
+    LeaveAsIs
+
+
+mergeRenderAction : RenderAction -> RenderAction -> RenderAction
+mergeRenderAction actionFirst actionThen =
+    case ( actionFirst, actionThen ) of
+        ( LeaveAsIs, LeaveAsIs ) ->
+            LeaveAsIs
+
+        ( LeaveAsIs, Draw whatToDraw ) ->
+            Draw whatToDraw
+
+        ( Draw whatToDraw, LeaveAsIs ) ->
+            Draw whatToDraw
+
+        ( Draw whatFirst, Draw whatThen ) ->
+            Draw <| mergeWhatToDraw whatFirst whatThen
 
 
 mergeWhatToDraw : WhatToDraw -> WhatToDraw -> WhatToDraw
@@ -43,12 +63,17 @@ mergeWhatToDraw whatFirst whatThen =
     }
 
 
-drawingCmd : WhatToDraw -> Cmd msg
-drawingCmd whatToDraw =
-    [ headDrawingCmd whatToDraw.headDrawing
-    , bodyDrawingCmd whatToDraw.bodyDrawing
-    ]
-        |> Cmd.batch
+drawingCmd : RenderAction -> Cmd msg
+drawingCmd renderAction =
+    case renderAction of
+        LeaveAsIs ->
+            Cmd.none
+
+        Draw whatToDraw ->
+            [ headDrawingCmd whatToDraw.headDrawing
+            , bodyDrawingCmd whatToDraw.bodyDrawing
+            ]
+                |> Cmd.batch
 
 
 bodyDrawingCmd : List ( Color, DrawingPosition ) -> Cmd msg
