@@ -19,7 +19,7 @@ port renderOverlay : List { position : DrawingPosition, thickness : Int, color :
 
 type RenderAction
     = LeaveAsIs
-    | Tell WhatToDraw
+    | Draw WhatToDraw
 
 
 type alias WhatToDraw =
@@ -39,32 +39,32 @@ mergeRenderAction whatFirst whatThen =
         ( LeaveAsIs, LeaveAsIs ) ->
             LeaveAsIs
 
-        ( LeaveAsIs, Tell told ) ->
-            Tell told
+        ( LeaveAsIs, Draw whatToDraw ) ->
+            Draw whatToDraw
 
-        ( Tell told, LeaveAsIs ) ->
-            Tell told
+        ( Draw whatToDraw, LeaveAsIs ) ->
+            Draw whatToDraw
 
-        ( Tell toldFirst, Tell toldThen ) ->
-            Tell <| mergeWhatToDraw toldFirst toldThen
+        ( Draw whatToDrawFirst, Draw whatToDrawThen ) ->
+            Draw <| mergeWhatToDraw whatToDrawFirst whatToDrawThen
 
 
 mergeWhatToDraw : WhatToDraw -> WhatToDraw -> WhatToDraw
-mergeWhatToDraw toldFirst toldThen =
-    { headDrawing = toldThen.headDrawing
-    , bodyDrawing = toldFirst.bodyDrawing ++ toldThen.bodyDrawing
+mergeWhatToDraw whatToDrawFirst whatToDrawThen =
+    { headDrawing = whatToDrawThen.headDrawing
+    , bodyDrawing = whatToDrawFirst.bodyDrawing ++ whatToDrawThen.bodyDrawing
     }
 
 
 drawingCmd : RenderAction -> Cmd msg
-drawingCmd whatToDraw =
-    case whatToDraw of
+drawingCmd renderAction =
+    case renderAction of
         LeaveAsIs ->
             Cmd.none
 
-        Tell told ->
-            [ headDrawingCmd told.headDrawing
-            , bodyDrawingCmd told.bodyDrawing
+        Draw whatToDraw ->
+            [ headDrawingCmd whatToDraw.headDrawing
+            , bodyDrawingCmd whatToDraw.bodyDrawing
             ]
                 |> Cmd.batch
 
@@ -102,7 +102,7 @@ headDrawingCmd =
 
 clearEverything : WorldConfig -> RenderAction
 clearEverything { width, height } =
-    Tell
+    Draw
         { headDrawing = []
         , bodyDrawing = List.singleton (Clear { leftEdge = 0, topEdge = 0 } { width = width, height = height })
         }
@@ -116,13 +116,13 @@ drawSpawnIfAndOnlyIf shouldBeVisible kurve =
             World.drawingPosition kurve.state.position
     in
     if shouldBeVisible then
-        Tell
+        Draw
             { headDrawing = []
             , bodyDrawing = List.singleton (DrawOne ( kurve.color, drawingPosition ))
             }
 
     else
-        Tell
+        Draw
             { headDrawing = []
             , bodyDrawing = List.singleton (Clear drawingPosition { width = theThickness, height = theThickness })
             }

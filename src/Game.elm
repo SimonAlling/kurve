@@ -180,7 +180,7 @@ reactToTick config tick currentRound =
                 RoundKeepsGoing newCurrentRound
     in
     ( tickResult
-    , Tell
+    , Draw
         { headDrawing = newKurves.alive
         , bodyDrawing = newColoredDrawingPositions |> List.map DrawOne
         }
