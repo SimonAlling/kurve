@@ -34,8 +34,8 @@ type BodyDraw
 
 
 mergeRenderAction : RenderAction -> RenderAction -> RenderAction
-mergeRenderAction whatFirst whatThen =
-    case ( whatFirst, whatThen ) of
+mergeRenderAction actionFirst actionThen =
+    case ( actionFirst, actionThen ) of
         ( LeaveAsIs, LeaveAsIs ) ->
             LeaveAsIs
 
