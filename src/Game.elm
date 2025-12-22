@@ -405,4 +405,4 @@ recordUserInteraction pressedButtons nextTick kurve =
         newTurningState =
             computeTurningState pressedButtons kurve
     in
-    modifyReversedInteractions ((::) (HappenedBefore nextTick newTurningState)) kurve
+    kurve

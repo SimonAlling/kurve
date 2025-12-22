@@ -13,10 +13,12 @@ import Random.Extra as Random
 import Thickness exposing (theThickness)
 import Types.Angle exposing (Angle(..))
 import Types.Distance as Distance exposing (Distance)
-import Types.Kurve as Kurve exposing (Kurve)
+import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..))
 import Types.Player exposing (Player)
 import Types.PlayerId exposing (PlayerId)
 import Types.Radius as Radius
+import Types.Tick as Tick
+import Types.TurningState exposing (TurningState(..))
 import Util exposing (curry)
 import World exposing (Position, distanceBetween, distanceToTicks)
 
@@ -89,7 +91,11 @@ generateKurve config id numberOfPlayers existingPositions player =
             , controls = toStringSetControls player.controls
             , state = state
             , stateAtSpawn = state
-            , reversedInteractions = []
+            , reversedInteractions =
+                [ HappenedBefore (202 |> Tick.fromInt |> Maybe.withDefault Tick.genesis) NotTurning
+                , HappenedBefore (71 |> Tick.fromInt |> Maybe.withDefault Tick.genesis) TurningLeft
+                , HappenedBefore (1 |> Tick.fromInt |> Maybe.withDefault Tick.genesis) NotTurning
+                ]
             }
         )
         safeSpawnPosition
