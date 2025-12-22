@@ -185,11 +185,11 @@ reactToTick config tick currentRound =
     )
 
 
-tickResultToGameState : LiveOrReplay -> TickResult ( LeftoverFrameTime, Tick, Round ) -> GameState
-tickResultToGameState liveOrReplay tickResult =
+tickResultToGameState : LiveOrReplay -> PausedOrNot -> TickResult ( LeftoverFrameTime, Tick, Round ) -> GameState
+tickResultToGameState liveOrReplay pausedOrNot tickResult =
     case tickResult of
         RoundKeepsGoing ( leftoverFrameTime, tick, midRoundState ) ->
-            Active liveOrReplay NotPaused (Moving leftoverFrameTime tick midRoundState)
+            Active liveOrReplay pausedOrNot (Moving leftoverFrameTime tick midRoundState)
 
         RoundEnds finishedRound ->
             RoundOver finishedRound Dialog.NotOpen

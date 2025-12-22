@@ -48,6 +48,7 @@ import Set exposing (Set)
 import Time
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
+import Types.Tickrate as Tickrate
 import Util exposing (isEven)
 
 
@@ -169,7 +170,7 @@ update msg ({ config, pressedButtons } as model) =
                 ( tickResult, renderAction ) =
                     MainLoop.consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState
             in
-            ( { model | appState = InGame (tickResultToGameState liveOrReplay tickResult) }
+            ( { model | appState = InGame (tickResultToGameState liveOrReplay NotPaused tickResult) }
             , drawingCmd renderAction
             )
 
@@ -290,6 +291,24 @@ update msg ({ config, pressedButtons } as model) =
                         Key "Space" ->
                             ( { model | appState = InGame (Active Replay NotPaused s) }, Cmd.none )
 
+                        Key "ArrowRight" ->
+                            case s of
+                                Spawning _ _ ->
+                                    ( model, Cmd.none )
+
+                                Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
+                                    let
+                                        timeToSkipInMs : FrameTime
+                                        timeToSkipInMs =
+                                            1000 / Tickrate.toFloat config.kurves.tickrate
+
+                                        ( tickResult, renderAction ) =
+                                            MainLoop.consumeAnimationFrame config timeToSkipInMs leftoverTimeFromPreviousFrame lastTick midRoundState
+                                    in
+                                    ( { model | appState = InGame (tickResultToGameState Replay Paused tickResult) }
+                                    , drawingCmd renderAction
+                                    )
+
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
 
@@ -308,7 +327,7 @@ update msg ({ config, pressedButtons } as model) =
                                         ( tickResult, renderAction ) =
                                             MainLoop.consumeAnimationFrame config (toFloat config.replay.skipStepInMs) leftoverTimeFromPreviousFrame lastTick midRoundState
                                     in
-                                    ( { model | appState = InGame (tickResultToGameState Replay tickResult) }
+                                    ( { model | appState = InGame (tickResultToGameState Replay NotPaused tickResult) }
                                     , drawingCmd renderAction
                                     )
 
