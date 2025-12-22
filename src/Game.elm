@@ -99,6 +99,7 @@ type LiveOrReplay
 
 type alias SpawnState =
     { kurvesLeft : List Kurve
+    , alreadySpawnedKurves : List Kurve
     , ticksLeft : Int
     }
 
