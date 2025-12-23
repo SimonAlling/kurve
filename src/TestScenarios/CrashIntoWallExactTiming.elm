@@ -12,7 +12,7 @@ green =
         { color = Color.green
         , id = playerIds.green
         , state =
-            { position = ( 100, 3.5 )
+            { position = ( 100.5, 3.5 )
             , direction = Angle (pi / 2 + 0.01)
             , holeStatus = Unholy 60000
             }
@@ -31,7 +31,7 @@ expectedOutcome =
         { aliveAtTheEnd = []
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 349, topEdge = -1 }
+              , theDrawingPositionItNeverMadeItTo = { leftEdge = 350, topEdge = -1 }
               }
             ]
         }
