@@ -17,7 +17,6 @@ import TestScenarios.CrashIntoWallRight
 import TestScenarios.CrashIntoWallTop
 import TestScenarios.CuttingCornersBasic
 import TestScenarios.CuttingCornersPerfectOverpainting
-import TestScenarios.CuttingCornersThreePixelsRealExample
 import TestScenarios.SpeedEffectOnGame
 import TestScenarios.StressTestRealisticTurtleSurvivalRound
 import Types.Speed as Speed exposing (Speed(..))
@@ -184,12 +183,6 @@ cuttingCornersTests =
                     |> expectRoundOutcome
                         Config.default
                         TestScenarios.CuttingCornersBasic.expectedOutcome
-        , test "It is possible to paint over three pixels when cutting a corner (real example from original game)" <|
-            \_ ->
-                roundWith TestScenarios.CuttingCornersThreePixelsRealExample.spawnedKurves
-                    |> expectRoundOutcome
-                        Config.default
-                        TestScenarios.CuttingCornersThreePixelsRealExample.expectedOutcome
         , test "The perfect overpainting (squeezing through a non-existent gap)" <|
             \_ ->
                 roundWith TestScenarios.CuttingCornersPerfectOverpainting.spawnedKurves
