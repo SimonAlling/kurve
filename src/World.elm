@@ -58,7 +58,7 @@ drawingPosition ( x, y ) =
 
 edgeOfSquare : Float -> Int
 edgeOfSquare xOrY =
-    round (xOrY - (theThickness / 2))
+    floor xOrY
 
 
 pixelsToOccupy : DrawingPosition -> Set Pixel

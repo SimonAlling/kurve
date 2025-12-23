@@ -13,7 +13,7 @@ greenZombie =
         { color = Color.green
         , id = playerIds.green
         , state =
-            { position = ( 4.5, 1.5 )
+            { position = ( 3.5, 0.5 )
             , direction = Angle (pi / 2)
             , holeStatus = Unholy 60000
             }
