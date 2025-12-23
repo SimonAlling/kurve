@@ -38,7 +38,7 @@ orange =
         { color = Color.orange
         , id = playerIds.orange
         , state =
-            { position = ( 100, 400 )
+            { position = ( 100.5, 400.5 )
             , direction = Angle (pi / 2)
             , holeStatus = Unholy 60000
             }
