@@ -12,7 +12,7 @@ red y_red =
         { color = Color.red
         , id = playerIds.red
         , state =
-            { position = ( 150.5, y_red )
+            { position = ( 149.5, y_red )
             , direction = Angle (pi / 2)
             , holeStatus = Unholy 60000
             }
@@ -25,7 +25,7 @@ green =
         { color = Color.green
         , id = playerIds.green
         , state =
-            { position = ( 100.5, 107.5 )
+            { position = ( 99.5, 106.5 )
             , direction = Angle (pi / 2 + 0.02)
             , holeStatus = Unholy 60000
             }

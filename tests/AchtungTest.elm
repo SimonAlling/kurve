@@ -160,7 +160,7 @@ crashingIntoKurveTimingTests =
                     let
                         y_red : Float
                         y_red =
-                            100 + toFloat decimal / 10
+                            99 + toFloat decimal / 10
                     in
                     test
                         ("When Red's vertical position is " ++ String.fromFloat y_red)
