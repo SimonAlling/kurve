@@ -43,7 +43,7 @@ spawnedKurves =
 
 expectedOutcome : RoundOutcome
 expectedOutcome =
-    { tickThatShouldEndIt = tickNumber 2011
+    { tickThatShouldEndIt = tickNumber 2012
     , howItShouldEnd =
         { aliveAtTheEnd = []
         , deadAtTheEnd =

@@ -26,12 +26,12 @@ spawnedKurves =
 
 expectedOutcome : RoundOutcome
 expectedOutcome =
-    { tickThatShouldEndIt = tickNumber 251
+    { tickThatShouldEndIt = tickNumber 351
     , howItShouldEnd =
         { aliveAtTheEnd = []
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 350, topEdge = -1 }
+              , theDrawingPositionItNeverMadeItTo = { leftEdge = 450, topEdge = -1 }
               }
             ]
         }
