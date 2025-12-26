@@ -27,7 +27,7 @@ default =
             { minInterval = Distance 90
             , maxInterval = Distance 300
             , minSize = Distance 5
-            , maxSize = Distance 9
+            , maxSize = Distance 5
             }
         }
     , spawn =

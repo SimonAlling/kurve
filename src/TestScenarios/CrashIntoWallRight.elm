@@ -12,9 +12,9 @@ green =
         { color = Color.green
         , id = playerIds.green
         , state =
-            { position = ( 555.5, 99.5 )
+            { position = ( 536, 100 )
             , direction = Angle (pi / 2)
-            , holeStatus = Unholy 60000
+            , holeStatus = Unholy 10
             }
         }
 

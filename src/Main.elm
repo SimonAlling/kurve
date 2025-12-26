@@ -45,6 +45,7 @@ import Players
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
+import TestScenarios.CrashIntoWallRight
 import Time
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
@@ -64,12 +65,20 @@ port focusLost : (() -> msg) -> Sub msg
 
 init : () -> ( Model, Cmd Msg )
 init _ =
+    let
+        ( gameState, cmd ) =
+            { seedAfterSpawn = Random.initialSeed 0
+            , spawnedKurves = TestScenarios.CrashIntoWallRight.spawnedKurves
+            }
+                |> prepareReplayRound
+                |> newRoundGameStateAndCmd Config.default Replay
+    in
     ( { pressedButtons = Set.empty
-      , appState = InMenu SplashScreen (Random.initialSeed 1337)
+      , appState = InGame gameState
       , config = Config.default
       , players = initialPlayers
       }
-    , Cmd.none
+    , cmd
     )
 
 
