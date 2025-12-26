@@ -26,7 +26,7 @@ spawnedKurves =
 
 expectedOutcome : RoundOutcome
 expectedOutcome =
-    { tickThatShouldEndIt = tickNumber 2
+    { tickThatShouldEndIt = tickNumber 3
     , howItShouldEnd =
         { aliveAtTheEnd = []
         , deadAtTheEnd =

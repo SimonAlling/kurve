@@ -109,6 +109,9 @@ crashingIntoWallTests =
 When a Kurve is traveling almost horizontally or vertically, it very obviously "snaps over to the next pixel row/column" at regular intervals.
 When approaching a horizontal or vertical obstacle (wall or Kurve) from a shallow angle, an experienced player can easily tell based on the "snaps" exactly when they need to turn away to avoid crashing, because that will always happen at a "snap", never in the middle of a continuous "segment".
 
+However, the top and left walls are exceptions to the rule in the sense that the player can enjoy an _extra_ segment before crashing.
+That is, it's effectively possible to be up to (but not including) 1 pixel _outside_ the canvas at the top and left borders, but the _rendered_ Kurve and its hitbox are always fully within the canvas.
+
 For example, the illustration below shows the exact moment when Green crashes into Red.
 
 Notably, Green enjoys a full "segment" right next to Red before dying.
