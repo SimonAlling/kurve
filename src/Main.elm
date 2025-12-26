@@ -277,10 +277,18 @@ update msg ({ config, pressedButtons } as model) =
                                 _ ->
                                     ( handleUserInteraction Down button model, Cmd.none )
 
-                InGame (Active liveOrReplay Paused s) ->
+                InGame (Active Live Paused s) ->
                     case button of
                         Key "Space" ->
-                            ( { model | appState = InGame (Active liveOrReplay NotPaused s) }, Cmd.none )
+                            ( { model | appState = InGame (Active Live NotPaused s) }, Cmd.none )
+
+                        _ ->
+                            ( handleUserInteraction Down button model, Cmd.none )
+
+                InGame (Active Replay Paused s) ->
+                    case button of
+                        Key "Space" ->
+                            ( { model | appState = InGame (Active Replay NotPaused s) }, Cmd.none )
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
