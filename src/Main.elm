@@ -277,18 +277,18 @@ update msg ({ config, pressedButtons } as model) =
                                 _ ->
                                     ( handleUserInteraction Down button model, Cmd.none )
 
-                InGame (Active Live Paused s) ->
+                InGame ((Active Live Paused _) as gameState) ->
                     case button of
                         Key "Space" ->
-                            ( { model | appState = InGame (Active Live NotPaused s) }, Cmd.none )
+                            togglePause model gameState
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
 
-                InGame (Active Replay Paused s) ->
+                InGame ((Active Replay Paused _) as gameState) ->
                     case button of
                         Key "Space" ->
-                            ( { model | appState = InGame (Active Replay NotPaused s) }, Cmd.none )
+                            togglePause model gameState
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
@@ -296,7 +296,7 @@ update msg ({ config, pressedButtons } as model) =
                 InGame (Active Live NotPaused _) ->
                     ( handleUserInteraction Down button model, Cmd.none )
 
-                InGame (Active Replay NotPaused s) ->
+                InGame ((Active Replay NotPaused s) as gameState) ->
                     case button of
                         Key "ArrowRight" ->
                             case s of
@@ -316,7 +316,7 @@ update msg ({ config, pressedButtons } as model) =
                             startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
 
                         Key "Space" ->
-                            ( { model | appState = InGame (Active Replay Paused s) }, Cmd.none )
+                            togglePause model gameState
 
                         _ ->
                             ( handleUserInteraction Down button model, Cmd.none )
@@ -345,6 +345,31 @@ update msg ({ config, pressedButtons } as model) =
                 _ ->
                     -- Not expected to ever happen.
                     ( model, Cmd.none )
+
+
+togglePause : Model -> GameState -> ( Model, Cmd msg )
+togglePause model gameState =
+    let
+        newGameState : GameState
+        newGameState =
+            case gameState of
+                Active liveOrReplay pausedOrNot activeGameState ->
+                    Active liveOrReplay (invertPausedOrNot pausedOrNot) activeGameState
+
+                _ ->
+                    gameState
+    in
+    ( { model | appState = InGame newGameState }, Cmd.none )
+
+
+invertPausedOrNot : PausedOrNot -> PausedOrNot
+invertPausedOrNot pausedOrNot =
+    case pausedOrNot of
+        Paused ->
+            NotPaused
+
+        NotPaused ->
+            Paused
 
 
 gameOver : Random.Seed -> Model -> ( Model, Cmd msg )
