@@ -1,7 +1,6 @@
 port module Canvas exposing (RenderAction, clearEverything, draw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, drawingCmd, mergeRenderAction, nothingToDraw)
 
 import Color exposing (Color)
-import Config exposing (WorldConfig)
 import Thickness exposing (theThickness)
 import Types.Kurve exposing (Kurve)
 import World exposing (DrawingPosition)
@@ -10,7 +9,7 @@ import World exposing (DrawingPosition)
 port render : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
-port clear : { x : Int, y : Int, width : Int, height : Int } -> Cmd msg
+port clear : () -> Cmd msg
 
 
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
@@ -110,11 +109,11 @@ headDrawingCmd =
             )
 
 
-clearEverything : WorldConfig -> Cmd msg
-clearEverything { width, height } =
+clearEverything : Cmd msg
+clearEverything =
     Cmd.batch
         [ renderOverlay []
-        , clear { x = 0, y = 0, width = width, height = height }
+        , clear ()
         ]
 
 
