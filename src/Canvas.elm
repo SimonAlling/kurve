@@ -6,10 +6,10 @@ import Types.Kurve exposing (Kurve)
 import World exposing (DrawingPosition)
 
 
-port render : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
+port renderMain : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
-port clear : () -> Cmd msg
+port clearMain : () -> Cmd msg
 
 
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
@@ -87,7 +87,7 @@ drawingCmd renderAction =
 
 bodyDrawingCmd : List ( Color, DrawingPosition ) -> Cmd msg
 bodyDrawingCmd =
-    render
+    renderMain
         << List.map
             (\( color, position ) ->
                 { position = position
@@ -113,7 +113,7 @@ clearEverything : Cmd msg
 clearEverything =
     Cmd.batch
         [ renderOverlay []
-        , clear ()
+        , clearMain ()
         ]
 
 
