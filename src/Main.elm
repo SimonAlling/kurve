@@ -3,7 +3,7 @@ port module Main exposing (Model, Msg(..), main)
 import App exposing (AppState(..), modifyGameState)
 import Browser
 import Browser.Events
-import Canvas exposing (RenderAction, clearEverything, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, drawingCmd)
+import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
@@ -43,6 +43,7 @@ import Players
         , participating
         )
 import Random
+import RenderAction exposing (RenderAction, drawSpawnIfAndOnlyIf, drawSpawnsPermanently)
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
 import Time

@@ -7,9 +7,9 @@ module MainLoop exposing (consumeAnimationFrame, noLeftoverFrameTime)
 
 -}
 
-import Canvas exposing (RenderAction, draw, mergeRenderAction, nothingToDraw)
 import Config exposing (Config)
 import Game exposing (TickResult(..))
+import RenderAction exposing (RenderAction, draw, mergeRenderAction, nothingToDraw)
 import Round exposing (Round)
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
