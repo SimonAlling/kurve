@@ -1,4 +1,4 @@
-port module Canvas exposing (RenderAction, clearEverything, draw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, drawingCmd, mergeRenderAction, nothingToDraw)
+port module Canvas exposing (RenderAction, WhatToDraw, clearEverything, draw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, drawingCmd, mergeRenderAction, nothingToDraw)
 
 import Color exposing (Color)
 import Thickness exposing (theThickness)
@@ -26,12 +26,9 @@ type alias WhatToDraw =
     }
 
 
-draw : List Kurve -> List ( Color, DrawingPosition ) -> RenderAction
-draw aliveKurves newColoredDrawingPositions =
+draw : WhatToDraw -> RenderAction
+draw =
     Draw
-        { headDrawing = aliveKurves
-        , bodyDrawing = newColoredDrawingPositions
-        }
 
 
 nothingToDraw : RenderAction
