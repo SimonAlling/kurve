@@ -250,6 +250,9 @@ checkIndividualKurve config tick kurve ( checkedKurvesGenerator, occupiedPixels,
 evaluateMove : Config -> Position -> Position -> Set Pixel -> Kurve.HoleStatus -> ( List DrawingPosition, Kurve.Fate )
 evaluateMove config startingPoint desiredEndPoint occupiedPixels holeStatus =
     let
+        _ =
+            Debug.log "holeStatus" holeStatus
+
         startingPointAsDrawingPosition : DrawingPosition
         startingPointAsDrawingPosition =
             World.drawingPosition startingPoint
