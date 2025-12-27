@@ -7,7 +7,7 @@ module MainLoop exposing (consumeAnimationFrame, noLeftoverFrameTime)
 
 -}
 
-import Canvas exposing (RenderAction, mergeRenderAction, nothingToDraw)
+import Canvas exposing (RenderAction, draw, mergeRenderAction, nothingToDraw)
 import Config exposing (Config)
 import Game exposing (TickResult(..))
 import Round exposing (Round)
@@ -46,12 +46,12 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
                     incrementedTick =
                         Tick.succ lastTickReactedTo
 
-                    ( tickResult, renderActionForThisTick ) =
+                    ( tickResult, whatToDrawForThisTick ) =
                         Game.reactToTick config incrementedTick midRoundStateSoFar
 
                     newRenderAction : RenderAction
                     newRenderAction =
-                        mergeRenderAction renderActionSoFar renderActionForThisTick
+                        mergeRenderAction renderActionSoFar (draw whatToDrawForThisTick)
                 in
                 case tickResult of
                     RoundKeepsGoing newMidRoundState ->
