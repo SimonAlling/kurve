@@ -20,14 +20,14 @@ import Types.Tickrate exposing (Tickrate(..))
 default : Config
 default =
     { kurves =
-        { tickrate = Tickrate 60
+        { tickrate = Tickrate 1
         , turningRadius = Radius 28.5
-        , speed = Speed 60
+        , speed = Speed 1
         , holes =
             { minInterval = Distance 90
             , maxInterval = Distance 300
-            , minSize = Distance 5
-            , maxSize = Distance 5
+            , minSize = Distance 3
+            , maxSize = Distance 3
             }
         }
     , spawn =
