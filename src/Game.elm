@@ -17,10 +17,10 @@ module Game exposing
     , tickResultToGameState
     )
 
-import Canvas exposing (WhatToDraw)
 import Color exposing (Color)
 import Config exposing (Config, KurveConfig)
 import Dialog
+import Drawing exposing (WhatToDraw)
 import Players exposing (ParticipatingPlayers)
 import Random
 import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
