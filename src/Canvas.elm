@@ -1,7 +1,7 @@
 port module Canvas exposing (clearEverything, drawingCmd)
 
 import Color exposing (Color)
-import RenderAction exposing (RenderAction(..))
+import Drawing exposing (RenderAction(..))
 import Thickness exposing (theThickness)
 import Types.Kurve exposing (Kurve)
 import World exposing (DrawingPosition)

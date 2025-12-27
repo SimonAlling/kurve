@@ -6,6 +6,7 @@ import Browser.Events
 import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
+import Drawing exposing (RenderAction, drawSpawnIfAndOnlyIf, drawSpawnsPermanently)
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
@@ -43,7 +44,6 @@ import Players
         , participating
         )
 import Random
-import RenderAction exposing (RenderAction, drawSpawnIfAndOnlyIf, drawSpawnsPermanently)
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
 import Time

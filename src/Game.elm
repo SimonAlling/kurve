@@ -20,9 +20,9 @@ module Game exposing
 import Color exposing (Color)
 import Config exposing (Config, KurveConfig)
 import Dialog
+import Drawing exposing (WhatToDraw)
 import Players exposing (ParticipatingPlayers)
 import Random
-import RenderAction exposing (WhatToDraw)
 import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
 import Set exposing (Set)
 import Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)

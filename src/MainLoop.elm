@@ -8,8 +8,8 @@ module MainLoop exposing (consumeAnimationFrame, noLeftoverFrameTime)
 -}
 
 import Config exposing (Config)
+import Drawing exposing (RenderAction, draw, mergeRenderAction, nothingToDraw)
 import Game exposing (TickResult(..))
-import RenderAction exposing (RenderAction, draw, mergeRenderAction, nothingToDraw)
 import Round exposing (Round)
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)

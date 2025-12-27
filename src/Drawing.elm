@@ -1,4 +1,4 @@
-module RenderAction exposing (RenderAction(..), WhatToDraw, draw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, mergeRenderAction, nothingToDraw)
+module Drawing exposing (RenderAction(..), WhatToDraw, draw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, mergeRenderAction, nothingToDraw)
 
 import Color exposing (Color)
 import Types.Kurve exposing (Kurve)
