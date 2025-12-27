@@ -62,14 +62,17 @@ mergeWhatToDraw whatFirst whatThen =
     }
 
 
-drawSpawnsPermanently : List Kurve -> Cmd msg
+drawSpawnsPermanently : List Kurve -> RenderAction
 drawSpawnsPermanently kurves =
-    kurves
-        |> List.map
-            (\kurve ->
-                ( kurve.color, World.drawingPosition kurve.state.position )
-            )
-        |> bodyDrawingCmd
+    Draw
+        { headDrawing = []
+        , bodyDrawing =
+            kurves
+                |> List.map
+                    (\kurve ->
+                        ( kurve.color, World.drawingPosition kurve.state.position )
+                    )
+        }
 
 
 drawingCmd : RenderAction -> Cmd msg
@@ -117,10 +120,10 @@ clearEverything =
         ]
 
 
-drawSpawnIfAndOnlyIf : Bool -> Kurve -> List Kurve -> Cmd msg
+drawSpawnIfAndOnlyIf : Bool -> Kurve -> List Kurve -> RenderAction
 drawSpawnIfAndOnlyIf shouldBeVisible kurve alreadySpawnedKurves =
     if shouldBeVisible then
-        headDrawingCmd (kurve :: alreadySpawnedKurves)
+        Draw { headDrawing = kurve :: alreadySpawnedKurves, bodyDrawing = [] }
 
     else
-        headDrawingCmd alreadySpawnedKurves
+        Draw { headDrawing = alreadySpawnedKurves, bodyDrawing = [] }
