@@ -1,13 +1,8 @@
-module Drawing exposing (RenderAction(..), WhatToDraw, draw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, mergeRenderActionAndWhatToDraw, nothingToDraw)
+module Drawing exposing (WhatToDraw, draw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, mergeWhatToDraw, nothingToDraw)
 
 import Color exposing (Color)
 import Types.Kurve exposing (Kurve)
 import World exposing (DrawingPosition)
-
-
-type RenderAction
-    = LeaveAsIs
-    | Draw WhatToDraw
 
 
 type alias WhatToDraw =
@@ -16,31 +11,26 @@ type alias WhatToDraw =
     }
 
 
-draw : WhatToDraw -> RenderAction
+draw : WhatToDraw -> Maybe WhatToDraw
 draw =
-    Draw
+    Just
 
 
-nothingToDraw : RenderAction
+nothingToDraw : Maybe WhatToDraw
 nothingToDraw =
-    LeaveAsIs
+    Nothing
 
 
-mergeRenderActionAndWhatToDraw : RenderAction -> WhatToDraw -> WhatToDraw
-mergeRenderActionAndWhatToDraw actionFirst whatToDrawThen =
+mergeWhatToDraw : Maybe WhatToDraw -> WhatToDraw -> WhatToDraw
+mergeWhatToDraw actionFirst whatToDrawThen =
     case ( actionFirst, whatToDrawThen ) of
-        ( LeaveAsIs, whatToDraw ) ->
+        ( Nothing, whatToDraw ) ->
             whatToDraw
 
-        ( Draw whatFirst, whatThen ) ->
-            mergeWhatToDraw whatFirst whatThen
-
-
-mergeWhatToDraw : WhatToDraw -> WhatToDraw -> WhatToDraw
-mergeWhatToDraw whatFirst whatThen =
-    { headDrawing = whatThen.headDrawing
-    , bodyDrawing = whatFirst.bodyDrawing ++ whatThen.bodyDrawing
-    }
+        ( Just whatFirst, whatThen ) ->
+            { headDrawing = whatThen.headDrawing
+            , bodyDrawing = whatFirst.bodyDrawing ++ whatThen.bodyDrawing
+            }
 
 
 drawSpawnsPermanently : List Kurve -> WhatToDraw
