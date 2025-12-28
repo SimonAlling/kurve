@@ -6,7 +6,7 @@ import Browser.Events
 import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
-import Drawing exposing (RenderAction, drawSpawnIfAndOnlyIf, drawSpawnsPermanently)
+import Drawing exposing (WhatToDraw, draw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently)
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
@@ -110,7 +110,7 @@ type Msg
     | FocusLost
 
 
-stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, RenderAction )
+stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, WhatToDraw )
 stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
     case kurvesLeft of
         [] ->
@@ -149,7 +149,7 @@ update msg ({ config, pressedButtons } as model) =
 
         SpawnTick liveOrReplay spawnState plannedMidRoundState ->
             let
-                ( maybeSpawnState, renderAction ) =
+                ( maybeSpawnState, whatToDraw ) =
                     stepSpawnState config spawnState
 
                 activeGameState : ActiveGameState
@@ -162,7 +162,7 @@ update msg ({ config, pressedButtons } as model) =
                             Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
             in
             ( { model | appState = InGame <| Active liveOrReplay NotPaused activeGameState }
-            , drawingCmd renderAction
+            , drawingCmd <| draw whatToDraw
             )
 
         AnimationFrame liveOrReplay { delta, leftoverTimeFromPreviousFrame, lastTick } midRoundState ->
