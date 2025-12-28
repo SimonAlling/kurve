@@ -77,18 +77,17 @@ init _ =
 startRound : LiveOrReplay -> Model -> Round -> ( Model, Cmd msg )
 startRound liveOrReplay model midRoundState =
     let
-        ( gameState, cmd ) =
-            ( Active liveOrReplay NotPaused <|
+        gameState : GameState
+        gameState =
+            Active liveOrReplay NotPaused <|
                 Spawning
                     { kurvesLeft = midRoundState |> .kurves |> .alive
                     , alreadySpawnedKurves = []
                     , ticksLeft = model.config.spawn.numberOfFlickerTicks
                     }
                     midRoundState
-            , clearEverything
-            )
     in
-    ( { model | appState = InGame gameState }, cmd )
+    ( { model | appState = InGame gameState }, clearEverything )
 
 
 type Msg
