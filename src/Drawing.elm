@@ -1,4 +1,4 @@
-module Drawing exposing (WhatToDraw, draw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, mergeWhatToDraw, nothingToDraw)
+module Drawing exposing (WhatToDraw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, mergeWhatToDraw)
 
 import Color exposing (Color)
 import Types.Kurve exposing (Kurve)
@@ -9,16 +9,6 @@ type alias WhatToDraw =
     { headDrawing : List Kurve
     , bodyDrawing : List ( Color, DrawingPosition )
     }
-
-
-draw : WhatToDraw -> Maybe WhatToDraw
-draw =
-    Just
-
-
-nothingToDraw : Maybe WhatToDraw
-nothingToDraw =
-    Nothing
 
 
 mergeWhatToDraw : Maybe WhatToDraw -> WhatToDraw -> WhatToDraw
