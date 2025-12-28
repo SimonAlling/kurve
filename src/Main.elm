@@ -167,11 +167,11 @@ update msg ({ config, pressedButtons } as model) =
 
         AnimationFrame liveOrReplay { delta, leftoverTimeFromPreviousFrame, lastTick } midRoundState ->
             let
-                ( tickResult, renderAction ) =
+                ( tickResult, whatToDraw ) =
                     MainLoop.consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState
             in
             ( { model | appState = InGame (tickResultToGameState liveOrReplay tickResult) }
-            , drawingCmd renderAction
+            , drawingCmd whatToDraw
             )
 
         ButtonUsed Down button ->
@@ -306,11 +306,11 @@ update msg ({ config, pressedButtons } as model) =
 
                                 Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
                                     let
-                                        ( tickResult, renderAction ) =
+                                        ( tickResult, whatToDraw ) =
                                             MainLoop.consumeAnimationFrame config (toFloat config.replay.skipStepInMs) leftoverTimeFromPreviousFrame lastTick midRoundState
                                     in
                                     ( { model | appState = InGame (tickResultToGameState Replay tickResult) }
-                                    , drawingCmd renderAction
+                                    , drawingCmd whatToDraw
                                     )
 
                         Key "KeyR" ->
