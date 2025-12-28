@@ -1,4 +1,4 @@
-module Drawing exposing (RenderAction(..), WhatToDraw, draw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, mergeRenderAction, nothingToDraw)
+module Drawing exposing (RenderAction(..), WhatToDraw, draw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, mergeRenderActionAndWhatToDraw, nothingToDraw)
 
 import Color exposing (Color)
 import Types.Kurve exposing (Kurve)
@@ -26,20 +26,14 @@ nothingToDraw =
     LeaveAsIs
 
 
-mergeRenderAction : RenderAction -> RenderAction -> RenderAction
-mergeRenderAction actionFirst actionThen =
-    case ( actionFirst, actionThen ) of
-        ( LeaveAsIs, LeaveAsIs ) ->
-            LeaveAsIs
+mergeRenderActionAndWhatToDraw : RenderAction -> WhatToDraw -> WhatToDraw
+mergeRenderActionAndWhatToDraw actionFirst whatToDrawThen =
+    case ( actionFirst, whatToDrawThen ) of
+        ( LeaveAsIs, whatToDraw ) ->
+            whatToDraw
 
-        ( LeaveAsIs, Draw whatToDraw ) ->
-            Draw whatToDraw
-
-        ( Draw whatToDraw, LeaveAsIs ) ->
-            Draw whatToDraw
-
-        ( Draw whatFirst, Draw whatThen ) ->
-            Draw <| mergeWhatToDraw whatFirst whatThen
+        ( Draw whatFirst, whatThen ) ->
+            mergeWhatToDraw whatFirst whatThen
 
 
 mergeWhatToDraw : WhatToDraw -> WhatToDraw -> WhatToDraw
