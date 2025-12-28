@@ -78,22 +78,17 @@ startRound : LiveOrReplay -> Model -> Round -> ( Model, Cmd msg )
 startRound liveOrReplay model midRoundState =
     let
         ( gameState, cmd ) =
-            newRoundGameStateAndCmd model.config liveOrReplay midRoundState
+            ( Active liveOrReplay NotPaused <|
+                Spawning
+                    { kurvesLeft = midRoundState |> .kurves |> .alive
+                    , alreadySpawnedKurves = []
+                    , ticksLeft = model.config.spawn.numberOfFlickerTicks
+                    }
+                    midRoundState
+            , clearEverything
+            )
     in
     ( { model | appState = InGame gameState }, cmd )
-
-
-newRoundGameStateAndCmd : Config -> LiveOrReplay -> Round -> ( GameState, Cmd msg )
-newRoundGameStateAndCmd config liveOrReplay plannedMidRoundState =
-    ( Active liveOrReplay NotPaused <|
-        Spawning
-            { kurvesLeft = plannedMidRoundState |> .kurves |> .alive
-            , alreadySpawnedKurves = []
-            , ticksLeft = config.spawn.numberOfFlickerTicks
-            }
-            plannedMidRoundState
-    , clearEverything
-    )
 
 
 type Msg
