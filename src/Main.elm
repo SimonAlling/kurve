@@ -74,7 +74,7 @@ init _ =
     )
 
 
-startRound : LiveOrReplay -> Model -> Round -> ( Model, Maybe CanvasAction )
+startRound : LiveOrReplay -> Model -> Round -> ( Model, CanvasAction )
 startRound liveOrReplay model midRoundState =
     let
         gameState : GameState
@@ -87,7 +87,7 @@ startRound liveOrReplay model midRoundState =
                     }
                     midRoundState
     in
-    ( { model | appState = InGame gameState }, Just ClearEverything )
+    ( { model | appState = InGame gameState }, ClearEverything )
 
 
 type Msg
@@ -129,7 +129,7 @@ update msg model =
     updatePure msg model |> Tuple.mapSecond makeCmd
 
 
-updatePure : Msg -> Model -> ( Model, Maybe CanvasAction )
+updatePure : Msg -> Model -> ( Model, CanvasAction )
 updatePure msg ({ config, pressedButtons } as model) =
     case msg of
         FocusLost ->
@@ -137,14 +137,14 @@ updatePure msg ({ config, pressedButtons } as model) =
                 InGame (Active liveOrReplay _ s) ->
                     case liveOrReplay of
                         Live ->
-                            ( { model | appState = InGame (Active liveOrReplay Paused s) }, Nothing )
+                            ( { model | appState = InGame (Active liveOrReplay Paused s) }, NoAction )
 
                         Replay ->
                             -- Not important to pause on focus lost when replaying.
-                            ( model, Nothing )
+                            ( model, NoAction )
 
                 _ ->
-                    ( model, Nothing )
+                    ( model, NoAction )
 
         SpawnTick liveOrReplay spawnState plannedMidRoundState ->
             let
@@ -161,7 +161,7 @@ updatePure msg ({ config, pressedButtons } as model) =
                             Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
             in
             ( { model | appState = InGame <| Active liveOrReplay NotPaused activeGameState }
-            , Just <| DrawSomething whatToDraw
+            , DrawSomething whatToDraw
             )
 
         AnimationFrame liveOrReplay { delta, leftoverTimeFromPreviousFrame, lastTick } midRoundState ->
@@ -181,7 +181,7 @@ updatePure msg ({ config, pressedButtons } as model) =
                             goToLobby seed model
 
                         _ ->
-                            ( handleUserInteraction Down button model, Nothing )
+                            ( handleUserInteraction Down button model, NoAction )
 
                 InMenu Lobby seed ->
                     case ( button, atLeastOneIsParticipating model.players ) of
@@ -189,7 +189,7 @@ updatePure msg ({ config, pressedButtons } as model) =
                             startRound Live model <| prepareLiveRound config seed (participating model.players) pressedButtons
 
                         _ ->
-                            ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, Nothing )
+                            ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, NoAction )
 
                 InGame (RoundOver finishedRound dialogState) ->
                     case dialogState of
@@ -210,10 +210,10 @@ updatePure msg ({ config, pressedButtons } as model) =
                                 Key "Escape" ->
                                     -- Quitting after the final round is not allowed in the original game.
                                     if not gameIsOver then
-                                        ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open Dialog.Cancel)) }, Nothing )
+                                        ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open Dialog.Cancel)) }, NoAction )
 
                                     else
-                                        ( handleUserInteraction Down button model, Nothing )
+                                        ( handleUserInteraction Down button model, NoAction )
 
                                 Key "Space" ->
                                     if gameIsOver then
@@ -223,21 +223,21 @@ updatePure msg ({ config, pressedButtons } as model) =
                                         startRound Live newModel <| prepareLiveRound config finishedRound.seed (participating newModel.players) pressedButtons
 
                                 _ ->
-                                    ( handleUserInteraction Down button model, Nothing )
+                                    ( handleUserInteraction Down button model, NoAction )
 
                         Dialog.Open selectedOption ->
                             let
-                                cancel : ( Model, Maybe CanvasAction )
+                                cancel : ( Model, CanvasAction )
                                 cancel =
-                                    ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, Nothing )
+                                    ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, NoAction )
 
-                                confirm : ( Model, Maybe CanvasAction )
+                                confirm : ( Model, CanvasAction )
                                 confirm =
                                     goToLobby finishedRound.seed model
 
-                                select : Dialog.Option -> ( Model, Maybe CanvasAction )
+                                select : Dialog.Option -> ( Model, CanvasAction )
                                 select option =
-                                    ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open option)) }, Nothing )
+                                    ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open option)) }, NoAction )
                             in
                             case ( button, selectedOption ) of
                                 ( Key "Escape", _ ) ->
@@ -275,33 +275,33 @@ updatePure msg ({ config, pressedButtons } as model) =
                                             Dialog.Cancel
 
                                 _ ->
-                                    ( handleUserInteraction Down button model, Nothing )
+                                    ( handleUserInteraction Down button model, NoAction )
 
                 InGame (Active Live Paused s) ->
                     case button of
                         Key "Space" ->
-                            ( { model | appState = InGame (Active Live NotPaused s) }, Nothing )
+                            ( { model | appState = InGame (Active Live NotPaused s) }, NoAction )
 
                         _ ->
-                            ( handleUserInteraction Down button model, Nothing )
+                            ( handleUserInteraction Down button model, NoAction )
 
                 InGame (Active Replay Paused s) ->
                     case button of
                         Key "Space" ->
-                            ( { model | appState = InGame (Active Replay NotPaused s) }, Nothing )
+                            ( { model | appState = InGame (Active Replay NotPaused s) }, NoAction )
 
                         _ ->
-                            ( handleUserInteraction Down button model, Nothing )
+                            ( handleUserInteraction Down button model, NoAction )
 
                 InGame (Active Live NotPaused _) ->
-                    ( handleUserInteraction Down button model, Nothing )
+                    ( handleUserInteraction Down button model, NoAction )
 
                 InGame (Active Replay NotPaused s) ->
                     case button of
                         Key "ArrowRight" ->
                             case s of
                                 Spawning _ _ ->
-                                    ( model, Nothing )
+                                    ( model, NoAction )
 
                                 Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
                                     let
@@ -316,10 +316,10 @@ updatePure msg ({ config, pressedButtons } as model) =
                             startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
 
                         Key "Space" ->
-                            ( { model | appState = InGame (Active Replay Paused s) }, Nothing )
+                            ( { model | appState = InGame (Active Replay Paused s) }, NoAction )
 
                         _ ->
-                            ( handleUserInteraction Down button model, Nothing )
+                            ( handleUserInteraction Down button model, NoAction )
 
                 InMenu GameOver seed ->
                     case button of
@@ -327,10 +327,10 @@ updatePure msg ({ config, pressedButtons } as model) =
                             goToLobby seed model
 
                         _ ->
-                            ( handleUserInteraction Down button model, Nothing )
+                            ( handleUserInteraction Down button model, NoAction )
 
         ButtonUsed Up key ->
-            ( handleUserInteraction Up key model, Nothing )
+            ( handleUserInteraction Up key model, NoAction )
 
         DialogChoiceMade option ->
             case model.appState of
@@ -340,21 +340,21 @@ updatePure msg ({ config, pressedButtons } as model) =
                             goToLobby finishedRound.seed model
 
                         Dialog.Cancel ->
-                            ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, Nothing )
+                            ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, NoAction )
 
                 _ ->
                     -- Not expected to ever happen.
-                    ( model, Nothing )
+                    ( model, NoAction )
 
 
-gameOver : Random.Seed -> Model -> ( Model, Maybe CanvasAction )
+gameOver : Random.Seed -> Model -> ( Model, CanvasAction )
 gameOver seed model =
-    ( { model | appState = InMenu GameOver seed }, Nothing )
+    ( { model | appState = InMenu GameOver seed }, NoAction )
 
 
-goToLobby : Random.Seed -> Model -> ( Model, Maybe CanvasAction )
+goToLobby : Random.Seed -> Model -> ( Model, CanvasAction )
 goToLobby seed model =
-    ( { model | appState = InMenu Lobby seed, players = everyoneLeaves model.players }, Nothing )
+    ( { model | appState = InMenu Lobby seed, players = everyoneLeaves model.players }, NoAction )
 
 
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model

@@ -10,18 +10,19 @@ import World exposing (DrawingPosition)
 type CanvasAction
     = DrawSomething WhatToDraw
     | ClearEverything
+    | NoAction
 
 
-makeCmd : Maybe CanvasAction -> Cmd msg
+makeCmd : CanvasAction -> Cmd msg
 makeCmd canvasAction =
     case canvasAction of
-        Nothing ->
+        NoAction ->
             Cmd.none
 
-        Just (DrawSomething whatToDraw) ->
+        DrawSomething whatToDraw ->
             drawingCmd whatToDraw
 
-        Just ClearEverything ->
+        ClearEverything ->
             clearEverything
 
 
@@ -34,14 +35,14 @@ port clearMain : () -> Cmd msg
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
-maybeDrawSomething : Maybe WhatToDraw -> Maybe CanvasAction
+maybeDrawSomething : Maybe WhatToDraw -> CanvasAction
 maybeDrawSomething maybeWhatToDraw =
     case maybeWhatToDraw of
         Nothing ->
-            Nothing
+            NoAction
 
         Just whatToDraw ->
-            Just <| DrawSomething whatToDraw
+            DrawSomething whatToDraw
 
 
 drawingCmd : WhatToDraw -> Cmd msg
