@@ -1,10 +1,28 @@
-port module Canvas exposing (clearEverything, drawingCmd)
+port module Canvas exposing (CanvasAction(..), makeCmd)
 
 import Color exposing (Color)
 import Drawing exposing (WhatToDraw)
 import Thickness exposing (theThickness)
 import Types.Kurve exposing (Kurve)
 import World exposing (DrawingPosition)
+
+
+type CanvasAction
+    = DrawSomething WhatToDraw
+    | ClearEverything
+
+
+makeCmd : Maybe CanvasAction -> Cmd msg
+makeCmd canvasAction =
+    case canvasAction of
+        Nothing ->
+            Cmd.none
+
+        Just (DrawSomething whatToDraw) ->
+            drawingCmd whatToDraw
+
+        Just ClearEverything ->
+            clearEverything
 
 
 port renderMain : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
@@ -16,17 +34,12 @@ port clearMain : () -> Cmd msg
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
-drawingCmd : Maybe WhatToDraw -> Cmd msg
-drawingCmd maybeWhatToDraw =
-    case maybeWhatToDraw of
-        Nothing ->
-            Cmd.none
-
-        Just whatToDraw ->
-            [ headDrawingCmd whatToDraw.headDrawing
-            , bodyDrawingCmd whatToDraw.bodyDrawing
-            ]
-                |> Cmd.batch
+drawingCmd : WhatToDraw -> Cmd msg
+drawingCmd whatToDraw =
+    [ headDrawingCmd whatToDraw.headDrawing
+    , bodyDrawingCmd whatToDraw.bodyDrawing
+    ]
+        |> Cmd.batch
 
 
 bodyDrawingCmd : List ( Color, DrawingPosition ) -> Cmd msg
