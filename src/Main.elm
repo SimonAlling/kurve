@@ -486,11 +486,11 @@ updateWithCmd msg =
 makeCmd : Effect -> Cmd msg
 makeCmd effect =
     case effect of
-        DoNothing ->
-            Cmd.none
-
         DrawSomething whatToDraw ->
             drawingCmd whatToDraw
 
         ClearEverything ->
             clearEverything
+
+        DoNothing ->
+            Cmd.none
