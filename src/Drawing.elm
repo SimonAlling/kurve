@@ -1,4 +1,4 @@
-module Drawing exposing (WhatToDraw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, mergeWhatToDraw)
+module Drawing exposing (WhatToDraw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, getColorAndDrawingPosition, mergeWhatToDraw)
 
 import Color exposing (Color)
 import Types.Kurve exposing (Kurve)
@@ -6,7 +6,7 @@ import World exposing (DrawingPosition)
 
 
 type alias WhatToDraw =
-    { headDrawing : List Kurve
+    { headDrawing : List ( Color, DrawingPosition )
     , bodyDrawing : List ( Color, DrawingPosition )
     }
 
@@ -26,19 +26,23 @@ mergeWhatToDraw actionFirst whatToDrawThen =
 drawSpawnsPermanently : List Kurve -> WhatToDraw
 drawSpawnsPermanently kurves =
     { headDrawing = []
-    , bodyDrawing =
-        kurves
-            |> List.map
-                (\kurve ->
-                    ( kurve.color, World.drawingPosition kurve.state.position )
-                )
+    , bodyDrawing = kurves |> List.map getColorAndDrawingPosition
     }
 
 
 drawSpawnIfAndOnlyIf : Bool -> Kurve -> List Kurve -> WhatToDraw
 drawSpawnIfAndOnlyIf shouldBeVisible kurve alreadySpawnedKurves =
     if shouldBeVisible then
-        { headDrawing = kurve :: alreadySpawnedKurves, bodyDrawing = [] }
+        { headDrawing = kurve :: alreadySpawnedKurves |> List.map getColorAndDrawingPosition
+        , bodyDrawing = []
+        }
 
     else
-        { headDrawing = alreadySpawnedKurves, bodyDrawing = [] }
+        { headDrawing = alreadySpawnedKurves |> List.map getColorAndDrawingPosition
+        , bodyDrawing = []
+        }
+
+
+getColorAndDrawingPosition : Kurve -> ( Color, DrawingPosition )
+getColorAndDrawingPosition kurve =
+    ( kurve.color, World.drawingPosition kurve.state.position )

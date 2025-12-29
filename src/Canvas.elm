@@ -3,7 +3,6 @@ port module Canvas exposing (clearEverything, drawingCmd)
 import Color exposing (Color)
 import Drawing exposing (WhatToDraw)
 import Thickness exposing (theThickness)
-import Types.Kurve exposing (Kurve)
 import World exposing (DrawingPosition)
 
 
@@ -36,14 +35,14 @@ bodyDrawingCmd =
             )
 
 
-headDrawingCmd : List Kurve -> Cmd msg
+headDrawingCmd : List ( Color, DrawingPosition ) -> Cmd msg
 headDrawingCmd =
     renderOverlay
         << List.map
-            (\kurve ->
-                { position = World.drawingPosition kurve.state.position
+            (\( color, position ) ->
+                { position = position
                 , thickness = theThickness
-                , color = Color.toCssString kurve.color
+                , color = Color.toCssString color
                 }
             )
 
