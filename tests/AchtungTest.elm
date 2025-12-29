@@ -9,7 +9,6 @@ import TestScenarios.AroundTheWorld
 import TestScenarios.CrashIntoKurveTiming
 import TestScenarios.CrashIntoTailEnd90Degrees
 import TestScenarios.CrashIntoTipOfTailEnd
-import TestScenarios.CrashIntoWallBasic
 import TestScenarios.CrashIntoWallBottom
 import TestScenarios.CrashIntoWallExactTiming
 import TestScenarios.CrashIntoWallLeft
@@ -38,13 +37,7 @@ tests =
 basicTests : Test
 basicTests =
     describe "Basic tests"
-        [ test "A Kurve that crashes into the wall dies" <|
-            \_ ->
-                roundWith TestScenarios.CrashIntoWallBasic.spawnedKurves
-                    |> expectRoundOutcome
-                        Config.default
-                        TestScenarios.CrashIntoWallBasic.expectedOutcome
-        , test "Around the world, touching each wall" <|
+        [ test "Around the world, touching each wall" <|
             \_ ->
                 roundWith TestScenarios.AroundTheWorld.spawnedKurves
                     |> expectRoundOutcome
