@@ -124,13 +124,8 @@ stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
             ( Just newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning alreadySpawnedKurves )
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    updatePure msg model |> Tuple.mapSecond makeCmd
-
-
-updatePure : Msg -> Model -> ( Model, CanvasAction )
-updatePure msg ({ config, pressedButtons } as model) =
+update : Msg -> Model -> ( Model, CanvasAction )
+update msg ({ config, pressedButtons } as model) =
     case msg of
         FocusLost ->
             case model.appState of
@@ -476,7 +471,12 @@ main : Program () Model Msg
 main =
     Browser.element
         { init = init
-        , update = update
+        , update = updateWithCmd
         , subscriptions = subscriptions
         , view = view
         }
+
+
+updateWithCmd : Msg -> Model -> ( Model, Cmd Msg )
+updateWithCmd msg =
+    update msg >> Tuple.mapSecond makeCmd
