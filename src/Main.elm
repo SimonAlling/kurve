@@ -3,10 +3,11 @@ port module Main exposing (Model, Msg(..), main)
 import App exposing (AppState(..), modifyGameState)
 import Browser
 import Browser.Events
-import Canvas exposing (CanvasEffect(..), makeCmd, maybeDrawSomething)
+import Canvas exposing (clearEverything, drawingCmd, maybeDrawSomething)
 import Config exposing (Config)
 import Dialog
 import Drawing exposing (WhatToDraw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently)
+import Effect exposing (Effect(..))
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
@@ -74,7 +75,7 @@ init _ =
     )
 
 
-startRound : LiveOrReplay -> Model -> Round -> ( Model, CanvasEffect )
+startRound : LiveOrReplay -> Model -> Round -> ( Model, Effect )
 startRound liveOrReplay model midRoundState =
     let
         gameState : GameState
@@ -124,7 +125,7 @@ stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
             ( Just newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning alreadySpawnedKurves )
 
 
-update : Msg -> Model -> ( Model, CanvasEffect )
+update : Msg -> Model -> ( Model, Effect )
 update msg ({ config, pressedButtons } as model) =
     case msg of
         FocusLost ->
@@ -222,15 +223,15 @@ update msg ({ config, pressedButtons } as model) =
 
                         Dialog.Open selectedOption ->
                             let
-                                cancel : ( Model, CanvasEffect )
+                                cancel : ( Model, Effect )
                                 cancel =
                                     ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, DoNothing )
 
-                                confirm : ( Model, CanvasEffect )
+                                confirm : ( Model, Effect )
                                 confirm =
                                     goToLobby finishedRound.seed model
 
-                                select : Dialog.Option -> ( Model, CanvasEffect )
+                                select : Dialog.Option -> ( Model, Effect )
                                 select option =
                                     ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open option)) }, DoNothing )
                             in
@@ -342,12 +343,12 @@ update msg ({ config, pressedButtons } as model) =
                     ( model, DoNothing )
 
 
-gameOver : Random.Seed -> Model -> ( Model, CanvasEffect )
+gameOver : Random.Seed -> Model -> ( Model, Effect )
 gameOver seed model =
     ( { model | appState = InMenu GameOver seed }, DoNothing )
 
 
-goToLobby : Random.Seed -> Model -> ( Model, CanvasEffect )
+goToLobby : Random.Seed -> Model -> ( Model, Effect )
 goToLobby seed model =
     ( { model | appState = InMenu Lobby seed, players = everyoneLeaves model.players }, DoNothing )
 
@@ -480,3 +481,16 @@ main =
 updateWithCmd : Msg -> Model -> ( Model, Cmd Msg )
 updateWithCmd msg =
     update msg >> Tuple.mapSecond makeCmd
+
+
+makeCmd : Effect -> Cmd msg
+makeCmd effect =
+    case effect of
+        DoNothing ->
+            Cmd.none
+
+        DrawSomething whatToDraw ->
+            drawingCmd whatToDraw
+
+        ClearEverything ->
+            clearEverything

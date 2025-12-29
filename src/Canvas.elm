@@ -1,29 +1,11 @@
-port module Canvas exposing (CanvasEffect(..), makeCmd, maybeDrawSomething)
+port module Canvas exposing (clearEverything, drawingCmd, maybeDrawSomething)
 
 import Color exposing (Color)
 import Drawing exposing (WhatToDraw)
+import Effect exposing (Effect(..))
 import Thickness exposing (theThickness)
 import Types.Kurve exposing (Kurve)
 import World exposing (DrawingPosition)
-
-
-type CanvasEffect
-    = DrawSomething WhatToDraw
-    | ClearEverything
-    | DoNothing
-
-
-makeCmd : CanvasEffect -> Cmd msg
-makeCmd canvasEffect =
-    case canvasEffect of
-        DoNothing ->
-            Cmd.none
-
-        DrawSomething whatToDraw ->
-            drawingCmd whatToDraw
-
-        ClearEverything ->
-            clearEverything
 
 
 port renderMain : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
@@ -35,7 +17,7 @@ port clearMain : () -> Cmd msg
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
-maybeDrawSomething : Maybe WhatToDraw -> CanvasEffect
+maybeDrawSomething : Maybe WhatToDraw -> Effect
 maybeDrawSomething maybeWhatToDraw =
     case maybeWhatToDraw of
         Nothing ->
