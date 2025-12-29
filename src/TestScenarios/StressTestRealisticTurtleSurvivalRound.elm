@@ -1,7 +1,7 @@
 module TestScenarios.StressTestRealisticTurtleSurvivalRound exposing (expectedOutcome, spawnedKurves)
 
 import Color
-import TestScenarioHelpers exposing (CumulativeInteraction, RoundOutcome, makeUserInteractions, makeZombieKurve, playerIds, tickNumber)
+import TestScenarioHelpers exposing (CumulativeInteraction, EffectsExpectation(..), RoundOutcome, makeUserInteractions, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.TurningState exposing (TurningState(..))
@@ -59,4 +59,5 @@ expectedOutcome =
               }
             ]
         }
+    , effectsItShouldProduce = DoNotCare
     }
