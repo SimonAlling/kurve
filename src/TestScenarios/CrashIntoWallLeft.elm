@@ -12,7 +12,7 @@ green =
         { color = Color.green
         , id = playerIds.green
         , state =
-            { position = ( 1.5, 99.5 )
+            { position = ( 3.5, 99.5 )
             , direction = Angle (3 * pi / 2)
             , holeStatus = Unholy 60000
             }
@@ -26,7 +26,7 @@ spawnedKurves =
 
 expectedOutcome : RoundOutcome
 expectedOutcome =
-    { tickThatShouldEndIt = tickNumber 3
+    { tickThatShouldEndIt = tickNumber 5
     , howItShouldEnd =
         { aliveAtTheEnd = []
         , deadAtTheEnd =
