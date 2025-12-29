@@ -3,7 +3,7 @@ port module Main exposing (Model, Msg(..), main)
 import App exposing (AppState(..), modifyGameState)
 import Browser
 import Browser.Events
-import Canvas exposing (CanvasAction(..), makeCmd)
+import Canvas exposing (CanvasAction(..), makeCmd, maybeDrawSomething)
 import Config exposing (Config)
 import Dialog
 import Drawing exposing (WhatToDraw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently)
@@ -170,7 +170,7 @@ updatePure msg ({ config, pressedButtons } as model) =
                     MainLoop.consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState
             in
             ( { model | appState = InGame (tickResultToGameState liveOrReplay tickResult) }
-            , Maybe.map DrawSomething whatToDraw
+            , maybeDrawSomething whatToDraw
             )
 
         ButtonUsed Down button ->
@@ -309,7 +309,7 @@ updatePure msg ({ config, pressedButtons } as model) =
                                             MainLoop.consumeAnimationFrame config (toFloat config.replay.skipStepInMs) leftoverTimeFromPreviousFrame lastTick midRoundState
                                     in
                                     ( { model | appState = InGame (tickResultToGameState Replay tickResult) }
-                                    , Maybe.map DrawSomething whatToDraw
+                                    , maybeDrawSomething whatToDraw
                                     )
 
                         Key "KeyR" ->

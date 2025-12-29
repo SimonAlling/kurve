@@ -1,4 +1,4 @@
-port module Canvas exposing (CanvasAction(..), makeCmd)
+port module Canvas exposing (CanvasAction(..), makeCmd, maybeDrawSomething)
 
 import Color exposing (Color)
 import Drawing exposing (WhatToDraw)
@@ -32,6 +32,16 @@ port clearMain : () -> Cmd msg
 
 
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
+
+
+maybeDrawSomething : Maybe WhatToDraw -> Maybe CanvasAction
+maybeDrawSomething maybeWhatToDraw =
+    case maybeWhatToDraw of
+        Nothing ->
+            Nothing
+
+        Just whatToDraw ->
+            Just <| DrawSomething whatToDraw
 
 
 drawingCmd : WhatToDraw -> Cmd msg
