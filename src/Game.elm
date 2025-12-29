@@ -20,7 +20,7 @@ module Game exposing
 import Color exposing (Color)
 import Config exposing (Config, KurveConfig)
 import Dialog
-import Drawing exposing (WhatToDraw)
+import Drawing exposing (WhatToDraw, getColorAndDrawingPosition)
 import Players exposing (ParticipatingPlayers)
 import Random
 import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
@@ -181,7 +181,7 @@ reactToTick config tick currentRound =
                 RoundKeepsGoing newCurrentRound
     in
     ( tickResult
-    , { headDrawing = newKurves.alive
+    , { headDrawing = newKurves.alive |> List.map getColorAndDrawingPosition
       , bodyDrawing = newColoredDrawingPositions
       }
     )
