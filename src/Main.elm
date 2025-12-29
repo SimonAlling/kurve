@@ -3,11 +3,11 @@ port module Main exposing (Model, Msg(..), main)
 import App exposing (AppState(..), modifyGameState)
 import Browser
 import Browser.Events
-import Canvas exposing (clearEverything, drawingCmd, maybeDrawSomething)
+import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
 import Drawing exposing (WhatToDraw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently)
-import Effect exposing (Effect(..))
+import Effect exposing (Effect(..), maybeDrawSomething)
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
