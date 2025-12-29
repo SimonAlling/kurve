@@ -1,7 +1,8 @@
-port module Canvas exposing (clearEverything, drawingCmd, maybeDrawingCmd)
+port module Canvas exposing (clearEverything, drawingCmd, maybeDrawSomething)
 
 import Color exposing (Color)
 import Drawing exposing (WhatToDraw)
+import Effect exposing (Effect(..))
 import Thickness exposing (theThickness)
 import Types.Kurve exposing (Kurve)
 import World exposing (DrawingPosition)
@@ -16,14 +17,14 @@ port clearMain : () -> Cmd msg
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
-maybeDrawingCmd : Maybe WhatToDraw -> Cmd msg
-maybeDrawingCmd maybeWhatToDraw =
+maybeDrawSomething : Maybe WhatToDraw -> Effect
+maybeDrawSomething maybeWhatToDraw =
     case maybeWhatToDraw of
         Nothing ->
-            Cmd.none
+            DoNothing
 
         Just whatToDraw ->
-            drawingCmd whatToDraw
+            DrawSomething whatToDraw
 
 
 drawingCmd : WhatToDraw -> Cmd msg
