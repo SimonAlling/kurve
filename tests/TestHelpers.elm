@@ -160,10 +160,12 @@ playOutRoundWithEffects config initialState =
             in
             case newModel.appState of
                 InGame (Active liveOrReplay NotPaused (Moving leftoverTimeFromPreviousFrame lastTick midRoundState)) ->
-                    recurse
-                        (makeAnimationFrameMsg liveOrReplay leftoverTimeFromPreviousFrame lastTick midRoundState)
-                        newModel
-                        (effectForThisUpdate :: reversedEffectsSoFar)
+                    let
+                        newMsg : Msg
+                        newMsg =
+                            makeAnimationFrameMsg liveOrReplay leftoverTimeFromPreviousFrame lastTick midRoundState
+                    in
+                    recurse newMsg newModel (effectForThisUpdate :: reversedEffectsSoFar)
 
                 InGame (RoundOver _ _) ->
                     ( newModel, effectForThisUpdate :: reversedEffectsSoFar )
