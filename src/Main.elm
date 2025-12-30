@@ -158,6 +158,7 @@ update msg ({ config, pressedButtons } as model) =
                     )
 
                 _ ->
+                    -- Not expected to ever happen.
                     ( model, DoNothing )
 
         AnimationFrame delta ->
@@ -172,6 +173,7 @@ update msg ({ config, pressedButtons } as model) =
                     )
 
                 _ ->
+                    -- Not expected to ever happen.
                     ( model, DoNothing )
 
         ButtonUsed Down button ->
