@@ -32,6 +32,7 @@ import Game
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
+import IsGameOver exposing (isGameOver)
 import MainLoop
 import Menu exposing (MenuState(..))
 import Players
@@ -197,7 +198,7 @@ update msg ({ config, pressedButtons } as model) =
 
                                 gameIsOver : Bool
                                 gameIsOver =
-                                    config.game.isGameOver (participating newModel.players)
+                                    isGameOver (participating newModel.players)
                             in
                             case button of
                                 Key "KeyR" ->

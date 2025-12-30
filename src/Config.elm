@@ -1,6 +1,5 @@
 module Config exposing
     ( Config
-    , GameConfig
     , HoleConfig
     , KurveConfig
     , SpawnConfig
@@ -8,11 +7,8 @@ module Config exposing
     , default
     )
 
-import Dict
-import Players exposing (ParticipatingPlayers)
 import Types.Distance exposing (Distance(..))
 import Types.Radius exposing (Radius(..))
-import Types.Score exposing (Score(..), isAtLeast)
 import Types.Speed exposing (Speed(..))
 import Types.Tickrate exposing (Tickrate(..))
 
@@ -42,40 +38,16 @@ default =
         { width = 559
         , height = 480
         }
-    , game =
-        { isGameOver = defaultGameOverCondition
-        }
     , replay =
         { skipStepInMs = 5000
         }
     }
 
 
-defaultGameOverCondition : ParticipatingPlayers -> Bool
-defaultGameOverCondition participatingPlayers =
-    let
-        numberOfPlayers : Int
-        numberOfPlayers =
-            Dict.size participatingPlayers
-
-        targetScore : Score
-        targetScore =
-            Score ((numberOfPlayers - 1) * 10)
-
-        someoneHasReachedTargetScore : Bool
-        someoneHasReachedTargetScore =
-            not <|
-                Dict.isEmpty <|
-                    Dict.filter (always (Tuple.second >> isAtLeast targetScore)) participatingPlayers
-    in
-    numberOfPlayers > 1 && someoneHasReachedTargetScore
-
-
 type alias Config =
     { kurves : KurveConfig
     , spawn : SpawnConfig
     , world : WorldConfig
-    , game : GameConfig
     , replay : ReplayConfig
     }
 
@@ -101,11 +73,6 @@ type alias SpawnConfig =
 type alias WorldConfig =
     { width : Int
     , height : Int
-    }
-
-
-type alias GameConfig =
-    { isGameOver : ParticipatingPlayers -> Bool
     }
 
 
