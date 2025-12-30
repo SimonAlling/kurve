@@ -49,7 +49,7 @@ import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
 import Time
-import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
+import Types.FrameTime exposing (FrameTime)
 import Types.Tick as Tick exposing (Tick)
 import Util exposing (isEven)
 
@@ -93,14 +93,8 @@ startRound liveOrReplay model midRoundState =
 
 
 type Msg
-    = SpawnTick LiveOrReplay SpawnState Round
-    | AnimationFrame
-        LiveOrReplay
-        { delta : FrameTime
-        , leftoverTimeFromPreviousFrame : LeftoverFrameTime
-        , lastTick : Tick
-        }
-        Round
+    = SpawnTick
+    | AnimationFrame FrameTime
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
     | FocusLost
@@ -143,32 +137,44 @@ update msg ({ config, pressedButtons } as model) =
                 _ ->
                     ( model, DoNothing )
 
-        SpawnTick liveOrReplay spawnState plannedMidRoundState ->
-            let
-                ( maybeSpawnState, whatToDraw ) =
-                    stepSpawnState config spawnState
+        SpawnTick ->
+            case model.appState of
+                InGame (Active liveOrReplay NotPaused (Spawning spawnState plannedMidRoundState)) ->
+                    let
+                        ( maybeSpawnState, whatToDraw ) =
+                            stepSpawnState config spawnState
 
-                activeGameState : ActiveGameState
-                activeGameState =
-                    case maybeSpawnState of
-                        Just newSpawnState ->
-                            Spawning newSpawnState plannedMidRoundState
+                        activeGameState : ActiveGameState
+                        activeGameState =
+                            case maybeSpawnState of
+                                Just newSpawnState ->
+                                    Spawning newSpawnState plannedMidRoundState
 
-                        Nothing ->
-                            Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
-            in
-            ( { model | appState = InGame <| Active liveOrReplay NotPaused activeGameState }
-            , DrawSomething whatToDraw
-            )
+                                Nothing ->
+                                    Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
+                    in
+                    ( { model | appState = InGame <| Active liveOrReplay NotPaused activeGameState }
+                    , DrawSomething whatToDraw
+                    )
 
-        AnimationFrame liveOrReplay { delta, leftoverTimeFromPreviousFrame, lastTick } midRoundState ->
-            let
-                ( tickResult, whatToDraw ) =
-                    MainLoop.consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState
-            in
-            ( { model | appState = InGame (tickResultToGameState liveOrReplay tickResult) }
-            , maybeDrawSomething whatToDraw
-            )
+                _ ->
+                    -- Not expected to ever happen.
+                    ( model, DoNothing )
+
+        AnimationFrame delta ->
+            case model.appState of
+                InGame (Active liveOrReplay NotPaused (Moving leftoverTimeFromPreviousFrame lastTick midRoundState)) ->
+                    let
+                        ( tickResult, whatToDraw ) =
+                            MainLoop.consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState
+                    in
+                    ( { model | appState = InGame (tickResultToGameState liveOrReplay tickResult) }
+                    , maybeDrawSomething whatToDraw
+                    )
+
+                _ ->
+                    -- Not expected to ever happen.
+                    ( model, DoNothing )
 
         ButtonUsed Down button ->
             case model.appState of
@@ -393,20 +399,11 @@ subscriptions model =
             InMenu Lobby _ ->
                 Sub.none
 
-            InGame (Active liveOrReplay NotPaused (Spawning spawnState plannedMidRoundState)) ->
-                Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick liveOrReplay spawnState plannedMidRoundState)
+            InGame (Active _ NotPaused (Spawning _ _)) ->
+                Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always SpawnTick)
 
-            InGame (Active liveOrReplay NotPaused (Moving leftoverTimeFromPreviousFrame lastTick midRoundState)) ->
-                Browser.Events.onAnimationFrameDelta
-                    (\delta ->
-                        AnimationFrame
-                            liveOrReplay
-                            { delta = delta
-                            , leftoverTimeFromPreviousFrame = leftoverTimeFromPreviousFrame
-                            , lastTick = lastTick
-                            }
-                            midRoundState
-                    )
+            InGame (Active _ NotPaused (Moving _ _ _)) ->
+                Browser.Events.onAnimationFrameDelta AnimationFrame
 
             InGame (Active _ Paused _) ->
                 Sub.none
