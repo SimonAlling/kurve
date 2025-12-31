@@ -56,6 +56,7 @@ expectRoundOutcome config { tickThatShouldEndIt, howItShouldEnd, effectsItShould
                     Expect.pass
 
                 ExpectEffects expectedEffects ->
+                    -- It takes a non-negligible amount of time to play out a non-trivial round, so we only do it if the effects are of interest.
                     playOutRoundWithEffects config initialState
                         |> Expect.equalLists expectedEffects
         ]
