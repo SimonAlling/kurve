@@ -162,7 +162,7 @@ playOutRoundWithEffects config initialState =
                     ( newModel, newReversedEffects )
 
                 _ ->
-                    Debug.todo "Unexpected app state"
+                    Debug.todo <| "Unexpected app state: " ++ Debug.toString newModel.appState
     in
     recurse SpawnTick initialModel []
         |> Tuple.second
