@@ -152,16 +152,20 @@ playOutRoundWithEffects config initialState =
             let
                 ( newModel, effectForThisUpdate ) =
                     update msg model
+
+                newReversedEffects : List Effect
+                newReversedEffects =
+                    effectForThisUpdate :: reversedEffectsSoFar
             in
             case newModel.appState of
                 InGame (Active _ NotPaused (Spawning _ _)) ->
-                    recurse spawnTickMsg newModel (effectForThisUpdate :: reversedEffectsSoFar)
+                    recurse spawnTickMsg newModel newReversedEffects
 
                 InGame (Active _ NotPaused (Moving _ _ _)) ->
-                    recurse animationFrameMsg newModel (effectForThisUpdate :: reversedEffectsSoFar)
+                    recurse animationFrameMsg newModel newReversedEffects
 
                 InGame (RoundOver _ _) ->
-                    ( newModel, effectForThisUpdate :: reversedEffectsSoFar )
+                    ( newModel, newReversedEffects )
 
                 _ ->
                     Debug.todo "Unexpected app state"
