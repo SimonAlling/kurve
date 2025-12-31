@@ -158,6 +158,7 @@ playOutRoundWithEffects config initialState =
                 newReversedEffects =
                     effectForThisUpdate :: reversedEffectsSoFar
             in
+            -- Here we essentially emulate the subscriptions that the complete application hopefully/probably has:
             case newModel.appState of
                 InGame (Active _ NotPaused (Spawning _ _)) ->
                     recurse spawnTickMsg newModel newReversedEffects
