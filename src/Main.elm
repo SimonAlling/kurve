@@ -6,7 +6,6 @@ import Browser.Events
 import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
-import Drawing exposing (WhatToDraw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently)
 import Effect exposing (Effect(..), maybeDrawSomething)
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
@@ -20,7 +19,6 @@ import Game
         , GameState(..)
         , LiveOrReplay(..)
         , PausedOrNot(..)
-        , SpawnState
         , firstUpdateTick
         , getActiveRound
         , modifyMidRoundState
@@ -48,10 +46,8 @@ import Players
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
-import Time
 import Types.FrameTime exposing (FrameTime)
 import Types.Tick as Tick exposing (Tick)
-import Util exposing (isEven)
 
 
 type alias Model =
@@ -83,6 +79,7 @@ startRound liveOrReplay model midRoundState =
         gameState =
             Active liveOrReplay NotPaused <|
                 Spawning
+                    MainLoop.noLeftoverFrameTime
                     { kurvesLeft = midRoundState |> .kurves |> .alive
                     , alreadySpawnedKurves = []
                     , ticksLeft = model.config.spawn.numberOfFlickerTicks
@@ -93,31 +90,10 @@ startRound liveOrReplay model midRoundState =
 
 
 type Msg
-    = SpawnTick
-    | AnimationFrame FrameTime
+    = AnimationFrame FrameTime
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
     | FocusLost
-
-
-stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, WhatToDraw )
-stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
-    case kurvesLeft of
-        [] ->
-            -- All Kurves have spawned.
-            ( Nothing, drawSpawnsPermanently alreadySpawnedKurves )
-
-        spawning :: waiting ->
-            let
-                newSpawnState : SpawnState
-                newSpawnState =
-                    if ticksLeft == 0 then
-                        { kurvesLeft = waiting, alreadySpawnedKurves = spawning :: alreadySpawnedKurves, ticksLeft = config.spawn.numberOfFlickerTicks }
-
-                    else
-                        { kurvesLeft = spawning :: waiting, alreadySpawnedKurves = alreadySpawnedKurves, ticksLeft = ticksLeft - 1 }
-            in
-            ( Just newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning alreadySpawnedKurves )
 
 
 update : Msg -> Model -> ( Model, Effect )
@@ -137,32 +113,26 @@ update msg ({ config, pressedButtons } as model) =
                 _ ->
                     ( model, DoNothing )
 
-        SpawnTick ->
+        AnimationFrame delta ->
             case model.appState of
-                InGame (Active liveOrReplay NotPaused (Spawning spawnState plannedMidRoundState)) ->
+                InGame (Active liveOrReplay NotPaused (Spawning leftoverTimeFromPreviousFrame spawnState plannedMidRoundState)) ->
                     let
-                        ( maybeSpawnState, whatToDraw ) =
-                            stepSpawnState config spawnState
+                        ( ( newLeftoverTime, maybeSpawnState ), whatToDraw ) =
+                            MainLoop.consumeAnimationFrame_Spawning config delta leftoverTimeFromPreviousFrame spawnState
 
                         activeGameState : ActiveGameState
                         activeGameState =
                             case maybeSpawnState of
                                 Just newSpawnState ->
-                                    Spawning newSpawnState plannedMidRoundState
+                                    Spawning newLeftoverTime newSpawnState plannedMidRoundState
 
                                 Nothing ->
                                     Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
                     in
                     ( { model | appState = InGame <| Active liveOrReplay NotPaused activeGameState }
-                    , DrawSomething whatToDraw
+                    , maybeDrawSomething whatToDraw
                     )
 
-                _ ->
-                    -- Not expected to ever happen.
-                    ( model, DoNothing )
-
-        AnimationFrame delta ->
-            case model.appState of
                 InGame (Active liveOrReplay NotPaused (Moving leftoverTimeFromPreviousFrame lastTick midRoundState)) ->
                     let
                         ( tickResult, whatToDraw ) =
@@ -303,7 +273,7 @@ update msg ({ config, pressedButtons } as model) =
                     case button of
                         Key "ArrowRight" ->
                             case s of
-                                Spawning _ _ ->
+                                Spawning _ _ _ ->
                                     ( model, DoNothing )
 
                                 Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
@@ -370,7 +340,7 @@ handleUserInteraction direction button model =
         howToModifyRound : Round -> Round
         howToModifyRound =
             case model.appState of
-                InGame (Active Live _ (Spawning _ _)) ->
+                InGame (Active Live _ (Spawning _ _ _)) ->
                     recordInteractionBefore firstUpdateTick
 
                 InGame (Active Live _ (Moving _ lastTick _)) ->
@@ -399,8 +369,8 @@ subscriptions model =
             InMenu Lobby _ ->
                 Sub.none
 
-            InGame (Active _ NotPaused (Spawning _ _)) ->
-                Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always SpawnTick)
+            InGame (Active _ NotPaused (Spawning _ _ _)) ->
+                Browser.Events.onAnimationFrameDelta AnimationFrame
 
             InGame (Active _ NotPaused (Moving _ _ _)) ->
                 Browser.Events.onAnimationFrameDelta AnimationFrame

@@ -50,7 +50,7 @@ type PausedOrNot
 
 
 type ActiveGameState
-    = Spawning SpawnState Round
+    = Spawning LeftoverFrameTime SpawnState Round
     | Moving LeftoverFrameTime Tick Round
 
 
@@ -72,7 +72,7 @@ getCurrentRound gameState =
 getActiveRound : ActiveGameState -> Round
 getActiveRound activeGameState =
     case activeGameState of
-        Spawning _ round ->
+        Spawning _ _ round ->
             round
 
         Moving _ _ round ->
@@ -85,8 +85,8 @@ modifyMidRoundState f gameState =
         Active p liveOrReplay (Moving t leftoverFrameTime midRoundState) ->
             Active p liveOrReplay <| Moving t leftoverFrameTime <| f midRoundState
 
-        Active p liveOrReplay (Spawning s midRoundState) ->
-            Active p liveOrReplay <| Spawning s <| f midRoundState
+        Active p liveOrReplay (Spawning t s midRoundState) ->
+            Active p liveOrReplay <| Spawning t s <| f midRoundState
 
         _ ->
             gameState
