@@ -140,14 +140,6 @@ playOutRoundWithEffects config initialState =
         frameDeltaInMs =
             1000 / toFloat refreshRateInTests
 
-        animationFrameMsg : Msg
-        animationFrameMsg =
-            AnimationFrame frameDeltaInMs
-
-        spawnTickMsg : Msg
-        spawnTickMsg =
-            SpawnTick
-
         recurse : Msg -> Model -> List Effect -> ( Model, List Effect )
         recurse msg model reversedEffectsSoFar =
             let
@@ -161,10 +153,10 @@ playOutRoundWithEffects config initialState =
             -- Here we essentially emulate the subscriptions that the complete application hopefully/probably has:
             case newModel.appState of
                 InGame (Active _ NotPaused (Spawning _ _)) ->
-                    recurse spawnTickMsg newModel newReversedEffects
+                    recurse SpawnTick newModel newReversedEffects
 
                 InGame (Active _ NotPaused (Moving _ _ _)) ->
-                    recurse animationFrameMsg newModel newReversedEffects
+                    recurse (AnimationFrame frameDeltaInMs) newModel newReversedEffects
 
                 InGame (RoundOver _ _) ->
                     ( newModel, newReversedEffects )
@@ -172,7 +164,7 @@ playOutRoundWithEffects config initialState =
                 _ ->
                     Debug.todo "Unexpected app state"
     in
-    recurse spawnTickMsg initialModel []
+    recurse SpawnTick initialModel []
         |> Tuple.second
         |> List.reverse
 
