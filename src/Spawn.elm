@@ -17,8 +17,9 @@ import Types.Kurve as Kurve exposing (Kurve)
 import Types.Player exposing (Player)
 import Types.PlayerId exposing (PlayerId)
 import Types.Radius as Radius
+import Types.SquaredDistance as SquaredDistance exposing (SquaredDistance(..))
 import Util exposing (curry)
-import World exposing (Position, distanceBetween, distanceToTicks)
+import World exposing (Position, distanceToTicks, squaredDistanceBetween)
 
 
 generateKurves : Config -> ParticipatingPlayers -> Random.Generator (List Kurve)
@@ -47,9 +48,9 @@ isSafeNewPosition config numberOfPlayers existingPositions newPosition =
 isTooCloseFor : Int -> Config -> Position -> Position -> Bool
 isTooCloseFor numberOfPlayers config point1 point2 =
     let
-        desiredMinimumDistance : Float
-        desiredMinimumDistance =
-            theThickness + Radius.toFloat config.kurves.turningRadius * config.spawn.desiredMinimumDistanceTurningRadiusFactor
+        desiredMinimumSquaredDistance : SquaredDistance
+        desiredMinimumSquaredDistance =
+            SquaredDistance <| (theThickness + Radius.toFloat config.kurves.turningRadius * config.spawn.desiredMinimumDistanceTurningRadiusFactor) ^ 2
 
         ( ( left, top ), ( right, bottom ) ) =
             spawnArea config.spawn config.world
@@ -60,11 +61,13 @@ isTooCloseFor numberOfPlayers config point1 point2 =
 
         -- Derived from:
         -- audacity × total available area > number of players × ( max allowed minimum distance / 2 )² × pi
-        maxAllowedMinimumDistance : Float
-        maxAllowedMinimumDistance =
-            2 * sqrt (config.spawn.protectionAudacity * availableArea / (toFloat numberOfPlayers * pi))
+        maxAllowedMinimumSquaredDistance : SquaredDistance
+        maxAllowedMinimumSquaredDistance =
+            SquaredDistance <| 4 * (config.spawn.protectionAudacity * availableArea / (toFloat numberOfPlayers * pi))
     in
-    Distance.toFloat (distanceBetween point1 point2) < min desiredMinimumDistance maxAllowedMinimumDistance
+    SquaredDistance.lessThan
+        (squaredDistanceBetween point1 point2)
+        (SquaredDistance.min desiredMinimumSquaredDistance maxAllowedMinimumSquaredDistance)
 
 
 generateKurve : Config -> PlayerId -> Int -> List Position -> Player -> Random.Generator Kurve
