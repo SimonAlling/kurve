@@ -28,7 +28,7 @@ import TestScenarioHelpers
         , RoundEndingInterpretation
         , RoundOutcome
         )
-import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
+import Types.FrameTime exposing (FrameTime)
 import Types.Speed exposing (Speed)
 import Types.Tick as Tick exposing (Tick)
 import World
@@ -135,22 +135,17 @@ playOutRoundWithEffects config initialState =
             , players = initialPlayers
             }
 
-        firstMsg : Msg
-        firstMsg =
-            makeAnimationFrameMsg Live 0 Tick.genesis initialRound
-
         frameDeltaInMs : FrameTime
         frameDeltaInMs =
             1000 / toFloat refreshRateInTests
 
-        makeAnimationFrameMsg : LiveOrReplay -> LeftoverFrameTime -> Tick -> Round -> Msg
-        makeAnimationFrameMsg liveOrReplay leftoverTimeFromPreviousFrame lastTick midRoundState =
-            AnimationFrame liveOrReplay
-                { delta = frameDeltaInMs
-                , leftoverTimeFromPreviousFrame = leftoverTimeFromPreviousFrame
-                , lastTick = lastTick
-                }
-                midRoundState
+        animationFrameMsg : Msg
+        animationFrameMsg =
+            AnimationFrame frameDeltaInMs
+
+        spawnTickMsg : Msg
+        spawnTickMsg =
+            SpawnTick
 
         recurse : Msg -> Model -> List Effect -> ( Model, List Effect )
         recurse msg model reversedEffectsSoFar =
@@ -159,13 +154,11 @@ playOutRoundWithEffects config initialState =
                     update msg model
             in
             case newModel.appState of
-                InGame (Active liveOrReplay NotPaused (Moving leftoverTimeFromPreviousFrame lastTick midRoundState)) ->
-                    let
-                        newMsg : Msg
-                        newMsg =
-                            makeAnimationFrameMsg liveOrReplay leftoverTimeFromPreviousFrame lastTick midRoundState
-                    in
-                    recurse newMsg newModel (effectForThisUpdate :: reversedEffectsSoFar)
+                InGame (Active _ NotPaused (Spawning _ _)) ->
+                    recurse spawnTickMsg newModel (effectForThisUpdate :: reversedEffectsSoFar)
+
+                InGame (Active _ NotPaused (Moving _ _ _)) ->
+                    recurse animationFrameMsg newModel (effectForThisUpdate :: reversedEffectsSoFar)
 
                 InGame (RoundOver _ _) ->
                     ( newModel, effectForThisUpdate :: reversedEffectsSoFar )
@@ -173,7 +166,7 @@ playOutRoundWithEffects config initialState =
                 _ ->
                     Debug.todo "Unexpected app state"
     in
-    recurse firstMsg initialModel []
+    recurse spawnTickMsg initialModel []
         |> Tuple.second
         |> List.reverse
 

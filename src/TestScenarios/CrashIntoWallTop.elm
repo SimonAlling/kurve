@@ -39,6 +39,34 @@ expectedOutcome =
     , effectsItShouldProduce =
         ExpectEffects
             [ DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 3 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 3 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 3 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 3 } ) ]
+                , headDrawing = []
+                }
+            , DrawSomething
                 { bodyDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 2 } ) ]
                 , headDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 2 } ) ]
                 }
