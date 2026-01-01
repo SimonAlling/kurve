@@ -1,10 +1,7 @@
-module TestHelpers exposing
-    ( defaultConfigWithSpeed
-    , expectRoundOutcome
-    )
+module TestHelpers exposing (expectRoundOutcome)
 
 import App exposing (AppState(..))
-import Config exposing (Config, KurveConfig)
+import Config exposing (Config)
 import Effect exposing (Effect)
 import Expect
 import Game
@@ -29,7 +26,6 @@ import TestScenarioHelpers
         , RoundOutcome
         )
 import Types.FrameTime exposing (FrameTime)
-import Types.Speed exposing (Speed)
 import Types.Tick as Tick exposing (Tick)
 import World
 
@@ -172,25 +168,6 @@ playOutRoundWithEffects config initialState =
 showTick : Tick -> String
 showTick =
     Tick.toInt >> String.fromInt
-
-
-defaultConfigWithSpeed : Speed -> Config
-defaultConfigWithSpeed speed =
-    let
-        defaultConfig : Config
-        defaultConfig =
-            Config.default
-
-        defaultKurveConfig : KurveConfig
-        defaultKurveConfig =
-            defaultConfig.kurves
-    in
-    { defaultConfig
-        | kurves =
-            { defaultKurveConfig
-                | speed = speed
-            }
-    }
 
 
 refreshRateInTests : RefreshRate
