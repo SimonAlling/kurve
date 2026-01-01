@@ -12,7 +12,7 @@ import Random
 import Set
 import Test
 import TestHelpers.Effects exposing (clearsEverything, drawsBodySquares)
-import TestHelpers.EndToEnd exposing (consumeMessages)
+import TestHelpers.EndToEnd exposing (endToEndTest)
 import TestHelpers.ListLength exposing (expectAtLeast, expectExactly)
 import TestHelpers.PlayerInput exposing (press, pressAndRelease, release)
 import TestHelpers.Randomness exposing (withSeed)
@@ -23,7 +23,7 @@ theTest : Test.Test
 theTest =
     let
         ( actualModel, actualEffects ) =
-            consumeMessages initialModel messages
+            endToEndTest initialModel messages
     in
     Test.describe "End-to-end test of an entire session"
         [ Test.test "Resulting model is correct" <|

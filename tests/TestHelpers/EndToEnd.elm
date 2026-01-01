@@ -1,11 +1,11 @@
-module TestHelpers.EndToEnd exposing (consumeMessages)
+module TestHelpers.EndToEnd exposing (endToEndTest)
 
 import Effect exposing (Effect)
 import Main exposing (Model, Msg, update)
 
 
-consumeMessages : Model -> List Msg -> ( Model, List Effect )
-consumeMessages initialModel messages =
+endToEndTest : Model -> List Msg -> ( Model, List Effect )
+endToEndTest initialModel messages =
     List.foldl consumeMsg ( initialModel, [] ) messages
         |> Tuple.mapSecond List.reverse
 
