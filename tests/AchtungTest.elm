@@ -13,6 +13,7 @@ import TestScenarios.CrashIntoWallExactTiming
 import TestScenarios.CrashIntoWallLeft
 import TestScenarios.CrashIntoWallRight
 import TestScenarios.CrashIntoWallTop
+import TestScenarios.CrashingWhileBecomingUnholy
 import TestScenarios.CuttingCornersBasic
 import TestScenarios.CuttingCornersPerfectOverpainting
 import TestScenarios.SpeedEffectOnGame
@@ -30,6 +31,7 @@ tests =
         , cuttingCornersTests
         , speedTests
         , stressTests
+        , holeTests
         ]
 
 
@@ -215,4 +217,16 @@ stressTests =
                     |> expectRoundOutcome
                         TestScenarios.StressTestRealisticTurtleSurvivalRound.config
                         TestScenarios.StressTestRealisticTurtleSurvivalRound.expectedOutcome
+        ]
+
+
+holeTests : Test
+holeTests =
+    describe "Hole tests"
+        [ test "Final head position is drawn when simultaneously crashing and becoming unholy" <|
+            \_ ->
+                roundWith TestScenarios.CrashingWhileBecomingUnholy.spawnedKurves
+                    |> expectRoundOutcome
+                        TestScenarios.CrashingWhileBecomingUnholy.config
+                        TestScenarios.CrashingWhileBecomingUnholy.expectedOutcome
         ]
