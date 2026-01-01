@@ -132,7 +132,7 @@ playOutRoundWithEffects config initialState =
         initialModel =
             { pressedButtons = Set.empty
             , appState = InGame initialGameState
-            , config = Config.default
+            , config = config
             , players = initialPlayers
             }
 
