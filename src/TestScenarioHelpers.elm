@@ -1,5 +1,7 @@
 module TestScenarioHelpers exposing
     ( CumulativeInteraction
+    , EffectsExpectation(..)
+    , RefreshRate
     , RoundEndingInterpretation
     , RoundOutcome
     , makeUserInteractions
@@ -10,6 +12,7 @@ module TestScenarioHelpers exposing
     )
 
 import Color
+import Effect exposing (Effect)
 import Random
 import Round exposing (RoundInitialState)
 import Set
@@ -111,6 +114,7 @@ tickNumber n =
 type alias RoundOutcome =
     { tickThatShouldEndIt : Tick
     , howItShouldEnd : RoundEndingInterpretation
+    , effectsItShouldProduce : EffectsExpectation
     }
 
 
@@ -129,3 +133,12 @@ type alias DeadKurve =
     { id : PlayerId
     , theDrawingPositionItNeverMadeItTo : DrawingPosition
     }
+
+
+type EffectsExpectation
+    = DoNotCare
+    | ExpectEffects (List Effect)
+
+
+type alias RefreshRate =
+    Int

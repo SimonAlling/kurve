@@ -1,7 +1,8 @@
 module TestScenarios.CrashIntoWallTop exposing (expectedOutcome, spawnedKurves)
 
 import Color
-import TestScenarioHelpers exposing (RoundOutcome, makeZombieKurve, playerIds, tickNumber)
+import Effect exposing (Effect(..))
+import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 
@@ -35,4 +36,55 @@ expectedOutcome =
               }
             ]
         }
+    , effectsItShouldProduce =
+        ExpectEffects
+            [ DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 3 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 3 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 3 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 3 } ) ]
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 2 } ) ]
+                , headDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 2 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 1 } ) ]
+                , headDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 1 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 0 } ) ]
+                , headDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 0 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Color.green, { leftEdge = 99, topEdge = 0 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            ]
     }
