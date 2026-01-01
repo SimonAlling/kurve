@@ -1,10 +1,16 @@
-module TestScenarios.AroundTheWorld exposing (expectedOutcome, spawnedKurves)
+module TestScenarios.AroundTheWorld exposing (config, expectedOutcome, spawnedKurves)
 
 import Color
+import Config exposing (Config)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeUserInteractions, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.TurningState exposing (TurningState(..))
+
+
+config : Config
+config =
+    Config.default
 
 
 greenZombie : Kurve

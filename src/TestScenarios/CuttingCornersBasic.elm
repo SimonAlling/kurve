@@ -1,9 +1,15 @@
-module TestScenarios.CuttingCornersBasic exposing (expectedOutcome, spawnedKurves)
+module TestScenarios.CuttingCornersBasic exposing (config, expectedOutcome, spawnedKurves)
 
 import Color
+import Config exposing (Config)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
+
+
+config : Config
+config =
+    Config.default
 
 
 red : Kurve

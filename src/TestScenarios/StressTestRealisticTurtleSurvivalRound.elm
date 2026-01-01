@@ -1,10 +1,16 @@
-module TestScenarios.StressTestRealisticTurtleSurvivalRound exposing (expectedOutcome, spawnedKurves)
+module TestScenarios.StressTestRealisticTurtleSurvivalRound exposing (config, expectedOutcome, spawnedKurves)
 
 import Color
+import Config exposing (Config)
 import TestScenarioHelpers exposing (CumulativeInteraction, EffectsExpectation(..), RoundOutcome, makeUserInteractions, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.TurningState exposing (TurningState(..))
+
+
+config : Config
+config =
+    Config.default
 
 
 greenZombie : Kurve
