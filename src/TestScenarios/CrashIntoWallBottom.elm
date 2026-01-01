@@ -1,7 +1,7 @@
 module TestScenarios.CrashIntoWallBottom exposing (expectedOutcome, spawnedKurves)
 
 import Color
-import TestScenarioHelpers exposing (RoundOutcome, makeZombieKurve, playerIds, tickNumber)
+import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 
@@ -35,4 +35,5 @@ expectedOutcome =
               }
             ]
         }
+    , effectsItShouldProduce = DoNotCare
     }

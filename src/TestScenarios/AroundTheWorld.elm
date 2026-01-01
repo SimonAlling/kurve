@@ -1,7 +1,7 @@
 module TestScenarios.AroundTheWorld exposing (expectedOutcome, spawnedKurves)
 
 import Color
-import TestScenarioHelpers exposing (RoundOutcome, makeUserInteractions, makeZombieKurve, playerIds, tickNumber)
+import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeUserInteractions, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.TurningState exposing (TurningState(..))
@@ -52,4 +52,5 @@ expectedOutcome =
               }
             ]
         }
+    , effectsItShouldProduce = DoNotCare
     }

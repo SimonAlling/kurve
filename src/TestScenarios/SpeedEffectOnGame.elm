@@ -1,7 +1,7 @@
 module TestScenarios.SpeedEffectOnGame exposing (expectedOutcome, spawnedKurves)
 
 import Color
-import TestScenarioHelpers exposing (RoundOutcome, makeZombieKurve, playerIds)
+import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.Tick exposing (Tick)
@@ -36,4 +36,5 @@ expectedOutcome expectedEndTick =
               }
             ]
         }
+    , effectsItShouldProduce = DoNotCare
     }
