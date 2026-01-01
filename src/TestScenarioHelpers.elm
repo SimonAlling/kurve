@@ -5,6 +5,7 @@ module TestScenarioHelpers exposing
     , RoundEndingInterpretation
     , RoundOutcome
     , defaultConfigWithSpeed
+    , defaultConfigWithHardcodedHoles
     , makeUserInteractions
     , makeZombieKurve
     , playerIds
@@ -19,6 +20,7 @@ import Random
 import Round exposing (RoundInitialState)
 import Set
 import Types.Angle exposing (Angle(..))
+import Types.Distance exposing (Distance)
 import Types.Kurve as Kurve exposing (HoleStatus(..), Kurve, UserInteraction(..))
 import Types.PlayerId exposing (PlayerId)
 import Types.Speed exposing (Speed)
@@ -162,5 +164,29 @@ defaultConfigWithSpeed speed =
         | kurves =
             { defaultKurveConfig
                 | speed = speed
+            }
+    }
+
+
+defaultConfigWithHardcodedHoles : Distance -> Distance -> Config
+defaultConfigWithHardcodedHoles interval size =
+    let
+        defaultConfig : Config
+        defaultConfig =
+            Config.default
+
+        defaultKurveConfig : KurveConfig
+        defaultKurveConfig =
+            defaultConfig.kurves
+    in
+    { defaultConfig
+        | kurves =
+            { defaultKurveConfig
+                | holes =
+                    { minInterval = interval
+                    , maxInterval = interval
+                    , minSize = size
+                    , maxSize = size
+                    }
             }
     }
