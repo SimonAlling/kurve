@@ -50,7 +50,7 @@ expectedOutcome =
         { aliveAtTheEnd = [ { id = playerIds.red } ]
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 296, topEdge = -1 }
+              , theDrawingPositionItNeverMadeItTo = { x = 296, y = -1 }
               }
             ]
         }

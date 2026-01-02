@@ -61,7 +61,7 @@ expectedOutcome =
         { aliveAtTheEnd = []
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 372, topEdge = 217 }
+              , theDrawingPositionItNeverMadeItTo = { x = 372, y = 217 }
               }
             ]
         }
