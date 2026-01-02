@@ -5,6 +5,7 @@ module TestScenarioHelpers exposing
     , RoundEndingInterpretation
     , RoundOutcome
     , defaultConfigWithSpeed
+    , lol
     , makeUserInteractions
     , makeZombieKurve
     , playerIds
@@ -12,7 +13,7 @@ module TestScenarioHelpers exposing
     , tickNumber
     )
 
-import Color
+import Color exposing (Color)
 import Config exposing (Config, KurveConfig)
 import Effect exposing (Effect)
 import Random
@@ -164,3 +165,36 @@ defaultConfigWithSpeed speed =
                 | speed = speed
             }
     }
+
+
+lol : Char -> ( Int, Int ) -> ( Color, DrawingPosition )
+lol color ( x, y ) =
+    ( charToColor color, { x = x, y = y } )
+
+
+charToColor : Char -> Color
+charToColor x =
+    case x of
+        '🟥' ->
+            Color.red
+
+        '🟨' ->
+            Color.yellow
+
+        '🟧' ->
+            Color.orange
+
+        '🟩' ->
+            Color.green
+
+        '🟪' ->
+            Color.purple
+
+        '🟦' ->
+            Color.blue
+
+        '⬜' ->
+            Color.white
+
+        _ ->
+            Debug.todo <| "Unsupported color character: " ++ String.fromChar x

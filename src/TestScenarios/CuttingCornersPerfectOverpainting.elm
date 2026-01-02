@@ -3,7 +3,7 @@ module TestScenarios.CuttingCornersPerfectOverpainting exposing (config, expecte
 import Color
 import Config exposing (Config)
 import Effect exposing (Effect(..))
-import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
+import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, lol, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 
@@ -96,7 +96,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Color.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ lol '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -195,8 +195,8 @@ expectedOutcome =
 
             -- The Kurves start moving:
             , DrawSomething
-                { bodyDrawing = [ ( Color.green, { x = 19, y = 46 } ), ( Color.orange, { x = 21, y = 24 } ), ( Color.yellow, { x = 36, y = 36 } ), ( Color.red, { x = 30, y = 30 } ) ]
-                , headDrawing = [ ( Color.red, { x = 30, y = 30 } ), ( Color.yellow, { x = 36, y = 36 } ), ( Color.orange, { x = 21, y = 24 } ), ( Color.green, { x = 19, y = 46 } ) ]
+                { bodyDrawing = [ lol '🟥' ( 30, 30 ), lol '🟨' ( 36, 36 ), lol '🟧' ( 21, 24 ), lol '🟩' ( 19, 46 ) ]
+                , headDrawing = [ lol '🟥' ( 30, 30 ), lol '🟨' ( 36, 36 ), lol '🟧' ( 21, 24 ), lol '🟩' ( 19, 46 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = [ ( Color.orange, { x = 22, y = 24 } ) ]
