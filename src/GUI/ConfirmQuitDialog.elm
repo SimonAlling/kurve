@@ -1,6 +1,6 @@
 module GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 
-import Color
+import Colors
 import Dialog
 import GUI.Text
 import Game exposing (GameState(..))
@@ -49,4 +49,4 @@ focusedIf a b =
 
 smallWhiteText : String -> List (Html msg)
 smallWhiteText =
-    GUI.Text.string (GUI.Text.Size 1) Color.white
+    GUI.Text.string (GUI.Text.Size 1) Colors.white

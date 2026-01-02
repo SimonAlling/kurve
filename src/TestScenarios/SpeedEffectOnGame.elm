@@ -1,6 +1,6 @@
 module TestScenarios.SpeedEffectOnGame exposing (config, expectedOutcome, spawnedKurves)
 
-import Color
+import Colors
 import Config exposing (Config)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, defaultConfigWithSpeed, makeZombieKurve, playerIds)
 import Types.Angle exposing (Angle(..))
@@ -17,7 +17,7 @@ config =
 green : Kurve
 green =
     makeZombieKurve
-        { color = Color.green
+        { color = Colors.green
         , id = playerIds.green
         , state =
             { position = ( 107.5, 99.5 )
