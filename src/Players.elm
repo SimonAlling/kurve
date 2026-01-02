@@ -9,7 +9,7 @@ module Players exposing
     , participating
     )
 
-import Color exposing (Color)
+import Colors
 import Dict exposing (Dict)
 import Input exposing (Button(..))
 import Round exposing (Round)
@@ -102,43 +102,39 @@ initialPlayers =
 players : List Player
 players =
     let
-        rgb : Int -> Int -> Int -> Color
-        rgb =
-            Color.rgb255
-
         red : Player
         red =
-            { color = rgb 255 40 0
+            { color = Colors.red
             , controls = ( [ Key "Digit1" ], [ Key "KeyQ" ] )
             }
 
         yellow : Player
         yellow =
-            { color = rgb 195 195 0
+            { color = Colors.yellow
             , controls = ( [ Key "ControlLeft", Key "KeyZ" ], [ Key "AltLeft", Key "KeyX" ] )
             }
 
         orange : Player
         orange =
-            { color = rgb 255 121 0
+            { color = Colors.orange
             , controls = ( [ Key "KeyM" ], [ Key "Comma" ] )
             }
 
         green : Player
         green =
-            { color = rgb 0 203 0
+            { color = Colors.green
             , controls = ( [ Key "ArrowLeft" ], [ Key "ArrowDown" ] )
             }
 
         pink : Player
         pink =
-            { color = rgb 223 81 182
+            { color = Colors.pink
             , controls = ( [ Key "NumpadDivide", Key "End", Key "PageDown" ], [ Key "NumpadMultiply", Key "PageUp" ] )
             }
 
         blue : Player
         blue =
-            { color = rgb 0 162 203
+            { color = Colors.blue
             , controls = ( [ Mouse 0 ], [ Mouse 2 ] )
             }
     in

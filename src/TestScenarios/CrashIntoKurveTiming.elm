@@ -1,6 +1,6 @@
 module TestScenarios.CrashIntoKurveTiming exposing (config, expectedOutcome, spawnedKurves)
 
-import Color
+import Colors
 import Config exposing (Config)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
@@ -15,7 +15,7 @@ config =
 red : Float -> Kurve
 red y_red =
     makeZombieKurve
-        { color = Color.red
+        { color = Colors.red
         , id = playerIds.red
         , state =
             { position = ( 149.5, y_red )
@@ -28,7 +28,7 @@ red y_red =
 green : Kurve
 green =
     makeZombieKurve
-        { color = Color.green
+        { color = Colors.green
         , id = playerIds.green
         , state =
             { position = ( 99.5, 106.5 )

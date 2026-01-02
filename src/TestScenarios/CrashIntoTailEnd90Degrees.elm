@@ -1,6 +1,6 @@
 module TestScenarios.CrashIntoTailEnd90Degrees exposing (config, expectedOutcome, spawnedKurves)
 
-import Color
+import Colors
 import Config exposing (Config)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
@@ -15,7 +15,7 @@ config =
 red : Kurve
 red =
     makeZombieKurve
-        { color = Color.red
+        { color = Colors.red
         , id = playerIds.red
         , state =
             { position = ( 99.5, 99.5 )
@@ -28,7 +28,7 @@ red =
 green : Kurve
 green =
     makeZombieKurve
-        { color = Color.green
+        { color = Colors.green
         , id = playerIds.green
         , state =
             { position = ( 97.5, 109.5 )
