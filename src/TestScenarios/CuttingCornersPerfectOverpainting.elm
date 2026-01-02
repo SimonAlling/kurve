@@ -77,13 +77,13 @@ expectedOutcome =
         { aliveAtTheEnd = [ { id = playerIds.orange } ]
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 39, topEdge = 26 }
+              , theDrawingPositionItNeverMadeItTo = { x = 39, y = 26 }
               }
             , { id = playerIds.yellow
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 33, topEdge = 33 }
+              , theDrawingPositionItNeverMadeItTo = { x = 33, y = 33 }
               }
             , { id = playerIds.red
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 32, topEdge = 32 }
+              , theDrawingPositionItNeverMadeItTo = { x = 32, y = 32 }
               }
             ]
         }
@@ -96,7 +96,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -104,7 +104,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -112,213 +112,213 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.orange, { leftEdge = 20, topEdge = 24 } ), ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.orange, { leftEdge = 20, topEdge = 24 } ), ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.orange, { leftEdge = 20, topEdge = 24 } ), ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.orange, { leftEdge = 20, topEdge = 24 } ), ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { leftEdge = 18, topEdge = 47 } ), ( Colors.orange, { leftEdge = 20, topEdge = 24 } ), ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 18, y = 47 } ), ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.orange, { leftEdge = 20, topEdge = 24 } ), ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { leftEdge = 18, topEdge = 47 } ), ( Colors.orange, { leftEdge = 20, topEdge = 24 } ), ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 18, y = 47 } ), ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.orange, { leftEdge = 20, topEdge = 24 } ), ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { leftEdge = 18, topEdge = 47 } ), ( Colors.orange, { leftEdge = 20, topEdge = 24 } ), ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 18, y = 47 } ), ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 }
 
             -- Spawns are drawn permanently:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 18, topEdge = 47 } ), ( Colors.orange, { leftEdge = 20, topEdge = 24 } ), ( Colors.yellow, { leftEdge = 37, topEdge = 37 } ), ( Colors.red, { leftEdge = 29, topEdge = 29 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 18, y = 47 } ), ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
                 , headDrawing = []
                 }
 
             -- The Kurves start moving:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 19, topEdge = 46 } ), ( Colors.orange, { leftEdge = 21, topEdge = 24 } ), ( Colors.yellow, { leftEdge = 36, topEdge = 36 } ), ( Colors.red, { leftEdge = 30, topEdge = 30 } ) ]
-                , headDrawing = [ ( Colors.red, { leftEdge = 30, topEdge = 30 } ), ( Colors.yellow, { leftEdge = 36, topEdge = 36 } ), ( Colors.orange, { leftEdge = 21, topEdge = 24 } ), ( Colors.green, { leftEdge = 19, topEdge = 46 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 19, y = 46 } ), ( Colors.orange, { x = 21, y = 24 } ), ( Colors.yellow, { x = 36, y = 36 } ), ( Colors.red, { x = 30, y = 30 } ) ]
+                , headDrawing = [ ( Colors.red, { x = 30, y = 30 } ), ( Colors.yellow, { x = 36, y = 36 } ), ( Colors.orange, { x = 21, y = 24 } ), ( Colors.green, { x = 19, y = 46 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { leftEdge = 22, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.red, { leftEdge = 30, topEdge = 30 } ), ( Colors.yellow, { leftEdge = 36, topEdge = 36 } ), ( Colors.orange, { leftEdge = 22, topEdge = 24 } ), ( Colors.green, { leftEdge = 19, topEdge = 46 } ) ]
+                { bodyDrawing = [ ( Colors.orange, { x = 22, y = 24 } ) ]
+                , headDrawing = [ ( Colors.red, { x = 30, y = 30 } ), ( Colors.yellow, { x = 36, y = 36 } ), ( Colors.orange, { x = 22, y = 24 } ), ( Colors.green, { x = 19, y = 46 } ) ]
                 }
 
             -- Red's last position is drawn:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 20, topEdge = 45 } ), ( Colors.orange, { leftEdge = 23, topEdge = 24 } ), ( Colors.yellow, { leftEdge = 35, topEdge = 35 } ), ( Colors.red, { leftEdge = 31, topEdge = 31 } ) ]
-                , headDrawing = [ ( Colors.red, { leftEdge = 31, topEdge = 31 } ), ( Colors.yellow, { leftEdge = 35, topEdge = 35 } ), ( Colors.orange, { leftEdge = 23, topEdge = 24 } ), ( Colors.green, { leftEdge = 20, topEdge = 45 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 20, y = 45 } ), ( Colors.orange, { x = 23, y = 24 } ), ( Colors.yellow, { x = 35, y = 35 } ), ( Colors.red, { x = 31, y = 31 } ) ]
+                , headDrawing = [ ( Colors.red, { x = 31, y = 31 } ), ( Colors.yellow, { x = 35, y = 35 } ), ( Colors.orange, { x = 23, y = 24 } ), ( Colors.green, { x = 20, y = 45 } ) ]
                 }
 
             -- Yellow's last position is drawn:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 21, topEdge = 44 } ), ( Colors.orange, { leftEdge = 24, topEdge = 24 } ), ( Colors.yellow, { leftEdge = 34, topEdge = 34 } ) ]
-                , headDrawing = [ ( Colors.yellow, { leftEdge = 34, topEdge = 34 } ), ( Colors.orange, { leftEdge = 24, topEdge = 24 } ), ( Colors.green, { leftEdge = 21, topEdge = 44 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 21, y = 44 } ), ( Colors.orange, { x = 24, y = 24 } ), ( Colors.yellow, { x = 34, y = 34 } ) ]
+                , headDrawing = [ ( Colors.yellow, { x = 34, y = 34 } ), ( Colors.orange, { x = 24, y = 24 } ), ( Colors.green, { x = 21, y = 44 } ) ]
                 }
 
             -- Only Orange and Green left:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 22, topEdge = 43 } ), ( Colors.orange, { leftEdge = 25, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 25, topEdge = 24 } ), ( Colors.green, { leftEdge = 22, topEdge = 43 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 22, y = 43 } ), ( Colors.orange, { x = 25, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 25, y = 24 } ), ( Colors.green, { x = 22, y = 43 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { leftEdge = 26, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 26, topEdge = 24 } ), ( Colors.green, { leftEdge = 22, topEdge = 43 } ) ]
+                { bodyDrawing = [ ( Colors.orange, { x = 26, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 26, y = 24 } ), ( Colors.green, { x = 22, y = 43 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 23, topEdge = 42 } ), ( Colors.orange, { leftEdge = 27, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 27, topEdge = 24 } ), ( Colors.green, { leftEdge = 23, topEdge = 42 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 23, y = 42 } ), ( Colors.orange, { x = 27, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 27, y = 24 } ), ( Colors.green, { x = 23, y = 42 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 24, topEdge = 41 } ), ( Colors.orange, { leftEdge = 28, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 28, topEdge = 24 } ), ( Colors.green, { leftEdge = 24, topEdge = 41 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 24, y = 41 } ), ( Colors.orange, { x = 28, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 28, y = 24 } ), ( Colors.green, { x = 24, y = 41 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { leftEdge = 29, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 29, topEdge = 24 } ), ( Colors.green, { leftEdge = 24, topEdge = 41 } ) ]
+                { bodyDrawing = [ ( Colors.orange, { x = 29, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 29, y = 24 } ), ( Colors.green, { x = 24, y = 41 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 25, topEdge = 40 } ), ( Colors.orange, { leftEdge = 30, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 30, topEdge = 24 } ), ( Colors.green, { leftEdge = 25, topEdge = 40 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 25, y = 40 } ), ( Colors.orange, { x = 30, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 30, y = 24 } ), ( Colors.green, { x = 25, y = 40 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 26, topEdge = 39 } ), ( Colors.orange, { leftEdge = 31, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 31, topEdge = 24 } ), ( Colors.green, { leftEdge = 26, topEdge = 39 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 26, y = 39 } ), ( Colors.orange, { x = 31, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 31, y = 24 } ), ( Colors.green, { x = 26, y = 39 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { leftEdge = 32, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 32, topEdge = 24 } ), ( Colors.green, { leftEdge = 26, topEdge = 39 } ) ]
+                { bodyDrawing = [ ( Colors.orange, { x = 32, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 32, y = 24 } ), ( Colors.green, { x = 26, y = 39 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 27, topEdge = 38 } ), ( Colors.orange, { leftEdge = 33, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 33, topEdge = 24 } ), ( Colors.green, { leftEdge = 27, topEdge = 38 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 27, y = 38 } ), ( Colors.orange, { x = 33, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 33, y = 24 } ), ( Colors.green, { x = 27, y = 38 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 28, topEdge = 37 } ), ( Colors.orange, { leftEdge = 34, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 34, topEdge = 24 } ), ( Colors.green, { leftEdge = 28, topEdge = 37 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 28, y = 37 } ), ( Colors.orange, { x = 34, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 34, y = 24 } ), ( Colors.green, { x = 28, y = 37 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 29, topEdge = 36 } ), ( Colors.orange, { leftEdge = 35, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 35, topEdge = 24 } ), ( Colors.green, { leftEdge = 29, topEdge = 36 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 29, y = 36 } ), ( Colors.orange, { x = 35, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 35, y = 24 } ), ( Colors.green, { x = 29, y = 36 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { leftEdge = 36, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 36, topEdge = 24 } ), ( Colors.green, { leftEdge = 29, topEdge = 36 } ) ]
+                { bodyDrawing = [ ( Colors.orange, { x = 36, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 36, y = 24 } ), ( Colors.green, { x = 29, y = 36 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 30, topEdge = 35 } ), ( Colors.orange, { leftEdge = 37, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 37, topEdge = 24 } ), ( Colors.green, { leftEdge = 30, topEdge = 35 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 30, y = 35 } ), ( Colors.orange, { x = 37, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 37, y = 24 } ), ( Colors.green, { x = 30, y = 35 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 31, topEdge = 34 } ), ( Colors.orange, { leftEdge = 38, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 38, topEdge = 24 } ), ( Colors.green, { leftEdge = 31, topEdge = 34 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 31, y = 34 } ), ( Colors.orange, { x = 38, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 38, y = 24 } ), ( Colors.green, { x = 31, y = 34 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { leftEdge = 39, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 39, topEdge = 24 } ), ( Colors.green, { leftEdge = 31, topEdge = 34 } ) ]
+                { bodyDrawing = [ ( Colors.orange, { x = 39, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 39, y = 24 } ), ( Colors.green, { x = 31, y = 34 } ) ]
                 }
 
             -- Green starts painting over Red and Yellow:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 32, topEdge = 33 } ), ( Colors.orange, { leftEdge = 40, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 40, topEdge = 24 } ), ( Colors.green, { leftEdge = 32, topEdge = 33 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 32, y = 33 } ), ( Colors.orange, { x = 40, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 40, y = 24 } ), ( Colors.green, { x = 32, y = 33 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 33, topEdge = 32 } ), ( Colors.orange, { leftEdge = 41, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 41, topEdge = 24 } ), ( Colors.green, { leftEdge = 33, topEdge = 32 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 33, y = 32 } ), ( Colors.orange, { x = 41, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 41, y = 24 } ), ( Colors.green, { x = 33, y = 32 } ) ]
                 }
 
             -- Green stops painting over Red and Yellow:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 34, topEdge = 31 } ), ( Colors.orange, { leftEdge = 42, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 42, topEdge = 24 } ), ( Colors.green, { leftEdge = 34, topEdge = 31 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 34, y = 31 } ), ( Colors.orange, { x = 42, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 42, y = 24 } ), ( Colors.green, { x = 34, y = 31 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { leftEdge = 43, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 43, topEdge = 24 } ), ( Colors.green, { leftEdge = 34, topEdge = 31 } ) ]
+                { bodyDrawing = [ ( Colors.orange, { x = 43, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 43, y = 24 } ), ( Colors.green, { x = 34, y = 31 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 35, topEdge = 30 } ), ( Colors.orange, { leftEdge = 44, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 44, topEdge = 24 } ), ( Colors.green, { leftEdge = 35, topEdge = 30 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 35, y = 30 } ), ( Colors.orange, { x = 44, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 44, y = 24 } ), ( Colors.green, { x = 35, y = 30 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 36, topEdge = 29 } ), ( Colors.orange, { leftEdge = 45, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 45, topEdge = 24 } ), ( Colors.green, { leftEdge = 36, topEdge = 29 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 36, y = 29 } ), ( Colors.orange, { x = 45, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 45, y = 24 } ), ( Colors.green, { x = 36, y = 29 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { leftEdge = 46, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 46, topEdge = 24 } ), ( Colors.green, { leftEdge = 36, topEdge = 29 } ) ]
+                { bodyDrawing = [ ( Colors.orange, { x = 46, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 46, y = 24 } ), ( Colors.green, { x = 36, y = 29 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 37, topEdge = 28 } ), ( Colors.orange, { leftEdge = 47, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 47, topEdge = 24 } ), ( Colors.green, { leftEdge = 37, topEdge = 28 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 37, y = 28 } ), ( Colors.orange, { x = 47, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 47, y = 24 } ), ( Colors.green, { x = 37, y = 28 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 38, topEdge = 27 } ), ( Colors.orange, { leftEdge = 48, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 48, topEdge = 24 } ), ( Colors.green, { leftEdge = 38, topEdge = 27 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 38, y = 27 } ), ( Colors.orange, { x = 48, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 48, y = 24 } ), ( Colors.green, { x = 38, y = 27 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { leftEdge = 49, topEdge = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { leftEdge = 49, topEdge = 24 } ) ]
+                { bodyDrawing = [ ( Colors.orange, { x = 49, y = 24 } ) ]
+                , headDrawing = [ ( Colors.orange, { x = 49, y = 24 } ) ]
                 }
             ]
     }

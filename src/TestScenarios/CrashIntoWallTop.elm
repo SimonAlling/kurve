@@ -38,7 +38,7 @@ expectedOutcome =
         { aliveAtTheEnd = []
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 99, topEdge = -1 }
+              , theDrawingPositionItNeverMadeItTo = { x = 99, y = -1 }
               }
             ]
         }
@@ -50,7 +50,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { leftEdge = 99, topEdge = 3 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 99, y = 3 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -58,7 +58,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { leftEdge = 99, topEdge = 3 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 99, y = 3 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -66,27 +66,27 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { leftEdge = 99, topEdge = 3 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 99, y = 3 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 99, topEdge = 3 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 99, y = 3 } ) ]
                 , headDrawing = []
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 99, topEdge = 2 } ) ]
-                , headDrawing = [ ( Colors.green, { leftEdge = 99, topEdge = 2 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 99, y = 2 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 99, y = 2 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 99, topEdge = 1 } ) ]
-                , headDrawing = [ ( Colors.green, { leftEdge = 99, topEdge = 1 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 99, y = 1 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 99, y = 1 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { leftEdge = 99, topEdge = 0 } ) ]
-                , headDrawing = [ ( Colors.green, { leftEdge = 99, topEdge = 0 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 99, y = 0 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 99, y = 0 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { leftEdge = 99, topEdge = 0 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 99, y = 0 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
