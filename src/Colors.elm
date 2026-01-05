@@ -1,4 +1,12 @@
-module Colors exposing (blue, green, orange, pink, red, white, yellow)
+module Colors exposing
+    ( blue
+    , green
+    , orange
+    , pink
+    , red
+    , white
+    , yellow
+    )
 
 import Color exposing (Color)
 
