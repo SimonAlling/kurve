@@ -13,6 +13,7 @@ when inside the directory containing this file.
 
 import NoConfusingPrefixOperator
 import NoExposingEverything
+import NoForbiddenFunctions
 import NoImportingEverything
 import NoMissingTypeAnnotation
 import NoMissingTypeAnnotationInLetIn
@@ -32,6 +33,7 @@ config : List Rule
 config =
     [ NoConfusingPrefixOperator.rule
     , NoExposingEverything.rule
+    , NoForbiddenFunctions.rule
     , NoImportingEverything.rule []
     , NoMissingTypeAnnotation.rule
     , NoMissingTypeAnnotationInLetIn.rule
