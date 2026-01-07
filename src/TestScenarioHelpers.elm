@@ -5,6 +5,7 @@ module TestScenarioHelpers exposing
     , RoundEndingInterpretation
     , RoundOutcome
     , defaultConfigWithSpeed
+    , draw
     , makeUserInteractions
     , makeZombieKurve
     , playerIds
@@ -164,3 +165,36 @@ defaultConfigWithSpeed speed =
                 | speed = speed
             }
     }
+
+
+draw : Char -> ( Int, Int ) -> ( Color.Color, DrawingPosition )
+draw color ( x, y ) =
+    ( charToColor color, { x = x, y = y } )
+
+
+charToColor : Char -> Color.Color
+charToColor x =
+    case x of
+        '🟥' ->
+            Color.red
+
+        '🟨' ->
+            Color.yellow
+
+        '🟧' ->
+            Color.orange
+
+        '🟩' ->
+            Color.green
+
+        '🟪' ->
+            Color.purple
+
+        '🟦' ->
+            Color.blue
+
+        '⬜' ->
+            Color.white
+
+        _ ->
+            Debug.todo <| "Unsupported color character: " ++ String.fromChar x

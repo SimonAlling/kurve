@@ -3,7 +3,7 @@ module TestScenarios.CuttingCornersPerfectOverpainting exposing (config, expecte
 import Colors
 import Config exposing (Config)
 import Effect exposing (Effect(..))
-import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
+import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, draw, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 
@@ -96,7 +96,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -104,7 +104,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -112,213 +112,213 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟧' ( 20, 24 ), draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟧' ( 20, 24 ), draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟧' ( 20, 24 ), draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟧' ( 20, 24 ), draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 18, y = 47 } ), ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟩' ( 18, 47 ), draw '🟧' ( 20, 24 ), draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟧' ( 20, 24 ), draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 18, y = 47 } ), ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟩' ( 18, 47 ), draw '🟧' ( 20, 24 ), draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟧' ( 20, 24 ), draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 18, y = 47 } ), ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = [ draw '🟩' ( 18, 47 ), draw '🟧' ( 20, 24 ), draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 }
 
             -- Spawns are drawn permanently:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 18, y = 47 } ), ( Colors.orange, { x = 20, y = 24 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.red, { x = 29, y = 29 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 18, 47 ), draw '🟧' ( 20, 24 ), draw '🟨' ( 37, 37 ), draw '🟥' ( 29, 29 ) ]
                 , headDrawing = []
                 }
 
             -- The Kurves start moving:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 19, y = 46 } ), ( Colors.orange, { x = 21, y = 24 } ), ( Colors.yellow, { x = 36, y = 36 } ), ( Colors.red, { x = 30, y = 30 } ) ]
-                , headDrawing = [ ( Colors.red, { x = 30, y = 30 } ), ( Colors.yellow, { x = 36, y = 36 } ), ( Colors.orange, { x = 21, y = 24 } ), ( Colors.green, { x = 19, y = 46 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 19, 46 ), draw '🟧' ( 21, 24 ), draw '🟨' ( 36, 36 ), draw '🟥' ( 30, 30 ) ]
+                , headDrawing = [ draw '🟥' ( 30, 30 ), draw '🟨' ( 36, 36 ), draw '🟧' ( 21, 24 ), draw '🟩' ( 19, 46 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { x = 22, y = 24 } ) ]
-                , headDrawing = [ ( Colors.red, { x = 30, y = 30 } ), ( Colors.yellow, { x = 36, y = 36 } ), ( Colors.orange, { x = 22, y = 24 } ), ( Colors.green, { x = 19, y = 46 } ) ]
+                { bodyDrawing = [ draw '🟧' ( 22, 24 ) ]
+                , headDrawing = [ draw '🟥' ( 30, 30 ), draw '🟨' ( 36, 36 ), draw '🟧' ( 22, 24 ), draw '🟩' ( 19, 46 ) ]
                 }
 
             -- Red's last position is drawn:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 20, y = 45 } ), ( Colors.orange, { x = 23, y = 24 } ), ( Colors.yellow, { x = 35, y = 35 } ), ( Colors.red, { x = 31, y = 31 } ) ]
-                , headDrawing = [ ( Colors.red, { x = 31, y = 31 } ), ( Colors.yellow, { x = 35, y = 35 } ), ( Colors.orange, { x = 23, y = 24 } ), ( Colors.green, { x = 20, y = 45 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 20, 45 ), draw '🟧' ( 23, 24 ), draw '🟨' ( 35, 35 ), draw '🟥' ( 31, 31 ) ]
+                , headDrawing = [ draw '🟥' ( 31, 31 ), draw '🟨' ( 35, 35 ), draw '🟧' ( 23, 24 ), draw '🟩' ( 20, 45 ) ]
                 }
 
             -- Yellow's last position is drawn:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 21, y = 44 } ), ( Colors.orange, { x = 24, y = 24 } ), ( Colors.yellow, { x = 34, y = 34 } ) ]
-                , headDrawing = [ ( Colors.yellow, { x = 34, y = 34 } ), ( Colors.orange, { x = 24, y = 24 } ), ( Colors.green, { x = 21, y = 44 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 21, 44 ), draw '🟧' ( 24, 24 ), draw '🟨' ( 34, 34 ) ]
+                , headDrawing = [ draw '🟨' ( 34, 34 ), draw '🟧' ( 24, 24 ), draw '🟩' ( 21, 44 ) ]
                 }
 
             -- Only Orange and Green left:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 22, y = 43 } ), ( Colors.orange, { x = 25, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 25, y = 24 } ), ( Colors.green, { x = 22, y = 43 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 22, 43 ), draw '🟧' ( 25, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 25, 24 ), draw '🟩' ( 22, 43 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { x = 26, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 26, y = 24 } ), ( Colors.green, { x = 22, y = 43 } ) ]
+                { bodyDrawing = [ draw '🟧' ( 26, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 26, 24 ), draw '🟩' ( 22, 43 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 23, y = 42 } ), ( Colors.orange, { x = 27, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 27, y = 24 } ), ( Colors.green, { x = 23, y = 42 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 23, 42 ), draw '🟧' ( 27, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 27, 24 ), draw '🟩' ( 23, 42 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 24, y = 41 } ), ( Colors.orange, { x = 28, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 28, y = 24 } ), ( Colors.green, { x = 24, y = 41 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 24, 41 ), draw '🟧' ( 28, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 28, 24 ), draw '🟩' ( 24, 41 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { x = 29, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 29, y = 24 } ), ( Colors.green, { x = 24, y = 41 } ) ]
+                { bodyDrawing = [ draw '🟧' ( 29, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 29, 24 ), draw '🟩' ( 24, 41 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 25, y = 40 } ), ( Colors.orange, { x = 30, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 30, y = 24 } ), ( Colors.green, { x = 25, y = 40 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 25, 40 ), draw '🟧' ( 30, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 30, 24 ), draw '🟩' ( 25, 40 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 26, y = 39 } ), ( Colors.orange, { x = 31, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 31, y = 24 } ), ( Colors.green, { x = 26, y = 39 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 26, 39 ), draw '🟧' ( 31, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 31, 24 ), draw '🟩' ( 26, 39 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { x = 32, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 32, y = 24 } ), ( Colors.green, { x = 26, y = 39 } ) ]
+                { bodyDrawing = [ draw '🟧' ( 32, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 32, 24 ), draw '🟩' ( 26, 39 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 27, y = 38 } ), ( Colors.orange, { x = 33, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 33, y = 24 } ), ( Colors.green, { x = 27, y = 38 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 27, 38 ), draw '🟧' ( 33, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 33, 24 ), draw '🟩' ( 27, 38 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 28, y = 37 } ), ( Colors.orange, { x = 34, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 34, y = 24 } ), ( Colors.green, { x = 28, y = 37 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 28, 37 ), draw '🟧' ( 34, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 34, 24 ), draw '🟩' ( 28, 37 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 29, y = 36 } ), ( Colors.orange, { x = 35, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 35, y = 24 } ), ( Colors.green, { x = 29, y = 36 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 29, 36 ), draw '🟧' ( 35, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 35, 24 ), draw '🟩' ( 29, 36 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { x = 36, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 36, y = 24 } ), ( Colors.green, { x = 29, y = 36 } ) ]
+                { bodyDrawing = [ draw '🟧' ( 36, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 36, 24 ), draw '🟩' ( 29, 36 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 30, y = 35 } ), ( Colors.orange, { x = 37, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 37, y = 24 } ), ( Colors.green, { x = 30, y = 35 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 30, 35 ), draw '🟧' ( 37, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 37, 24 ), draw '🟩' ( 30, 35 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 31, y = 34 } ), ( Colors.orange, { x = 38, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 38, y = 24 } ), ( Colors.green, { x = 31, y = 34 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 31, 34 ), draw '🟧' ( 38, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 38, 24 ), draw '🟩' ( 31, 34 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { x = 39, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 39, y = 24 } ), ( Colors.green, { x = 31, y = 34 } ) ]
+                { bodyDrawing = [ draw '🟧' ( 39, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 39, 24 ), draw '🟩' ( 31, 34 ) ]
                 }
 
             -- Green starts painting over Red and Yellow:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 32, y = 33 } ), ( Colors.orange, { x = 40, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 40, y = 24 } ), ( Colors.green, { x = 32, y = 33 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 32, 33 ), draw '🟧' ( 40, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 40, 24 ), draw '🟩' ( 32, 33 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 33, y = 32 } ), ( Colors.orange, { x = 41, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 41, y = 24 } ), ( Colors.green, { x = 33, y = 32 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 33, 32 ), draw '🟧' ( 41, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 41, 24 ), draw '🟩' ( 33, 32 ) ]
                 }
 
             -- Green stops painting over Red and Yellow:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 34, y = 31 } ), ( Colors.orange, { x = 42, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 42, y = 24 } ), ( Colors.green, { x = 34, y = 31 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 34, 31 ), draw '🟧' ( 42, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 42, 24 ), draw '🟩' ( 34, 31 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { x = 43, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 43, y = 24 } ), ( Colors.green, { x = 34, y = 31 } ) ]
+                { bodyDrawing = [ draw '🟧' ( 43, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 43, 24 ), draw '🟩' ( 34, 31 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 35, y = 30 } ), ( Colors.orange, { x = 44, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 44, y = 24 } ), ( Colors.green, { x = 35, y = 30 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 35, 30 ), draw '🟧' ( 44, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 44, 24 ), draw '🟩' ( 35, 30 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 36, y = 29 } ), ( Colors.orange, { x = 45, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 45, y = 24 } ), ( Colors.green, { x = 36, y = 29 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 36, 29 ), draw '🟧' ( 45, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 45, 24 ), draw '🟩' ( 36, 29 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { x = 46, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 46, y = 24 } ), ( Colors.green, { x = 36, y = 29 } ) ]
+                { bodyDrawing = [ draw '🟧' ( 46, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 46, 24 ), draw '🟩' ( 36, 29 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 37, y = 28 } ), ( Colors.orange, { x = 47, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 47, y = 24 } ), ( Colors.green, { x = 37, y = 28 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 37, 28 ), draw '🟧' ( 47, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 47, 24 ), draw '🟩' ( 37, 28 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 38, y = 27 } ), ( Colors.orange, { x = 48, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 48, y = 24 } ), ( Colors.green, { x = 38, y = 27 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 38, 27 ), draw '🟧' ( 48, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 48, 24 ), draw '🟩' ( 38, 27 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { x = 49, y = 24 } ) ]
-                , headDrawing = [ ( Colors.orange, { x = 49, y = 24 } ) ]
+                { bodyDrawing = [ draw '🟧' ( 49, 24 ) ]
+                , headDrawing = [ draw '🟧' ( 49, 24 ) ]
                 }
             ]
     }

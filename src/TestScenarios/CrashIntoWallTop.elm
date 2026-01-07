@@ -3,7 +3,7 @@ module TestScenarios.CrashIntoWallTop exposing (config, expectedOutcome, spawned
 import Colors
 import Config exposing (Config)
 import Effect exposing (Effect(..))
-import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
+import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, draw, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 
@@ -50,7 +50,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 99, y = 3 } ) ]
+                , headDrawing = [ draw '🟩' ( 99, 3 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -58,7 +58,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 99, y = 3 } ) ]
+                , headDrawing = [ draw '🟩' ( 99, 3 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -66,27 +66,27 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 99, y = 3 } ) ]
+                , headDrawing = [ draw '🟩' ( 99, 3 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 99, y = 3 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 99, 3 ) ]
                 , headDrawing = []
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 99, y = 2 } ) ]
-                , headDrawing = [ ( Colors.green, { x = 99, y = 2 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 99, 2 ) ]
+                , headDrawing = [ draw '🟩' ( 99, 2 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 99, y = 1 } ) ]
-                , headDrawing = [ ( Colors.green, { x = 99, y = 1 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 99, 1 ) ]
+                , headDrawing = [ draw '🟩' ( 99, 1 ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 99, y = 0 } ) ]
-                , headDrawing = [ ( Colors.green, { x = 99, y = 0 } ) ]
+                { bodyDrawing = [ draw '🟩' ( 99, 0 ) ]
+                , headDrawing = [ draw '🟩' ( 99, 0 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 99, y = 0 } ) ]
+                , headDrawing = [ draw '🟩' ( 99, 0 ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
