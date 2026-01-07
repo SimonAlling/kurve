@@ -112,7 +112,7 @@ stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
                 newSpawnState : SpawnState
                 newSpawnState =
                     if ticksLeft == 0 then
-                        { kurvesLeft = waiting, alreadySpawnedKurves = spawning :: alreadySpawnedKurves, ticksLeft = config.spawn.numberOfFlickerTicks }
+                        { kurvesLeft = waiting, alreadySpawnedKurves = alreadySpawnedKurves ++ [ spawning ], ticksLeft = config.spawn.numberOfFlickerTicks }
 
                     else
                         { kurvesLeft = spawning :: waiting, alreadySpawnedKurves = alreadySpawnedKurves, ticksLeft = ticksLeft - 1 }
