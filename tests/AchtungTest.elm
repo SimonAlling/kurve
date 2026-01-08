@@ -13,6 +13,7 @@ import TestScenarios.CrashIntoWallExactTiming
 import TestScenarios.CrashIntoWallLeft
 import TestScenarios.CrashIntoWallRight
 import TestScenarios.CrashIntoWallTop
+import TestScenarios.CrashSomewhatSoon
 import TestScenarios.CuttingCornersBasic
 import TestScenarios.CuttingCornersPerfectOverpainting
 import TestScenarios.SpeedEffectOnGame
@@ -30,6 +31,7 @@ tests =
         , cuttingCornersTests
         , speedTests
         , stressTests
+        , drawingTests
         ]
 
 
@@ -215,4 +217,16 @@ stressTests =
                     |> expectRoundOutcome
                         TestScenarios.StressTestRealisticTurtleSurvivalRound.config
                         TestScenarios.StressTestRealisticTurtleSurvivalRound.expectedOutcome
+        ]
+
+
+drawingTests : Test
+drawingTests =
+    describe "Drawing tests"
+        [ test "Drawing positions are described in chronological order" <|
+            \_ ->
+                roundWith TestScenarios.CrashSomewhatSoon.spawnedKurves
+                    |> expectRoundOutcome
+                        TestScenarios.CrashSomewhatSoon.config
+                        TestScenarios.CrashSomewhatSoon.expectedOutcome
         ]

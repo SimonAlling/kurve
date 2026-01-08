@@ -232,7 +232,7 @@ checkIndividualKurve config tick kurve ( checkedKurvesGenerator, occupiedPixels,
 
         coloredDrawingPositionsAfterCheckingThisKurve : List ( Color, DrawingPosition )
         coloredDrawingPositionsAfterCheckingThisKurve =
-            coloredDrawingPositions ++ List.map (Tuple.pair kurve.color) newKurveDrawingPositions
+            List.map (Tuple.pair kurve.color) newKurveDrawingPositions ++ coloredDrawingPositions
 
         kurvesAfterCheckingThisKurve : Kurve -> Kurves -> Kurves
         kurvesAfterCheckingThisKurve checkedKurve =
