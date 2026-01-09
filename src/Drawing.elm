@@ -33,7 +33,7 @@ drawSpawnsPermanently kurves =
 drawSpawnIfAndOnlyIf : Bool -> Kurve -> List Kurve -> WhatToDraw
 drawSpawnIfAndOnlyIf shouldBeVisible kurve alreadySpawnedKurves =
     if shouldBeVisible then
-        { headDrawing = kurve :: alreadySpawnedKurves |> List.map getColorAndDrawingPosition
+        { headDrawing = alreadySpawnedKurves ++ [ kurve ] |> List.map getColorAndDrawingPosition
         , bodyDrawing = []
         }
 
