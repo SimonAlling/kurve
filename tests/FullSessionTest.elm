@@ -61,35 +61,35 @@ initialModel =
 messages : List Msg
 messages =
     List.concat
-        [ -- Proceed to lobby:
+        [ -- User proceeds to lobby:
           pressAndRelease (Key "Space")
 
-        -- Join with Green:
+        -- Green joins:
         , pressAndRelease (Key "ArrowLeft")
 
-        -- Start the game:
+        -- Game is started:
         , pressAndRelease (Key "Space")
         , repeat 12 SpawnTick
 
-        -- Wait for a while before doing anything:
+        -- A short while passes by:
         , repeat 20 (AnimationFrame frameDeltaInMs)
 
-        -- Turn until crash into self:
+        -- Green turns until it crashes into itself:
         , press (Key "ArrowLeft")
         , repeat 166 (AnimationFrame frameDeltaInMs)
 
-        -- Round over; release button:
+        -- Round over; button is released:
         , release (Key "ArrowLeft")
 
-        -- Replay round:
+        -- Round is replayed:
         , pressAndRelease (Key "KeyR")
 
-        -- Wait for replay to finish:
+        -- User waits for the replay to finish:
         , repeat 12 SpawnTick
         , repeat 20 (AnimationFrame frameDeltaInMs)
         , repeat 166 (AnimationFrame frameDeltaInMs)
 
-        -- Quit to lobby:
+        -- User quits to lobby:
         , pressAndRelease (Key "Escape")
         , pressAndRelease (Key "ArrowLeft")
         , pressAndRelease (Key "Enter")
