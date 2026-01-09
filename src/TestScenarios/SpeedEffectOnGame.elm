@@ -1,16 +1,23 @@
-module TestScenarios.SpeedEffectOnGame exposing (expectedOutcome, spawnedKurves)
+module TestScenarios.SpeedEffectOnGame exposing (config, expectedOutcome, spawnedKurves)
 
-import Color
-import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds)
+import Colors
+import Config exposing (Config)
+import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, defaultConfigWithSpeed, makeZombieKurve, playerIds)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
+import Types.Speed exposing (Speed)
 import Types.Tick exposing (Tick)
+
+
+config : Speed -> Config
+config =
+    defaultConfigWithSpeed
 
 
 green : Kurve
 green =
     makeZombieKurve
-        { color = Color.green
+        { color = Colors.green
         , id = playerIds.green
         , state =
             { position = ( 107.5, 99.5 )
@@ -32,7 +39,7 @@ expectedOutcome expectedEndTick =
         { aliveAtTheEnd = []
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 557, topEdge = 99 }
+              , theDrawingPositionItNeverMadeItTo = { x = 557, y = 99 }
               }
             ]
         }

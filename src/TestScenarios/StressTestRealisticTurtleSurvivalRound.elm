@@ -1,16 +1,22 @@
-module TestScenarios.StressTestRealisticTurtleSurvivalRound exposing (expectedOutcome, spawnedKurves)
+module TestScenarios.StressTestRealisticTurtleSurvivalRound exposing (config, expectedOutcome, spawnedKurves)
 
-import Color
+import Colors
+import Config exposing (Config)
 import TestScenarioHelpers exposing (CumulativeInteraction, EffectsExpectation(..), RoundOutcome, makeUserInteractions, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.TurningState exposing (TurningState(..))
 
 
+config : Config
+config =
+    Config.default
+
+
 greenZombie : Kurve
 greenZombie =
     makeZombieKurve
-        { color = Color.green
+        { color = Colors.green
         , id = playerIds.green
         , state =
             { position = ( 31.5, 2.5 )
@@ -55,7 +61,7 @@ expectedOutcome =
         { aliveAtTheEnd = []
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 372, topEdge = 217 }
+              , theDrawingPositionItNeverMadeItTo = { x = 372, y = 217 }
               }
             ]
         }

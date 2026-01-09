@@ -275,10 +275,10 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holeStatus =
                         crashesIntoWall : Bool
                         crashesIntoWall =
                             List.member True
-                                [ current.leftEdge < 0
-                                , current.topEdge < 0
-                                , current.leftEdge > config.world.width - theThickness
-                                , current.topEdge > config.world.height - theThickness
+                                [ current.x < 0
+                                , current.y < 0
+                                , current.x > config.world.width - theThickness
+                                , current.y > config.world.height - theThickness
                                 ]
 
                         crashesIntoKurve : Bool

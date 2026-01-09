@@ -1,15 +1,21 @@
-module TestScenarios.CrashIntoKurveTiming exposing (expectedOutcome, spawnedKurves)
+module TestScenarios.CrashIntoKurveTiming exposing (config, expectedOutcome, spawnedKurves)
 
-import Color
+import Colors
+import Config exposing (Config)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
 
 
+config : Config
+config =
+    Config.default
+
+
 red : Float -> Kurve
 red y_red =
     makeZombieKurve
-        { color = Color.red
+        { color = Colors.red
         , id = playerIds.red
         , state =
             { position = ( 149.5, y_red )
@@ -22,7 +28,7 @@ red y_red =
 green : Kurve
 green =
     makeZombieKurve
-        { color = Color.green
+        { color = Colors.green
         , id = playerIds.green
         , state =
             { position = ( 99.5, 106.5 )
@@ -44,7 +50,7 @@ expectedOutcome =
         { aliveAtTheEnd = [ { id = playerIds.red } ]
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 325, topEdge = 101 }
+              , theDrawingPositionItNeverMadeItTo = { x = 325, y = 101 }
               }
             ]
         }
