@@ -69,6 +69,21 @@ isTooCloseFor numberOfPlayers config point1 point2 =
 
 generateKurve : Config -> PlayerId -> Int -> List Position -> Player -> Random.Generator Kurve
 generateKurve config id numberOfPlayers existingPositions player =
+    generateKurveState config numberOfPlayers existingPositions
+        |> Random.map
+            (\state ->
+                { color = player.color
+                , id = id
+                , controls = toStringSetControls player.controls
+                , state = state
+                , stateAtSpawn = state
+                , reversedInteractions = []
+                }
+            )
+
+
+generateKurveState : Config -> Int -> List Position -> Random.Generator Kurve.State
+generateKurveState config numberOfPlayers existingPositions =
     let
         safeSpawnPosition : Random.Generator Position
         safeSpawnPosition =
@@ -76,20 +91,9 @@ generateKurve config id numberOfPlayers existingPositions player =
     in
     Random.map3
         (\generatedPosition generatedAngle generatedHoleStatus ->
-            let
-                state : Kurve.State
-                state =
-                    { position = generatedPosition
-                    , direction = generatedAngle
-                    , holeStatus = generatedHoleStatus
-                    }
-            in
-            { color = player.color
-            , id = id
-            , controls = toStringSetControls player.controls
-            , state = state
-            , stateAtSpawn = state
-            , reversedInteractions = []
+            { position = generatedPosition
+            , direction = generatedAngle
+            , holeStatus = generatedHoleStatus
             }
         )
         safeSpawnPosition
