@@ -69,6 +69,8 @@ messages =
 
         -- Game is started:
         , pressAndRelease (Key "Space")
+
+        -- Kurves spawn:
         , repeat 12 SpawnTick
 
         -- A short while passes by:
