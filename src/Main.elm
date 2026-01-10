@@ -60,7 +60,7 @@ type alias Model =
     , appState : AppState
     , config : Config
     , players : AllPlayers
-    , globalSeed : Random.Seed
+    , seed : Random.Seed
     }
 
 
@@ -73,7 +73,7 @@ init _ =
       , appState = InMenu SplashScreen
       , config = Config.default
       , players = initialPlayers
-      , globalSeed = Random.initialSeed 1337
+      , seed = Random.initialSeed 1337
       }
     , Cmd.none
     )
@@ -92,7 +92,7 @@ startRound liveOrReplay model ( midRoundState, newGlobalSeed ) =
                     }
                     midRoundState
     in
-    ( { model | appState = InGame gameState, globalSeed = newGlobalSeed }, ClearEverything )
+    ( { model | appState = InGame gameState, seed = newGlobalSeed }, ClearEverything )
 
 
 type Msg
@@ -204,7 +204,7 @@ update msg ({ config, pressedButtons } as model) =
                 InMenu Lobby ->
                     case ( button, atLeastOneIsParticipating model.players ) of
                         ( Key "Space", True ) ->
-                            startRound Live model <| prepareLiveRound config model.globalSeed (participating model.players) pressedButtons
+                            startRound Live model <| prepareLiveRound config model.seed (participating model.players) pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, DoNothing )
@@ -223,7 +223,7 @@ update msg ({ config, pressedButtons } as model) =
                             in
                             case button of
                                 Key "KeyR" ->
-                                    startRound Replay model <| ( prepareReplayRound (initialStateForReplaying finishedRound), model.globalSeed )
+                                    startRound Replay model <| ( prepareReplayRound (initialStateForReplaying finishedRound), model.seed )
 
                                 Key "Escape" ->
                                     -- Quitting after the final round is not allowed in the original game.
@@ -238,7 +238,7 @@ update msg ({ config, pressedButtons } as model) =
                                         gameOver newModel
 
                                     else
-                                        startRound Live newModel <| prepareLiveRound config model.globalSeed (participating newModel.players) pressedButtons
+                                        startRound Live newModel <| prepareLiveRound config model.seed (participating newModel.players) pressedButtons
 
                                 _ ->
                                     ( handleUserInteraction Down button model, DoNothing )
@@ -331,7 +331,7 @@ update msg ({ config, pressedButtons } as model) =
                                     )
 
                         Key "KeyR" ->
-                            startRound Replay model <| ( prepareReplayRound (initialStateForReplaying (getActiveRound s)), model.globalSeed )
+                            startRound Replay model <| ( prepareReplayRound (initialStateForReplaying (getActiveRound s)), model.seed )
 
                         Key "Space" ->
                             ( { model | appState = InGame (Active Replay Paused s) }, DoNothing )

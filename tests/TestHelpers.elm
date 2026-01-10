@@ -131,7 +131,7 @@ playOutRoundWithEffects config initialState =
             , appState = InGame initialGameState
             , config = config
             , players = initialPlayers
-            , globalSeed = Random.initialSeed 0
+            , seed = Random.initialSeed 0
             }
 
         frameDeltaInMs : FrameTime

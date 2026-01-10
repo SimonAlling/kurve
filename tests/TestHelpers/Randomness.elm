@@ -6,4 +6,4 @@ import Random
 
 withSeed : Random.Seed -> Model -> Model
 withSeed desiredSeed model =
-    { model | globalSeed = desiredSeed }
+    { model | seed = desiredSeed }

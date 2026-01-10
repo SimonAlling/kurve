@@ -55,7 +55,7 @@ initialModel =
     , appState = InMenu SplashScreen
     , config = config
     , players = initialPlayers
-    , globalSeed = Random.initialSeed 1337
+    , seed = Random.initialSeed 1337
     }
 
 
@@ -105,7 +105,7 @@ expectedModel =
     , appState = InMenu Lobby
     , config = config
     , players = initialPlayers
-    , globalSeed = dummySeed
+    , seed = dummySeed
     }
 
 
