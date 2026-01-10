@@ -80,7 +80,7 @@ init _ =
 
 
 startRound : LiveOrReplay -> Model -> ( Round, Random.Seed ) -> ( Model, Effect )
-startRound liveOrReplay model ( midRoundState, newGlobalSeed ) =
+startRound liveOrReplay model ( midRoundState, newSeed ) =
     let
         gameState : GameState
         gameState =
@@ -92,7 +92,7 @@ startRound liveOrReplay model ( midRoundState, newGlobalSeed ) =
                     }
                     midRoundState
     in
-    ( { model | appState = InGame gameState, seed = newGlobalSeed }, ClearEverything )
+    ( { model | appState = InGame gameState, seed = newSeed }, ClearEverything )
 
 
 type Msg
