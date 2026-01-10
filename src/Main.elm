@@ -233,10 +233,10 @@ update msg ({ config, pressedButtons } as model) =
 
                                 Key "Space" ->
                                     if gameIsOver then
-                                        gameOver finishedRound.seed newModel
+                                        gameOver (Debug.todo "finishedRound.seed") newModel
 
                                     else
-                                        startRound Live newModel <| prepareLiveRound config finishedRound.seed (participating newModel.players) pressedButtons
+                                        startRound Live newModel <| prepareLiveRound config (Debug.todo "finishedRound.seed") (participating newModel.players) pressedButtons
 
                                 _ ->
                                     ( handleUserInteraction Down button model, DoNothing )
@@ -249,7 +249,7 @@ update msg ({ config, pressedButtons } as model) =
 
                                 confirm : ( Model, Effect )
                                 confirm =
-                                    goToLobby finishedRound.seed model
+                                    goToLobby (Debug.todo "finishedRound.seed") model
 
                                 select : Dialog.Option -> ( Model, Effect )
                                 select option =
@@ -353,7 +353,7 @@ update msg ({ config, pressedButtons } as model) =
                 InGame (RoundOver finishedRound (Dialog.Open _)) ->
                     case option of
                         Dialog.Confirm ->
-                            goToLobby finishedRound.seed model
+                            goToLobby (Debug.todo "finishedRound.seed") model
 
                         Dialog.Cancel ->
                             ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, DoNothing )

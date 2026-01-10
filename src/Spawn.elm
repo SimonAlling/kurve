@@ -94,6 +94,7 @@ generateKurveState config numberOfPlayers existingPositions =
             { position = generatedPosition
             , direction = generatedAngle
             , holeStatus = generatedHoleStatus
+            , holeSeed = Debug.todo "SEED"
             }
         )
         safeSpawnPosition

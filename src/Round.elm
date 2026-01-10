@@ -23,7 +23,6 @@ type alias Round =
     { kurves : Kurves
     , occupiedPixels : Set Pixel
     , initialState : RoundInitialState
-    , seed : Random.Seed
     }
 
 
@@ -34,7 +33,7 @@ type alias Kurves =
 
 
 type alias RoundInitialState =
-    { seedAfterSpawn : Random.Seed
+    { seedAfterSpawn : Random.Seed -- TODO: remove
     , spawnedKurves : List Kurve
     }
 
