@@ -370,7 +370,7 @@ updateKurve config turningState occupiedPixels kurve =
 
         newKurve : Kurve
         newKurve =
-            { kurve | state = newKurveState }
+            newKurveState |> (\s -> { kurve | state = s })
     in
     ( confirmedDrawingPositions
     , newKurve
