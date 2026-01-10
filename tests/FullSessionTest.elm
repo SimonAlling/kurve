@@ -15,6 +15,7 @@ import TestHelpers.Effects exposing (clearsEverything, drawsBodySquares)
 import TestHelpers.EndToEnd exposing (endToEndTest)
 import TestHelpers.ListLength exposing (expectAtLeast, expectExactly)
 import TestHelpers.PlayerInput exposing (press, pressAndRelease, release)
+import TestHelpers.Randomness exposing (withSeed)
 import Types.FrameTime exposing (FrameTime)
 
 
@@ -27,7 +28,8 @@ theTest =
     Test.describe "End-to-end test of an entire session"
         [ Test.test "Resulting model is correct" <|
             \_ ->
-                { actualModel | globalSeed = dummySeed }
+                actualModel
+                    |> withSeed dummySeed
                     |> Expect.equal expectedModel
         , Test.test "Body squares were drawn a considerable number of times" <|
             \_ ->
