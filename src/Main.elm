@@ -6,7 +6,7 @@ import Browser.Events
 import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
-import Drawing exposing (WhatToDraw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently)
+import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily)
 import Effect exposing (Effect(..), maybeDrawSomething)
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
@@ -50,6 +50,7 @@ import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurve
 import Set exposing (Set)
 import Time
 import Types.FrameTime exposing (FrameTime)
+import Types.Kurve exposing (Kurve)
 import Types.Tick as Tick exposing (Tick)
 import Util exposing (isEven)
 
@@ -109,15 +110,27 @@ stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
 
         spawning :: waiting ->
             let
+                spawnedAndSpawning : List Kurve
+                spawnedAndSpawning =
+                    alreadySpawnedKurves ++ [ spawning ]
+
+                kurvesToDraw : List Kurve
+                kurvesToDraw =
+                    if isEven ticksLeft then
+                        spawnedAndSpawning
+
+                    else
+                        alreadySpawnedKurves
+
                 newSpawnState : SpawnState
                 newSpawnState =
                     if ticksLeft == 0 then
-                        { kurvesLeft = waiting, alreadySpawnedKurves = alreadySpawnedKurves ++ [ spawning ], ticksLeft = config.spawn.numberOfFlickerTicks }
+                        { kurvesLeft = waiting, alreadySpawnedKurves = spawnedAndSpawning, ticksLeft = config.spawn.numberOfFlickerTicks }
 
                     else
                         { kurvesLeft = spawning :: waiting, alreadySpawnedKurves = alreadySpawnedKurves, ticksLeft = ticksLeft - 1 }
             in
-            ( Just newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning alreadySpawnedKurves )
+            ( Just newSpawnState, drawSpawnsTemporarily kurvesToDraw )
 
 
 update : Msg -> Model -> ( Model, Effect )
