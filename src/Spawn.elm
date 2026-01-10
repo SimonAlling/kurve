@@ -89,16 +89,18 @@ generateKurveState config numberOfPlayers existingPositions =
         safeSpawnPosition =
             generateSpawnPosition config.spawn config.world |> Random.filter (isSafeNewPosition config numberOfPlayers existingPositions)
     in
-    Random.map3
-        (\generatedPosition generatedAngle generatedHoleStatus ->
+    Random.map4
+        (\generatedPosition generatedAngle generatedHoleStatus generatedHoleSeed ->
             { position = generatedPosition
             , direction = generatedAngle
             , holeStatus = generatedHoleStatus
+            , holeSeed = generatedHoleSeed
             }
         )
         safeSpawnPosition
         (generateSpawnAngle config.spawn.angleInterval)
         (generateInitialHoleStatus config.kurves)
+        Random.independentSeed
 
 
 spawnArea : SpawnConfig -> WorldConfig -> ( Position, Position )

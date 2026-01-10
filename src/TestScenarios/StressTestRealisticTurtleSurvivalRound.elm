@@ -2,6 +2,7 @@ module TestScenarios.StressTestRealisticTurtleSurvivalRound exposing (config, ex
 
 import Colors
 import Config exposing (Config)
+import Random
 import TestScenarioHelpers exposing (CumulativeInteraction, EffectsExpectation(..), RoundOutcome, makeUserInteractions, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
@@ -22,6 +23,7 @@ greenZombie =
             { position = ( 31.5, 2.5 )
             , direction = Angle (pi / 2)
             , holeStatus = Unholy 60000
+            , holeSeed = Random.initialSeed 0
             }
         }
 

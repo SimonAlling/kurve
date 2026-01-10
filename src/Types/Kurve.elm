@@ -9,6 +9,7 @@ module Types.Kurve exposing
     )
 
 import Color exposing (Color)
+import Random
 import Set exposing (Set)
 import Types.Angle exposing (Angle)
 import Types.PlayerId exposing (PlayerId)
@@ -40,6 +41,7 @@ type alias State =
     { position : Position
     , direction : Angle
     , holeStatus : HoleStatus
+    , holeSeed : Random.Seed
     }
 
 
