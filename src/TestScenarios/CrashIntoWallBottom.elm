@@ -2,6 +2,7 @@ module TestScenarios.CrashIntoWallBottom exposing (config, expectedOutcome, spaw
 
 import Colors
 import Config exposing (Config)
+import Random
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
@@ -21,6 +22,7 @@ green =
             { position = ( 99.5, 474.5 )
             , direction = Angle 0
             , holeStatus = Unholy 60000
+            , holeSeed = Random.initialSeed 0
             }
         }
 

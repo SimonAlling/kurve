@@ -2,6 +2,7 @@ module TestScenarios.CrashIntoKurveTiming exposing (config, expectedOutcome, spa
 
 import Colors
 import Config exposing (Config)
+import Random
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (HoleStatus(..), Kurve)
@@ -21,6 +22,7 @@ red y_red =
             { position = ( 149.5, y_red )
             , direction = Angle (pi / 2)
             , holeStatus = Unholy 60000
+            , holeSeed = Random.initialSeed 0
             }
         }
 
@@ -34,6 +36,7 @@ green =
             { position = ( 99.5, 106.5 )
             , direction = Angle (pi / 2 + 0.02)
             , holeStatus = Unholy 60000
+            , holeSeed = Random.initialSeed 0
             }
         }
 

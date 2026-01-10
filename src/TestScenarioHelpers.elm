@@ -57,6 +57,7 @@ makeZombieKurve { color, id, state } =
         { position = ( 0, 0 )
         , direction = Angle (pi / 2)
         , holeStatus = Unholy 0
+        , holeSeed = Random.initialSeed 0
         }
     , reversedInteractions = []
     }
