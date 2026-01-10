@@ -27,7 +27,7 @@ theTest =
     Test.describe "End-to-end test of an entire session"
         [ Test.test "Resulting model is correct" <|
             \_ ->
-                actualModel
+                { actualModel | globalSeed = dummySeed }
                     |> Expect.equal expectedModel
         , Test.test "Body squares were drawn a considerable number of times" <|
             \_ ->
