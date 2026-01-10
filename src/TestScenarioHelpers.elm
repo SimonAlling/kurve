@@ -65,7 +65,8 @@ makeZombieKurve { color, id, state } =
 
 roundWith : List Kurve -> RoundInitialState
 roundWith spawnedKurves =
-    { spawnedKurves = spawnedKurves
+    { seedAfterSpawn = Random.initialSeed 0
+    , spawnedKurves = spawnedKurves
     }
 
 

@@ -52,10 +52,9 @@ config =
 initialModel : Model
 initialModel =
     { pressedButtons = Set.empty
-    , appState = InMenu SplashScreen
+    , appState = InMenu SplashScreen (Random.initialSeed 1337)
     , config = config
     , players = initialPlayers
-    , seed = Random.initialSeed 1337
     }
 
 
@@ -102,10 +101,9 @@ messages =
 expectedModel : Model
 expectedModel =
     { pressedButtons = Set.empty
-    , appState = InMenu Lobby
+    , appState = InMenu Lobby dummySeed
     , config = config
     , players = initialPlayers
-    , seed = dummySeed
     }
 
 

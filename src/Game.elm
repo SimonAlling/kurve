@@ -110,7 +110,7 @@ firstUpdateTick =
     Tick.succ Tick.genesis
 
 
-prepareLiveRound : Config -> Random.Seed -> ParticipatingPlayers -> Set String -> ( Round, Random.Seed )
+prepareLiveRound : Config -> Random.Seed -> ParticipatingPlayers -> Set String -> Round
 prepareLiveRound config seed players pressedButtons =
     let
         recordInitialInteractions : List Kurve -> List Kurve
@@ -120,7 +120,7 @@ prepareLiveRound config seed players pressedButtons =
         ( theKurves, seedAfterSpawn ) =
             Random.step (generateKurves config players) seed |> Tuple.mapFirst recordInitialInteractions
     in
-    ( prepareRoundFromKnownInitialState { spawnedKurves = theKurves }, seedAfterSpawn )
+    prepareRoundFromKnownInitialState { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves }
 
 
 prepareReplayRound : RoundInitialState -> Round
@@ -140,6 +140,7 @@ prepareRoundFromKnownInitialState initialState =
             { kurves = { alive = theKurves, dead = [] }
             , occupiedPixels = List.foldl (.state >> .position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty theKurves
             , initialState = initialState
+            , seed = initialState.seedAfterSpawn
             }
     in
     round
@@ -164,6 +165,7 @@ reactToTick config tick currentRound =
             { kurves = newKurves
             , occupiedPixels = newOccupiedPixels
             , initialState = currentRound.initialState
+            , seed = currentRound.seed
             }
 
         tickResult : TickResult Round

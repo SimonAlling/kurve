@@ -5,10 +5,11 @@ module App exposing
 
 import Game exposing (GameState)
 import Menu exposing (MenuState)
+import Random
 
 
 type AppState
-    = InMenu MenuState
+    = InMenu MenuState Random.Seed
     | InGame GameState
 
 

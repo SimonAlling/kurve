@@ -11,6 +11,7 @@ module Round exposing
     )
 
 import Dict exposing (Dict)
+import Random
 import Set exposing (Set)
 import Types.Kurve as Kurve exposing (Kurve)
 import Types.PlayerId exposing (PlayerId)
@@ -22,6 +23,7 @@ type alias Round =
     { kurves : Kurves
     , occupiedPixels : Set Pixel
     , initialState : RoundInitialState
+    , seed : Random.Seed
     }
 
 
@@ -32,7 +34,8 @@ type alias Kurves =
 
 
 type alias RoundInitialState =
-    { spawnedKurves : List Kurve
+    { seedAfterSpawn : Random.Seed
+    , spawnedKurves : List Kurve
     }
 
 
