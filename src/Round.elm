@@ -11,7 +11,6 @@ module Round exposing
     )
 
 import Dict exposing (Dict)
-import Random
 import Set exposing (Set)
 import Types.Kurve as Kurve exposing (Kurve)
 import Types.PlayerId exposing (PlayerId)
@@ -33,8 +32,7 @@ type alias Kurves =
 
 
 type alias RoundInitialState =
-    { seedAfterSpawn : Random.Seed -- TODO: remove
-    , spawnedKurves : List Kurve
+    { spawnedKurves : List Kurve
     }
 
 

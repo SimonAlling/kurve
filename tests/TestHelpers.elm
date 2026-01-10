@@ -16,6 +16,7 @@ import Game
         )
 import Main exposing (Model, Msg(..), update)
 import Players exposing (initialPlayers)
+import Random
 import Round exposing (Round, RoundInitialState)
 import Set
 import TestScenarioHelpers
@@ -130,6 +131,7 @@ playOutRoundWithEffects config initialState =
             , appState = InGame initialGameState
             , config = config
             , players = initialPlayers
+            , globalSeed = Random.initialSeed 0
             }
 
         frameDeltaInMs : FrameTime

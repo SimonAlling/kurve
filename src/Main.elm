@@ -60,6 +60,7 @@ type alias Model =
     , appState : AppState
     , config : Config
     , players : AllPlayers
+    , globalSeed : Random.Seed
     }
 
 
@@ -69,16 +70,17 @@ port focusLost : (() -> msg) -> Sub msg
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedButtons = Set.empty
-      , appState = InMenu SplashScreen (Random.initialSeed 1337)
+      , appState = InMenu SplashScreen
       , config = Config.default
       , players = initialPlayers
+      , globalSeed = Random.initialSeed 1337
       }
     , Cmd.none
     )
 
 
-startRound : LiveOrReplay -> Model -> Round -> ( Model, Effect )
-startRound liveOrReplay model midRoundState =
+startRound : LiveOrReplay -> Model -> ( Round, Random.Seed ) -> ( Model, Effect )
+startRound liveOrReplay model ( midRoundState, newGlobalSeed ) =
     let
         gameState : GameState
         gameState =
@@ -90,7 +92,7 @@ startRound liveOrReplay model midRoundState =
                     }
                     midRoundState
     in
-    ( { model | appState = InGame gameState }, ClearEverything )
+    ( { model | appState = InGame gameState, globalSeed = newGlobalSeed }, ClearEverything )
 
 
 type Msg
@@ -191,18 +193,18 @@ update msg ({ config, pressedButtons } as model) =
 
         ButtonUsed Down button ->
             case model.appState of
-                InMenu SplashScreen seed ->
+                InMenu SplashScreen ->
                     case button of
                         Key "Space" ->
-                            goToLobby seed model
+                            goToLobby model
 
                         _ ->
                             ( handleUserInteraction Down button model, DoNothing )
 
-                InMenu Lobby seed ->
+                InMenu Lobby ->
                     case ( button, atLeastOneIsParticipating model.players ) of
                         ( Key "Space", True ) ->
-                            startRound Live model <| prepareLiveRound config seed (participating model.players) pressedButtons
+                            startRound Live model <| prepareLiveRound config model.globalSeed (participating model.players) pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, DoNothing )
@@ -221,7 +223,7 @@ update msg ({ config, pressedButtons } as model) =
                             in
                             case button of
                                 Key "KeyR" ->
-                                    startRound Replay model <| prepareReplayRound (initialStateForReplaying finishedRound)
+                                    startRound Replay model <| ( prepareReplayRound (initialStateForReplaying finishedRound), model.globalSeed )
 
                                 Key "Escape" ->
                                     -- Quitting after the final round is not allowed in the original game.
@@ -233,10 +235,10 @@ update msg ({ config, pressedButtons } as model) =
 
                                 Key "Space" ->
                                     if gameIsOver then
-                                        gameOver (Debug.todo "finishedRound.seed") newModel
+                                        gameOver newModel
 
                                     else
-                                        startRound Live newModel <| prepareLiveRound config (Debug.todo "finishedRound.seed") (participating newModel.players) pressedButtons
+                                        startRound Live newModel <| prepareLiveRound config model.globalSeed (participating newModel.players) pressedButtons
 
                                 _ ->
                                     ( handleUserInteraction Down button model, DoNothing )
@@ -249,7 +251,7 @@ update msg ({ config, pressedButtons } as model) =
 
                                 confirm : ( Model, Effect )
                                 confirm =
-                                    goToLobby (Debug.todo "finishedRound.seed") model
+                                    goToLobby model
 
                                 select : Dialog.Option -> ( Model, Effect )
                                 select option =
@@ -329,7 +331,7 @@ update msg ({ config, pressedButtons } as model) =
                                     )
 
                         Key "KeyR" ->
-                            startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
+                            startRound Replay model <| ( prepareReplayRound (initialStateForReplaying (getActiveRound s)), model.globalSeed )
 
                         Key "Space" ->
                             ( { model | appState = InGame (Active Replay Paused s) }, DoNothing )
@@ -337,10 +339,10 @@ update msg ({ config, pressedButtons } as model) =
                         _ ->
                             ( handleUserInteraction Down button model, DoNothing )
 
-                InMenu GameOver seed ->
+                InMenu GameOver ->
                     case button of
                         Key "Space" ->
-                            goToLobby seed model
+                            goToLobby model
 
                         _ ->
                             ( handleUserInteraction Down button model, DoNothing )
@@ -353,7 +355,7 @@ update msg ({ config, pressedButtons } as model) =
                 InGame (RoundOver finishedRound (Dialog.Open _)) ->
                     case option of
                         Dialog.Confirm ->
-                            goToLobby (Debug.todo "finishedRound.seed") model
+                            goToLobby model
 
                         Dialog.Cancel ->
                             ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, DoNothing )
@@ -363,14 +365,14 @@ update msg ({ config, pressedButtons } as model) =
                     ( model, DoNothing )
 
 
-gameOver : Random.Seed -> Model -> ( Model, Effect )
-gameOver seed model =
-    ( { model | appState = InMenu GameOver seed }, DoNothing )
+gameOver : Model -> ( Model, Effect )
+gameOver model =
+    ( { model | appState = InMenu GameOver }, DoNothing )
 
 
-goToLobby : Random.Seed -> Model -> ( Model, Effect )
-goToLobby seed model =
-    ( { model | appState = InMenu Lobby seed, players = everyoneLeaves model.players }, DoNothing )
+goToLobby : Model -> ( Model, Effect )
+goToLobby model =
+    ( { model | appState = InMenu Lobby, players = everyoneLeaves model.players }, DoNothing )
 
 
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
@@ -406,10 +408,10 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch <|
         (case model.appState of
-            InMenu SplashScreen _ ->
+            InMenu SplashScreen ->
                 Sub.none
 
-            InMenu Lobby _ ->
+            InMenu Lobby ->
                 Sub.none
 
             InGame (Active _ NotPaused (Spawning _ _)) ->
@@ -424,7 +426,7 @@ subscriptions model =
             InGame (RoundOver _ _) ->
                 Sub.none
 
-            InMenu GameOver _ ->
+            InMenu GameOver ->
                 Sub.none
         )
             :: focusLost (always FocusLost)
@@ -434,13 +436,13 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     case model.appState of
-        InMenu Lobby _ ->
+        InMenu Lobby ->
             elmRoot [] [ lobby model.players ]
 
-        InMenu GameOver _ ->
+        InMenu GameOver ->
             elmRoot [] [ endScreen model.players ]
 
-        InMenu SplashScreen _ ->
+        InMenu SplashScreen ->
             elmRoot [] [ splashScreen ]
 
         InGame gameState ->

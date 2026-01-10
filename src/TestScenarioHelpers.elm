@@ -57,7 +57,7 @@ makeZombieKurve { color, id, state } =
         { position = ( 0, 0 )
         , direction = Angle (pi / 2)
         , holeStatus = Unholy 0
-        , holeSeed = Debug.todo "Hole seed"
+        , holeSeed = Random.initialSeed 0
         }
     , reversedInteractions = []
     }
@@ -65,8 +65,7 @@ makeZombieKurve { color, id, state } =
 
 roundWith : List Kurve -> RoundInitialState
 roundWith spawnedKurves =
-    { seedAfterSpawn = Random.initialSeed 0
-    , spawnedKurves = spawnedKurves
+    { spawnedKurves = spawnedKurves
     }
 
 

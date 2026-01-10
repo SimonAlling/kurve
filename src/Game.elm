@@ -110,7 +110,7 @@ firstUpdateTick =
     Tick.succ Tick.genesis
 
 
-prepareLiveRound : Config -> Random.Seed -> ParticipatingPlayers -> Set String -> Round
+prepareLiveRound : Config -> Random.Seed -> ParticipatingPlayers -> Set String -> ( Round, Random.Seed )
 prepareLiveRound config seed players pressedButtons =
     let
         recordInitialInteractions : List Kurve -> List Kurve
@@ -120,7 +120,7 @@ prepareLiveRound config seed players pressedButtons =
         ( theKurves, seedAfterSpawn ) =
             Random.step (generateKurves config players) seed |> Tuple.mapFirst recordInitialInteractions
     in
-    prepareRoundFromKnownInitialState { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves }
+    ( prepareRoundFromKnownInitialState { spawnedKurves = theKurves }, seedAfterSpawn )
 
 
 prepareReplayRound : RoundInitialState -> Round
