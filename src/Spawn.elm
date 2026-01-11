@@ -93,13 +93,15 @@ generateKurveState config numberOfPlayers existingPositions =
         (\generatedPosition generatedAngle generatedHoleStatus generatedHoleSeed ->
             { position = generatedPosition
             , direction = generatedAngle
-            , holeStatus = generatedHoleStatus
-            , holeSeed = generatedHoleSeed
+            , holeStatus =
+                { holiness = generatedHoleStatus
+                , holeSeed = generatedHoleSeed
+                }
             }
         )
         safeSpawnPosition
         (generateSpawnAngle config.spawn.angleInterval)
-        (generateInitialHoleStatus config.kurves)
+        (generateInitialHoliness config.kurves)
         Random.independentSeed
 
 
@@ -145,6 +147,6 @@ generateHoleSize holeConfig =
     Distance.generate holeConfig.minSize holeConfig.maxSize
 
 
-generateInitialHoleStatus : KurveConfig -> Random.Generator Kurve.HoleStatus
-generateInitialHoleStatus { tickrate, speed, holes } =
+generateInitialHoliness : KurveConfig -> Random.Generator Kurve.Holiness
+generateInitialHoliness { tickrate, speed, holes } =
     generateHoleSpacing holes |> Random.map (distanceToTicks tickrate speed >> Kurve.Unholy)

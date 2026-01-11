@@ -1,6 +1,7 @@
 module Types.Kurve exposing
     ( Fate(..)
-    , HoleStatus(..)
+    , HoleStatus
+    , Holiness(..)
     , Kurve
     , State
     , UserInteraction(..)
@@ -41,7 +42,6 @@ type alias State =
     { position : Position
     , direction : Angle
     , holeStatus : HoleStatus
-    , holeSeed : Random.Seed
     }
 
 
@@ -50,9 +50,15 @@ type Fate
     | Dies
 
 
+type alias HoleStatus =
+    { holiness : Holiness
+    , holeSeed : Random.Seed
+    }
+
+
 {-| In both cases, the integer represent the number of ticks left in the current state.
 -}
-type HoleStatus
+type Holiness
     = Holy Int
     | Unholy Int
 
