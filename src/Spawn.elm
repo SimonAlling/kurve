@@ -90,11 +90,11 @@ generateKurveState config numberOfPlayers existingPositions =
             generateSpawnPosition config.spawn config.world |> Random.filter (isSafeNewPosition config numberOfPlayers existingPositions)
     in
     Random.map4
-        (\generatedPosition generatedAngle generatedHoleStatus generatedHoleSeed ->
+        (\generatedPosition generatedAngle generatedHoliness generatedHoleSeed ->
             { position = generatedPosition
             , direction = generatedAngle
             , holeStatus =
-                { holiness = generatedHoleStatus
+                { holiness = generatedHoliness
                 , holeSeed = generatedHoleSeed
                 }
             }
