@@ -6,7 +6,7 @@ import Effect exposing (Effect(..))
 import Random
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
-import Types.Kurve exposing (HoleStatus(..), Kurve)
+import Types.Kurve exposing (Holiness(..), Kurve)
 
 
 config : Config
@@ -22,8 +22,10 @@ red =
         , state =
             { position = ( 29.5, 29.5 )
             , direction = Angle (pi / 4)
-            , holeStatus = Unholy 60000
-            , holeSeed = Random.initialSeed 0
+            , holeStatus =
+                { holiness = Unholy 60000
+                , holeSeed = Random.initialSeed 0
+                }
             }
         }
 
@@ -36,8 +38,10 @@ yellow =
         , state =
             { position = ( 37.5, 37.5 )
             , direction = Angle (5 * pi / 4)
-            , holeStatus = Unholy 60000
-            , holeSeed = Random.initialSeed 0
+            , holeStatus =
+                { holiness = Unholy 60000
+                , holeSeed = Random.initialSeed 0
+                }
             }
         }
 
@@ -50,8 +54,10 @@ orange =
         , state =
             { position = ( 20.5, 24.5 )
             , direction = Angle (pi / 2)
-            , holeStatus = Unholy 60000
-            , holeSeed = Random.initialSeed 0
+            , holeStatus =
+                { holiness = Unholy 60000
+                , holeSeed = Random.initialSeed 0
+                }
             }
         }
 
@@ -64,8 +70,10 @@ green =
         , state =
             { position = ( 18.5, 47.5 )
             , direction = Angle (3 * pi / 4)
-            , holeStatus = Unholy 60000
-            , holeSeed = Random.initialSeed 0
+            , holeStatus =
+                { holiness = Unholy 60000
+                , holeSeed = Random.initialSeed 0
+                }
             }
         }
 

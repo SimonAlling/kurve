@@ -245,8 +245,8 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
     )
 
 
-evaluateMove : Config -> Position -> Position -> Set Pixel -> Kurve.HoleStatus -> ( List DrawingPosition, Kurve.Fate )
-evaluateMove config startingPoint desiredEndPoint occupiedPixels holeStatus =
+evaluateMove : Config -> Position -> Position -> Set Pixel -> Kurve.Holiness -> ( List DrawingPosition, Kurve.Fate )
+evaluateMove config startingPoint desiredEndPoint occupiedPixels holiness =
     let
         startingPointAsDrawingPosition : DrawingPosition
         startingPointAsDrawingPosition =
@@ -293,7 +293,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holeStatus =
 
         isHoly : Bool
         isHoly =
-            case holeStatus of
+            case holiness of
                 Kurve.Holy _ ->
                     True
 
@@ -353,21 +353,17 @@ updateKurve config turningState occupiedPixels kurve =
                 kurve.state.position
                 newPosition
                 occupiedPixels
-                kurve.state.holeStatus
+                kurve.state.holeStatus.holiness
 
-        newHoleStatusGenerator : Random.Generator Kurve.HoleStatus
-        newHoleStatusGenerator =
+        newHoleStatus : Kurve.HoleStatus
+        newHoleStatus =
             updateHoleStatus config.kurves kurve.state.holeStatus
-
-        ( newHoleStatus, newSeed ) =
-            Random.step newHoleStatusGenerator kurve.state.holeSeed
 
         newKurveState : Kurve.State
         newKurveState =
             { position = newPosition
             , direction = newDirection
             , holeStatus = newHoleStatus
-            , holeSeed = newSeed
             }
 
         newKurve : Kurve
@@ -380,20 +376,36 @@ updateKurve config turningState occupiedPixels kurve =
     )
 
 
-updateHoleStatus : KurveConfig -> Kurve.HoleStatus -> Random.Generator Kurve.HoleStatus
+updateHoleStatus : KurveConfig -> Kurve.HoleStatus -> Kurve.HoleStatus
 updateHoleStatus kurveConfig holeStatus =
-    case holeStatus of
+    case holeStatus.holiness of
         Kurve.Holy 0 ->
-            generateHoleSpacing kurveConfig.holes |> Random.map (distanceToTicks kurveConfig.tickrate kurveConfig.speed >> Kurve.Unholy)
+            let
+                holinessGenerator : Random.Generator Kurve.Holiness
+                holinessGenerator =
+                    generateHoleSpacing kurveConfig.holes |> Random.map (distanceToTicks kurveConfig.tickrate kurveConfig.speed >> Kurve.Unholy)
+
+                ( newHoliness, newSeed ) =
+                    Random.step holinessGenerator holeStatus.holeSeed
+            in
+            { holiness = newHoliness, holeSeed = newSeed }
 
         Kurve.Holy ticksLeft ->
-            Random.constant <| Kurve.Holy (ticksLeft - 1)
+            { holeStatus | holiness = Kurve.Holy (ticksLeft - 1) }
 
         Kurve.Unholy 0 ->
-            generateHoleSize kurveConfig.holes |> Random.map (computeDistanceBetweenCenters >> distanceToTicks kurveConfig.tickrate kurveConfig.speed >> Kurve.Holy)
+            let
+                holinessGenerator : Random.Generator Kurve.Holiness
+                holinessGenerator =
+                    generateHoleSize kurveConfig.holes |> Random.map (computeDistanceBetweenCenters >> distanceToTicks kurveConfig.tickrate kurveConfig.speed >> Kurve.Holy)
+
+                ( newHoliness, newSeed ) =
+                    Random.step holinessGenerator holeStatus.holeSeed
+            in
+            { holiness = newHoliness, holeSeed = newSeed }
 
         Kurve.Unholy ticksLeft ->
-            Random.constant <| Kurve.Unholy (ticksLeft - 1)
+            { holeStatus | holiness = Kurve.Unholy (ticksLeft - 1) }
 
 
 recordUserInteraction : Set String -> Tick -> Kurve -> Kurve

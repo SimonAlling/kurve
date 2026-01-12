@@ -6,7 +6,7 @@ import Effect exposing (Effect(..))
 import Random
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, defaultConfigWithSpeed, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
-import Types.Kurve exposing (HoleStatus(..), Kurve)
+import Types.Kurve exposing (Holiness(..), Kurve)
 import Types.Speed exposing (Speed(..))
 
 
@@ -23,8 +23,10 @@ green =
         , state =
             { position = ( 100.5, 460.5 )
             , direction = Angle 0
-            , holeStatus = Unholy 60000
-            , holeSeed = Random.initialSeed 0
+            , holeStatus =
+                { holiness = Unholy 60000
+                , holeSeed = Random.initialSeed 0
+                }
             }
         }
 

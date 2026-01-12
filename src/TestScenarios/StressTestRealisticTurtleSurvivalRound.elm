@@ -5,7 +5,7 @@ import Config exposing (Config)
 import Random
 import TestScenarioHelpers exposing (CumulativeInteraction, EffectsExpectation(..), RoundOutcome, makeUserInteractions, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
-import Types.Kurve exposing (HoleStatus(..), Kurve)
+import Types.Kurve exposing (Holiness(..), Kurve)
 import Types.TurningState exposing (TurningState(..))
 
 
@@ -22,8 +22,10 @@ greenZombie =
         , state =
             { position = ( 31.5, 2.5 )
             , direction = Angle (pi / 2)
-            , holeStatus = Unholy 60000
-            , holeSeed = Random.initialSeed 0
+            , holeStatus =
+                { holiness = Unholy 60000
+                , holeSeed = Random.initialSeed 0
+                }
             }
         }
 

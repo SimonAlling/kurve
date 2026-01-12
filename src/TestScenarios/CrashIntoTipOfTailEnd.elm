@@ -5,7 +5,7 @@ import Config exposing (Config)
 import Random
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
-import Types.Kurve exposing (HoleStatus(..), Kurve)
+import Types.Kurve exposing (Holiness(..), Kurve)
 
 
 config : Config
@@ -21,8 +21,10 @@ red =
         , state =
             { position = ( 59.5, 59.5 )
             , direction = Angle (pi / 4)
-            , holeStatus = Unholy 60000
-            , holeSeed = Random.initialSeed 0
+            , holeStatus =
+                { holiness = Unholy 60000
+                , holeSeed = Random.initialSeed 0
+                }
             }
         }
 
@@ -35,8 +37,10 @@ green =
         , state =
             { position = ( 29.5, 29.5 )
             , direction = Angle (pi / 4)
-            , holeStatus = Unholy 60000
-            , holeSeed = Random.initialSeed 0
+            , holeStatus =
+                { holiness = Unholy 60000
+                , holeSeed = Random.initialSeed 0
+                }
             }
         }
 
