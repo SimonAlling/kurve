@@ -23,7 +23,8 @@ red =
             { position = ( 29.5, 29.5 )
             , direction = Angle (pi / 4)
             , holeStatus =
-                { holiness = Unholy 60000
+                { holiness = Unholy
+                , ticksLeft = 60000
                 , holeSeed = Random.initialSeed 0
                 }
             }
@@ -39,7 +40,8 @@ yellow =
             { position = ( 37.5, 37.5 )
             , direction = Angle (5 * pi / 4)
             , holeStatus =
-                { holiness = Unholy 60000
+                { holiness = Unholy
+                , ticksLeft = 60000
                 , holeSeed = Random.initialSeed 0
                 }
             }
@@ -55,7 +57,8 @@ orange =
             { position = ( 20.5, 24.5 )
             , direction = Angle (pi / 2)
             , holeStatus =
-                { holiness = Unholy 60000
+                { holiness = Unholy
+                , ticksLeft = 60000
                 , holeSeed = Random.initialSeed 0
                 }
             }
@@ -71,7 +74,8 @@ green =
             { position = ( 18.5, 47.5 )
             , direction = Angle (3 * pi / 4)
             , holeStatus =
-                { holiness = Unholy 60000
+                { holiness = Unholy
+                , ticksLeft = 60000
                 , holeSeed = Random.initialSeed 0
                 }
             }
