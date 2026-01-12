@@ -3,10 +3,9 @@ module TestScenarios.CrashIntoWallTop exposing (config, expectedOutcome, spawned
 import Colors
 import Config exposing (Config)
 import Effect exposing (Effect(..))
-import Random
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
-import Types.Kurve exposing (Holiness(..), Kurve)
+import Types.Kurve exposing (HoleStatus(..), Kurve)
 
 
 config : Config
@@ -23,10 +22,7 @@ green =
             { position = ( 99.5, 3.5 )
             , direction = Angle pi
             , holeStatus =
-                { holiness = Unholy
-                , ticksLeft = 60000
-                , holeSeed = Random.initialSeed 0
-                }
+                NoHoles
             }
         }
 

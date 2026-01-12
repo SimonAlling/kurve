@@ -2,10 +2,9 @@ module TestScenarios.SpeedEffectOnGame exposing (config, expectedOutcome, spawne
 
 import Colors
 import Config exposing (Config)
-import Random
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, defaultConfigWithSpeed, makeZombieKurve, playerIds)
 import Types.Angle exposing (Angle(..))
-import Types.Kurve exposing (Holiness(..), Kurve)
+import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.Speed exposing (Speed)
 import Types.Tick exposing (Tick)
 
@@ -24,10 +23,7 @@ green =
             { position = ( 107.5, 99.5 )
             , direction = Angle (pi / 2)
             , holeStatus =
-                { holiness = Unholy
-                , ticksLeft = 60000
-                , holeSeed = Random.initialSeed 0
-                }
+                NoHoles
             }
         }
 
