@@ -52,15 +52,14 @@ type Fate
 
 type alias HoleStatus =
     { holiness : Holiness
+    , ticksLeft : Int
     , holeSeed : Random.Seed
     }
 
 
-{-| In both cases, the integer represent the number of ticks left in the current state.
--}
 type Holiness
-    = Holy Int
-    | Unholy Int
+    = Holy
+    | Unholy
 
 
 reset : Kurve -> Kurve

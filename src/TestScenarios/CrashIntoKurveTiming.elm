@@ -22,7 +22,8 @@ red y_red =
             { position = ( 149.5, y_red )
             , direction = Angle (pi / 2)
             , holeStatus =
-                { holiness = Unholy 60000
+                { holiness = Unholy
+                , ticksLeft = 60000
                 , holeSeed = Random.initialSeed 0
                 }
             }
@@ -38,7 +39,8 @@ green =
             { position = ( 99.5, 106.5 )
             , direction = Angle (pi / 2 + 0.02)
             , holeStatus =
-                { holiness = Unholy 60000
+                { holiness = Unholy
+                , ticksLeft = 60000
                 , holeSeed = Random.initialSeed 0
                 }
             }

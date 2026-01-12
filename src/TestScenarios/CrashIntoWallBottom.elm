@@ -22,7 +22,8 @@ green =
             { position = ( 99.5, 474.5 )
             , direction = Angle 0
             , holeStatus =
-                { holiness = Unholy 60000
+                { holiness = Unholy
+                , ticksLeft = 60000
                 , holeSeed = Random.initialSeed 0
                 }
             }

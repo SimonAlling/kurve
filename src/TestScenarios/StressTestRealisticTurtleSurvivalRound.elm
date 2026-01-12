@@ -23,7 +23,8 @@ greenZombie =
             { position = ( 31.5, 2.5 )
             , direction = Angle (pi / 2)
             , holeStatus =
-                { holiness = Unholy 60000
+                { holiness = Unholy
+                , ticksLeft = 60000
                 , holeSeed = Random.initialSeed 0
                 }
             }
