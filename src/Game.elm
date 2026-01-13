@@ -18,25 +18,25 @@ module Game exposing
     )
 
 import Color exposing (Color)
-import Config exposing (Config, KurveConfig)
+import Config exposing (Config)
 import Dialog
 import Drawing exposing (WhatToDraw, getColorAndDrawingPosition)
+import Holes exposing (HoleStatus, Holiness(..), getHoliness, updateHoleStatus)
 import Players exposing (ParticipatingPlayers)
 import Random
 import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
 import Set exposing (Set)
-import Spawn exposing (generateHoleSize, generateHoleSpacing, generateKurves)
+import Spawn exposing (generateKurves)
 import Thickness exposing (theThickness)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle)
-import Types.Distance as Distance exposing (Distance(..))
 import Types.FrameTime exposing (LeftoverFrameTime)
-import Types.Kurve as Kurve exposing (HoleStatus(..), Holiness(..), Kurve, RandomHoleStatus, UserInteraction(..), getHoliness, modifyReversedInteractions)
+import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..), modifyReversedInteractions)
 import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Types.TurningState exposing (TurningState)
-import World exposing (DrawingPosition, Pixel, Position, distanceToTicks)
+import World exposing (DrawingPosition, Pixel, Position)
 
 
 type GameState
@@ -191,13 +191,6 @@ tickResultToGameState liveOrReplay tickResult =
 
         RoundEnds finishedRound ->
             RoundOver finishedRound Dialog.NotOpen
-
-
-{-| Takes the distance between the _edges_ of two drawn squares and returns the distance between their _centers_.
--}
-computeDistanceBetweenCenters : Distance -> Distance
-computeDistanceBetweenCenters distanceBetweenEdges =
-    Distance <| Distance.toFloat distanceBetweenEdges + theThickness
 
 
 checkIndividualKurve :
@@ -374,48 +367,6 @@ updateKurve config turningState occupiedPixels kurve =
     , newKurve
     , fate
     )
-
-
-updateHoleStatus : KurveConfig -> HoleStatus -> HoleStatus
-updateHoleStatus kurveConfig holeStatus =
-    case holeStatus of
-        RandomHoles randomHoleStatus ->
-            RandomHoles (updateRandomHoleStatus kurveConfig randomHoleStatus)
-
-        NoHoles ->
-            NoHoles
-
-
-updateRandomHoleStatus : KurveConfig -> RandomHoleStatus -> RandomHoleStatus
-updateRandomHoleStatus kurveConfig randomHoleStatus =
-    case ( randomHoleStatus.holiness, randomHoleStatus.ticksLeft ) of
-        ( Holy, 0 ) ->
-            let
-                unholyTicksGenerator : Random.Generator Int
-                unholyTicksGenerator =
-                    generateHoleSpacing kurveConfig.holes |> Random.map (distanceToTicks kurveConfig.tickrate kurveConfig.speed)
-
-                ( unholyTicks, newSeed ) =
-                    Random.step unholyTicksGenerator randomHoleStatus.holeSeed
-            in
-            { holiness = Unholy, ticksLeft = unholyTicks, holeSeed = newSeed }
-
-        ( Holy, ticksLeft ) ->
-            { randomHoleStatus | ticksLeft = ticksLeft - 1 }
-
-        ( Unholy, 0 ) ->
-            let
-                holyTicksGenerator : Random.Generator Int
-                holyTicksGenerator =
-                    generateHoleSize kurveConfig.holes |> Random.map (computeDistanceBetweenCenters >> distanceToTicks kurveConfig.tickrate kurveConfig.speed)
-
-                ( holyTicks, newSeed ) =
-                    Random.step holyTicksGenerator randomHoleStatus.holeSeed
-            in
-            { holiness = Holy, ticksLeft = holyTicks, holeSeed = newSeed }
-
-        ( Unholy, ticksLeft ) ->
-            { randomHoleStatus | ticksLeft = ticksLeft - 1 }
 
 
 recordUserInteraction : Set String -> Tick -> Kurve -> Kurve

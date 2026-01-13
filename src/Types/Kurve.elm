@@ -1,18 +1,14 @@
 module Types.Kurve exposing
     ( Fate(..)
-    , HoleStatus(..)
-    , Holiness(..)
     , Kurve
-    , RandomHoleStatus
     , State
     , UserInteraction(..)
-    , getHoliness
     , modifyReversedInteractions
     , reset
     )
 
 import Color exposing (Color)
-import Random
+import Holes exposing (HoleStatus)
 import Set exposing (Set)
 import Types.Angle exposing (Angle)
 import Types.PlayerId exposing (PlayerId)
@@ -50,33 +46,6 @@ type alias State =
 type Fate
     = Lives
     | Dies
-
-
-type HoleStatus
-    = RandomHoles RandomHoleStatus
-    | NoHoles
-
-
-type alias RandomHoleStatus =
-    { holiness : Holiness
-    , ticksLeft : Int
-    , holeSeed : Random.Seed
-    }
-
-
-getHoliness : HoleStatus -> Holiness
-getHoliness holeStatus =
-    case holeStatus of
-        RandomHoles { holiness } ->
-            holiness
-
-        NoHoles ->
-            Unholy
-
-
-type Holiness
-    = Holy
-    | Unholy
 
 
 reset : Kurve -> Kurve

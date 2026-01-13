@@ -3,9 +3,10 @@ module TestScenarios.CrashSomewhatSoon exposing (config, expectedOutcome, spawne
 import Colors
 import Config exposing (Config)
 import Effect exposing (Effect(..))
+import Holes exposing (HoleStatus(..))
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, defaultConfigWithSpeed, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
-import Types.Kurve exposing (HoleStatus(..), Kurve)
+import Types.Kurve exposing (Kurve)
 import Types.Speed exposing (Speed(..))
 
 

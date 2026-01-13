@@ -2,9 +2,10 @@ module TestScenarios.SpeedEffectOnGame exposing (config, expectedOutcome, spawne
 
 import Colors
 import Config exposing (Config)
+import Holes exposing (HoleStatus(..))
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, defaultConfigWithSpeed, makeZombieKurve, playerIds)
 import Types.Angle exposing (Angle(..))
-import Types.Kurve exposing (HoleStatus(..), Kurve)
+import Types.Kurve exposing (Kurve)
 import Types.Speed exposing (Speed)
 import Types.Tick exposing (Tick)
 
