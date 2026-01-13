@@ -16,6 +16,7 @@ import TestScenarios.CrashIntoWallTop
 import TestScenarios.CrashSomewhatSoon
 import TestScenarios.CuttingCornersBasic
 import TestScenarios.CuttingCornersPerfectOverpainting
+import TestScenarios.PeriodicHoles
 import TestScenarios.SpeedEffectOnGame
 import TestScenarios.StressTestRealisticTurtleSurvivalRound
 import Types.Speed as Speed exposing (Speed(..))
@@ -32,6 +33,7 @@ tests =
         , speedTests
         , stressTests
         , drawingTests
+        , holeTests
         ]
 
 
@@ -229,4 +231,16 @@ drawingTests =
                     |> expectRoundOutcome
                         TestScenarios.CrashSomewhatSoon.config
                         TestScenarios.CrashSomewhatSoon.expectedOutcome
+        ]
+
+
+holeTests : Test
+holeTests =
+    describe "Hole tests"
+        [ test "Periodic holes work as expected" <|
+            \_ ->
+                roundWith TestScenarios.PeriodicHoles.spawnedKurves
+                    |> expectRoundOutcome
+                        TestScenarios.PeriodicHoles.config
+                        TestScenarios.PeriodicHoles.expectedOutcome
         ]

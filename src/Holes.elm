@@ -15,6 +15,7 @@ import World exposing (distanceToTicks)
 
 type HoleStatus
     = RandomHoles RandomHoleStatus
+    | PeriodicHoles PeriodicHoleStatus
     | NoHoles
 
 
@@ -25,10 +26,21 @@ type alias RandomHoleStatus =
     }
 
 
+type alias PeriodicHoleStatus =
+    { holiness : Holiness
+    , ticksLeft : Int
+    , interval : Distance
+    , size : Distance
+    }
+
+
 getHoliness : HoleStatus -> Holiness
 getHoliness holeStatus =
     case holeStatus of
         RandomHoles { holiness } ->
+            holiness
+
+        PeriodicHoles { holiness } ->
             holiness
 
         NoHoles ->
@@ -45,6 +57,9 @@ updateHoleStatus kurveConfig holeStatus =
     case holeStatus of
         RandomHoles randomHoleStatus ->
             RandomHoles (updateRandomHoleStatus kurveConfig randomHoleStatus)
+
+        PeriodicHoles periodicHoleStatus ->
+            PeriodicHoles (updatePeriodicHoleStatus kurveConfig periodicHoleStatus)
 
         NoHoles ->
             NoHoles
@@ -80,6 +95,34 @@ updateRandomHoleStatus kurveConfig randomHoleStatus =
 
         ( Unholy, ticksLeft ) ->
             { randomHoleStatus | ticksLeft = ticksLeft - 1 }
+
+
+updatePeriodicHoleStatus : KurveConfig -> PeriodicHoleStatus -> PeriodicHoleStatus
+updatePeriodicHoleStatus kurveConfig periodicHoleStatus =
+    case ( periodicHoleStatus.holiness, periodicHoleStatus.ticksLeft ) of
+        ( Holy, 0 ) ->
+            { periodicHoleStatus
+                | holiness = Unholy
+                , ticksLeft =
+                    periodicHoleStatus.interval
+                        |> computeDistanceBetweenCenters
+                        |> distanceToTicks kurveConfig.tickrate kurveConfig.speed
+            }
+
+        ( Holy, ticksLeft ) ->
+            { periodicHoleStatus | ticksLeft = ticksLeft - 1 }
+
+        ( Unholy, 0 ) ->
+            { periodicHoleStatus
+                | holiness = Holy
+                , ticksLeft =
+                    periodicHoleStatus.size
+                        |> computeDistanceBetweenCenters
+                        |> distanceToTicks kurveConfig.tickrate kurveConfig.speed
+            }
+
+        ( Unholy, ticksLeft ) ->
+            { periodicHoleStatus | ticksLeft = ticksLeft - 1 }
 
 
 generateHoleSpacing : HoleConfig -> Random.Generator Distance
