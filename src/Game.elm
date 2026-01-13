@@ -31,7 +31,7 @@ import Turning exposing (computeAngleChange, computeTurningState, turningStateFr
 import Types.Angle as Angle exposing (Angle)
 import Types.Distance as Distance exposing (Distance(..))
 import Types.FrameTime exposing (LeftoverFrameTime)
-import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..), modifyReversedInteractions)
+import Types.Kurve as Kurve exposing (HoleStatus(..), Holiness(..), Kurve, RandomHoleStatus, UserInteraction(..), getHoliness, modifyReversedInteractions)
 import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -245,7 +245,7 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
     )
 
 
-evaluateMove : Config -> Position -> Position -> Set Pixel -> Kurve.Holiness -> ( List DrawingPosition, Kurve.Fate )
+evaluateMove : Config -> Position -> Position -> Set Pixel -> Holiness -> ( List DrawingPosition, Kurve.Fate )
 evaluateMove config startingPoint desiredEndPoint occupiedPixels holiness =
     let
         startingPointAsDrawingPosition : DrawingPosition
@@ -294,10 +294,10 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holiness =
         isHoly : Bool
         isHoly =
             case holiness of
-                Kurve.Holy ->
+                Holy ->
                     True
 
-                Kurve.Unholy ->
+                Unholy ->
                     False
 
         ( checkedPositionsReversed, evaluatedStatus ) =
@@ -353,9 +353,9 @@ updateKurve config turningState occupiedPixels kurve =
                 kurve.state.position
                 newPosition
                 occupiedPixels
-                (Kurve.getHoliness kurve.state.holeStatus)
+                (getHoliness kurve.state.holeStatus)
 
-        newHoleStatus : Kurve.HoleStatus
+        newHoleStatus : HoleStatus
         newHoleStatus =
             updateHoleStatus config.kurves kurve.state.holeStatus
 
@@ -376,20 +376,20 @@ updateKurve config turningState occupiedPixels kurve =
     )
 
 
-updateHoleStatus : KurveConfig -> Kurve.HoleStatus -> Kurve.HoleStatus
+updateHoleStatus : KurveConfig -> HoleStatus -> HoleStatus
 updateHoleStatus kurveConfig holeStatus =
     case holeStatus of
-        Kurve.RandomHoles randomHoleStatus ->
-            Kurve.RandomHoles (updateRandomHoleStatus kurveConfig randomHoleStatus)
+        RandomHoles randomHoleStatus ->
+            RandomHoles (updateRandomHoleStatus kurveConfig randomHoleStatus)
 
-        Kurve.NoHoles ->
-            Kurve.NoHoles
+        NoHoles ->
+            NoHoles
 
 
-updateRandomHoleStatus : KurveConfig -> Kurve.RandomHoleStatus -> Kurve.RandomHoleStatus
+updateRandomHoleStatus : KurveConfig -> RandomHoleStatus -> RandomHoleStatus
 updateRandomHoleStatus kurveConfig randomHoleStatus =
     case ( randomHoleStatus.holiness, randomHoleStatus.ticksLeft ) of
-        ( Kurve.Holy, 0 ) ->
+        ( Holy, 0 ) ->
             let
                 unholyTicksGenerator : Random.Generator Int
                 unholyTicksGenerator =
@@ -398,12 +398,12 @@ updateRandomHoleStatus kurveConfig randomHoleStatus =
                 ( unholyTicks, newSeed ) =
                     Random.step unholyTicksGenerator randomHoleStatus.holeSeed
             in
-            { holiness = Kurve.Unholy, ticksLeft = unholyTicks, holeSeed = newSeed }
+            { holiness = Unholy, ticksLeft = unholyTicks, holeSeed = newSeed }
 
-        ( Kurve.Holy, ticksLeft ) ->
+        ( Holy, ticksLeft ) ->
             { randomHoleStatus | ticksLeft = ticksLeft - 1 }
 
-        ( Kurve.Unholy, 0 ) ->
+        ( Unholy, 0 ) ->
             let
                 holyTicksGenerator : Random.Generator Int
                 holyTicksGenerator =
@@ -412,9 +412,9 @@ updateRandomHoleStatus kurveConfig randomHoleStatus =
                 ( holyTicks, newSeed ) =
                     Random.step holyTicksGenerator randomHoleStatus.holeSeed
             in
-            { holiness = Kurve.Holy, ticksLeft = holyTicks, holeSeed = newSeed }
+            { holiness = Holy, ticksLeft = holyTicks, holeSeed = newSeed }
 
-        ( Kurve.Unholy, ticksLeft ) ->
+        ( Unholy, ticksLeft ) ->
             { randomHoleStatus | ticksLeft = ticksLeft - 1 }
 
 
