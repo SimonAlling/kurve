@@ -13,7 +13,7 @@ import Random.Extra as Random
 import Thickness exposing (theThickness)
 import Types.Angle exposing (Angle(..))
 import Types.Distance as Distance exposing (Distance)
-import Types.Kurve as Kurve exposing (Kurve)
+import Types.Kurve as Kurve exposing (HoleStatus(..), Holiness(..), Kurve)
 import Types.Player exposing (Player)
 import Types.PlayerId exposing (PlayerId)
 import Types.Radius as Radius
@@ -94,8 +94,8 @@ generateKurveState config numberOfPlayers existingPositions =
             { position = generatedPosition
             , direction = generatedAngle
             , holeStatus =
-                Kurve.RandomHoles
-                    { holiness = Kurve.Unholy
+                RandomHoles
+                    { holiness = Unholy
                     , ticksLeft = generatedUnholyTicks
                     , holeSeed = generatedHoleSeed
                     }
