@@ -1,24 +1,21 @@
-module Spawn exposing
-    ( generateHoleSize
-    , generateHoleSpacing
-    , generateKurves
-    )
+module Spawn exposing (generateKurves)
 
-import Config exposing (Config, HoleConfig, KurveConfig, SpawnConfig, WorldConfig)
+import Config exposing (Config, SpawnConfig, WorldConfig)
 import Dict
+import Holes exposing (HoleStatus(..), Holiness(..), generateInitialUnholyTicks)
 import Input exposing (toStringSetControls)
 import Players exposing (ParticipatingPlayers)
 import Random
 import Random.Extra as Random
 import Thickness exposing (theThickness)
 import Types.Angle exposing (Angle(..))
-import Types.Distance as Distance exposing (Distance)
-import Types.Kurve as Kurve exposing (HoleStatus(..), Holiness(..), Kurve)
+import Types.Distance as Distance
+import Types.Kurve as Kurve exposing (Kurve)
 import Types.Player exposing (Player)
 import Types.PlayerId exposing (PlayerId)
 import Types.Radius as Radius
 import Util exposing (curry)
-import World exposing (Position, distanceBetween, distanceToTicks)
+import World exposing (Position, distanceBetween)
 
 
 generateKurves : Config -> ParticipatingPlayers -> Random.Generator (List Kurve)
@@ -137,18 +134,3 @@ generateSpawnPosition spawnConfig worldConfig =
 generateSpawnAngle : ( Float, Float ) -> Random.Generator Angle
 generateSpawnAngle ( min, max ) =
     Random.float min max |> Random.map Angle
-
-
-generateHoleSpacing : HoleConfig -> Random.Generator Distance
-generateHoleSpacing holeConfig =
-    Distance.generate holeConfig.minInterval holeConfig.maxInterval
-
-
-generateHoleSize : HoleConfig -> Random.Generator Distance
-generateHoleSize holeConfig =
-    Distance.generate holeConfig.minSize holeConfig.maxSize
-
-
-generateInitialUnholyTicks : KurveConfig -> Random.Generator Int
-generateInitialUnholyTicks { tickrate, speed, holes } =
-    generateHoleSpacing holes |> Random.map (distanceToTicks tickrate speed)
