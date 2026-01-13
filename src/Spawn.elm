@@ -94,10 +94,11 @@ generateKurveState config numberOfPlayers existingPositions =
             { position = generatedPosition
             , direction = generatedAngle
             , holeStatus =
-                { holiness = Kurve.Unholy
-                , ticksLeft = generatedUnholyTicks
-                , holeSeed = generatedHoleSeed
-                }
+                Kurve.RandomHoles
+                    { holiness = Kurve.Unholy
+                    , ticksLeft = generatedUnholyTicks
+                    , holeSeed = generatedHoleSeed
+                    }
             }
         )
         safeSpawnPosition

@@ -2,10 +2,9 @@ module TestScenarios.AroundTheWorld exposing (config, expectedOutcome, spawnedKu
 
 import Colors
 import Config exposing (Config)
-import Random
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeUserInteractions, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
-import Types.Kurve exposing (Holiness(..), Kurve)
+import Types.Kurve exposing (HoleStatus(..), Kurve)
 import Types.TurningState exposing (TurningState(..))
 
 
@@ -23,10 +22,7 @@ greenZombie =
             { position = ( 3.5, 0.5 )
             , direction = Angle (pi / 2)
             , holeStatus =
-                { holiness = Unholy
-                , ticksLeft = 60000
-                , holeSeed = Random.initialSeed 0
-                }
+                NoHoles
             }
         }
 

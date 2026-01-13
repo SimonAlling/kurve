@@ -19,7 +19,7 @@ import Random
 import Round exposing (RoundInitialState)
 import Set
 import Types.Angle exposing (Angle(..))
-import Types.Kurve as Kurve exposing (Holiness(..), Kurve, UserInteraction(..))
+import Types.Kurve as Kurve exposing (HoleStatus(..), Kurve, UserInteraction(..))
 import Types.PlayerId exposing (PlayerId)
 import Types.Speed exposing (Speed)
 import Types.Tick as Tick exposing (Tick)
@@ -56,7 +56,7 @@ makeZombieKurve { color, id, state } =
     , stateAtSpawn =
         { position = ( 0, 0 )
         , direction = Angle (pi / 2)
-        , holeStatus = { holiness = Unholy, ticksLeft = 0, holeSeed = Random.initialSeed 0 }
+        , holeStatus = NoHoles
         }
     , reversedInteractions = []
     }
