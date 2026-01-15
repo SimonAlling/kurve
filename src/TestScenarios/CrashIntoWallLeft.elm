@@ -2,7 +2,7 @@ module TestScenarios.CrashIntoWallLeft exposing (config, expectedOutcome, spawne
 
 import Colors
 import Config exposing (Config)
-import Holes exposing (HoleStatus(..))
+import Holes exposing (HoleInit(..), HoleStatus(..), makeInitialHoleStatus)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (Kurve)
@@ -22,7 +22,7 @@ green =
             { position = ( 3.5, 99.5 )
             , direction = Angle (3 * pi / 2)
             , holeStatus =
-                NoHoles
+                makeInitialHoleStatus config.kurves InitNoHoles
             }
         }
 

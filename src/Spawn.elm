@@ -1,8 +1,8 @@
 module Spawn exposing (generateKurves)
 
-import Config exposing (Config, SpawnConfig, WorldConfig)
+import Config exposing (Config, HoleConfig(..), SpawnConfig, WorldConfig)
 import Dict
-import Holes exposing (makeInitialHoleStatus)
+import Holes exposing (makeHoleInit, makeInitialHoleStatus)
 import Input exposing (toStringSetControls)
 import Players exposing (ParticipatingPlayers)
 import Random
@@ -92,9 +92,8 @@ generateKurveState config numberOfPlayers existingPositions =
             , direction = generatedAngle
             , holeStatus =
                 makeInitialHoleStatus
-                    (World.distanceToTicks config.kurves.tickrate config.kurves.speed)
-                    config.kurves.holes
-                    generatedHoleSeed
+                    config.kurves
+                    (makeHoleInit config.kurves generatedHoleSeed)
             }
         )
         safeSpawnPosition

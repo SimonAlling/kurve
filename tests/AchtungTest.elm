@@ -202,7 +202,7 @@ speedTests =
                 (\( speed, expectedEndTick ) ->
                     test ("Round ends as expected when speed is " ++ String.fromFloat (Speed.toFloat speed)) <|
                         \_ ->
-                            roundWith TestScenarios.SpeedEffectOnGame.spawnedKurves
+                            roundWith (TestScenarios.SpeedEffectOnGame.spawnedKurves speed)
                                 |> expectRoundOutcome
                                     (TestScenarios.SpeedEffectOnGame.config speed)
                                     (TestScenarios.SpeedEffectOnGame.expectedOutcome expectedEndTick)

@@ -3,7 +3,7 @@ module TestScenarios.CuttingCornersPerfectOverpainting exposing (config, expecte
 import Colors
 import Config exposing (Config)
 import Effect exposing (Effect(..))
-import Holes exposing (HoleStatus(..))
+import Holes exposing (HoleInit(..), HoleStatus(..), makeInitialHoleStatus)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (Kurve)
@@ -23,7 +23,7 @@ red =
             { position = ( 29.5, 29.5 )
             , direction = Angle (pi / 4)
             , holeStatus =
-                NoHoles
+                makeInitialHoleStatus config.kurves InitNoHoles
             }
         }
 
@@ -37,7 +37,7 @@ yellow =
             { position = ( 37.5, 37.5 )
             , direction = Angle (5 * pi / 4)
             , holeStatus =
-                NoHoles
+                makeInitialHoleStatus config.kurves InitNoHoles
             }
         }
 
@@ -51,7 +51,7 @@ orange =
             { position = ( 20.5, 24.5 )
             , direction = Angle (pi / 2)
             , holeStatus =
-                NoHoles
+                makeInitialHoleStatus config.kurves InitNoHoles
             }
         }
 
@@ -65,7 +65,7 @@ green =
             { position = ( 18.5, 47.5 )
             , direction = Angle (3 * pi / 4)
             , holeStatus =
-                NoHoles
+                makeInitialHoleStatus config.kurves InitNoHoles
             }
         }
 

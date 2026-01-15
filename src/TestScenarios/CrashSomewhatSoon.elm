@@ -3,7 +3,7 @@ module TestScenarios.CrashSomewhatSoon exposing (config, expectedOutcome, spawne
 import Colors
 import Config exposing (Config)
 import Effect exposing (Effect(..))
-import Holes exposing (HoleStatus(..))
+import Holes exposing (HoleInit(..), HoleStatus(..), makeInitialHoleStatus)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, defaultConfigWithSpeed, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (Kurve)
@@ -24,7 +24,7 @@ green =
             { position = ( 100.5, 460.5 )
             , direction = Angle 0
             , holeStatus =
-                NoHoles
+                makeInitialHoleStatus config.kurves InitNoHoles
             }
         }
 

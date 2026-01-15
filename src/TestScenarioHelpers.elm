@@ -15,7 +15,7 @@ module TestScenarioHelpers exposing
 import Color
 import Config exposing (Config, KurveConfig)
 import Effect exposing (Effect)
-import Holes exposing (HoleStatus(..))
+import Holes exposing (HoleInit(..), HoleStatus(..))
 import Random
 import Round exposing (RoundInitialState)
 import Set
@@ -54,11 +54,7 @@ makeZombieKurve { color, id, state } =
     , id = id
     , controls = ( Set.empty, Set.empty )
     , state = state
-    , stateAtSpawn =
-        { position = ( 0, 0 )
-        , direction = Angle (pi / 2)
-        , holeStatus = NoHoles
-        }
+    , stateAtSpawn = state
     , reversedInteractions = []
     }
 

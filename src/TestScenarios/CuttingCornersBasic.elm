@@ -2,7 +2,7 @@ module TestScenarios.CuttingCornersBasic exposing (config, expectedOutcome, spaw
 
 import Colors
 import Config exposing (Config)
-import Holes exposing (HoleStatus(..))
+import Holes exposing (HoleInit(..), HoleStatus(..), makeInitialHoleStatus)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (Kurve)
@@ -22,7 +22,7 @@ red =
             { position = ( 199.5, 99.5 )
             , direction = Angle (pi / 2)
             , holeStatus =
-                NoHoles
+                makeInitialHoleStatus config.kurves InitNoHoles
             }
         }
 
@@ -36,7 +36,7 @@ green =
             { position = ( 99.5, 195.5 )
             , direction = Angle (3 * pi / 4)
             , holeStatus =
-                NoHoles
+                makeInitialHoleStatus config.kurves InitNoHoles
             }
         }
 

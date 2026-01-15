@@ -2,7 +2,7 @@ module TestScenarios.CrashIntoTipOfTailEnd exposing (config, expectedOutcome, sp
 
 import Colors
 import Config exposing (Config)
-import Holes exposing (HoleStatus(..))
+import Holes exposing (HoleInit(..), HoleStatus(..), makeInitialHoleStatus)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (Kurve)
@@ -22,7 +22,7 @@ red =
             { position = ( 59.5, 59.5 )
             , direction = Angle (pi / 4)
             , holeStatus =
-                NoHoles
+                makeInitialHoleStatus config.kurves InitNoHoles
             }
         }
 
@@ -36,7 +36,7 @@ green =
             { position = ( 29.5, 29.5 )
             , direction = Angle (pi / 4)
             , holeStatus =
-                NoHoles
+                makeInitialHoleStatus config.kurves InitNoHoles
             }
         }
 

@@ -1,35 +1,18 @@
 module Holes exposing
-    ( HoleConfig(..)
-    , HoleStatus(..)
+    ( HoleInit(..)
+    , HoleStatus
     , Holiness(..)
     , RandomHoleStatus
     , getHoliness
+    , makeHoleInit
     , makeInitialHoleStatus
     , updateHoleStatus
     )
 
+import Config exposing (HoleConfig(..), KurveConfig, PeriodicHoleConfig, RandomHoleConfig)
 import Random
 import Types.Distance as Distance exposing (Distance, computeDistanceBetweenCenters)
-
-
-type HoleConfig
-    = UseRandomHoles RandomHoleConfig
-    | UsePeriodicHoles PeriodicHoleConfig
-    | UseNoHoles
-
-
-type alias RandomHoleConfig =
-    { minInterval : Distance
-    , maxInterval : Distance
-    , minSize : Distance
-    , maxSize : Distance
-    }
-
-
-type alias PeriodicHoleConfig =
-    { interval : Distance
-    , size : Distance
-    }
+import World
 
 
 type HoleStatus
@@ -51,6 +34,12 @@ type alias PeriodicHoleStatus =
     , ticksLeft : Int
     , periodicHoleConfig : PeriodicHoleConfig
     }
+
+
+type HoleInit
+    = InitRandomHoles RandomHoleConfig Random.Seed
+    | InitPeriodicHoles PeriodicHoleConfig
+    | InitNoHoles
 
 
 getHoliness : HoleStatus -> Holiness
@@ -154,10 +143,15 @@ generateHoleSize holeConfig =
     Distance.generate holeConfig.minSize holeConfig.maxSize
 
 
-makeInitialHoleStatus : (Distance -> Int) -> HoleConfig -> Random.Seed -> HoleStatus
-makeInitialHoleStatus distanceToTicks holeConfig seed =
-    case holeConfig of
-        UseRandomHoles randomHoleConfig ->
+makeInitialHoleStatus : KurveConfig -> HoleInit -> HoleStatus
+makeInitialHoleStatus kurveConfig holeInit =
+    let
+        distanceToTicks : Distance -> Int
+        distanceToTicks =
+            World.distanceToTicks kurveConfig.tickrate kurveConfig.speed
+    in
+    case holeInit of
+        InitRandomHoles randomHoleConfig seed ->
             let
                 spacingGenerator : Random.Generator Distance
                 spacingGenerator =
@@ -173,12 +167,25 @@ makeInitialHoleStatus distanceToTicks holeConfig seed =
                 , randomHoleConfig = randomHoleConfig
                 }
 
-        UsePeriodicHoles periodicHoleConfig ->
+        InitPeriodicHoles periodicHoleConfig ->
             PeriodicHoles
                 { holiness = Unholy
                 , ticksLeft = distanceToTicks periodicHoleConfig.interval
                 , periodicHoleConfig = periodicHoleConfig
                 }
 
-        UseNoHoles ->
+        InitNoHoles ->
             NoHoles
+
+
+makeHoleInit : KurveConfig -> Random.Seed -> HoleInit
+makeHoleInit kurveConfig seed =
+    case kurveConfig.holes of
+        UseRandomHoles randomHoleConfig ->
+            InitRandomHoles randomHoleConfig seed
+
+        UsePeriodicHoles periodicHoleConfig ->
+            InitPeriodicHoles periodicHoleConfig
+
+        UseNoHoles ->
+            InitNoHoles

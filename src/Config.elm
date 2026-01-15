@@ -1,12 +1,14 @@
 module Config exposing
     ( Config
+    , HoleConfig(..)
     , KurveConfig
+    , PeriodicHoleConfig
+    , RandomHoleConfig
     , SpawnConfig
     , WorldConfig
     , default
     )
 
-import Holes exposing (HoleConfig(..))
 import Types.Distance exposing (Distance(..))
 import Types.Radius exposing (Radius(..))
 import Types.Speed exposing (Speed(..))
@@ -79,4 +81,24 @@ type alias WorldConfig =
 
 type alias ReplayConfig =
     { skipStepInMs : Int
+    }
+
+
+type HoleConfig
+    = UseRandomHoles RandomHoleConfig
+    | UsePeriodicHoles PeriodicHoleConfig
+    | UseNoHoles
+
+
+type alias RandomHoleConfig =
+    { minInterval : Distance
+    , maxInterval : Distance
+    , minSize : Distance
+    , maxSize : Distance
+    }
+
+
+type alias PeriodicHoleConfig =
+    { interval : Distance
+    , size : Distance
     }

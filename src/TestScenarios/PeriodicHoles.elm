@@ -3,7 +3,7 @@ module TestScenarios.PeriodicHoles exposing (config, expectedOutcome, spawnedKur
 import Colors
 import Config exposing (Config)
 import Effect exposing (Effect(..))
-import Holes exposing (HoleStatus(..), Holiness(..))
+import Holes exposing (HoleInit(..), HoleStatus(..), Holiness(..), makeInitialHoleStatus)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Distance exposing (Distance(..))
@@ -24,12 +24,13 @@ green =
             { position = ( 100, 450 )
             , direction = Angle 0
             , holeStatus =
-                PeriodicHoles
-                    { holiness = Unholy
-                    , ticksLeft = 8
-                    , interval = Distance 8
-                    , size = Distance 4
-                    }
+                makeInitialHoleStatus
+                    config.kurves
+                    (InitPeriodicHoles
+                        { interval = Distance 8
+                        , size = Distance 4
+                        }
+                    )
             }
         }
 
