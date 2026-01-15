@@ -1,6 +1,6 @@
 module Spawn exposing (generateKurves)
 
-import Config exposing (Config, HoleConfig(..), SpawnConfig, WorldConfig)
+import Config exposing (Config, SpawnConfig, WorldConfig)
 import Dict
 import Holes exposing (makeHoleInit, makeInitialHoleStatus)
 import Input exposing (toStringSetControls)

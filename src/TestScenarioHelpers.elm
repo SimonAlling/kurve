@@ -15,11 +15,9 @@ module TestScenarioHelpers exposing
 import Color
 import Config exposing (Config, KurveConfig)
 import Effect exposing (Effect)
-import Holes exposing (HoleInit(..), HoleStatus(..))
 import Random
 import Round exposing (RoundInitialState)
 import Set
-import Types.Angle exposing (Angle(..))
 import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..))
 import Types.PlayerId exposing (PlayerId)
 import Types.Speed exposing (Speed)

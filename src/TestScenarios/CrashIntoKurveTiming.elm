@@ -2,7 +2,7 @@ module TestScenarios.CrashIntoKurveTiming exposing (config, expectedOutcome, spa
 
 import Colors
 import Config exposing (Config)
-import Holes exposing (HoleInit(..), HoleStatus(..), makeInitialHoleStatus)
+import Holes exposing (HoleInit(..), makeInitialHoleStatus)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (Kurve)

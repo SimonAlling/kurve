@@ -3,7 +3,7 @@ module TestScenarios.CuttingCornersPerfectOverpainting exposing (config, expecte
 import Colors
 import Config exposing (Config)
 import Effect exposing (Effect(..))
-import Holes exposing (HoleInit(..), HoleStatus(..), makeInitialHoleStatus)
+import Holes exposing (HoleInit(..), makeInitialHoleStatus)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (Kurve)

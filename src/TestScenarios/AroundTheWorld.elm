@@ -2,7 +2,7 @@ module TestScenarios.AroundTheWorld exposing (config, expectedOutcome, spawnedKu
 
 import Colors
 import Config exposing (Config)
-import Holes exposing (HoleInit(..), HoleStatus(..), makeInitialHoleStatus)
+import Holes exposing (HoleInit(..), makeInitialHoleStatus)
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeUserInteractions, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (Kurve)
