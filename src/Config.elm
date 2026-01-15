@@ -1,12 +1,12 @@
 module Config exposing
     ( Config
-    , HoleConfig
     , KurveConfig
     , SpawnConfig
     , WorldConfig
     , default
     )
 
+import Holes exposing (HoleConfig(..))
 import Types.Distance exposing (Distance(..))
 import Types.Radius exposing (Radius(..))
 import Types.Speed exposing (Speed(..))
@@ -20,11 +20,12 @@ default =
         , turningRadius = Radius 28.5
         , speed = Speed 60
         , holes =
-            { minInterval = Distance 90
-            , maxInterval = Distance 300
-            , minSize = Distance 5
-            , maxSize = Distance 9
-            }
+            UseRandomHoles
+                { minInterval = Distance 90
+                , maxInterval = Distance 300
+                , minSize = Distance 5
+                , maxSize = Distance 9
+                }
         }
     , spawn =
         { margin = 100 -- The minimum distance from the wall that a Kurve can spawn.
@@ -78,12 +79,4 @@ type alias WorldConfig =
 
 type alias ReplayConfig =
     { skipStepInMs : Int
-    }
-
-
-type alias HoleConfig =
-    { minInterval : Distance
-    , maxInterval : Distance
-    , minSize : Distance
-    , maxSize : Distance
     }

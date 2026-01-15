@@ -350,7 +350,7 @@ updateKurve config turningState occupiedPixels kurve =
 
         newHoleStatus : HoleStatus
         newHoleStatus =
-            updateHoleStatus config.kurves kurve.state.holeStatus
+            updateHoleStatus (World.distanceToTicks config.kurves.tickrate config.kurves.speed) kurve.state.holeStatus
 
         newKurveState : Kurve.State
         newKurveState =

@@ -1,16 +1,35 @@
 module Holes exposing
-    ( HoleStatus(..)
+    ( HoleConfig(..)
+    , HoleStatus(..)
     , Holiness(..)
     , RandomHoleStatus
-    , generateInitialUnholyTicks
     , getHoliness
+    , makeInitialHoleStatus
     , updateHoleStatus
     )
 
-import Config exposing (HoleConfig, KurveConfig)
 import Random
 import Types.Distance as Distance exposing (Distance, computeDistanceBetweenCenters)
-import World exposing (distanceToTicks)
+
+
+type HoleConfig
+    = UseRandomHoles RandomHoleConfig
+    | UsePeriodicHoles PeriodicHoleConfig
+    | UseNoHoles
+
+
+type alias RandomHoleConfig =
+    { minInterval : Distance
+    , maxInterval : Distance
+    , minSize : Distance
+    , maxSize : Distance
+    }
+
+
+type alias PeriodicHoleConfig =
+    { interval : Distance
+    , size : Distance
+    }
 
 
 type HoleStatus
@@ -23,14 +42,14 @@ type alias RandomHoleStatus =
     { holiness : Holiness
     , ticksLeft : Int
     , holeSeed : Random.Seed
+    , randomHoleConfig : RandomHoleConfig
     }
 
 
 type alias PeriodicHoleStatus =
     { holiness : Holiness
     , ticksLeft : Int
-    , interval : Distance
-    , size : Distance
+    , periodicHoleConfig : PeriodicHoleConfig
     }
 
 
@@ -52,32 +71,32 @@ type Holiness
     | Unholy
 
 
-updateHoleStatus : KurveConfig -> HoleStatus -> HoleStatus
-updateHoleStatus kurveConfig holeStatus =
+updateHoleStatus : (Distance -> Int) -> HoleStatus -> HoleStatus
+updateHoleStatus distanceToTicks holeStatus =
     case holeStatus of
         RandomHoles randomHoleStatus ->
-            RandomHoles (updateRandomHoleStatus kurveConfig randomHoleStatus)
+            RandomHoles (updateRandomHoleStatus distanceToTicks randomHoleStatus)
 
         PeriodicHoles periodicHoleStatus ->
-            PeriodicHoles (updatePeriodicHoleStatus kurveConfig periodicHoleStatus)
+            PeriodicHoles (updatePeriodicHoleStatus distanceToTicks periodicHoleStatus)
 
         NoHoles ->
             NoHoles
 
 
-updateRandomHoleStatus : KurveConfig -> RandomHoleStatus -> RandomHoleStatus
-updateRandomHoleStatus kurveConfig randomHoleStatus =
+updateRandomHoleStatus : (Distance -> Int) -> RandomHoleStatus -> RandomHoleStatus
+updateRandomHoleStatus distanceToTicks randomHoleStatus =
     case ( randomHoleStatus.holiness, randomHoleStatus.ticksLeft ) of
         ( Holy, 0 ) ->
             let
                 unholyTicksGenerator : Random.Generator Int
                 unholyTicksGenerator =
-                    generateHoleSpacing kurveConfig.holes |> Random.map (distanceToTicks kurveConfig.tickrate kurveConfig.speed)
+                    generateHoleSpacing randomHoleStatus.randomHoleConfig |> Random.map distanceToTicks
 
                 ( unholyTicks, newSeed ) =
                     Random.step unholyTicksGenerator randomHoleStatus.holeSeed
             in
-            { holiness = Unholy, ticksLeft = unholyTicks, holeSeed = newSeed }
+            { randomHoleStatus | holiness = Unholy, ticksLeft = unholyTicks, holeSeed = newSeed }
 
         ( Holy, ticksLeft ) ->
             { randomHoleStatus | ticksLeft = ticksLeft - 1 }
@@ -86,27 +105,27 @@ updateRandomHoleStatus kurveConfig randomHoleStatus =
             let
                 holyTicksGenerator : Random.Generator Int
                 holyTicksGenerator =
-                    generateHoleSize kurveConfig.holes |> Random.map (computeDistanceBetweenCenters >> distanceToTicks kurveConfig.tickrate kurveConfig.speed)
+                    generateHoleSize randomHoleStatus.randomHoleConfig |> Random.map (computeDistanceBetweenCenters >> distanceToTicks)
 
                 ( holyTicks, newSeed ) =
                     Random.step holyTicksGenerator randomHoleStatus.holeSeed
             in
-            { holiness = Holy, ticksLeft = holyTicks, holeSeed = newSeed }
+            { randomHoleStatus | holiness = Holy, ticksLeft = holyTicks, holeSeed = newSeed }
 
         ( Unholy, ticksLeft ) ->
             { randomHoleStatus | ticksLeft = ticksLeft - 1 }
 
 
-updatePeriodicHoleStatus : KurveConfig -> PeriodicHoleStatus -> PeriodicHoleStatus
-updatePeriodicHoleStatus kurveConfig periodicHoleStatus =
+updatePeriodicHoleStatus : (Distance -> Int) -> PeriodicHoleStatus -> PeriodicHoleStatus
+updatePeriodicHoleStatus distanceToTicks periodicHoleStatus =
     case ( periodicHoleStatus.holiness, periodicHoleStatus.ticksLeft ) of
         ( Holy, 0 ) ->
             { periodicHoleStatus
                 | holiness = Unholy
                 , ticksLeft =
-                    periodicHoleStatus.interval
+                    periodicHoleStatus.periodicHoleConfig.interval
                         |> computeDistanceBetweenCenters
-                        |> distanceToTicks kurveConfig.tickrate kurveConfig.speed
+                        |> distanceToTicks
             }
 
         ( Holy, ticksLeft ) ->
@@ -116,25 +135,50 @@ updatePeriodicHoleStatus kurveConfig periodicHoleStatus =
             { periodicHoleStatus
                 | holiness = Holy
                 , ticksLeft =
-                    periodicHoleStatus.size
+                    periodicHoleStatus.periodicHoleConfig.size
                         |> computeDistanceBetweenCenters
-                        |> distanceToTicks kurveConfig.tickrate kurveConfig.speed
+                        |> distanceToTicks
             }
 
         ( Unholy, ticksLeft ) ->
             { periodicHoleStatus | ticksLeft = ticksLeft - 1 }
 
 
-generateHoleSpacing : HoleConfig -> Random.Generator Distance
+generateHoleSpacing : RandomHoleConfig -> Random.Generator Distance
 generateHoleSpacing holeConfig =
     Distance.generate holeConfig.minInterval holeConfig.maxInterval
 
 
-generateHoleSize : HoleConfig -> Random.Generator Distance
+generateHoleSize : RandomHoleConfig -> Random.Generator Distance
 generateHoleSize holeConfig =
     Distance.generate holeConfig.minSize holeConfig.maxSize
 
 
-generateInitialUnholyTicks : KurveConfig -> Random.Generator Int
-generateInitialUnholyTicks { tickrate, speed, holes } =
-    generateHoleSpacing holes |> Random.map (distanceToTicks tickrate speed)
+makeInitialHoleStatus : (Distance -> Int) -> HoleConfig -> Random.Seed -> HoleStatus
+makeInitialHoleStatus distanceToTicks holeConfig seed =
+    case holeConfig of
+        UseRandomHoles randomHoleConfig ->
+            let
+                spacingGenerator : Random.Generator Distance
+                spacingGenerator =
+                    generateHoleSpacing randomHoleConfig
+
+                ( unholyDistance, newSeed ) =
+                    Random.step spacingGenerator seed
+            in
+            RandomHoles
+                { holiness = Unholy
+                , ticksLeft = distanceToTicks unholyDistance
+                , holeSeed = newSeed
+                , randomHoleConfig = randomHoleConfig
+                }
+
+        UsePeriodicHoles periodicHoleConfig ->
+            PeriodicHoles
+                { holiness = Unholy
+                , ticksLeft = distanceToTicks periodicHoleConfig.interval
+                , periodicHoleConfig = periodicHoleConfig
+                }
+
+        UseNoHoles ->
+            NoHoles
