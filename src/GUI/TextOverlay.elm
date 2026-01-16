@@ -1,6 +1,6 @@
 module GUI.TextOverlay exposing (textOverlay)
 
-import Color
+import Colors
 import GUI.Text
 import Game exposing (GameState(..), LiveOrReplay(..), PausedOrNot(..))
 import Html exposing (Html, div, p)
@@ -38,7 +38,7 @@ content gameState =
 
 pressSpaceToContinue : Html msg
 pressSpaceToContinue =
-    p [] <| GUI.Text.string (GUI.Text.Size 2) Color.white "Press Space to continue"
+    p [] <| GUI.Text.string (GUI.Text.Size 2) Colors.white "Press Space to continue"
 
 
 replayIndicator : Html msg
@@ -46,4 +46,4 @@ replayIndicator =
     p
         [ Attr.class "textInUpperLeftCorner"
         ]
-        (GUI.Text.string (GUI.Text.Size 2) Color.white "R")
+        (GUI.Text.string (GUI.Text.Size 2) Colors.white "R")

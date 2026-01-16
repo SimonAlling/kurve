@@ -4,8 +4,6 @@ module TestScenarioHelpers exposing
     , RefreshRate
     , RoundEndingInterpretation
     , RoundOutcome
-    , defaultConfigWithSpeed
-    , defaultConfigWithHardcodedHoles
     , makeUserInteractions
     , makeZombieKurve
     , playerIds
@@ -14,16 +12,14 @@ module TestScenarioHelpers exposing
     )
 
 import Color
-import Config exposing (Config, KurveConfig)
 import Effect exposing (Effect)
+import Holes exposing (HoleStatus(..))
 import Random
 import Round exposing (RoundInitialState)
 import Set
 import Types.Angle exposing (Angle(..))
-import Types.Distance exposing (Distance)
-import Types.Kurve as Kurve exposing (HoleStatus(..), Kurve, UserInteraction(..))
+import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..))
 import Types.PlayerId exposing (PlayerId)
-import Types.Speed exposing (Speed)
 import Types.Tick as Tick exposing (Tick)
 import Types.TurningState exposing (TurningState)
 import World exposing (DrawingPosition)
@@ -58,7 +54,7 @@ makeZombieKurve { color, id, state } =
     , stateAtSpawn =
         { position = ( 0, 0 )
         , direction = Angle (pi / 2)
-        , holeStatus = Unholy 0
+        , holeStatus = NoHoles
         }
     , reversedInteractions = []
     }
@@ -147,46 +143,3 @@ type EffectsExpectation
 
 type alias RefreshRate =
     Int
-
-
-defaultConfigWithSpeed : Speed -> Config
-defaultConfigWithSpeed speed =
-    let
-        defaultConfig : Config
-        defaultConfig =
-            Config.default
-
-        defaultKurveConfig : KurveConfig
-        defaultKurveConfig =
-            defaultConfig.kurves
-    in
-    { defaultConfig
-        | kurves =
-            { defaultKurveConfig
-                | speed = speed
-            }
-    }
-
-
-defaultConfigWithHardcodedHoles : Distance -> Distance -> Config
-defaultConfigWithHardcodedHoles interval size =
-    let
-        defaultConfig : Config
-        defaultConfig =
-            Config.default
-
-        defaultKurveConfig : KurveConfig
-        defaultKurveConfig =
-            defaultConfig.kurves
-    in
-    { defaultConfig
-        | kurves =
-            { defaultKurveConfig
-                | holes =
-                    { minInterval = interval
-                    , maxInterval = interval
-                    , minSize = size
-                    , maxSize = size
-                    }
-            }
-    }

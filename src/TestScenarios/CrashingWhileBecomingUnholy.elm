@@ -1,28 +1,36 @@
 module TestScenarios.CrashingWhileBecomingUnholy exposing (config, expectedOutcome, spawnedKurves)
 
-import Color
+import Colors
 import Config exposing (Config)
 import Effect exposing (Effect(..))
-import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, defaultConfigWithHardcodedHoles, makeZombieKurve, playerIds, tickNumber)
+import Holes exposing (HoleStatus(..), Holiness(..))
+import Random
+import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Distance exposing (Distance(..))
-import Types.Kurve exposing (HoleStatus(..), Kurve)
+import Types.Kurve exposing (Kurve)
 
 
 config : Config
 config =
-    defaultConfigWithHardcodedHoles (Distance 100) (Distance 3)
+    Config.default
+        |> Config.withHardcodedHoles (Distance 100) (Distance 3)
 
 
 green : Kurve
 green =
     makeZombieKurve
-        { color = Color.green
+        { color = Colors.green
         , id = playerIds.green
         , state =
             { position = ( 546, 100 )
             , direction = Angle (pi / 2)
-            , holeStatus = Unholy 2
+            , holeStatus =
+                RandomHoles
+                    { holiness = Unholy
+                    , ticksLeft = 2
+                    , holeSeed = Random.initialSeed 0
+                    }
             }
         }
 
@@ -39,7 +47,7 @@ expectedOutcome =
         { aliveAtTheEnd = []
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 557, topEdge = 100 }
+              , theDrawingPositionItNeverMadeItTo = { x = 557, y = 100 }
               }
             ]
         }
@@ -52,7 +60,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Color.green, { leftEdge = 546, topEdge = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 546, y = 100 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -60,7 +68,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Color.green, { leftEdge = 546, topEdge = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 546, y = 100 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -68,62 +76,62 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Color.green, { leftEdge = 546, topEdge = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 546, y = 100 } ) ]
                 }
 
             -- Draw spawn position permanently:
             , DrawSomething
-                { bodyDrawing = [ ( Color.green, { leftEdge = 546, topEdge = 100 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 546, y = 100 } ) ]
                 , headDrawing = []
                 }
 
             -- Start moving:
             , DrawSomething
-                { bodyDrawing = [ ( Color.green, { leftEdge = 547, topEdge = 100 } ) ]
-                , headDrawing = [ ( Color.green, { leftEdge = 547, topEdge = 100 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 547, y = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 547, y = 100 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Color.green, { leftEdge = 548, topEdge = 100 } ) ]
-                , headDrawing = [ ( Color.green, { leftEdge = 548, topEdge = 100 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 548, y = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 548, y = 100 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Color.green, { leftEdge = 549, topEdge = 100 } ) ]
-                , headDrawing = [ ( Color.green, { leftEdge = 549, topEdge = 100 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 549, y = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 549, y = 100 } ) ]
                 }
 
             -- Start of hole:
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Color.green, { leftEdge = 550, topEdge = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 550, y = 100 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Color.green, { leftEdge = 551, topEdge = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 551, y = 100 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Color.green, { leftEdge = 552, topEdge = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 552, y = 100 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Color.green, { leftEdge = 553, topEdge = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 553, y = 100 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Color.green, { leftEdge = 554, topEdge = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 554, y = 100 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Color.green, { leftEdge = 555, topEdge = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 555, y = 100 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Color.green, { leftEdge = 556, topEdge = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 556, y = 100 } ) ]
                 }
 
             -- Draw death position permanently:
             , DrawSomething
-                { bodyDrawing = [ ( Color.green, { leftEdge = 556, topEdge = 100 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 556, y = 100 } ) ]
                 , headDrawing = []
                 }
             ]

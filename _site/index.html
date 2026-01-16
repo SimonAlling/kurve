@@ -46,10 +46,10 @@
     <script>
         const app = Elm.Main.init({ node: document.getElementById("elm-node") });
 
-        function drawSquare(canvas, { position: { leftEdge, topEdge }, thickness, color }) {
+        function drawSquare(canvas, { position: { x, y }, thickness, color }) {
             const context = canvas.getContext("2d");
             context.fillStyle = color;
-            context.fillRect(leftEdge, topEdge, thickness, thickness);
+            context.fillRect(x, y, thickness, thickness);
         }
 
         function clearRectangleIfCanvasExists(canvas, { x, y, width, height }) {

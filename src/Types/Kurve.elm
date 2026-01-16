@@ -1,6 +1,5 @@
 module Types.Kurve exposing
     ( Fate(..)
-    , HoleStatus(..)
     , Kurve
     , State
     , UserInteraction(..)
@@ -9,6 +8,7 @@ module Types.Kurve exposing
     )
 
 import Color exposing (Color)
+import Holes exposing (HoleStatus)
 import Set exposing (Set)
 import Types.Angle exposing (Angle)
 import Types.PlayerId exposing (PlayerId)
@@ -46,13 +46,6 @@ type alias State =
 type Fate
     = Lives
     | Dies
-
-
-{-| In both cases, the integer represent the number of ticks left in the current state.
--}
-type HoleStatus
-    = Holy Int
-    | Unholy Int
 
 
 reset : Kurve -> Kurve

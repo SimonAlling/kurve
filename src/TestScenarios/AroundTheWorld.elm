@@ -1,10 +1,11 @@
 module TestScenarios.AroundTheWorld exposing (config, expectedOutcome, spawnedKurves)
 
-import Color
+import Colors
 import Config exposing (Config)
+import Holes exposing (HoleStatus(..))
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeUserInteractions, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
-import Types.Kurve exposing (HoleStatus(..), Kurve)
+import Types.Kurve exposing (Kurve)
 import Types.TurningState exposing (TurningState(..))
 
 
@@ -16,12 +17,13 @@ config =
 greenZombie : Kurve
 greenZombie =
     makeZombieKurve
-        { color = Color.green
+        { color = Colors.green
         , id = playerIds.green
         , state =
             { position = ( 3.5, 0.5 )
             , direction = Angle (pi / 2)
-            , holeStatus = Unholy 60000
+            , holeStatus =
+                NoHoles
             }
         }
 
@@ -54,7 +56,7 @@ expectedOutcome =
         { aliveAtTheEnd = []
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 0, topEdge = -1 }
+              , theDrawingPositionItNeverMadeItTo = { x = 0, y = -1 }
               }
             ]
         }

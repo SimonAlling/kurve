@@ -1,4 +1,4 @@
-module Drawing exposing (WhatToDraw, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, getColorAndDrawingPosition, mergeWhatToDraw)
+module Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily, getColorAndDrawingPosition, mergeWhatToDraw)
 
 import Color exposing (Color)
 import Types.Kurve exposing (Kurve)
@@ -30,17 +30,11 @@ drawSpawnsPermanently kurves =
     }
 
 
-drawSpawnIfAndOnlyIf : Bool -> Kurve -> List Kurve -> WhatToDraw
-drawSpawnIfAndOnlyIf shouldBeVisible kurve alreadySpawnedKurves =
-    if shouldBeVisible then
-        { headDrawing = kurve :: alreadySpawnedKurves |> List.map getColorAndDrawingPosition
-        , bodyDrawing = []
-        }
-
-    else
-        { headDrawing = alreadySpawnedKurves |> List.map getColorAndDrawingPosition
-        , bodyDrawing = []
-        }
+drawSpawnsTemporarily : List Kurve -> WhatToDraw
+drawSpawnsTemporarily kurves =
+    { headDrawing = kurves |> List.map getColorAndDrawingPosition
+    , bodyDrawing = []
+    }
 
 
 getColorAndDrawingPosition : Kurve -> ( Color, DrawingPosition )
