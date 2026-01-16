@@ -5,6 +5,7 @@ module Config exposing
     , SpawnConfig
     , WorldConfig
     , default
+    , withSpeed
     )
 
 import Types.Distance exposing (Distance(..))
@@ -86,4 +87,19 @@ type alias HoleConfig =
     , maxInterval : Distance
     , minSize : Distance
     , maxSize : Distance
+    }
+
+
+withSpeed : Speed -> Config -> Config
+withSpeed speed config =
+    let
+        kurveConfig : KurveConfig
+        kurveConfig =
+            config.kurves
+    in
+    { config
+        | kurves =
+            { kurveConfig
+                | speed = speed
+            }
     }

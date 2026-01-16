@@ -4,7 +4,7 @@ import Colors
 import Config exposing (Config)
 import Effect exposing (Effect(..))
 import Holes exposing (HoleStatus(..))
-import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, defaultConfigWithSpeed, makeZombieKurve, playerIds, tickNumber)
+import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (Kurve)
 import Types.Speed exposing (Speed(..))
@@ -12,7 +12,8 @@ import Types.Speed exposing (Speed(..))
 
 config : Config
 config =
-    defaultConfigWithSpeed (Speed 180)
+    Config.default
+        |> Config.withSpeed (Speed 180)
 
 
 green : Kurve
