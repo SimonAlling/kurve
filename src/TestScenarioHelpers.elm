@@ -4,7 +4,6 @@ module TestScenarioHelpers exposing
     , RefreshRate
     , RoundEndingInterpretation
     , RoundOutcome
-    , defaultConfigWithSpeed
     , makeUserInteractions
     , makeZombieKurve
     , playerIds
@@ -13,14 +12,12 @@ module TestScenarioHelpers exposing
     )
 
 import Color
-import Config exposing (Config, KurveConfig)
 import Effect exposing (Effect)
 import Random
 import Round exposing (RoundInitialState)
 import Set
 import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..))
 import Types.PlayerId exposing (PlayerId)
-import Types.Speed exposing (Speed)
 import Types.Tick as Tick exposing (Tick)
 import Types.TurningState exposing (TurningState)
 import World exposing (DrawingPosition)
@@ -140,22 +137,3 @@ type EffectsExpectation
 
 type alias RefreshRate =
     Int
-
-
-defaultConfigWithSpeed : Speed -> Config
-defaultConfigWithSpeed speed =
-    let
-        defaultConfig : Config
-        defaultConfig =
-            Config.default
-
-        defaultKurveConfig : KurveConfig
-        defaultKurveConfig =
-            defaultConfig.kurves
-    in
-    { defaultConfig
-        | kurves =
-            { defaultKurveConfig
-                | speed = speed
-            }
-    }

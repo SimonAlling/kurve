@@ -7,6 +7,7 @@ module Config exposing
     , SpawnConfig
     , WorldConfig
     , default
+    , withSpeed
     )
 
 import Types.Distance exposing (Distance(..))
@@ -101,4 +102,19 @@ type alias RandomHoleConfig =
 type alias PeriodicHoleConfig =
     { interval : Distance
     , size : Distance
+    }
+
+
+withSpeed : Speed -> Config -> Config
+withSpeed speed config =
+    let
+        kurveConfig : KurveConfig
+        kurveConfig =
+            config.kurves
+    in
+    { config
+        | kurves =
+            { kurveConfig
+                | speed = speed
+            }
     }
