@@ -2,7 +2,7 @@ module Holes exposing
     ( HoleStatus(..)
     , Holiness(..)
     , RandomHoleStatus
-    , generateInitialUnholyTicks
+    , generateUnholyTicks
     , getHoliness
     , updateHoleStatus
     )
@@ -55,12 +55,8 @@ updateRandomHoleStatus kurveConfig randomHoleStatus =
     case ( randomHoleStatus.holiness, randomHoleStatus.ticksLeft ) of
         ( Holy, 0 ) ->
             let
-                unholyTicksGenerator : Random.Generator Int
-                unholyTicksGenerator =
-                    generateHoleSpacing kurveConfig.holes |> Random.map (distanceToTicks kurveConfig.tickrate kurveConfig.speed)
-
                 ( unholyTicks, newSeed ) =
-                    Random.step unholyTicksGenerator randomHoleStatus.holeSeed
+                    Random.step (generateUnholyTicks kurveConfig) randomHoleStatus.holeSeed
             in
             { holiness = Unholy, ticksLeft = unholyTicks, holeSeed = newSeed }
 
@@ -69,12 +65,8 @@ updateRandomHoleStatus kurveConfig randomHoleStatus =
 
         ( Unholy, 0 ) ->
             let
-                holyTicksGenerator : Random.Generator Int
-                holyTicksGenerator =
-                    generateHoleSize kurveConfig.holes |> Random.map (computeDistanceBetweenCenters >> distanceToTicks kurveConfig.tickrate kurveConfig.speed)
-
                 ( holyTicks, newSeed ) =
-                    Random.step holyTicksGenerator randomHoleStatus.holeSeed
+                    Random.step (generateHolyTicks kurveConfig) randomHoleStatus.holeSeed
             in
             { holiness = Holy, ticksLeft = holyTicks, holeSeed = newSeed }
 
@@ -92,6 +84,11 @@ generateHoleSize holeConfig =
     Distance.generate holeConfig.minSize holeConfig.maxSize
 
 
-generateInitialUnholyTicks : KurveConfig -> Random.Generator Int
-generateInitialUnholyTicks { tickrate, speed, holes } =
+generateUnholyTicks : KurveConfig -> Random.Generator Int
+generateUnholyTicks { tickrate, speed, holes } =
     generateHoleSpacing holes |> Random.map (distanceToTicks tickrate speed)
+
+
+generateHolyTicks : KurveConfig -> Random.Generator Int
+generateHolyTicks { tickrate, speed, holes } =
+    generateHoleSize holes |> Random.map (computeDistanceBetweenCenters >> distanceToTicks tickrate speed)

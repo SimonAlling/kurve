@@ -2,7 +2,7 @@ module Spawn exposing (generateKurves)
 
 import Config exposing (Config, SpawnConfig, WorldConfig)
 import Dict
-import Holes exposing (HoleStatus(..), Holiness(..), generateInitialUnholyTicks)
+import Holes exposing (HoleStatus(..), Holiness(..), generateUnholyTicks)
 import Input exposing (toStringSetControls)
 import Players exposing (ParticipatingPlayers)
 import Random
@@ -100,7 +100,7 @@ generateKurveState config numberOfPlayers existingPositions =
         )
         safeSpawnPosition
         (generateSpawnAngle config.spawn.angleInterval)
-        (generateInitialUnholyTicks config.kurves)
+        (generateUnholyTicks config.kurves)
         Random.independentSeed
 
 
