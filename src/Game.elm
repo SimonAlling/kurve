@@ -298,37 +298,41 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
 
         positionsToDraw : List DrawingPosition
         positionsToDraw =
-            case ( evaluatedStatus, newHoliness, oldHoliness ) of
-                ( Lives, Holy, _ ) ->
+            case ( evaluatedStatus, newHoliness ) of
+                ( Lives, Holy ) ->
                     -- The Kurve lives and is holy. Nothing to draw.
                     []
 
-                ( Lives, Unholy, _ ) ->
+                ( Lives, Unholy ) ->
                     -- The Kurve lives and is solid. Draw everything it wanted to draw.
                     checkedPositionsReversed
 
-                ( Dies, Holy, Holy ) ->
-                    -- The Kurve died in the middle of a hole. Draw the last position it could be at.
-                    -- If the Kurve couldn't move at all in this tick, then the last position where the Kurve could be before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
-                    -- Otherwise, the last position where the Kurve could be is the last checked position before death occurred.
-                    List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
+                ( Dies, Holy ) ->
+                    case oldHoliness of
+                        Holy ->
+                            -- The Kurve died in the middle of a hole. Draw the last position it could be at.
+                            -- If the Kurve couldn't move at all in this tick, then the last position where the Kurve could be before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
+                            -- Otherwise, the last position where the Kurve could be is the last checked position before death occurred.
+                            List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
 
-                ( Dies, Holy, Unholy ) ->
-                    -- The Kurve died as it opened a hole. Draw the last position it could be at, but no need to default to the starting point because it must have been drawn in the previous tick.
-                    List.take 1 checkedPositionsReversed
+                        Unholy ->
+                            -- The Kurve died as it opened a hole. Draw the last position it could be at, but no need to default to the starting point because it must have been drawn in the previous tick.
+                            List.take 1 checkedPositionsReversed
 
-                ( Dies, Unholy, Holy ) ->
-                    -- The Kurve died as it closed a hole. Draw all positions it could be at.
-                    -- If the Kurve couldn't move at all in this tick, then the last position where the Kurve could be before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
-                    if List.isEmpty checkedPositionsReversed then
-                        List.singleton startingPointAsDrawingPosition
+                ( Dies, Unholy ) ->
+                    case oldHoliness of
+                        Holy ->
+                            -- The Kurve died as it closed a hole. Draw all positions it could be at.
+                            -- If the Kurve couldn't move at all in this tick, then the last position where the Kurve could be before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
+                            if List.isEmpty checkedPositionsReversed then
+                                List.singleton startingPointAsDrawingPosition
 
-                    else
-                        checkedPositionsReversed
+                            else
+                                checkedPositionsReversed
 
-                ( Dies, Unholy, Unholy ) ->
-                    -- The Kurve died in the middle of a solid segment. Draw all positions it could be at.
-                    checkedPositionsReversed
+                        Unholy ->
+                            -- The Kurve died in the middle of a solid segment. Draw all positions it could be at.
+                            checkedPositionsReversed
     in
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
