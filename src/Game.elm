@@ -226,10 +226,10 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
         kurvesAfterCheckingThisKurve : Kurves -> Kurves
         kurvesAfterCheckingThisKurve =
             case fate of
-                Kurve.Dies ->
+                Dies ->
                     modifyDead ((::) checkedKurve)
 
-                Kurve.Lives ->
+                Lives ->
                     modifyAlive ((::) checkedKurve)
     in
     ( kurvesAfterCheckingThisKurve checkedKurves
@@ -238,7 +238,7 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
     )
 
 
-evaluateMove : Config -> Position -> Position -> Set Pixel -> Holiness -> Holiness -> ( List DrawingPosition, Kurve.Fate )
+evaluateMove : Config -> Position -> Position -> Set Pixel -> Holiness -> Holiness -> ( List DrawingPosition, Fate )
 evaluateMove config startingPoint desiredEndPoint occupiedPixels oldHoliness newHoliness =
     let
         startingPointAsDrawingPosition : DrawingPosition
@@ -249,11 +249,11 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels oldHoliness new
         positionsToCheck =
             World.desiredDrawingPositions startingPoint desiredEndPoint
 
-        checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Kurve.Fate )
+        checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Fate )
         checkPositions checked lastChecked remaining =
             case remaining of
                 [] ->
-                    ( checked, Kurve.Lives )
+                    ( checked, Lives )
 
                 current :: rest ->
                     let
@@ -279,7 +279,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels oldHoliness new
                             crashesIntoWall || crashesIntoKurve
                     in
                     if dies then
-                        ( checked, Kurve.Dies )
+                        ( checked, Dies )
 
                     else
                         checkPositions (current :: checked) current rest
@@ -319,7 +319,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels oldHoliness new
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
 
-updateKurve : Config -> TurningState -> Set Pixel -> Kurve -> ( List DrawingPosition, Kurve, Kurve.Fate )
+updateKurve : Config -> TurningState -> Set Pixel -> Kurve -> ( List DrawingPosition, Kurve, Fate )
 updateKurve config turningState occupiedPixels kurve =
     let
         distanceTraveledSinceLastTick : Float
