@@ -306,9 +306,9 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
                     checkedPositionsReversed
 
                 ( Dies, Holy, Holy ) ->
-                    -- The Kurve's head must always be drawn when they die, even if they are in the middle of a hole.
-                    -- If the Kurve couldn't draw at all in this tick, then the last position where the Kurve could draw before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
-                    -- Otherwise, the last position where the Kurve could draw is the last checked position before death occurred.
+                    -- The last position the Kurve could be at must always be permanently drawn when they die, even if they are in the middle of a hole.
+                    -- If the Kurve couldn't move at all in this tick, then the last position where the Kurve could be before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
+                    -- Otherwise, the last position where the Kurve could be is the last checked position before death occurred.
                     List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
 
                 ( Dies, Holy, Unholy ) ->
