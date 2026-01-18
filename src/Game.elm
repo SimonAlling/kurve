@@ -238,8 +238,14 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
     )
 
 
-evaluateMove : Config -> Position -> Position -> Set Pixel -> Holiness -> Holiness -> ( List DrawingPosition, Fate )
-evaluateMove config startingPoint desiredEndPoint occupiedPixels newHoliness oldHoliness =
+type alias HolinessTransition =
+    { oldHoliness : Holiness
+    , newHoliness : Holiness
+    }
+
+
+evaluateMove : Config -> Position -> Position -> Set Pixel -> HolinessTransition -> ( List DrawingPosition, Fate )
+evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransition =
     let
         startingPointAsDrawingPosition : DrawingPosition
         startingPointAsDrawingPosition =
@@ -286,6 +292,9 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels newHoliness old
 
         ( checkedPositionsReversed, evaluatedStatus ) =
             checkPositions [] startingPointAsDrawingPosition positionsToCheck
+
+        { oldHoliness, newHoliness } =
+            holinessTransition
 
         positionsToDraw : List DrawingPosition
         positionsToDraw =
@@ -349,8 +358,9 @@ updateKurve config turningState occupiedPixels kurve =
                 kurve.state.position
                 newPosition
                 occupiedPixels
-                (getHoliness newHoleStatus)
-                (getHoliness kurve.state.holeStatus)
+                { oldHoliness = getHoliness kurve.state.holeStatus
+                , newHoliness = getHoliness newHoleStatus
+                }
 
         newHoleStatus : HoleStatus
         newHoleStatus =
