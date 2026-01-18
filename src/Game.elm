@@ -31,7 +31,7 @@ import Thickness exposing (theThickness)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle)
 import Types.FrameTime exposing (LeftoverFrameTime)
-import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..), modifyReversedInteractions)
+import Types.Kurve as Kurve exposing (Fate(..), Kurve, UserInteraction(..), modifyReversedInteractions)
 import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -284,46 +284,43 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels oldHoliness new
                     else
                         checkPositions (current :: checked) current rest
 
-        wasHoly : Bool
-        wasHoly =
-            case oldHoliness of
-                Holy ->
-                    True
-
-                Unholy ->
-                    False
-
-        isHoly : Bool
-        isHoly =
-            case newHoliness of
-                Holy ->
-                    True
-
-                Unholy ->
-                    False
-
         ( checkedPositionsReversed, evaluatedStatus ) =
             checkPositions [] startingPointAsDrawingPosition positionsToCheck
 
         positionsToDraw : List DrawingPosition
         positionsToDraw =
-            case evaluatedStatus of
-                Kurve.Lives ->
-                    if isHoly then
-                        []
+            case ( evaluatedStatus, oldHoliness, newHoliness ) of
+                ( Lives, Unholy, Unholy ) ->
+                    checkedPositionsReversed
 
-                    else
-                        checkedPositionsReversed
+                ( Lives, Unholy, Holy ) ->
+                    []
 
-                Kurve.Dies ->
-                    if wasHoly then
-                        -- The Kurve's head must always be drawn when they die, even if they are in the middle of a hole.
-                        -- If the Kurve couldn't draw at all in this tick, then the last position where the Kurve could draw before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
-                        -- Otherwise, the last position where the Kurve could draw is the last checked position before death occurred.
-                        List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
+                ( Lives, Holy, Unholy ) ->
+                    checkedPositionsReversed
 
-                    else
-                        checkedPositionsReversed
+                ( Lives, Holy, Holy ) ->
+                    []
+
+                ( Dies, Unholy, Unholy ) ->
+                    checkedPositionsReversed
+
+                ( Dies, Unholy, Holy ) ->
+                    List.head checkedPositionsReversed |> Maybe.map List.singleton |> Maybe.withDefault []
+
+                ( Dies, Holy, Unholy ) ->
+                    case checkedPositionsReversed of
+                        [] ->
+                            List.singleton startingPointAsDrawingPosition
+
+                        _ ->
+                            checkedPositionsReversed
+
+                ( Dies, Holy, Holy ) ->
+                    -- The Kurve's head must always be drawn when they die, even if they are in the middle of a hole.
+                    -- If the Kurve couldn't draw at all in this tick, then the last position where the Kurve could draw before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
+                    -- Otherwise, the last position where the Kurve could draw is the last checked position before death occurred.
+                    List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
     in
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
