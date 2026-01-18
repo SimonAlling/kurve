@@ -290,14 +290,20 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels oldHoliness new
         positionsToDraw : List DrawingPosition
         positionsToDraw =
             case ( evaluatedStatus, oldHoliness, newHoliness ) of
-                ( Lives, _, Unholy ) ->
-                    checkedPositionsReversed
-
                 ( Lives, _, Holy ) ->
                     []
 
-                ( Dies, Unholy, Unholy ) ->
+                ( Lives, _, Unholy ) ->
                     checkedPositionsReversed
+
+                ( Dies, Holy, Holy ) ->
+                    -- The Kurve's head must always be drawn when they die, even if they are in the middle of a hole.
+                    -- If the Kurve couldn't draw at all in this tick, then the last position where the Kurve could draw before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
+                    -- Otherwise, the last position where the Kurve could draw is the last checked position before death occurred.
+                    List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
+
+                ( Dies, Unholy, Holy ) ->
+                    List.head checkedPositionsReversed |> Maybe.map List.singleton |> Maybe.withDefault []
 
                 ( Dies, Holy, Unholy ) ->
                     case checkedPositionsReversed of
@@ -307,14 +313,8 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels oldHoliness new
                         _ ->
                             checkedPositionsReversed
 
-                ( Dies, Unholy, Holy ) ->
-                    List.head checkedPositionsReversed |> Maybe.map List.singleton |> Maybe.withDefault []
-
-                ( Dies, Holy, Holy ) ->
-                    -- The Kurve's head must always be drawn when they die, even if they are in the middle of a hole.
-                    -- If the Kurve couldn't draw at all in this tick, then the last position where the Kurve could draw before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
-                    -- Otherwise, the last position where the Kurve could draw is the last checked position before death occurred.
-                    List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
+                ( Dies, Unholy, Unholy ) ->
+                    checkedPositionsReversed
     in
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
