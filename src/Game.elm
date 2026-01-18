@@ -312,7 +312,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
                     List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
 
                 ( Dies, Holy, Unholy ) ->
-                    List.head checkedPositionsReversed |> Maybe.map List.singleton |> Maybe.withDefault []
+                    List.take 1 checkedPositionsReversed
 
                 ( Dies, Unholy, Holy ) ->
                     if List.isEmpty checkedPositionsReversed then
