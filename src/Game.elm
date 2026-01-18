@@ -238,8 +238,8 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
     )
 
 
-evaluateMove : Config -> Position -> Position -> Set Pixel -> Holiness -> ( List DrawingPosition, Kurve.Fate )
-evaluateMove config startingPoint desiredEndPoint occupiedPixels holiness =
+evaluateMove : Config -> Position -> Position -> Set Pixel -> Holiness -> Holiness -> ( List DrawingPosition, Kurve.Fate )
+evaluateMove config startingPoint desiredEndPoint occupiedPixels oldHoliness newHoliness =
     let
         startingPointAsDrawingPosition : DrawingPosition
         startingPointAsDrawingPosition =
@@ -284,9 +284,18 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holiness =
                     else
                         checkPositions (current :: checked) current rest
 
+        wasHoly : Bool
+        wasHoly =
+            case oldHoliness of
+                Holy ->
+                    True
+
+                Unholy ->
+                    False
+
         isHoly : Bool
         isHoly =
-            case holiness of
+            case newHoliness of
                 Holy ->
                     True
 
@@ -298,19 +307,23 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holiness =
 
         positionsToDraw : List DrawingPosition
         positionsToDraw =
-            if isHoly then
-                case evaluatedStatus of
-                    Kurve.Lives ->
+            case evaluatedStatus of
+                Kurve.Lives ->
+                    if isHoly then
                         []
 
-                    Kurve.Dies ->
+                    else
+                        checkedPositionsReversed
+
+                Kurve.Dies ->
+                    if wasHoly then
                         -- The Kurve's head must always be drawn when they die, even if they are in the middle of a hole.
                         -- If the Kurve couldn't draw at all in this tick, then the last position where the Kurve could draw before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
                         -- Otherwise, the last position where the Kurve could draw is the last checked position before death occurred.
                         List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
 
-            else
-                checkedPositionsReversed
+                    else
+                        checkedPositionsReversed
     in
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
@@ -346,6 +359,7 @@ updateKurve config turningState occupiedPixels kurve =
                 kurve.state.position
                 newPosition
                 occupiedPixels
+                (getHoliness kurve.state.holeStatus)
                 (getHoliness newHoleStatus)
 
         newHoleStatus : HoleStatus
