@@ -239,7 +239,7 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
 
 
 evaluateMove : Config -> Position -> Position -> Set Pixel -> Holiness -> Holiness -> ( List DrawingPosition, Fate )
-evaluateMove config startingPoint desiredEndPoint occupiedPixels oldHoliness newHoliness =
+evaluateMove config startingPoint desiredEndPoint occupiedPixels newHoliness oldHoliness =
     let
         startingPointAsDrawingPosition : DrawingPosition
         startingPointAsDrawingPosition =
@@ -289,11 +289,11 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels oldHoliness new
 
         positionsToDraw : List DrawingPosition
         positionsToDraw =
-            case ( evaluatedStatus, oldHoliness, newHoliness ) of
-                ( Lives, _, Holy ) ->
+            case ( evaluatedStatus, newHoliness, oldHoliness ) of
+                ( Lives, Holy, _ ) ->
                     []
 
-                ( Lives, _, Unholy ) ->
+                ( Lives, Unholy, _ ) ->
                     checkedPositionsReversed
 
                 ( Dies, Holy, Holy ) ->
@@ -302,10 +302,10 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels oldHoliness new
                     -- Otherwise, the last position where the Kurve could draw is the last checked position before death occurred.
                     List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
 
-                ( Dies, Unholy, Holy ) ->
+                ( Dies, Holy, Unholy ) ->
                     List.head checkedPositionsReversed |> Maybe.map List.singleton |> Maybe.withDefault []
 
-                ( Dies, Holy, Unholy ) ->
+                ( Dies, Unholy, Holy ) ->
                     if List.isEmpty checkedPositionsReversed then
                         List.singleton startingPointAsDrawingPosition
 
@@ -349,8 +349,8 @@ updateKurve config turningState occupiedPixels kurve =
                 kurve.state.position
                 newPosition
                 occupiedPixels
-                (getHoliness kurve.state.holeStatus)
                 (getHoliness newHoleStatus)
+                (getHoliness kurve.state.holeStatus)
 
         newHoleStatus : HoleStatus
         newHoleStatus =
