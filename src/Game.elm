@@ -290,16 +290,10 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels oldHoliness new
         positionsToDraw : List DrawingPosition
         positionsToDraw =
             case ( evaluatedStatus, oldHoliness, newHoliness ) of
-                ( Lives, Unholy, Unholy ) ->
+                ( Lives, _, Unholy ) ->
                     checkedPositionsReversed
 
-                ( Lives, Unholy, Holy ) ->
-                    []
-
-                ( Lives, Holy, Unholy ) ->
-                    checkedPositionsReversed
-
-                ( Lives, Holy, Holy ) ->
+                ( Lives, _, Holy ) ->
                     []
 
                 ( Dies, Unholy, Unholy ) ->
