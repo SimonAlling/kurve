@@ -300,21 +300,26 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
         positionsToDraw =
             case ( evaluatedStatus, newHoliness, oldHoliness ) of
                 ( Lives, Holy, _ ) ->
+                    -- The Kurve lives and is holy. Nothing to draw.
                     []
 
                 ( Lives, Unholy, _ ) ->
+                    -- The Kurve lives and is solid. Draw everything it wanted to draw.
                     checkedPositionsReversed
 
                 ( Dies, Holy, Holy ) ->
-                    -- The last position the Kurve could be at must always be permanently drawn when they die, even if they are in the middle of a hole.
+                    -- The Kurve died in the middle of a hole. Draw the last position it could be at.
                     -- If the Kurve couldn't move at all in this tick, then the last position where the Kurve could be before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
                     -- Otherwise, the last position where the Kurve could be is the last checked position before death occurred.
                     List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
 
                 ( Dies, Holy, Unholy ) ->
+                    -- The Kurve died as it opened a hole. Draw the last position it could be at, but no need to default to the starting point because it must have been drawn in the previous tick.
                     List.take 1 checkedPositionsReversed
 
                 ( Dies, Unholy, Holy ) ->
+                    -- The Kurve died as it closed a hole. Draw all positions it could be at.
+                    -- If the Kurve couldn't move at all in this tick, then the last position where the Kurve could be before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
                     if List.isEmpty checkedPositionsReversed then
                         List.singleton startingPointAsDrawingPosition
 
