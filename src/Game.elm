@@ -346,7 +346,7 @@ updateKurve config turningState occupiedPixels kurve =
                 kurve.state.position
                 newPosition
                 occupiedPixels
-                (getHoliness kurve.state.holeStatus)
+                (getHoliness newHoleStatus)
 
         newHoleStatus : HoleStatus
         newHoleStatus =
