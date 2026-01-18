@@ -14,7 +14,7 @@ import Types.Kurve exposing (Kurve)
 config : Config
 config =
     Config.default
-        |> Config.withHardcodedHoles (Distance 100) (Distance 3)
+        |> Config.withHardcodedHoles (Distance 100) (Distance 4)
 
 
 green : Kurve
@@ -94,12 +94,12 @@ expectedOutcome =
                 { bodyDrawing = [ ( Colors.green, { x = 548, y = 100 } ) ]
                 , headDrawing = [ ( Colors.green, { x = 548, y = 100 } ) ]
                 }
-            , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 549, y = 100 } ) ]
-                , headDrawing = [ ( Colors.green, { x = 549, y = 100 } ) ]
-                }
 
             -- Start of hole:
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Colors.green, { x = 549, y = 100 } ) ]
+                }
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.green, { x = 550, y = 100 } ) ]
