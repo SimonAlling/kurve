@@ -327,7 +327,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
                         checkedPositionsReversed
 
                 ( Dies, Unholy, Unholy ) ->
-                    -- The Kurve died in the middle of a solid segment. Draw the last position it could be at.
+                    -- The Kurve died in the middle of a solid segment. Draw all positions it could be at.
                     checkedPositionsReversed
     in
     ( positionsToDraw |> List.reverse, evaluatedStatus )
