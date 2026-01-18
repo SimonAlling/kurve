@@ -299,9 +299,6 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels oldHoliness new
                 ( Dies, Unholy, Unholy ) ->
                     checkedPositionsReversed
 
-                ( Dies, Unholy, Holy ) ->
-                    List.head checkedPositionsReversed |> Maybe.map List.singleton |> Maybe.withDefault []
-
                 ( Dies, Holy, Unholy ) ->
                     case checkedPositionsReversed of
                         [] ->
@@ -309,6 +306,9 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels oldHoliness new
 
                         _ ->
                             checkedPositionsReversed
+
+                ( Dies, Unholy, Holy ) ->
+                    List.head checkedPositionsReversed |> Maybe.map List.singleton |> Maybe.withDefault []
 
                 ( Dies, Holy, Holy ) ->
                     -- The Kurve's head must always be drawn when they die, even if they are in the middle of a hole.
