@@ -9,7 +9,8 @@ module Holes exposing
 
 import Config exposing (HoleConfig, KurveConfig)
 import Random
-import Types.Distance as Distance exposing (Distance, computeDistanceBetweenCenters)
+import Thickness exposing (theThickness)
+import Types.Distance as Distance exposing (Distance)
 import World exposing (distanceToTicks)
 
 
@@ -88,11 +89,11 @@ generateUnholyTicks : KurveConfig -> Random.Generator Int
 generateUnholyTicks { tickrate, speed, holes } =
     generateHoleSpacing holes
         |> Random.map (distanceToTicks tickrate speed)
-        |> Random.map (\x -> x - 3)
+        |> Random.map (\x -> x - theThickness)
 
 
 generateHolyTicks : KurveConfig -> Random.Generator Int
 generateHolyTicks { tickrate, speed, holes } =
     generateHoleSize holes
-        |> Random.map (computeDistanceBetweenCenters >> distanceToTicks tickrate speed)
-        |> Random.map (\x -> x - 2)
+        |> Random.map (distanceToTicks tickrate speed)
+        |> Random.map (\x -> x + 1)
