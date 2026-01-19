@@ -31,7 +31,7 @@ import Thickness exposing (theThickness)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle)
 import Types.FrameTime exposing (LeftoverFrameTime)
-import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..), modifyReversedInteractions)
+import Types.Kurve as Kurve exposing (Fate(..), Kurve, UserInteraction(..), modifyReversedInteractions)
 import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -226,10 +226,10 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
         kurvesAfterCheckingThisKurve : Kurves -> Kurves
         kurvesAfterCheckingThisKurve =
             case fate of
-                Kurve.Dies ->
+                Dies ->
                     modifyDead ((::) checkedKurve)
 
-                Kurve.Lives ->
+                Lives ->
                     modifyAlive ((::) checkedKurve)
     in
     ( kurvesAfterCheckingThisKurve checkedKurves
@@ -238,7 +238,7 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
     )
 
 
-evaluateMove : Config -> Position -> Position -> Set Pixel -> Holiness -> ( List DrawingPosition, Kurve.Fate )
+evaluateMove : Config -> Position -> Position -> Set Pixel -> Holiness -> ( List DrawingPosition, Fate )
 evaluateMove config startingPoint desiredEndPoint occupiedPixels holiness =
     let
         startingPointAsDrawingPosition : DrawingPosition
@@ -249,11 +249,11 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holiness =
         positionsToCheck =
             World.desiredDrawingPositions startingPoint desiredEndPoint
 
-        checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Kurve.Fate )
+        checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Fate )
         checkPositions checked lastChecked remaining =
             case remaining of
                 [] ->
-                    ( checked, Kurve.Lives )
+                    ( checked, Lives )
 
                 current :: rest ->
                     let
@@ -279,7 +279,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holiness =
                             crashesIntoWall || crashesIntoKurve
                     in
                     if dies then
-                        ( checked, Kurve.Dies )
+                        ( checked, Dies )
 
                     else
                         checkPositions (current :: checked) current rest
@@ -292,10 +292,10 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holiness =
             case holiness of
                 Holy ->
                     case evaluatedStatus of
-                        Kurve.Lives ->
+                        Lives ->
                             []
 
-                        Kurve.Dies ->
+                        Dies ->
                             -- The Kurve's head must always be drawn when they die, even if they are in the middle of a hole.
                             -- If the Kurve couldn't draw at all in this tick, then the last position where the Kurve could draw before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
                             -- Otherwise, the last position where the Kurve could draw is the last checked position before death occurred.
@@ -307,7 +307,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holiness =
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
 
-updateKurve : Config -> TurningState -> Set Pixel -> Kurve -> ( List DrawingPosition, Kurve, Kurve.Fate )
+updateKurve : Config -> TurningState -> Set Pixel -> Kurve -> ( List DrawingPosition, Kurve, Fate )
 updateKurve config turningState occupiedPixels kurve =
     let
         distanceTraveledSinceLastTick : Float
