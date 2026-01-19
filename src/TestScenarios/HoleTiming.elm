@@ -28,7 +28,7 @@ holeGap =
 config : Config
 config =
     Config.default
-        |> Config.withPeriodicHoles holeSpacing holeGap
+        |> Config.withHardcodedHoles holeSpacing holeGap
 
 
 green : Kurve

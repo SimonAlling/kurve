@@ -5,7 +5,7 @@ module Config exposing
     , SpawnConfig
     , WorldConfig
     , default
-    , withPeriodicHoles
+    , withHardcodedHoles
     , withSpeed
     )
 
@@ -106,16 +106,16 @@ withSpeed speed config =
     }
 
 
-withPeriodicHoles : Distance -> Distance -> Config -> Config
-withPeriodicHoles interval size config =
+withHardcodedHoles : Distance -> Distance -> Config -> Config
+withHardcodedHoles interval size config =
     let
-        kurveConfig : KurveConfig
-        kurveConfig =
+        defaultKurveConfig : KurveConfig
+        defaultKurveConfig =
             config.kurves
     in
     { config
         | kurves =
-            { kurveConfig
+            { defaultKurveConfig
                 | holes =
                     { minInterval = interval
                     , maxInterval = interval

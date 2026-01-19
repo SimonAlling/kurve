@@ -14,6 +14,7 @@ import TestScenarios.CrashIntoWallLeft
 import TestScenarios.CrashIntoWallRight
 import TestScenarios.CrashIntoWallTop
 import TestScenarios.CrashSomewhatSoon
+import TestScenarios.CrashingWhileBecomingUnholy
 import TestScenarios.CuttingCornersBasic
 import TestScenarios.CuttingCornersPerfectOverpainting
 import TestScenarios.HoleTiming
@@ -32,8 +33,8 @@ tests =
         , cuttingCornersTests
         , speedTests
         , stressTests
-        , drawingTests
         , holeTests
+        , drawingTests
         ]
 
 
@@ -237,7 +238,13 @@ drawingTests =
 holeTests : Test
 holeTests =
     describe "Hole tests"
-        [ test "Hole timing is correct" <|
+        [ test "Final head position is drawn when simultaneously crashing and becoming unholy" <|
+            \_ ->
+                roundWith TestScenarios.CrashingWhileBecomingUnholy.spawnedKurves
+                    |> expectRoundOutcome
+                        TestScenarios.CrashingWhileBecomingUnholy.config
+                        TestScenarios.CrashingWhileBecomingUnholy.expectedOutcome
+        , test "Hole timing is correct" <|
             \_ ->
                 roundWith TestScenarios.HoleTiming.spawnedKurves
                     |> expectRoundOutcome
