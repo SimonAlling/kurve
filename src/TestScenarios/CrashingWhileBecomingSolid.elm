@@ -1,4 +1,4 @@
-module TestScenarios.CrashingWhileBecomingUnholy exposing (config, expectedOutcome, spawnedKurves)
+module TestScenarios.CrashingWhileBecomingSolid exposing (config, expectedOutcome, spawnedKurves)
 
 import Colors
 import Config exposing (Config)
@@ -27,7 +27,7 @@ green =
             , direction = Angle (pi / 2)
             , holeStatus =
                 RandomHoles
-                    { holiness = Unholy
+                    { holiness = Solid
                     , ticksLeft = 2
                     , holeSeed = Random.initialSeed 0
                     }

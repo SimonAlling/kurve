@@ -2,7 +2,7 @@ module Spawn exposing (generateKurves)
 
 import Config exposing (Config, SpawnConfig, WorldConfig)
 import Dict
-import Holes exposing (HoleStatus(..), Holiness(..), generateUnholyTicks)
+import Holes exposing (HoleStatus(..), Holiness(..), generateSolidTicks)
 import Input exposing (toStringSetControls)
 import Players exposing (ParticipatingPlayers)
 import Random
@@ -87,20 +87,20 @@ generateKurveState config numberOfPlayers existingPositions =
             generateSpawnPosition config.spawn config.world |> Random.filter (isSafeNewPosition config numberOfPlayers existingPositions)
     in
     Random.map4
-        (\generatedPosition generatedAngle generatedUnholyTicks generatedHoleSeed ->
+        (\generatedPosition generatedAngle generatedSolidTicks generatedHoleSeed ->
             { position = generatedPosition
             , direction = generatedAngle
             , holeStatus =
                 RandomHoles
-                    { holiness = Unholy
-                    , ticksLeft = generatedUnholyTicks
+                    { holiness = Solid
+                    , ticksLeft = generatedSolidTicks
                     , holeSeed = generatedHoleSeed
                     }
             }
         )
         safeSpawnPosition
         (generateSpawnAngle config.spawn.angleInterval)
-        (generateUnholyTicks config.kurves)
+        (generateSolidTicks config.kurves)
         Random.independentSeed
 
 

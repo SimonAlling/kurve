@@ -2,7 +2,7 @@ module Holes exposing
     ( HoleStatus(..)
     , Holiness(..)
     , RandomHoleStatus
-    , generateUnholyTicks
+    , generateSolidTicks
     , getHoliness
     , updateHoleStatus
     )
@@ -32,12 +32,12 @@ getHoliness holeStatus =
             holiness
 
         NoHoles ->
-            Unholy
+            Solid
 
 
 type Holiness
     = Holy
-    | Unholy
+    | Solid
 
 
 updateHoleStatus : KurveConfig -> HoleStatus -> HoleStatus
@@ -55,22 +55,22 @@ updateRandomHoleStatus kurveConfig randomHoleStatus =
     case ( randomHoleStatus.holiness, randomHoleStatus.ticksLeft ) of
         ( Holy, 0 ) ->
             let
-                ( unholyTicks, newSeed ) =
-                    Random.step (generateUnholyTicks kurveConfig) randomHoleStatus.holeSeed
+                ( solidTicks, newSeed ) =
+                    Random.step (generateSolidTicks kurveConfig) randomHoleStatus.holeSeed
             in
-            { holiness = Unholy, ticksLeft = unholyTicks, holeSeed = newSeed }
+            { holiness = Solid, ticksLeft = solidTicks, holeSeed = newSeed }
 
         ( Holy, ticksLeft ) ->
             { randomHoleStatus | ticksLeft = ticksLeft - 1 }
 
-        ( Unholy, 0 ) ->
+        ( Solid, 0 ) ->
             let
                 ( holyTicks, newSeed ) =
                     Random.step (generateHolyTicks kurveConfig) randomHoleStatus.holeSeed
             in
             { holiness = Holy, ticksLeft = holyTicks, holeSeed = newSeed }
 
-        ( Unholy, ticksLeft ) ->
+        ( Solid, ticksLeft ) ->
             { randomHoleStatus | ticksLeft = ticksLeft - 1 }
 
 
@@ -84,8 +84,8 @@ generateHoleSize holeConfig =
     Distance.generate holeConfig.minSize holeConfig.maxSize
 
 
-generateUnholyTicks : KurveConfig -> Random.Generator Int
-generateUnholyTicks { tickrate, speed, holes } =
+generateSolidTicks : KurveConfig -> Random.Generator Int
+generateSolidTicks { tickrate, speed, holes } =
     generateHoleSpacing holes |> Random.map (distanceToTicks tickrate speed)
 
 
