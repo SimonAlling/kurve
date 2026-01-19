@@ -284,33 +284,25 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holiness =
                     else
                         checkPositions (current :: checked) current rest
 
-        isHoly : Bool
-        isHoly =
-            case holiness of
-                Holy ->
-                    True
-
-                Unholy ->
-                    False
-
         ( checkedPositionsReversed, evaluatedStatus ) =
             checkPositions [] startingPointAsDrawingPosition positionsToCheck
 
         positionsToDraw : List DrawingPosition
         positionsToDraw =
-            if isHoly then
-                case evaluatedStatus of
-                    Kurve.Lives ->
-                        []
+            case holiness of
+                Holy ->
+                    case evaluatedStatus of
+                        Kurve.Lives ->
+                            []
 
-                    Kurve.Dies ->
-                        -- The Kurve's head must always be drawn when they die, even if they are in the middle of a hole.
-                        -- If the Kurve couldn't draw at all in this tick, then the last position where the Kurve could draw before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
-                        -- Otherwise, the last position where the Kurve could draw is the last checked position before death occurred.
-                        List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
+                        Kurve.Dies ->
+                            -- The Kurve's head must always be drawn when they die, even if they are in the middle of a hole.
+                            -- If the Kurve couldn't draw at all in this tick, then the last position where the Kurve could draw before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
+                            -- Otherwise, the last position where the Kurve could draw is the last checked position before death occurred.
+                            List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
 
-            else
-                checkedPositionsReversed
+                Unholy ->
+                    checkedPositionsReversed
     in
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
