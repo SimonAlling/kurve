@@ -1,4 +1,4 @@
-module TestScenarios.HoleTiming exposing (config, expectedOutcome, spawnedKurves)
+module TestScenarios.HoleSizeAndSpacing exposing (config, expectedOutcome, spawnedKurves)
 
 import Colors
 import Config exposing (Config)

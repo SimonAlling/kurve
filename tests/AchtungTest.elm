@@ -17,7 +17,7 @@ import TestScenarios.CrashSomewhatSoon
 import TestScenarios.CrashingWhileBecomingUnholy
 import TestScenarios.CuttingCornersBasic
 import TestScenarios.CuttingCornersPerfectOverpainting
-import TestScenarios.HoleTiming
+import TestScenarios.HoleSizeAndSpacing
 import TestScenarios.SpeedEffectOnGame
 import TestScenarios.StressTestRealisticTurtleSurvivalRound
 import Types.Speed as Speed exposing (Speed(..))
@@ -244,10 +244,10 @@ holeTests =
                     |> expectRoundOutcome
                         TestScenarios.CrashingWhileBecomingUnholy.config
                         TestScenarios.CrashingWhileBecomingUnholy.expectedOutcome
-        , test "Hole timing is correct" <|
+        , test "Hole size and spacing are correct" <|
             \_ ->
-                roundWith TestScenarios.HoleTiming.spawnedKurves
+                roundWith TestScenarios.HoleSizeAndSpacing.spawnedKurves
                     |> expectRoundOutcome
-                        TestScenarios.HoleTiming.config
-                        TestScenarios.HoleTiming.expectedOutcome
+                        TestScenarios.HoleSizeAndSpacing.config
+                        TestScenarios.HoleSizeAndSpacing.expectedOutcome
         ]
