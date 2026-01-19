@@ -289,19 +289,20 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holiness =
 
         positionsToDraw : List DrawingPosition
         positionsToDraw =
-            case holiness of
-                Holy ->
-                    case evaluatedStatus of
-                        Lives ->
-                            []
+            case ( evaluatedStatus, holiness ) of
+                ( Lives, Holy ) ->
+                    []
 
-                        Dies ->
-                            -- The Kurve's head must always be drawn when they die, even if they are in the middle of a hole.
-                            -- If the Kurve couldn't draw at all in this tick, then the last position where the Kurve could draw before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
-                            -- Otherwise, the last position where the Kurve could draw is the last checked position before death occurred.
-                            List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
+                ( Lives, Unholy ) ->
+                    checkedPositionsReversed
 
-                Unholy ->
+                ( Dies, Holy ) ->
+                    -- The Kurve's head must always be drawn when they die, even if they are in the middle of a hole.
+                    -- If the Kurve couldn't draw at all in this tick, then the last position where the Kurve could draw before dying (and therefore the one to draw to represent the Kurve's death) is this tick's starting point.
+                    -- Otherwise, the last position where the Kurve could draw is the last checked position before death occurred.
+                    List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
+
+                ( Dies, Unholy ) ->
                     checkedPositionsReversed
     in
     ( positionsToDraw |> List.reverse, evaluatedStatus )
