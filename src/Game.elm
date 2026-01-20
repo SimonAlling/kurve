@@ -303,7 +303,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
                     -- The Kurve lives and is holy. Nothing to draw.
                     []
 
-                ( Lives, Unholy ) ->
+                ( Lives, Solid ) ->
                     -- The Kurve lives and is solid. Draw everything it wanted to draw.
                     checkedPositionsReversed
 
@@ -315,11 +315,11 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
                             -- Otherwise, the last position where the Kurve could be is the last checked position before death occurred.
                             List.singleton <| Maybe.withDefault startingPointAsDrawingPosition <| List.head checkedPositionsReversed
 
-                        Unholy ->
+                        Solid ->
                             -- The Kurve died as it opened a hole. Draw the last position it could be at, but no need to default to the starting point because it must have been drawn in the previous tick.
                             List.take 1 checkedPositionsReversed
 
-                ( Dies, Unholy ) ->
+                ( Dies, Solid ) ->
                     case oldHoliness of
                         Holy ->
                             -- The Kurve died as it closed a hole. Draw all positions it could be at.
@@ -330,7 +330,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
                             else
                                 checkedPositionsReversed
 
-                        Unholy ->
+                        Solid ->
                             -- The Kurve died in the middle of a solid segment. Draw all positions it could be at.
                             checkedPositionsReversed
     in

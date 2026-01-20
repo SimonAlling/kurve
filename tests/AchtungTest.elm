@@ -14,7 +14,7 @@ import TestScenarios.CrashIntoWallLeft
 import TestScenarios.CrashIntoWallRight
 import TestScenarios.CrashIntoWallTop
 import TestScenarios.CrashSomewhatSoon
-import TestScenarios.CrashingWhileBecomingUnholy
+import TestScenarios.CrashingWhileBecomingSolid
 import TestScenarios.CuttingCornersBasic
 import TestScenarios.CuttingCornersPerfectOverpainting
 import TestScenarios.SpeedEffectOnGame
@@ -237,10 +237,10 @@ drawingTests =
 holeTests : Test
 holeTests =
     describe "Hole tests"
-        [ test "Final head position is drawn when simultaneously crashing and becoming unholy" <|
+        [ test "Final head position is drawn when simultaneously crashing and becoming solid" <|
             \_ ->
-                roundWith TestScenarios.CrashingWhileBecomingUnholy.spawnedKurves
+                roundWith TestScenarios.CrashingWhileBecomingSolid.spawnedKurves
                     |> expectRoundOutcome
-                        TestScenarios.CrashingWhileBecomingUnholy.config
-                        TestScenarios.CrashingWhileBecomingUnholy.expectedOutcome
+                        TestScenarios.CrashingWhileBecomingSolid.config
+                        TestScenarios.CrashingWhileBecomingSolid.expectedOutcome
         ]
