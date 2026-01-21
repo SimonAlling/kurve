@@ -992,7 +992,7 @@ expectedEffects =
         , headDrawing = [ ( Colors.green, { x = 431, y = 140 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 432, y = 140 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 432, y = 140 } ) ]
         }
     , DrawSomething
