@@ -374,7 +374,7 @@ updateKurve config turningState occupiedPixels kurve =
 
         newHoleStatus : HoleStatus
         newHoleStatus =
-            updateHoleStatus config.kurves.holes kurve.state.holeStatus
+            updateHoleStatus config.kurves kurve.state.holeStatus
 
         newKurveState : Kurve.State
         newKurveState =

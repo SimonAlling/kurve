@@ -7,7 +7,7 @@ module Holes exposing
     , updateHoleStatus
     )
 
-import Config exposing (HoleConfig)
+import Config exposing (KurveConfig)
 import Random
 
 
@@ -38,23 +38,23 @@ type Holiness
     | Solid
 
 
-updateHoleStatus : HoleConfig -> HoleStatus -> HoleStatus
-updateHoleStatus holeConfig holeStatus =
+updateHoleStatus : KurveConfig -> HoleStatus -> HoleStatus
+updateHoleStatus kurveConfig holeStatus =
     case holeStatus of
         RandomHoles randomHoleStatus ->
-            RandomHoles (updateRandomHoleStatus holeConfig randomHoleStatus)
+            RandomHoles (updateRandomHoleStatus kurveConfig randomHoleStatus)
 
         NoHoles ->
             NoHoles
 
 
-updateRandomHoleStatus : HoleConfig -> RandomHoleStatus -> RandomHoleStatus
-updateRandomHoleStatus holeConfig randomHoleStatus =
+updateRandomHoleStatus : KurveConfig -> RandomHoleStatus -> RandomHoleStatus
+updateRandomHoleStatus kurveConfig randomHoleStatus =
     case ( randomHoleStatus.holiness, randomHoleStatus.ticksLeft ) of
         ( Holy, 0 ) ->
             let
                 ( solidTicks, newSeed ) =
-                    Random.step (generateSolidTicks holeConfig) randomHoleStatus.holeSeed
+                    Random.step (generateSolidTicks kurveConfig) randomHoleStatus.holeSeed
             in
             { holiness = Solid, ticksLeft = solidTicks - 1, holeSeed = newSeed }
 
@@ -64,7 +64,7 @@ updateRandomHoleStatus holeConfig randomHoleStatus =
         ( Solid, 0 ) ->
             let
                 ( holyTicks, newSeed ) =
-                    Random.step (generateHolyTicks holeConfig) randomHoleStatus.holeSeed
+                    Random.step (generateHolyTicks kurveConfig) randomHoleStatus.holeSeed
             in
             { holiness = Holy, ticksLeft = holyTicks - 1, holeSeed = newSeed }
 
@@ -72,11 +72,11 @@ updateRandomHoleStatus holeConfig randomHoleStatus =
             { randomHoleStatus | ticksLeft = ticksLeft - 1 }
 
 
-generateSolidTicks : HoleConfig -> Random.Generator Int
-generateSolidTicks holes =
+generateSolidTicks : KurveConfig -> Random.Generator Int
+generateSolidTicks { holes } =
     Random.int holes.minSolidTicks holes.maxSolidTicks
 
 
-generateHolyTicks : HoleConfig -> Random.Generator Int
-generateHolyTicks holes =
+generateHolyTicks : KurveConfig -> Random.Generator Int
+generateHolyTicks { holes } =
     Random.int holes.minHolyTicks holes.maxHolyTicks

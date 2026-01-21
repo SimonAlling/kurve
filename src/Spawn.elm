@@ -100,7 +100,7 @@ generateKurveState config numberOfPlayers existingPositions =
         )
         safeSpawnPosition
         (generateSpawnAngle config.spawn.angleInterval)
-        (generateSolidTicks config.kurves.holes)
+        (generateSolidTicks config.kurves)
         Random.independentSeed
 
 
