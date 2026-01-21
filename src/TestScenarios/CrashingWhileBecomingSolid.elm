@@ -13,7 +13,7 @@ import Types.Kurve exposing (Kurve)
 config : Config
 config =
     Config.default
-        |> Config.withHardcodedHoles 98 7
+        |> Config.withHardcodedHoles 100 8
 
 
 green : Kurve
