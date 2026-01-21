@@ -12,12 +12,12 @@ import Types.Kurve exposing (Kurve)
 
 solidTicks : Int
 solidTicks =
-    4
+    5
 
 
 holyTicks : Int
 holyTicks =
-    4
+    5
 
 
 config : Config

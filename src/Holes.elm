@@ -56,7 +56,7 @@ updateRandomHoleStatus holeConfig randomHoleStatus =
                 ( solidTicks, newSeed ) =
                     Random.step (generateSolidTicks holeConfig) randomHoleStatus.holeSeed
             in
-            { holiness = Solid, ticksLeft = solidTicks, holeSeed = newSeed }
+            { holiness = Solid, ticksLeft = solidTicks - 1, holeSeed = newSeed }
 
         ( Holy, ticksLeft ) ->
             { randomHoleStatus | ticksLeft = ticksLeft - 1 }
@@ -66,7 +66,7 @@ updateRandomHoleStatus holeConfig randomHoleStatus =
                 ( holyTicks, newSeed ) =
                     Random.step (generateHolyTicks holeConfig) randomHoleStatus.holeSeed
             in
-            { holiness = Holy, ticksLeft = holyTicks, holeSeed = newSeed }
+            { holiness = Holy, ticksLeft = holyTicks - 1, holeSeed = newSeed }
 
         ( Solid, ticksLeft ) ->
             { randomHoleStatus | ticksLeft = ticksLeft - 1 }
