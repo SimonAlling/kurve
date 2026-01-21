@@ -7,10 +7,8 @@ module Holes exposing
     , updateHoleStatus
     )
 
-import Config exposing (KurveConfig)
+import Config exposing (HoleConfig)
 import Random
-import Types.Distance as Distance exposing (computeDistanceBetweenCenters)
-import World exposing (distanceToTicks)
 
 
 type HoleStatus
@@ -40,23 +38,23 @@ type Holiness
     | Solid
 
 
-updateHoleStatus : KurveConfig -> HoleStatus -> HoleStatus
-updateHoleStatus kurveConfig holeStatus =
+updateHoleStatus : HoleConfig -> HoleStatus -> HoleStatus
+updateHoleStatus holeConfig holeStatus =
     case holeStatus of
         RandomHoles randomHoleStatus ->
-            RandomHoles (updateRandomHoleStatus kurveConfig randomHoleStatus)
+            RandomHoles (updateRandomHoleStatus holeConfig randomHoleStatus)
 
         NoHoles ->
             NoHoles
 
 
-updateRandomHoleStatus : KurveConfig -> RandomHoleStatus -> RandomHoleStatus
-updateRandomHoleStatus kurveConfig randomHoleStatus =
+updateRandomHoleStatus : HoleConfig -> RandomHoleStatus -> RandomHoleStatus
+updateRandomHoleStatus holeConfig randomHoleStatus =
     case ( randomHoleStatus.holiness, randomHoleStatus.ticksLeft ) of
         ( Holy, 0 ) ->
             let
                 ( solidTicks, newSeed ) =
-                    Random.step (generateSolidTicks kurveConfig) randomHoleStatus.holeSeed
+                    Random.step (generateSolidTicks holeConfig) randomHoleStatus.holeSeed
             in
             { holiness = Solid, ticksLeft = solidTicks, holeSeed = newSeed }
 
@@ -66,7 +64,7 @@ updateRandomHoleStatus kurveConfig randomHoleStatus =
         ( Solid, 0 ) ->
             let
                 ( holyTicks, newSeed ) =
-                    Random.step (generateHolyTicks kurveConfig) randomHoleStatus.holeSeed
+                    Random.step (generateHolyTicks holeConfig) randomHoleStatus.holeSeed
             in
             { holiness = Holy, ticksLeft = holyTicks, holeSeed = newSeed }
 
@@ -74,11 +72,11 @@ updateRandomHoleStatus kurveConfig randomHoleStatus =
             { randomHoleStatus | ticksLeft = ticksLeft - 1 }
 
 
-generateSolidTicks : KurveConfig -> Random.Generator Int
-generateSolidTicks { tickrate, speed, holes } =
-    Distance.generate holes.minInterval holes.maxInterval |> Random.map (distanceToTicks tickrate speed)
+generateSolidTicks : HoleConfig -> Random.Generator Int
+generateSolidTicks holes =
+    Random.int holes.minSolidTicks holes.maxSolidTicks
 
 
-generateHolyTicks : KurveConfig -> Random.Generator Int
-generateHolyTicks { tickrate, speed, holes } =
-    Distance.generate holes.minSize holes.maxSize |> Random.map (computeDistanceBetweenCenters >> distanceToTicks tickrate speed)
+generateHolyTicks : HoleConfig -> Random.Generator Int
+generateHolyTicks holes =
+    Random.int holes.minHolyTicks holes.maxHolyTicks
