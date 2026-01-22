@@ -307,7 +307,7 @@ update msg ({ config, pressedButtons } as model) =
                         Key "Space" ->
                             ( { model | appState = InGame (Active Replay NotPaused s) }, DoNothing )
 
-                        Key "ArrowRight" ->
+                        Key "KeyE" ->
                             case s of
                                 Spawning _ _ ->
                                     ( model, DoNothing )
