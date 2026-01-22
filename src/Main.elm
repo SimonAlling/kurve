@@ -347,6 +347,24 @@ update msg ({ config, pressedButtons } as model) =
                                     , maybeDrawSomething whatToDraw
                                     )
 
+                        Key "KeyE" ->
+                            case s of
+                                Spawning _ _ ->
+                                    ( model, DoNothing )
+
+                                Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
+                                    let
+                                        timeToSkipInMs : FrameTime
+                                        timeToSkipInMs =
+                                            1000 / Tickrate.toFloat config.kurves.tickrate
+
+                                        ( tickResult, whatToDraw ) =
+                                            MainLoop.consumeAnimationFrame config timeToSkipInMs leftoverTimeFromPreviousFrame lastTick midRoundState
+                                    in
+                                    ( { model | appState = InGame (tickResultToGameState Replay Paused tickResult) }
+                                    , maybeDrawSomething whatToDraw
+                                    )
+
                         Key "KeyR" ->
                             startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
 
