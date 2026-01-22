@@ -52,6 +52,7 @@ import Time
 import Types.FrameTime exposing (FrameTime)
 import Types.Kurve exposing (Kurve)
 import Types.Tick as Tick exposing (Tick)
+import Types.Tickrate as Tickrate
 import Util exposing (isEven)
 
 
@@ -181,7 +182,7 @@ update msg ({ config, pressedButtons } as model) =
                         ( tickResult, whatToDraw ) =
                             MainLoop.consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState
                     in
-                    ( { model | appState = InGame (tickResultToGameState liveOrReplay tickResult) }
+                    ( { model | appState = InGame (tickResultToGameState liveOrReplay NotPaused tickResult) }
                     , maybeDrawSomething whatToDraw
                     )
 
@@ -306,6 +307,9 @@ update msg ({ config, pressedButtons } as model) =
                         Key "Space" ->
                             ( { model | appState = InGame (Active Replay NotPaused s) }, DoNothing )
 
+                        Key "KeyE" ->
+                            stepOneTick s model
+
                         _ ->
                             ( handleUserInteraction Down button model, DoNothing )
 
@@ -324,9 +328,12 @@ update msg ({ config, pressedButtons } as model) =
                                         ( tickResult, whatToDraw ) =
                                             MainLoop.consumeAnimationFrame config (toFloat config.replay.skipStepInMs) leftoverTimeFromPreviousFrame lastTick midRoundState
                                     in
-                                    ( { model | appState = InGame (tickResultToGameState Replay tickResult) }
+                                    ( { model | appState = InGame (tickResultToGameState Replay NotPaused tickResult) }
                                     , maybeDrawSomething whatToDraw
                                     )
+
+                        Key "KeyE" ->
+                            stepOneTick s model
 
                         Key "KeyR" ->
                             startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
@@ -361,6 +368,26 @@ update msg ({ config, pressedButtons } as model) =
                 _ ->
                     -- Not expected to ever happen.
                     ( model, DoNothing )
+
+
+stepOneTick : ActiveGameState -> Model -> ( Model, Effect )
+stepOneTick activeGameState model =
+    case activeGameState of
+        Spawning _ _ ->
+            ( model, DoNothing )
+
+        Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
+            let
+                timeToSkipInMs : FrameTime
+                timeToSkipInMs =
+                    1000 / Tickrate.toFloat model.config.kurves.tickrate
+
+                ( tickResult, whatToDraw ) =
+                    MainLoop.consumeAnimationFrame model.config timeToSkipInMs leftoverTimeFromPreviousFrame lastTick midRoundState
+            in
+            ( { model | appState = InGame (tickResultToGameState Replay Paused tickResult) }
+            , maybeDrawSomething whatToDraw
+            )
 
 
 gameOver : Random.Seed -> Model -> ( Model, Effect )
