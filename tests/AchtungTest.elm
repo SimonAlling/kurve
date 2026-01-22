@@ -1,22 +1,23 @@
 module AchtungTest exposing (tests)
 
-import Config
 import String
 import Test exposing (Test, describe, test)
-import TestHelpers exposing (defaultConfigWithSpeed, expectRoundOutcome)
+import TestHelpers exposing (expectRoundOutcome)
 import TestScenarioHelpers exposing (roundWith, tickNumber)
 import TestScenarios.AroundTheWorld
 import TestScenarios.CrashIntoKurveTiming
 import TestScenarios.CrashIntoTailEnd90Degrees
 import TestScenarios.CrashIntoTipOfTailEnd
-import TestScenarios.CrashIntoWallBasic
 import TestScenarios.CrashIntoWallBottom
 import TestScenarios.CrashIntoWallExactTiming
 import TestScenarios.CrashIntoWallLeft
 import TestScenarios.CrashIntoWallRight
 import TestScenarios.CrashIntoWallTop
+import TestScenarios.CrashSomewhatSoon
+import TestScenarios.CrashingWhileBecomingSolid
 import TestScenarios.CuttingCornersBasic
 import TestScenarios.CuttingCornersPerfectOverpainting
+import TestScenarios.HoleSizeAndSpacing
 import TestScenarios.SpeedEffectOnGame
 import TestScenarios.StressTestRealisticTurtleSurvivalRound
 import Types.Speed as Speed exposing (Speed(..))
@@ -32,23 +33,19 @@ tests =
         , cuttingCornersTests
         , speedTests
         , stressTests
+        , holeTests
+        , drawingTests
         ]
 
 
 basicTests : Test
 basicTests =
     describe "Basic tests"
-        [ test "A Kurve that crashes into the wall dies" <|
-            \_ ->
-                roundWith TestScenarios.CrashIntoWallBasic.spawnedKurves
-                    |> expectRoundOutcome
-                        Config.default
-                        TestScenarios.CrashIntoWallBasic.expectedOutcome
-        , test "Around the world, touching each wall" <|
+        [ test "Around the world, touching each wall" <|
             \_ ->
                 roundWith TestScenarios.AroundTheWorld.spawnedKurves
                     |> expectRoundOutcome
-                        Config.default
+                        TestScenarios.AroundTheWorld.config
                         TestScenarios.AroundTheWorld.expectedOutcome
         ]
 
@@ -60,13 +57,13 @@ crashingIntoKurveTests =
             \_ ->
                 roundWith TestScenarios.CrashIntoTailEnd90Degrees.spawnedKurves
                     |> expectRoundOutcome
-                        Config.default
+                        TestScenarios.CrashIntoTailEnd90Degrees.config
                         TestScenarios.CrashIntoTailEnd90Degrees.expectedOutcome
         , test "Hitting a Kurve's tail end at a 45-degree angle is a crash" <|
             \_ ->
                 roundWith TestScenarios.CrashIntoTipOfTailEnd.spawnedKurves
                     |> expectRoundOutcome
-                        Config.default
+                        TestScenarios.CrashIntoTipOfTailEnd.config
                         TestScenarios.CrashIntoTipOfTailEnd.expectedOutcome
         ]
 
@@ -78,25 +75,25 @@ crashingIntoWallTests =
             \_ ->
                 roundWith TestScenarios.CrashIntoWallTop.spawnedKurves
                     |> expectRoundOutcome
-                        Config.default
+                        TestScenarios.CrashIntoWallTop.config
                         TestScenarios.CrashIntoWallTop.expectedOutcome
         , test "Right wall" <|
             \_ ->
                 roundWith TestScenarios.CrashIntoWallRight.spawnedKurves
                     |> expectRoundOutcome
-                        Config.default
+                        TestScenarios.CrashIntoWallRight.config
                         TestScenarios.CrashIntoWallRight.expectedOutcome
         , test "Bottom wall" <|
             \_ ->
                 roundWith TestScenarios.CrashIntoWallBottom.spawnedKurves
                     |> expectRoundOutcome
-                        Config.default
+                        TestScenarios.CrashIntoWallBottom.config
                         TestScenarios.CrashIntoWallBottom.expectedOutcome
         , test "Left wall" <|
             \_ ->
                 roundWith TestScenarios.CrashIntoWallLeft.spawnedKurves
                     |> expectRoundOutcome
-                        Config.default
+                        TestScenarios.CrashIntoWallLeft.config
                         TestScenarios.CrashIntoWallLeft.expectedOutcome
         ]
 
@@ -150,7 +147,7 @@ crashingIntoWallTimingTest =
         \_ ->
             roundWith TestScenarios.CrashIntoWallExactTiming.spawnedKurves
                 |> expectRoundOutcome
-                    Config.default
+                    TestScenarios.CrashIntoWallExactTiming.config
                     TestScenarios.CrashIntoWallExactTiming.expectedOutcome
 
 
@@ -170,7 +167,7 @@ crashingIntoKurveTimingTests =
                         (\_ ->
                             roundWith (TestScenarios.CrashIntoKurveTiming.spawnedKurves y_red)
                                 |> expectRoundOutcome
-                                    Config.default
+                                    TestScenarios.CrashIntoKurveTiming.config
                                     TestScenarios.CrashIntoKurveTiming.expectedOutcome
                         )
                 )
@@ -184,13 +181,13 @@ cuttingCornersTests =
             \_ ->
                 roundWith TestScenarios.CuttingCornersBasic.spawnedKurves
                     |> expectRoundOutcome
-                        Config.default
+                        TestScenarios.CuttingCornersBasic.config
                         TestScenarios.CuttingCornersBasic.expectedOutcome
         , test "The perfect overpainting (squeezing through a non-existent gap)" <|
             \_ ->
                 roundWith TestScenarios.CuttingCornersPerfectOverpainting.spawnedKurves
                     |> expectRoundOutcome
-                        Config.default
+                        TestScenarios.CuttingCornersPerfectOverpainting.config
                         TestScenarios.CuttingCornersPerfectOverpainting.expectedOutcome
         ]
 
@@ -208,7 +205,7 @@ speedTests =
                         \_ ->
                             roundWith TestScenarios.SpeedEffectOnGame.spawnedKurves
                                 |> expectRoundOutcome
-                                    (defaultConfigWithSpeed speed)
+                                    (TestScenarios.SpeedEffectOnGame.config speed)
                                     (TestScenarios.SpeedEffectOnGame.expectedOutcome expectedEndTick)
                 )
         )
@@ -221,6 +218,36 @@ stressTests =
             \_ ->
                 roundWith TestScenarios.StressTestRealisticTurtleSurvivalRound.spawnedKurves
                     |> expectRoundOutcome
-                        Config.default
+                        TestScenarios.StressTestRealisticTurtleSurvivalRound.config
                         TestScenarios.StressTestRealisticTurtleSurvivalRound.expectedOutcome
+        ]
+
+
+drawingTests : Test
+drawingTests =
+    describe "Drawing tests"
+        [ test "Drawing positions are described in chronological order" <|
+            \_ ->
+                roundWith TestScenarios.CrashSomewhatSoon.spawnedKurves
+                    |> expectRoundOutcome
+                        TestScenarios.CrashSomewhatSoon.config
+                        TestScenarios.CrashSomewhatSoon.expectedOutcome
+        ]
+
+
+holeTests : Test
+holeTests =
+    describe "Hole tests"
+        [ test "Final head position is drawn when simultaneously crashing and becoming solid" <|
+            \_ ->
+                roundWith TestScenarios.CrashingWhileBecomingSolid.spawnedKurves
+                    |> expectRoundOutcome
+                        TestScenarios.CrashingWhileBecomingSolid.config
+                        TestScenarios.CrashingWhileBecomingSolid.expectedOutcome
+        , test "Hole size and spacing are correct" <|
+            \_ ->
+                roundWith TestScenarios.HoleSizeAndSpacing.spawnedKurves
+                    |> expectRoundOutcome
+                        TestScenarios.HoleSizeAndSpacing.config
+                        TestScenarios.HoleSizeAndSpacing.expectedOutcome
         ]

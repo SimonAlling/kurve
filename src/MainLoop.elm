@@ -7,8 +7,8 @@ module MainLoop exposing (consumeAnimationFrame, noLeftoverFrameTime)
 
 -}
 
-import Canvas exposing (RenderAction, mergeRenderAction, nothingToDraw)
 import Config exposing (Config)
+import Drawing exposing (WhatToDraw, mergeWhatToDraw)
 import Game exposing (TickResult(..))
 import Round exposing (Round)
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
@@ -22,7 +22,7 @@ consumeAnimationFrame :
     -> LeftoverFrameTime
     -> Tick
     -> Round
-    -> ( TickResult ( LeftoverFrameTime, Tick, Round ), RenderAction )
+    -> ( TickResult ( LeftoverFrameTime, Tick, Round ), Maybe WhatToDraw )
 consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState =
     let
         timeToConsume : FrameTime
@@ -37,37 +37,37 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
             LeftoverFrameTime
             -> Tick
             -> Round
-            -> RenderAction
-            -> ( TickResult ( LeftoverFrameTime, Tick, Round ), RenderAction )
-        recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar renderActionSoFar =
+            -> Maybe WhatToDraw
+            -> ( TickResult ( LeftoverFrameTime, Tick, Round ), Maybe WhatToDraw )
+        recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar whatToDrawSoFar =
             if timeLeftToConsume >= timestep then
                 let
                     incrementedTick : Tick
                     incrementedTick =
                         Tick.succ lastTickReactedTo
 
-                    ( tickResult, renderActionForThisTick ) =
+                    ( tickResult, whatToDrawForThisTick ) =
                         Game.reactToTick config incrementedTick midRoundStateSoFar
 
-                    newRenderAction : RenderAction
-                    newRenderAction =
-                        mergeRenderAction renderActionSoFar renderActionForThisTick
+                    newWhatToDraw : WhatToDraw
+                    newWhatToDraw =
+                        mergeWhatToDraw whatToDrawSoFar whatToDrawForThisTick
                 in
                 case tickResult of
                     RoundKeepsGoing newMidRoundState ->
-                        recurse (timeLeftToConsume - timestep) incrementedTick newMidRoundState newRenderAction
+                        recurse (timeLeftToConsume - timestep) incrementedTick newMidRoundState (Just newWhatToDraw)
 
                     RoundEnds finishedRound ->
                         ( RoundEnds finishedRound
-                        , newRenderAction
+                        , Just newWhatToDraw
                         )
 
             else
                 ( RoundKeepsGoing ( timeLeftToConsume, lastTickReactedTo, midRoundStateSoFar )
-                , renderActionSoFar
+                , whatToDrawSoFar
                 )
     in
-    recurse timeToConsume lastTick midRoundState nothingToDraw
+    recurse timeToConsume lastTick midRoundState Nothing
 
 
 noLeftoverFrameTime : LeftoverFrameTime

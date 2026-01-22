@@ -1,11 +1,13 @@
-port module Main exposing (Model, Msg(..), main)
+port module Main exposing (Model, Msg(..), init, main, update)
 
 import App exposing (AppState(..), modifyGameState)
 import Browser
 import Browser.Events
-import Canvas exposing (clearEverything, drawSpawnIfAndOnlyIf, drawSpawnsPermanently, drawingCmd)
+import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
+import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily)
+import Effect exposing (Effect(..), maybeDrawSomething)
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
@@ -30,6 +32,7 @@ import Game
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
+import IsGameOver exposing (isGameOver)
 import MainLoop
 import Menu exposing (MenuState(..))
 import Players
@@ -46,7 +49,8 @@ import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
 import Time
-import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
+import Types.FrameTime exposing (FrameTime)
+import Types.Kurve exposing (Kurve)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Util exposing (isEven)
@@ -74,43 +78,31 @@ init _ =
     )
 
 
-startRound : LiveOrReplay -> Model -> Round -> ( Model, Cmd msg )
+startRound : LiveOrReplay -> Model -> Round -> ( Model, Effect )
 startRound liveOrReplay model midRoundState =
     let
-        ( gameState, cmd ) =
-            newRoundGameStateAndCmd model.config liveOrReplay midRoundState
+        gameState : GameState
+        gameState =
+            Active liveOrReplay NotPaused <|
+                Spawning
+                    { kurvesLeft = midRoundState |> .kurves |> .alive
+                    , alreadySpawnedKurves = []
+                    , ticksLeft = model.config.spawn.numberOfFlickerTicks
+                    }
+                    midRoundState
     in
-    ( { model | appState = InGame gameState }, cmd )
-
-
-newRoundGameStateAndCmd : Config -> LiveOrReplay -> Round -> ( GameState, Cmd msg )
-newRoundGameStateAndCmd config liveOrReplay plannedMidRoundState =
-    ( Active liveOrReplay NotPaused <|
-        Spawning
-            { kurvesLeft = plannedMidRoundState |> .kurves |> .alive
-            , alreadySpawnedKurves = []
-            , ticksLeft = config.spawn.numberOfFlickerTicks
-            }
-            plannedMidRoundState
-    , clearEverything config.world
-    )
+    ( { model | appState = InGame gameState }, ClearEverything )
 
 
 type Msg
-    = SpawnTick LiveOrReplay SpawnState Round
-    | AnimationFrame
-        LiveOrReplay
-        { delta : FrameTime
-        , leftoverTimeFromPreviousFrame : LeftoverFrameTime
-        , lastTick : Tick
-        }
-        Round
+    = SpawnTick
+    | AnimationFrame FrameTime
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
     | FocusLost
 
 
-stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, Cmd msg )
+stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, WhatToDraw )
 stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
     case kurvesLeft of
         [] ->
@@ -119,18 +111,30 @@ stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
 
         spawning :: waiting ->
             let
+                spawnedAndSpawning : List Kurve
+                spawnedAndSpawning =
+                    alreadySpawnedKurves ++ [ spawning ]
+
+                kurvesToDraw : List Kurve
+                kurvesToDraw =
+                    if isEven ticksLeft then
+                        spawnedAndSpawning
+
+                    else
+                        alreadySpawnedKurves
+
                 newSpawnState : SpawnState
                 newSpawnState =
                     if ticksLeft == 0 then
-                        { kurvesLeft = waiting, alreadySpawnedKurves = spawning :: alreadySpawnedKurves, ticksLeft = config.spawn.numberOfFlickerTicks }
+                        { kurvesLeft = waiting, alreadySpawnedKurves = spawnedAndSpawning, ticksLeft = config.spawn.numberOfFlickerTicks }
 
                     else
                         { kurvesLeft = spawning :: waiting, alreadySpawnedKurves = alreadySpawnedKurves, ticksLeft = ticksLeft - 1 }
             in
-            ( Just newSpawnState, drawSpawnIfAndOnlyIf (isEven ticksLeft) spawning alreadySpawnedKurves )
+            ( Just newSpawnState, drawSpawnsTemporarily kurvesToDraw )
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> ( Model, Effect )
 update msg ({ config, pressedButtons } as model) =
     case msg of
         FocusLost ->
@@ -138,41 +142,53 @@ update msg ({ config, pressedButtons } as model) =
                 InGame (Active liveOrReplay _ s) ->
                     case liveOrReplay of
                         Live ->
-                            ( { model | appState = InGame (Active liveOrReplay Paused s) }, Cmd.none )
+                            ( { model | appState = InGame (Active liveOrReplay Paused s) }, DoNothing )
 
                         Replay ->
                             -- Not important to pause on focus lost when replaying.
-                            ( model, Cmd.none )
+                            ( model, DoNothing )
 
                 _ ->
-                    ( model, Cmd.none )
+                    ( model, DoNothing )
 
-        SpawnTick liveOrReplay spawnState plannedMidRoundState ->
-            let
-                ( maybeSpawnState, cmd ) =
-                    stepSpawnState config spawnState
+        SpawnTick ->
+            case model.appState of
+                InGame (Active liveOrReplay NotPaused (Spawning spawnState plannedMidRoundState)) ->
+                    let
+                        ( maybeSpawnState, whatToDraw ) =
+                            stepSpawnState config spawnState
 
-                activeGameState : ActiveGameState
-                activeGameState =
-                    case maybeSpawnState of
-                        Just newSpawnState ->
-                            Spawning newSpawnState plannedMidRoundState
+                        activeGameState : ActiveGameState
+                        activeGameState =
+                            case maybeSpawnState of
+                                Just newSpawnState ->
+                                    Spawning newSpawnState plannedMidRoundState
 
-                        Nothing ->
-                            Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
-            in
-            ( { model | appState = InGame <| Active liveOrReplay NotPaused activeGameState }
-            , cmd
-            )
+                                Nothing ->
+                                    Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
+                    in
+                    ( { model | appState = InGame <| Active liveOrReplay NotPaused activeGameState }
+                    , DrawSomething whatToDraw
+                    )
 
-        AnimationFrame liveOrReplay { delta, leftoverTimeFromPreviousFrame, lastTick } midRoundState ->
-            let
-                ( tickResult, renderAction ) =
-                    MainLoop.consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState
-            in
-            ( { model | appState = InGame (tickResultToGameState liveOrReplay NotPaused tickResult) }
-            , drawingCmd renderAction
-            )
+                _ ->
+                    -- Not expected to ever happen.
+                    ( model, DoNothing )
+
+        AnimationFrame delta ->
+            case model.appState of
+                InGame (Active liveOrReplay NotPaused (Moving leftoverTimeFromPreviousFrame lastTick midRoundState)) ->
+                    let
+                        ( tickResult, whatToDraw ) =
+                            MainLoop.consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState
+                    in
+                    ( { model | appState = InGame (tickResultToGameState liveOrReplay NotPaused tickResult) }
+                    , maybeDrawSomething whatToDraw
+                    )
+
+                _ ->
+                    -- Not expected to ever happen.
+                    ( model, DoNothing )
 
         ButtonUsed Down button ->
             case model.appState of
@@ -182,7 +198,7 @@ update msg ({ config, pressedButtons } as model) =
                             goToLobby seed model
 
                         _ ->
-                            ( handleUserInteraction Down button model, Cmd.none )
+                            ( handleUserInteraction Down button model, DoNothing )
 
                 InMenu Lobby seed ->
                     case ( button, atLeastOneIsParticipating model.players ) of
@@ -190,7 +206,7 @@ update msg ({ config, pressedButtons } as model) =
                             startRound Live model <| prepareLiveRound config seed (participating model.players) pressedButtons
 
                         _ ->
-                            ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, Cmd.none )
+                            ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, DoNothing )
 
                 InGame (RoundOver finishedRound dialogState) ->
                     case dialogState of
@@ -202,7 +218,7 @@ update msg ({ config, pressedButtons } as model) =
 
                                 gameIsOver : Bool
                                 gameIsOver =
-                                    config.game.isGameOver (participating newModel.players)
+                                    isGameOver (participating newModel.players)
                             in
                             case button of
                                 Key "KeyR" ->
@@ -211,10 +227,10 @@ update msg ({ config, pressedButtons } as model) =
                                 Key "Escape" ->
                                     -- Quitting after the final round is not allowed in the original game.
                                     if not gameIsOver then
-                                        ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open Dialog.Cancel)) }, Cmd.none )
+                                        ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open Dialog.Cancel)) }, DoNothing )
 
                                     else
-                                        ( handleUserInteraction Down button model, Cmd.none )
+                                        ( handleUserInteraction Down button model, DoNothing )
 
                                 Key "Space" ->
                                     if gameIsOver then
@@ -224,21 +240,21 @@ update msg ({ config, pressedButtons } as model) =
                                         startRound Live newModel <| prepareLiveRound config finishedRound.seed (participating newModel.players) pressedButtons
 
                                 _ ->
-                                    ( handleUserInteraction Down button model, Cmd.none )
+                                    ( handleUserInteraction Down button model, DoNothing )
 
                         Dialog.Open selectedOption ->
                             let
-                                cancel : ( Model, Cmd msg )
+                                cancel : ( Model, Effect )
                                 cancel =
-                                    ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, Cmd.none )
+                                    ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, DoNothing )
 
-                                confirm : ( Model, Cmd msg )
+                                confirm : ( Model, Effect )
                                 confirm =
                                     goToLobby finishedRound.seed model
 
-                                select : Dialog.Option -> ( Model, Cmd msg )
+                                select : Dialog.Option -> ( Model, Effect )
                                 select option =
-                                    ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open option)) }, Cmd.none )
+                                    ( { model | appState = InGame (RoundOver finishedRound (Dialog.Open option)) }, DoNothing )
                             in
                             case ( button, selectedOption ) of
                                 ( Key "Escape", _ ) ->
@@ -276,25 +292,25 @@ update msg ({ config, pressedButtons } as model) =
                                             Dialog.Cancel
 
                                 _ ->
-                                    ( handleUserInteraction Down button model, Cmd.none )
+                                    ( handleUserInteraction Down button model, DoNothing )
 
                 InGame (Active Live Paused s) ->
                     case button of
                         Key "Space" ->
-                            ( { model | appState = InGame (Active Live NotPaused s) }, Cmd.none )
+                            ( { model | appState = InGame (Active Live NotPaused s) }, DoNothing )
 
                         _ ->
-                            ( handleUserInteraction Down button model, Cmd.none )
+                            ( handleUserInteraction Down button model, DoNothing )
 
                 InGame (Active Replay Paused s) ->
                     case button of
                         Key "Space" ->
-                            ( { model | appState = InGame (Active Replay NotPaused s) }, Cmd.none )
+                            ( { model | appState = InGame (Active Replay NotPaused s) }, DoNothing )
 
                         Key "ArrowRight" ->
                             case s of
                                 Spawning _ _ ->
-                                    ( model, Cmd.none )
+                                    ( model, DoNothing )
 
                                 Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
                                     let
@@ -302,43 +318,43 @@ update msg ({ config, pressedButtons } as model) =
                                         timeToSkipInMs =
                                             1000 / Tickrate.toFloat config.kurves.tickrate
 
-                                        ( tickResult, renderAction ) =
+                                        ( tickResult, whatToDraw ) =
                                             MainLoop.consumeAnimationFrame config timeToSkipInMs leftoverTimeFromPreviousFrame lastTick midRoundState
                                     in
                                     ( { model | appState = InGame (tickResultToGameState Replay Paused tickResult) }
-                                    , drawingCmd renderAction
+                                    , maybeDrawSomething whatToDraw
                                     )
 
                         _ ->
-                            ( handleUserInteraction Down button model, Cmd.none )
+                            ( handleUserInteraction Down button model, DoNothing )
 
                 InGame (Active Live NotPaused _) ->
-                    ( handleUserInteraction Down button model, Cmd.none )
+                    ( handleUserInteraction Down button model, DoNothing )
 
                 InGame (Active Replay NotPaused s) ->
                     case button of
                         Key "ArrowRight" ->
                             case s of
                                 Spawning _ _ ->
-                                    ( model, Cmd.none )
+                                    ( model, DoNothing )
 
                                 Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
                                     let
-                                        ( tickResult, renderAction ) =
+                                        ( tickResult, whatToDraw ) =
                                             MainLoop.consumeAnimationFrame config (toFloat config.replay.skipStepInMs) leftoverTimeFromPreviousFrame lastTick midRoundState
                                     in
                                     ( { model | appState = InGame (tickResultToGameState Replay NotPaused tickResult) }
-                                    , drawingCmd renderAction
+                                    , maybeDrawSomething whatToDraw
                                     )
 
                         Key "KeyR" ->
                             startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
 
                         Key "Space" ->
-                            ( { model | appState = InGame (Active Replay Paused s) }, Cmd.none )
+                            ( { model | appState = InGame (Active Replay Paused s) }, DoNothing )
 
                         _ ->
-                            ( handleUserInteraction Down button model, Cmd.none )
+                            ( handleUserInteraction Down button model, DoNothing )
 
                 InMenu GameOver seed ->
                     case button of
@@ -346,10 +362,10 @@ update msg ({ config, pressedButtons } as model) =
                             goToLobby seed model
 
                         _ ->
-                            ( handleUserInteraction Down button model, Cmd.none )
+                            ( handleUserInteraction Down button model, DoNothing )
 
         ButtonUsed Up key ->
-            ( handleUserInteraction Up key model, Cmd.none )
+            ( handleUserInteraction Up key model, DoNothing )
 
         DialogChoiceMade option ->
             case model.appState of
@@ -359,21 +375,21 @@ update msg ({ config, pressedButtons } as model) =
                             goToLobby finishedRound.seed model
 
                         Dialog.Cancel ->
-                            ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, Cmd.none )
+                            ( { model | appState = InGame (RoundOver finishedRound Dialog.NotOpen) }, DoNothing )
 
                 _ ->
                     -- Not expected to ever happen.
-                    ( model, Cmd.none )
+                    ( model, DoNothing )
 
 
-gameOver : Random.Seed -> Model -> ( Model, Cmd msg )
+gameOver : Random.Seed -> Model -> ( Model, Effect )
 gameOver seed model =
-    ( { model | appState = InMenu GameOver seed }, Cmd.none )
+    ( { model | appState = InMenu GameOver seed }, DoNothing )
 
 
-goToLobby : Random.Seed -> Model -> ( Model, Cmd msg )
+goToLobby : Random.Seed -> Model -> ( Model, Effect )
 goToLobby seed model =
-    ( { model | appState = InMenu Lobby seed, players = everyoneLeaves model.players }, Cmd.none )
+    ( { model | appState = InMenu Lobby seed, players = everyoneLeaves model.players }, DoNothing )
 
 
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
@@ -415,20 +431,11 @@ subscriptions model =
             InMenu Lobby _ ->
                 Sub.none
 
-            InGame (Active liveOrReplay NotPaused (Spawning spawnState plannedMidRoundState)) ->
-                Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always <| SpawnTick liveOrReplay spawnState plannedMidRoundState)
+            InGame (Active _ NotPaused (Spawning _ _)) ->
+                Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always SpawnTick)
 
-            InGame (Active liveOrReplay NotPaused (Moving leftoverTimeFromPreviousFrame lastTick midRoundState)) ->
-                Browser.Events.onAnimationFrameDelta
-                    (\delta ->
-                        AnimationFrame
-                            liveOrReplay
-                            { delta = delta
-                            , leftoverTimeFromPreviousFrame = leftoverTimeFromPreviousFrame
-                            , lastTick = lastTick
-                            }
-                            midRoundState
-                    )
+            InGame (Active _ NotPaused (Moving _ _ _)) ->
+                Browser.Events.onAnimationFrameDelta AnimationFrame
 
             InGame (Active _ Paused _) ->
                 Sub.none
@@ -495,7 +502,25 @@ main : Program () Model Msg
 main =
     Browser.element
         { init = init
-        , update = update
+        , update = updateWithCmd
         , subscriptions = subscriptions
         , view = view
         }
+
+
+updateWithCmd : Msg -> Model -> ( Model, Cmd Msg )
+updateWithCmd msg =
+    update msg >> Tuple.mapSecond makeCmd
+
+
+makeCmd : Effect -> Cmd msg
+makeCmd effect =
+    case effect of
+        DrawSomething whatToDraw ->
+            drawingCmd whatToDraw
+
+        ClearEverything ->
+            clearEverything
+
+        DoNothing ->
+            Cmd.none

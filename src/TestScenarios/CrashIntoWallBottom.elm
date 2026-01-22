@@ -1,20 +1,28 @@
-module TestScenarios.CrashIntoWallBottom exposing (expectedOutcome, spawnedKurves)
+module TestScenarios.CrashIntoWallBottom exposing (config, expectedOutcome, spawnedKurves)
 
-import Color
-import TestScenarioHelpers exposing (RoundOutcome, makeZombieKurve, playerIds, tickNumber)
+import Colors
+import Config exposing (Config)
+import Holes exposing (HoleStatus(..))
+import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
-import Types.Kurve exposing (HoleStatus(..), Kurve)
+import Types.Kurve exposing (Kurve)
+
+
+config : Config
+config =
+    Config.default
 
 
 green : Kurve
 green =
     makeZombieKurve
-        { color = Color.green
+        { color = Colors.green
         , id = playerIds.green
         , state =
-            { position = ( 99.5, 476.5 )
+            { position = ( 99.5, 474.5 )
             , direction = Angle 0
-            , holeStatus = Unholy 60000
+            , holeStatus =
+                NoHoles
             }
         }
 
@@ -26,13 +34,14 @@ spawnedKurves =
 
 expectedOutcome : RoundOutcome
 expectedOutcome =
-    { tickThatShouldEndIt = tickNumber 2
+    { tickThatShouldEndIt = tickNumber 4
     , howItShouldEnd =
         { aliveAtTheEnd = []
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 99, topEdge = 478 }
+              , theDrawingPositionItNeverMadeItTo = { x = 99, y = 478 }
               }
             ]
         }
+    , effectsItShouldProduce = DoNotCare
     }

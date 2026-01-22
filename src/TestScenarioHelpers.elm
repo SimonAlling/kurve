@@ -1,5 +1,7 @@
 module TestScenarioHelpers exposing
     ( CumulativeInteraction
+    , EffectsExpectation(..)
+    , RefreshRate
     , RoundEndingInterpretation
     , RoundOutcome
     , makeUserInteractions
@@ -10,11 +12,13 @@ module TestScenarioHelpers exposing
     )
 
 import Color
+import Effect exposing (Effect)
+import Holes exposing (HoleStatus(..))
 import Random
 import Round exposing (RoundInitialState)
 import Set
 import Types.Angle exposing (Angle(..))
-import Types.Kurve as Kurve exposing (HoleStatus(..), Kurve, UserInteraction(..))
+import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..))
 import Types.PlayerId exposing (PlayerId)
 import Types.Tick as Tick exposing (Tick)
 import Types.TurningState exposing (TurningState)
@@ -50,7 +54,7 @@ makeZombieKurve { color, id, state } =
     , stateAtSpawn =
         { position = ( 0, 0 )
         , direction = Angle (pi / 2)
-        , holeStatus = Unholy 0
+        , holeStatus = NoHoles
         }
     , reversedInteractions = []
     }
@@ -111,6 +115,7 @@ tickNumber n =
 type alias RoundOutcome =
     { tickThatShouldEndIt : Tick
     , howItShouldEnd : RoundEndingInterpretation
+    , effectsItShouldProduce : EffectsExpectation
     }
 
 
@@ -129,3 +134,12 @@ type alias DeadKurve =
     { id : PlayerId
     , theDrawingPositionItNeverMadeItTo : DrawingPosition
     }
+
+
+type EffectsExpectation
+    = DoNotCare
+    | ExpectEffects (List Effect)
+
+
+type alias RefreshRate =
+    Int

@@ -1,20 +1,28 @@
-module TestScenarios.CrashIntoTipOfTailEnd exposing (expectedOutcome, spawnedKurves)
+module TestScenarios.CrashIntoTipOfTailEnd exposing (config, expectedOutcome, spawnedKurves)
 
-import Color
-import TestScenarioHelpers exposing (RoundOutcome, makeZombieKurve, playerIds, tickNumber)
+import Colors
+import Config exposing (Config)
+import Holes exposing (HoleStatus(..))
+import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
-import Types.Kurve exposing (HoleStatus(..), Kurve)
+import Types.Kurve exposing (Kurve)
+
+
+config : Config
+config =
+    Config.default
 
 
 red : Kurve
 red =
     makeZombieKurve
-        { color = Color.red
+        { color = Colors.red
         , id = playerIds.red
         , state =
             { position = ( 59.5, 59.5 )
             , direction = Angle (pi / 4)
-            , holeStatus = Unholy 60000
+            , holeStatus =
+                NoHoles
             }
         }
 
@@ -22,12 +30,13 @@ red =
 green : Kurve
 green =
     makeZombieKurve
-        { color = Color.green
+        { color = Colors.green
         , id = playerIds.green
         , state =
             { position = ( 29.5, 29.5 )
             , direction = Angle (pi / 4)
-            , holeStatus = Unholy 60000
+            , holeStatus =
+                NoHoles
             }
         }
 
@@ -44,8 +53,9 @@ expectedOutcome =
         { aliveAtTheEnd = [ { id = playerIds.red } ]
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { leftEdge = 57, topEdge = 57 }
+              , theDrawingPositionItNeverMadeItTo = { x = 57, y = 57 }
               }
             ]
         }
+    , effectsItShouldProduce = DoNotCare
     }

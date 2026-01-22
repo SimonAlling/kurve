@@ -1,18 +1,15 @@
 module Config exposing
     ( Config
-    , GameConfig
     , HoleConfig
     , KurveConfig
     , SpawnConfig
     , WorldConfig
     , default
+    , withHardcodedHoles
+    , withSpeed
     )
 
-import Dict
-import Players exposing (ParticipatingPlayers)
-import Types.Distance exposing (Distance(..))
 import Types.Radius exposing (Radius(..))
-import Types.Score exposing (Score(..), isAtLeast)
 import Types.Speed exposing (Speed(..))
 import Types.Tickrate exposing (Tickrate(..))
 
@@ -24,10 +21,10 @@ default =
         , turningRadius = Radius 28.5
         , speed = Speed 60
         , holes =
-            { minInterval = Distance 90
-            , maxInterval = Distance 300
-            , minSize = Distance 5
-            , maxSize = Distance 9
+            { minSolidTicks = 90
+            , maxSolidTicks = 300
+            , minHolyTicks = 9
+            , maxHolyTicks = 13
             }
         }
     , spawn =
@@ -42,40 +39,16 @@ default =
         { width = 559
         , height = 480
         }
-    , game =
-        { isGameOver = defaultGameOverCondition
-        }
     , replay =
         { skipStepInMs = 5000
         }
     }
 
 
-defaultGameOverCondition : ParticipatingPlayers -> Bool
-defaultGameOverCondition participatingPlayers =
-    let
-        numberOfPlayers : Int
-        numberOfPlayers =
-            Dict.size participatingPlayers
-
-        targetScore : Score
-        targetScore =
-            Score ((numberOfPlayers - 1) * 10)
-
-        someoneHasReachedTargetScore : Bool
-        someoneHasReachedTargetScore =
-            not <|
-                Dict.isEmpty <|
-                    Dict.filter (always (Tuple.second >> isAtLeast targetScore)) participatingPlayers
-    in
-    numberOfPlayers > 1 && someoneHasReachedTargetScore
-
-
 type alias Config =
     { kurves : KurveConfig
     , spawn : SpawnConfig
     , world : WorldConfig
-    , game : GameConfig
     , replay : ReplayConfig
     }
 
@@ -104,19 +77,49 @@ type alias WorldConfig =
     }
 
 
-type alias GameConfig =
-    { isGameOver : ParticipatingPlayers -> Bool
-    }
-
-
 type alias ReplayConfig =
     { skipStepInMs : Int
     }
 
 
 type alias HoleConfig =
-    { minInterval : Distance
-    , maxInterval : Distance
-    , minSize : Distance
-    , maxSize : Distance
+    { minSolidTicks : Int
+    , maxSolidTicks : Int
+    , minHolyTicks : Int
+    , maxHolyTicks : Int
+    }
+
+
+withSpeed : Speed -> Config -> Config
+withSpeed speed config =
+    let
+        kurveConfig : KurveConfig
+        kurveConfig =
+            config.kurves
+    in
+    { config
+        | kurves =
+            { kurveConfig
+                | speed = speed
+            }
+    }
+
+
+withHardcodedHoles : Int -> Int -> Config -> Config
+withHardcodedHoles solidTicks holyTicks config =
+    let
+        defaultKurveConfig : KurveConfig
+        defaultKurveConfig =
+            config.kurves
+    in
+    { config
+        | kurves =
+            { defaultKurveConfig
+                | holes =
+                    { minSolidTicks = solidTicks
+                    , maxSolidTicks = solidTicks
+                    , minHolyTicks = holyTicks
+                    , maxHolyTicks = holyTicks
+                    }
+            }
     }
