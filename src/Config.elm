@@ -9,7 +9,6 @@ module Config exposing
     , withSpeed
     )
 
-import Types.Distance exposing (Distance(..))
 import Types.Radius exposing (Radius(..))
 import Types.Speed exposing (Speed(..))
 import Types.Tickrate exposing (Tickrate(..))
@@ -22,10 +21,10 @@ default =
         , turningRadius = Radius 28.5
         , speed = Speed 60
         , holes =
-            { minInterval = Distance 90
-            , maxInterval = Distance 300
-            , minSize = Distance 5
-            , maxSize = Distance 9
+            { minSolidTicks = 90
+            , maxSolidTicks = 300
+            , minHolyTicks = 9
+            , maxHolyTicks = 13
             }
         }
     , spawn =
@@ -84,10 +83,10 @@ type alias ReplayConfig =
 
 
 type alias HoleConfig =
-    { minInterval : Distance
-    , maxInterval : Distance
-    , minSize : Distance
-    , maxSize : Distance
+    { minSolidTicks : Int
+    , maxSolidTicks : Int
+    , minHolyTicks : Int
+    , maxHolyTicks : Int
     }
 
 
@@ -106,8 +105,8 @@ withSpeed speed config =
     }
 
 
-withHardcodedHoles : Distance -> Distance -> Config -> Config
-withHardcodedHoles interval size config =
+withHardcodedHoles : Int -> Int -> Config -> Config
+withHardcodedHoles solidTicks holyTicks config =
     let
         defaultKurveConfig : KurveConfig
         defaultKurveConfig =
@@ -117,10 +116,10 @@ withHardcodedHoles interval size config =
         | kurves =
             { defaultKurveConfig
                 | holes =
-                    { minInterval = interval
-                    , maxInterval = interval
-                    , minSize = size
-                    , maxSize = size
+                    { minSolidTicks = solidTicks
+                    , maxSolidTicks = solidTicks
+                    , minHolyTicks = holyTicks
+                    , maxHolyTicks = holyTicks
                     }
             }
     }

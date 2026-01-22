@@ -7,14 +7,13 @@ import Holes exposing (HoleStatus(..), Holiness(..))
 import Random
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
-import Types.Distance exposing (Distance(..))
 import Types.Kurve exposing (Kurve)
 
 
 config : Config
 config =
     Config.default
-        |> Config.withHardcodedHoles (Distance 100) (Distance 4)
+        |> Config.withHardcodedHoles 100 8
 
 
 green : Kurve

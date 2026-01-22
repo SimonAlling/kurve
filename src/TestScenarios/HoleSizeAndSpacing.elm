@@ -7,24 +7,23 @@ import Holes exposing (HoleStatus(..), Holiness(..))
 import Random
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
-import Types.Distance exposing (Distance(..))
 import Types.Kurve exposing (Kurve)
 
 
-holeInterval : Distance
-holeInterval =
-    Distance 4
+solidTicks : Int
+solidTicks =
+    5
 
 
-holeSize : Distance
-holeSize =
-    Distance 1
+holyTicks : Int
+holyTicks =
+    5
 
 
 config : Config
 config =
     Config.default
-        |> Config.withHardcodedHoles holeInterval holeSize
+        |> Config.withHardcodedHoles solidTicks holyTicks
 
 
 green : Kurve
