@@ -189,6 +189,19 @@ button {
     width: $nativeWidth;
     height: $nativeHeight;
     background-image: url("../resources/splash.png");
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-direction: column;
+
+    .source-link {
+        margin-bottom: 120px;
+        opacity: 0.5;
+    }
+
+    .source-link:hover, .source-link:focus {
+        opacity: 1;
+    }
 }
 
 #lobby {
