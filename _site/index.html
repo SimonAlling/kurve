@@ -57,8 +57,11 @@
             context?.clearRect(x, y, width, height);
         }
 
-        app.ports.renderMain.subscribe(squares => {
+        app.ports.renderMain.subscribe(({ clearFirst, squares }) => {
             const canvas_main = document.getElementById("canvas_main");
+            if (clearFirst === true) {
+                clearRectangleIfCanvasExists(canvas_main, { x: 0, y: 0, width: canvas_main?.width, height: canvas_main?.height });
+            }
             for (const square of squares) {
                 drawSquare(canvas_main, square);
             }

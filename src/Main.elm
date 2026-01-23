@@ -6,7 +6,7 @@ import Browser.Events
 import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
-import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily)
+import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily, mergeWhatToDraw)
 import Effect exposing (Effect(..), maybeDrawSomething)
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
@@ -318,6 +318,9 @@ update msg ({ config, pressedButtons } as model) =
 
                 InGame (Active Replay NotPaused s) ->
                     case button of
+                        Key "ArrowLeft" ->
+                            rewindReplay s model
+
                         Key "ArrowRight" ->
                             case s of
                                 Spawning _ _ ->
@@ -387,6 +390,51 @@ stepOneTick activeGameState model =
             in
             ( { model | appState = InGame (tickResultToGameState Replay Paused tickResult) }
             , maybeDrawSomething whatToDraw
+            )
+
+
+rewindReplay : ActiveGameState -> Model -> ( Model, Effect )
+rewindReplay activeGameState model =
+    case activeGameState of
+        Spawning _ _ ->
+            ( model, DoNothing )
+
+        Moving _ lastTick midRoundState ->
+            let
+                roundAtBeginning : Round
+                roundAtBeginning =
+                    prepareReplayRound (initialStateForReplaying midRoundState)
+
+                tickrateInHz : Float
+                tickrateInHz =
+                    Tickrate.toFloat model.config.kurves.tickrate
+
+                ticksToRewind : Int
+                ticksToRewind =
+                    (tickrateInHz * toFloat model.config.replay.skipStepInMs / 1000)
+                        |> floor
+
+                tickToGoTo : Tick
+                tickToGoTo =
+                    Tick.toInt lastTick
+                        - ticksToRewind
+                        |> Tick.fromInt
+                        |> Maybe.withDefault Tick.genesis
+
+                timeToFastForward : FrameTime
+                timeToFastForward =
+                    ((toFloat <| Tick.toInt tickToGoTo) / tickrateInHz)
+                        * 1000
+
+                whatToDrawForSpawns : WhatToDraw
+                whatToDrawForSpawns =
+                    drawSpawnsPermanently roundAtBeginning.kurves.alive
+
+                ( tickResult, whatToDrawForFastForward ) =
+                    MainLoop.consumeAnimationFrame model.config timeToFastForward 0 Tick.genesis roundAtBeginning
+            in
+            ( { model | appState = InGame (tickResultToGameState Replay NotPaused tickResult) }
+            , ClearAndThenDraw (mergeWhatToDraw whatToDrawForFastForward whatToDrawForSpawns)
             )
 
 
@@ -525,7 +573,10 @@ makeCmd : Effect -> Cmd msg
 makeCmd effect =
     case effect of
         DrawSomething whatToDraw ->
-            drawingCmd whatToDraw
+            drawingCmd False whatToDraw
+
+        ClearAndThenDraw whatToDraw ->
+            drawingCmd True whatToDraw
 
         ClearEverything ->
             clearEverything

@@ -6,7 +6,7 @@ import Thickness exposing (theThickness)
 import World exposing (DrawingPosition)
 
 
-port renderMain : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
+port renderMain : { clearFirst : Bool, squares : List { position : DrawingPosition, thickness : Int, color : String } } -> Cmd msg
 
 
 port clearMain : () -> Cmd msg
@@ -15,24 +15,28 @@ port clearMain : () -> Cmd msg
 port renderOverlay : List { position : DrawingPosition, thickness : Int, color : String } -> Cmd msg
 
 
-drawingCmd : WhatToDraw -> Cmd msg
-drawingCmd whatToDraw =
+drawingCmd : Bool -> WhatToDraw -> Cmd msg
+drawingCmd clearFirst whatToDraw =
     [ headDrawingCmd whatToDraw.headDrawing
-    , bodyDrawingCmd whatToDraw.bodyDrawing
+    , bodyDrawingCmd clearFirst whatToDraw.bodyDrawing
     ]
         |> Cmd.batch
 
 
-bodyDrawingCmd : List ( Color, DrawingPosition ) -> Cmd msg
-bodyDrawingCmd =
+bodyDrawingCmd : Bool -> List ( Color, DrawingPosition ) -> Cmd msg
+bodyDrawingCmd clearFirst coloredDrawingPositions =
     renderMain
-        << List.map
-            (\( color, position ) ->
-                { position = position
-                , thickness = theThickness
-                , color = Color.toCssString color
-                }
-            )
+        { clearFirst = clearFirst
+        , squares =
+            List.map
+                (\( color, position ) ->
+                    { position = position
+                    , thickness = theThickness
+                    , color = Color.toCssString color
+                    }
+                )
+                coloredDrawingPositions
+        }
 
 
 headDrawingCmd : List ( Color, DrawingPosition ) -> Cmd msg
