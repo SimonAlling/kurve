@@ -190,10 +190,10 @@ button {
     height: $nativeHeight;
     background-image: url("../resources/splash.png");
     display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    box-sizing: border-box;
     flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    box-sizing: border-box;
     padding-bottom: 120px;
 
     .source-link {
