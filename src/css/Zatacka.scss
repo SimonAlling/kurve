@@ -192,10 +192,11 @@ button {
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    box-sizing: border-box;
     flex-direction: column;
+    padding-bottom: 120px;
 
     .source-link {
-        margin-bottom: 120px;
         opacity: 0.5;
     }
 
