@@ -1,7 +1,7 @@
 module GUI.SplashScreen exposing (splashScreen)
 
 import Colors
-import GUI.Text
+import GUI.Text as Text
 import Html exposing (Html, a, div)
 import Html.Attributes as Attr
 
@@ -15,5 +15,5 @@ splashScreen =
             [ Attr.class "source-link"
             , Attr.href "https://github.com/SimonAlling/kurve"
             ]
-            (GUI.Text.string (GUI.Text.Size 1) Colors.white "Source")
+            (Text.string (Text.Size 1) Colors.white "Source")
         ]
