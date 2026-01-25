@@ -78,29 +78,61 @@ desiredDrawingPositions startingPoint desiredEndPoint =
 hitbox : DrawingPosition -> DrawingPosition -> Set Pixel
 hitbox oldPosition newPosition =
     let
-        is45DegreeDraw : Bool
-        is45DegreeDraw =
-            oldPosition.x /= newPosition.x && oldPosition.y /= newPosition.y
-
-        oldPixels : Set Pixel
-        oldPixels =
-            pixelsToOccupy oldPosition
-
         newPixels : Set Pixel
         newPixels =
             pixelsToOccupy newPosition
+
+        pointInFrontOfKurve : ( Float, Float )
+        pointInFrontOfKurve =
+            computePointInFront oldPosition newPosition
     in
-    if is45DegreeDraw then
-        let
-            oldXs : Set Int
-            oldXs =
-                Set.map Tuple.first oldPixels
+    newPixels |> Set.filter (isCloseTo pointInFrontOfKurve)
 
-            oldYs : Set Int
-            oldYs =
-                Set.map Tuple.second oldPixels
-        in
-        Set.filter (\( x, y ) -> not (Set.member x oldXs) && not (Set.member y oldYs)) newPixels
 
-    else
-        Set.diff newPixels oldPixels
+{-| Computes a point in front of the Kurve from which the hitbox can be computed.
+-}
+computePointInFront : DrawingPosition -> DrawingPosition -> ( Float, Float )
+computePointInFront oldPosition newPosition =
+    let
+        -- To compute the point in front of the Kurve, we need to start from the center of its head.
+        centerPixel : Pixel
+        centerPixel =
+            ( oldPosition.x + 1, oldPosition.y + 1 )
+
+        ( cx, cy ) =
+            Tuple.mapBoth toFloat toFloat centerPixel
+
+        -- We also need the direction and length of this drawing-position step.
+        movementVector : ( Float, Float )
+        movementVector =
+            ( newPosition.x - oldPosition.x |> toFloat
+            , newPosition.y - oldPosition.y |> toFloat
+            )
+
+        ( dx, dy ) =
+            -- This gives us a vector that will take us from the center pixel to the point in front of the Kurve.
+            scaleBy 2.5 movementVector
+    in
+    ( cx + dx, cy + dy )
+
+
+{-| Whether the given pixel is close enough to the point in front of the Kurve to be part of the hitbox.
+-}
+isCloseTo : ( Float, Float ) -> Pixel -> Bool
+isCloseTo ( x_front, y_front ) ( x_candidate, y_candidate ) =
+    let
+        squareDistanceBetweenPoints : Float
+        squareDistanceBetweenPoints =
+            (x_front - toFloat x_candidate) ^ 2 + (y_front - toFloat y_candidate) ^ 2
+    in
+    squareDistanceBetweenPoints <= maxSquareDistance
+
+
+maxSquareDistance : Float
+maxSquareDistance =
+    5 / 4
+
+
+scaleBy : Float -> ( Float, Float ) -> ( Float, Float )
+scaleBy k ( x, y ) =
+    ( k * x, k * y )
