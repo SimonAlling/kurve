@@ -2,6 +2,7 @@ module TestScenarios.CrashIntoWallLeft exposing (config, expectedOutcome, spawne
 
 import Colors
 import Config exposing (Config)
+import Effect exposing (Effect(..))
 import Holes exposing (HoleStatus(..))
 import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
@@ -43,5 +44,55 @@ expectedOutcome =
               }
             ]
         }
-    , effectsItShouldProduce = DoNotCare
+    , effectsItShouldProduce =
+        ExpectEffects
+            [ DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Colors.green, { x = 3, y = 99 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Colors.green, { x = 3, y = 99 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Colors.green, { x = 3, y = 99 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = [ ( Colors.green, { x = 3, y = 99 } ) ]
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = [ ( Colors.green, { x = 2, y = 99 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 2, y = 99 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = [ ( Colors.green, { x = 1, y = 99 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 1, y = 99 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = [ ( Colors.green, { x = 0, y = 99 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 0, y = 99 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Colors.green, { x = 0, y = 99 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            ]
     }
