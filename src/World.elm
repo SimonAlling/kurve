@@ -14,6 +14,7 @@ import RasterShapes
 import Set exposing (Set)
 import Thickness exposing (theThickness)
 import Types.Distance exposing (Distance(..))
+import Util exposing (sign)
 
 
 type alias Position =
@@ -66,13 +67,42 @@ pixelsToOccupy { x, y } =
 
 desiredDrawingPositions : Position -> Position -> List DrawingPosition
 desiredDrawingPositions startingPoint desiredEndPoint =
+    let
+        ( x1, y1 ) =
+            startingPoint
+
+        ( x2, y2 ) =
+            desiredEndPoint
+
+        drawingPositionStart : DrawingPosition
+        drawingPositionStart =
+            drawingPosition startingPoint
+
+        drawingPositionEnd : DrawingPosition
+        drawingPositionEnd =
+            drawingPosition desiredEndPoint
+
+        startIsSameAsEnd : Bool
+        startIsSameAsEnd =
+            drawingPositionStart == drawingPositionEnd
+
+        theReasonIsTruncation : Bool
+        theReasonIsTruncation =
+            sign x1 /= sign x2 || sign y1 /= sign y2
+    in
     RasterShapes.line
-        (drawingPosition startingPoint)
-        (drawingPosition desiredEndPoint)
+        drawingPositionStart
+        drawingPositionEnd
         -- The RasterShapes library returns the positions in reverse order.
         |> List.reverse
         -- The first element in the list is the starting position, which is assumed to already have been drawn.
-        |> List.drop 1
+        |> (if startIsSameAsEnd && theReasonIsTruncation then
+                -- If the starting position and the end position are equal _because_ the Kurve crossed the top or left edge of the canvas, then we want to draw at the same position again.
+                identity
+
+            else
+                List.drop 1
+           )
 
 
 hitbox : DrawingPosition -> DrawingPosition -> Set Pixel

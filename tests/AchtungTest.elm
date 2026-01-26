@@ -17,6 +17,7 @@ import TestScenarios.CrashSomewhatSoon
 import TestScenarios.CrashingWhileBecomingSolid
 import TestScenarios.CuttingCornersBasic
 import TestScenarios.CuttingCornersPerfectOverpainting
+import TestScenarios.GoingOutsideTheCanvasJustAfterBecomingSolid
 import TestScenarios.HoleSizeAndSpacing
 import TestScenarios.SpeedEffectOnGame
 import TestScenarios.StressTestRealisticTurtleSurvivalRound
@@ -244,6 +245,12 @@ holeTests =
                     |> expectRoundOutcome
                         TestScenarios.CrashingWhileBecomingSolid.config
                         TestScenarios.CrashingWhileBecomingSolid.expectedOutcome
+        , test "First solid position is permanently drawn when becoming solid and then immediately going outside the canvas" <|
+            \_ ->
+                roundWith TestScenarios.GoingOutsideTheCanvasJustAfterBecomingSolid.spawnedKurves
+                    |> expectRoundOutcome
+                        TestScenarios.GoingOutsideTheCanvasJustAfterBecomingSolid.config
+                        TestScenarios.GoingOutsideTheCanvasJustAfterBecomingSolid.expectedOutcome
         , test "Hole size and spacing are correct" <|
             \_ ->
                 roundWith TestScenarios.HoleSizeAndSpacing.spawnedKurves
