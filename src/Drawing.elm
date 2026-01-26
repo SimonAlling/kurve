@@ -1,4 +1,4 @@
-module Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily, getColorAndDrawingPosition, mergeWhatToDraw, mergeWhatToDraw_flipped)
+module Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily, getColorAndDrawingPosition, mergeWhatToDraw)
 
 import Color exposing (Color)
 import Types.Kurve exposing (Kurve)
@@ -11,28 +11,11 @@ type alias WhatToDraw =
     }
 
 
-mergeWhatToDraw : Maybe WhatToDraw -> WhatToDraw -> WhatToDraw
-mergeWhatToDraw actionFirst whatToDrawThen =
-    case ( actionFirst, whatToDrawThen ) of
-        ( Nothing, whatToDraw ) ->
-            whatToDraw
-
-        ( Just whatFirst, whatThen ) ->
-            { headDrawing = whatThen.headDrawing
-            , bodyDrawing = whatFirst.bodyDrawing ++ whatThen.bodyDrawing
-            }
-
-
-mergeWhatToDraw_flipped : WhatToDraw -> Maybe WhatToDraw -> WhatToDraw
-mergeWhatToDraw_flipped whatToDrawFirst actionThen =
-    case ( whatToDrawFirst, actionThen ) of
-        ( whatToDraw, Nothing ) ->
-            whatToDraw
-
-        ( whatFirst, Just whatThen ) ->
-            { headDrawing = whatThen.headDrawing
-            , bodyDrawing = whatFirst.bodyDrawing ++ whatThen.bodyDrawing
-            }
+mergeWhatToDraw : WhatToDraw -> WhatToDraw -> WhatToDraw
+mergeWhatToDraw whatFirst whatThen =
+    { headDrawing = whatThen.headDrawing
+    , bodyDrawing = whatFirst.bodyDrawing ++ whatThen.bodyDrawing
+    }
 
 
 drawSpawnsPermanently : List Kurve -> WhatToDraw

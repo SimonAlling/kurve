@@ -6,7 +6,7 @@ import Browser.Events
 import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
-import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily, mergeWhatToDraw_flipped)
+import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily, mergeWhatToDraw)
 import Effect exposing (Effect(..), maybeDrawSomething)
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
@@ -429,11 +429,20 @@ rewindReplay activeGameState model =
                 whatToDrawForSpawns =
                     drawSpawnsPermanently roundAtBeginning.kurves.alive
 
-                ( tickResult, whatToDrawForSkippingAhead ) =
+                ( tickResult, maybeWhatToDrawForSkippingAhead ) =
                     MainLoop.consumeAnimationFrame model.config millisecondsToSkipAhead 0 Tick.genesis roundAtBeginning
+
+                whatToDraw : WhatToDraw
+                whatToDraw =
+                    case maybeWhatToDrawForSkippingAhead of
+                        Nothing ->
+                            whatToDrawForSpawns
+
+                        Just whatToDrawForSkippingAhead ->
+                            mergeWhatToDraw whatToDrawForSpawns whatToDrawForSkippingAhead
             in
             ( { model | appState = InGame (tickResultToGameState Replay NotPaused tickResult) }
-            , ClearAndThenDraw (mergeWhatToDraw_flipped whatToDrawForSpawns whatToDrawForSkippingAhead)
+            , ClearAndThenDraw whatToDraw
             )
 
 
