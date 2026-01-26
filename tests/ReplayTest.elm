@@ -492,7 +492,7 @@ expectedEffects =
             , ( Colors.green, { x = 100, y = 169 } )
             , ( Colors.green, { x = 100, y = 170 } )
             ]
-        , headDrawing = []
+        , headDrawing = [ ( Colors.green, { x = 100, y = 170 } ) ]
         }
     , DoNothing
     , DrawSomething
@@ -558,7 +558,7 @@ expectedEffects =
             , ( Colors.green, { x = 100, y = 118 } )
             , ( Colors.green, { x = 100, y = 119 } )
             ]
-        , headDrawing = []
+        , headDrawing = [ ( Colors.green, { x = 100, y = 119 } ) ]
         }
     , DoNothing
     , DrawSomething
