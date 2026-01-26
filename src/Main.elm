@@ -6,7 +6,7 @@ import Browser.Events
 import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
-import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily, mergeWhatToDraw)
+import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily, mergeWhatToDraw_flipped)
 import Effect exposing (Effect(..), maybeDrawSomething)
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
@@ -433,7 +433,7 @@ rewindReplay activeGameState model =
                     MainLoop.consumeAnimationFrame model.config millisecondsToSkipAhead 0 Tick.genesis roundAtBeginning
             in
             ( { model | appState = InGame (tickResultToGameState Replay NotPaused tickResult) }
-            , ClearAndThenDraw (mergeWhatToDraw whatToDrawForSkippingAhead whatToDrawForSpawns)
+            , ClearAndThenDraw (mergeWhatToDraw_flipped whatToDrawForSpawns whatToDrawForSkippingAhead)
             )
 
 
