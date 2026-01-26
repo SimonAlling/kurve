@@ -421,8 +421,8 @@ rewindReplay activeGameState model =
                         |> Tick.fromInt
                         |> Maybe.withDefault Tick.genesis
 
-                timeToFastForward : FrameTime
-                timeToFastForward =
+                millisecondsToSkipAhead : FrameTime
+                millisecondsToSkipAhead =
                     ((toFloat <| Tick.toInt tickToGoTo) / tickrateInHz) * 1000
 
                 whatToDrawForSpawns : WhatToDraw
@@ -430,7 +430,7 @@ rewindReplay activeGameState model =
                     drawSpawnsPermanently roundAtBeginning.kurves.alive
 
                 ( tickResult, whatToDrawForFastForward ) =
-                    MainLoop.consumeAnimationFrame model.config timeToFastForward 0 Tick.genesis roundAtBeginning
+                    MainLoop.consumeAnimationFrame model.config millisecondsToSkipAhead 0 Tick.genesis roundAtBeginning
             in
             ( { model | appState = InGame (tickResultToGameState Replay NotPaused tickResult) }
             , ClearAndThenDraw (mergeWhatToDraw whatToDrawForFastForward whatToDrawForSpawns)
