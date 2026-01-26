@@ -420,7 +420,8 @@ expectedEffects =
         }
     , ClearAndThenDraw
         { bodyDrawing =
-            [ ( Colors.green, { x = 100, y = 101 } )
+            [ ( Colors.green, { x = 100, y = 100 } )
+            , ( Colors.green, { x = 100, y = 101 } )
             , ( Colors.green, { x = 100, y = 102 } )
             , ( Colors.green, { x = 100, y = 103 } )
             , ( Colors.green, { x = 100, y = 104 } )
@@ -490,7 +491,6 @@ expectedEffects =
             , ( Colors.green, { x = 100, y = 168 } )
             , ( Colors.green, { x = 100, y = 169 } )
             , ( Colors.green, { x = 100, y = 170 } )
-            , ( Colors.green, { x = 100, y = 100 } )
             ]
         , headDrawing = []
         }
@@ -537,7 +537,8 @@ expectedEffects =
         }
     , ClearAndThenDraw
         { bodyDrawing =
-            [ ( Colors.green, { x = 100, y = 101 } )
+            [ ( Colors.green, { x = 100, y = 100 } )
+            , ( Colors.green, { x = 100, y = 101 } )
             , ( Colors.green, { x = 100, y = 102 } )
             , ( Colors.green, { x = 100, y = 103 } )
             , ( Colors.green, { x = 100, y = 104 } )
@@ -556,7 +557,6 @@ expectedEffects =
             , ( Colors.green, { x = 100, y = 117 } )
             , ( Colors.green, { x = 100, y = 118 } )
             , ( Colors.green, { x = 100, y = 119 } )
-            , ( Colors.green, { x = 100, y = 100 } )
             ]
         , headDrawing = []
         }
