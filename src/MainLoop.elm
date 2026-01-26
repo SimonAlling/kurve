@@ -39,7 +39,7 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
             -> Round
             -> Maybe WhatToDraw
             -> ( TickResult ( LeftoverFrameTime, Tick, Round ), Maybe WhatToDraw )
-        recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar whatToDrawSoFar =
+        recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar maybeWhatToDrawSoFar =
             if timeLeftToConsume >= timestep then
                 let
                     incrementedTick : Tick
@@ -51,7 +51,12 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
 
                     newWhatToDraw : WhatToDraw
                     newWhatToDraw =
-                        mergeWhatToDraw whatToDrawSoFar whatToDrawForThisTick
+                        case maybeWhatToDrawSoFar of
+                            Nothing ->
+                                whatToDrawForThisTick
+
+                            Just whatToDrawSoFar ->
+                                mergeWhatToDraw whatToDrawSoFar whatToDrawForThisTick
                 in
                 case tickResult of
                     RoundKeepsGoing newMidRoundState ->
@@ -64,7 +69,7 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
 
             else
                 ( RoundKeepsGoing ( timeLeftToConsume, lastTickReactedTo, midRoundStateSoFar )
-                , whatToDrawSoFar
+                , maybeWhatToDrawSoFar
                 )
     in
     recurse timeToConsume lastTick midRoundState Nothing
