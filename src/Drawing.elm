@@ -11,16 +11,11 @@ type alias WhatToDraw =
     }
 
 
-mergeWhatToDraw : Maybe WhatToDraw -> WhatToDraw -> WhatToDraw
-mergeWhatToDraw actionFirst whatToDrawThen =
-    case ( actionFirst, whatToDrawThen ) of
-        ( Nothing, whatToDraw ) ->
-            whatToDraw
-
-        ( Just whatFirst, whatThen ) ->
-            { headDrawing = whatThen.headDrawing
-            , bodyDrawing = whatFirst.bodyDrawing ++ whatThen.bodyDrawing
-            }
+mergeWhatToDraw : WhatToDraw -> WhatToDraw -> WhatToDraw
+mergeWhatToDraw whatFirst whatThen =
+    { headDrawing = whatThen.headDrawing
+    , bodyDrawing = whatFirst.bodyDrawing ++ whatThen.bodyDrawing
+    }
 
 
 drawSpawnsPermanently : List Kurve -> WhatToDraw
