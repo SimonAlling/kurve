@@ -417,15 +417,13 @@ rewindReplay activeGameState model =
 
                 tickToGoTo : Tick
                 tickToGoTo =
-                    Tick.toInt lastTick
-                        - ticksToRewind
+                    (Tick.toInt lastTick - ticksToRewind)
                         |> Tick.fromInt
                         |> Maybe.withDefault Tick.genesis
 
                 timeToFastForward : FrameTime
                 timeToFastForward =
-                    ((toFloat <| Tick.toInt tickToGoTo) / tickrateInHz)
-                        * 1000
+                    ((toFloat <| Tick.toInt tickToGoTo) / tickrateInHz) * 1000
 
                 whatToDrawForSpawns : WhatToDraw
                 whatToDrawForSpawns =
