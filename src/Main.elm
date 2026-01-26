@@ -423,7 +423,7 @@ rewindReplay activeGameState model =
 
                 millisecondsToSkipAhead : FrameTime
                 millisecondsToSkipAhead =
-                    ((toFloat <| Tick.toInt tickToGoTo) / tickrateInHz) * 1000
+                    ((tickToGoTo |> Tick.toInt |> toFloat) / tickrateInHz) * 1000
 
                 whatToDrawForSpawns : WhatToDraw
                 whatToDrawForSpawns =
