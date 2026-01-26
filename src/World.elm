@@ -65,10 +65,10 @@ pixelsToOccupy { x, y } =
 
 
 desiredDrawingPositions : Position -> Position -> List DrawingPosition
-desiredDrawingPositions position1 position2 =
+desiredDrawingPositions startingPoint desiredEndPoint =
     RasterShapes.line
-        (drawingPosition position1)
-        (drawingPosition position2)
+        (drawingPosition startingPoint)
+        (drawingPosition desiredEndPoint)
         -- The RasterShapes library returns the positions in reverse order.
         |> List.reverse
         -- The first element in the list is the starting position, which is assumed to already have been drawn.
