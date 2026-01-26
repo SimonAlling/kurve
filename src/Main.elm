@@ -429,11 +429,11 @@ rewindReplay activeGameState model =
                 whatToDrawForSpawns =
                     drawSpawnsPermanently roundAtBeginning.kurves.alive
 
-                ( tickResult, whatToDrawForFastForward ) =
+                ( tickResult, whatToDrawForSkippingAhead ) =
                     MainLoop.consumeAnimationFrame model.config millisecondsToSkipAhead 0 Tick.genesis roundAtBeginning
             in
             ( { model | appState = InGame (tickResultToGameState Replay NotPaused tickResult) }
-            , ClearAndThenDraw (mergeWhatToDraw whatToDrawForFastForward whatToDrawForSpawns)
+            , ClearAndThenDraw (mergeWhatToDraw whatToDrawForSkippingAhead whatToDrawForSpawns)
             )
 
 
