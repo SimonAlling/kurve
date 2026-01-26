@@ -412,7 +412,8 @@ rewindReplay activeGameState model =
                 ticksToRewind : Int
                 ticksToRewind =
                     (tickrateInHz * toFloat model.config.replay.skipStepInMs / 1000)
-                        |> floor
+                        -- If the tickrate is 1 Hz and the skip step is 400 ms, should we go back 1 or 0 ticks? I think 1.
+                        |> ceiling
 
                 tickToGoTo : Tick
                 tickToGoTo =
