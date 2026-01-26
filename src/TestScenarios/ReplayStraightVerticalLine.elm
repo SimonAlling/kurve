@@ -22,7 +22,7 @@ config =
     { defaultConfig
         | replay =
             { defaultReplayConfig
-                | skipStepInMs = 1000
+                | skipStepInMs = 1000 -- To keep the length of the list of expected effects somewhat moderate.
             }
     }
 
