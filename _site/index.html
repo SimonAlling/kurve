@@ -59,7 +59,7 @@
 
         app.ports.renderMain.subscribe(({ clearFirst, squares }) => {
             const canvas_main = document.getElementById("canvas_main");
-            if (clearFirst === true) {
+            if (clearFirst) {
                 clearRectangleIfCanvasExists(canvas_main, { x: 0, y: 0, width: canvas_main?.width, height: canvas_main?.height });
             }
             for (const square of squares) {
