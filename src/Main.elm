@@ -6,7 +6,7 @@ import Browser.Events
 import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
-import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily)
+import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily, mergeWhatToDraw)
 import Effect exposing (Effect(..), maybeDrawSomething)
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
@@ -318,6 +318,9 @@ update msg ({ config, pressedButtons } as model) =
 
                 InGame (Active Replay NotPaused s) ->
                     case button of
+                        Key "ArrowLeft" ->
+                            rewindReplay s model
+
                         Key "ArrowRight" ->
                             case s of
                                 Spawning _ _ ->
@@ -387,6 +390,59 @@ stepOneTick activeGameState model =
             in
             ( { model | appState = InGame (tickResultToGameState Replay Paused tickResult) }
             , maybeDrawSomething whatToDraw
+            )
+
+
+rewindReplay : ActiveGameState -> Model -> ( Model, Effect )
+rewindReplay activeGameState model =
+    case activeGameState of
+        Spawning _ _ ->
+            ( model, DoNothing )
+
+        Moving _ lastTick midRoundState ->
+            let
+                roundAtBeginning : Round
+                roundAtBeginning =
+                    prepareReplayRound (initialStateForReplaying midRoundState)
+
+                tickrateInHz : Float
+                tickrateInHz =
+                    Tickrate.toFloat model.config.kurves.tickrate
+
+                ticksToRewind : Int
+                ticksToRewind =
+                    (tickrateInHz * toFloat model.config.replay.skipStepInMs / 1000)
+                        -- If the tickrate is 1 Hz and the skip step is 400 ms, should we go back 1 or 0 ticks? I think 1.
+                        |> ceiling
+
+                tickToGoTo : Tick
+                tickToGoTo =
+                    (Tick.toInt lastTick - ticksToRewind)
+                        |> Tick.fromInt
+                        |> Maybe.withDefault Tick.genesis
+
+                millisecondsToSkipAhead : FrameTime
+                millisecondsToSkipAhead =
+                    ((tickToGoTo |> Tick.toInt |> toFloat) / tickrateInHz) * 1000
+
+                whatToDrawForSpawns : WhatToDraw
+                whatToDrawForSpawns =
+                    drawSpawnsPermanently roundAtBeginning.kurves.alive
+
+                ( tickResult, maybeWhatToDrawForSkippingAhead ) =
+                    MainLoop.consumeAnimationFrame model.config millisecondsToSkipAhead 0 Tick.genesis roundAtBeginning
+
+                whatToDraw : WhatToDraw
+                whatToDraw =
+                    case maybeWhatToDrawForSkippingAhead of
+                        Nothing ->
+                            whatToDrawForSpawns
+
+                        Just whatToDrawForSkippingAhead ->
+                            mergeWhatToDraw whatToDrawForSpawns whatToDrawForSkippingAhead
+            in
+            ( { model | appState = InGame (tickResultToGameState Replay NotPaused tickResult) }
+            , ClearAndThenDraw whatToDraw
             )
 
 
@@ -525,7 +581,10 @@ makeCmd : Effect -> Cmd msg
 makeCmd effect =
     case effect of
         DrawSomething whatToDraw ->
-            drawingCmd whatToDraw
+            drawingCmd False whatToDraw
+
+        ClearAndThenDraw whatToDraw ->
+            drawingCmd True whatToDraw
 
         ClearEverything ->
             clearEverything

@@ -12,6 +12,9 @@ drawsBodySquares effect =
         DrawSomething { bodyDrawing } ->
             not <| List.isEmpty bodyDrawing
 
+        ClearAndThenDraw { bodyDrawing } ->
+            not <| List.isEmpty bodyDrawing
+
         ClearEverything ->
             False
 
@@ -24,6 +27,9 @@ clearsEverything effect =
     case effect of
         DrawSomething _ ->
             False
+
+        ClearAndThenDraw _ ->
+            True
 
         ClearEverything ->
             True

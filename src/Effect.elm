@@ -5,6 +5,7 @@ import Drawing exposing (WhatToDraw)
 
 type Effect
     = DrawSomething WhatToDraw
+    | ClearAndThenDraw WhatToDraw
     | ClearEverything
     | DoNothing
 
