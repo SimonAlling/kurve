@@ -121,17 +121,17 @@ computePointInFront oldPosition newPosition =
 isCloseTo : ( Float, Float ) -> Pixel -> Bool
 isCloseTo ( x_front, y_front ) ( x_candidate, y_candidate ) =
     let
-        squareDistanceBetweenPoints : Float
-        squareDistanceBetweenPoints =
+        squaredDistanceBetweenPoints : Float
+        squaredDistanceBetweenPoints =
             (x_front - toFloat x_candidate) ^ 2 + (y_front - toFloat y_candidate) ^ 2
     in
-    squareDistanceBetweenPoints <= maxSquareDistance
+    squaredDistanceBetweenPoints <= maxSquaredDistance
 
 
 {-| Must be at least 5/4 (inclusive) and at most (3/2)² = 9/4 (exclusive); see the PR that added this comment.
 -}
-maxSquareDistance : Float
-maxSquareDistance =
+maxSquaredDistance : Float
+maxSquaredDistance =
     2
 
 
