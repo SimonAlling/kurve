@@ -128,7 +128,7 @@ isCloseTo ( x_front, y_front ) ( x_candidate, y_candidate ) =
     squareDistanceBetweenPoints <= maxSquareDistance
 
 
-{-| Must be at least 5/4 (inclusive) and at most 9/4 (exclusive); see the PR that added this comment.
+{-| Must be at least 5/4 (inclusive) and at most (3/2)² = 9/4 (exclusive); see the PR that added this comment.
 -}
 maxSquareDistance : Float
 maxSquareDistance =
