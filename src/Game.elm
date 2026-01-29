@@ -153,8 +153,7 @@ initialOccupiedPixels =
         placeKurve kurve =
             kurve.state.position
                 |> World.drawingPosition
-                |> World.pixelsToOccupy
-                |> Set.union
+                |> World.occupyDrawingPosition
     in
     List.foldl placeKurve Set.empty
 
@@ -228,7 +227,7 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
         occupiedPixelsAfterCheckingThisKurve : Set Pixel
         occupiedPixelsAfterCheckingThisKurve =
             List.foldl
-                (World.pixelsToOccupy >> Set.union)
+                World.occupyDrawingPosition
                 occupiedPixels
                 newKurveDrawingPositions
 
