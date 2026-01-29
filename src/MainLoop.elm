@@ -8,7 +8,7 @@ module MainLoop exposing (consumeAnimationFrame, noLeftoverFrameTime)
 -}
 
 import Config exposing (Config)
-import Drawing exposing (WhatToDraw, mergeWhatToDraw)
+import Drawing exposing (DrawingAccumulator, WhatToDraw)
 import Game exposing (TickResult(..))
 import Round exposing (Round)
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
@@ -37,9 +37,9 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
             LeftoverFrameTime
             -> Tick
             -> Round
-            -> Maybe WhatToDraw
-            -> ( TickResult ( LeftoverFrameTime, Tick, Round ), Maybe WhatToDraw )
-        recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar maybeWhatToDrawSoFar =
+            -> DrawingAccumulator
+            -> ( TickResult ( LeftoverFrameTime, Tick, Round ), DrawingAccumulator )
+        recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar drawingAccumulator =
             if timeLeftToConsume >= timestep then
                 let
                     incrementedTick : Tick
@@ -49,30 +49,25 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
                     ( tickResult, whatToDrawForThisTick ) =
                         Game.reactToTick config incrementedTick midRoundStateSoFar
 
-                    newWhatToDraw : WhatToDraw
-                    newWhatToDraw =
-                        case maybeWhatToDrawSoFar of
-                            Nothing ->
-                                whatToDrawForThisTick
-
-                            Just whatToDrawSoFar ->
-                                mergeWhatToDraw whatToDrawSoFar whatToDrawForThisTick
+                    newDrawingAccumulator : DrawingAccumulator
+                    newDrawingAccumulator =
+                        Drawing.accumulate drawingAccumulator whatToDrawForThisTick
                 in
                 case tickResult of
                     RoundKeepsGoing newMidRoundState ->
-                        recurse (timeLeftToConsume - timestep) incrementedTick newMidRoundState (Just newWhatToDraw)
+                        recurse (timeLeftToConsume - timestep) incrementedTick newMidRoundState newDrawingAccumulator
 
                     RoundEnds finishedRound ->
                         ( RoundEnds finishedRound
-                        , Just newWhatToDraw
+                        , newDrawingAccumulator
                         )
 
             else
                 ( RoundKeepsGoing ( timeLeftToConsume, lastTickReactedTo, midRoundStateSoFar )
-                , maybeWhatToDrawSoFar
+                , drawingAccumulator
                 )
     in
-    recurse timeToConsume lastTick midRoundState Nothing
+    recurse timeToConsume lastTick midRoundState Drawing.initialize |> Tuple.mapSecond Drawing.finalize
 
 
 noLeftoverFrameTime : LeftoverFrameTime

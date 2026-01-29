@@ -2,6 +2,7 @@ module Config exposing
     ( Config
     , HoleConfig
     , KurveConfig
+    , ReplayConfig
     , SpawnConfig
     , WorldConfig
     , default

@@ -138,12 +138,24 @@ prepareRoundFromKnownInitialState initialState =
         round : Round
         round =
             { kurves = { alive = theKurves, dead = [] }
-            , occupiedPixels = List.foldl (.state >> .position >> World.drawingPosition >> World.pixelsToOccupy >> Set.union) Set.empty theKurves
+            , occupiedPixels = initialOccupiedPixels theKurves
             , initialState = initialState
             , seed = initialState.seedAfterSpawn
             }
     in
     round
+
+
+initialOccupiedPixels : List Kurve -> Set Pixel
+initialOccupiedPixels =
+    let
+        placeKurve : Kurve -> Set Pixel -> Set Pixel
+        placeKurve kurve =
+            kurve.state.position
+                |> World.drawingPosition
+                |> World.occupyDrawingPosition
+    in
+    List.foldl placeKurve Set.empty
 
 
 reactToTick : Config -> Tick -> Round -> ( TickResult Round, WhatToDraw )
@@ -215,7 +227,7 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
         occupiedPixelsAfterCheckingThisKurve : Set Pixel
         occupiedPixelsAfterCheckingThisKurve =
             List.foldl
-                (World.pixelsToOccupy >> Set.union)
+                World.occupyDrawingPosition
                 occupiedPixels
                 newKurveDrawingPositions
 
