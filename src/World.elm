@@ -6,7 +6,7 @@ module World exposing
     , distanceBetween
     , drawingPosition
     , hitbox
-    , pixelsToOccupy
+    , occupyDrawingPosition
     )
 
 import List.Cartesian
@@ -28,6 +28,11 @@ type alias DrawingPosition =
 
 type alias Pixel =
     ( Int, Int )
+
+
+occupyDrawingPosition : DrawingPosition -> Set Pixel -> Set Pixel
+occupyDrawingPosition drawingPos occupiedPixels =
+    Set.union (pixelsToOccupy drawingPos) occupiedPixels
 
 
 distanceBetween : Position -> Position -> Distance
