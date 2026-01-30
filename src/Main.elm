@@ -310,6 +310,9 @@ update msg ({ config, pressedButtons } as model) =
                         Key "KeyE" ->
                             stepOneTick s model
 
+                        Key "KeyR" ->
+                            startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
+
                         _ ->
                             ( handleUserInteraction Down button model, DoNothing )
 
