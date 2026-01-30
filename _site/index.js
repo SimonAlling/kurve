@@ -13,26 +13,26 @@ function clearRectangleIfCanvasExists(canvas, { x, y, width, height }) {
     context?.clearRect(x, y, width, height);
 }
 
-app.ports.renderMain.subscribe(({ clearFirst, squares }) => {
-    const canvas_main = document.getElementById("canvas_main");
+app.ports.renderBodies.subscribe(({ clearFirst, squares }) => {
+    const bodyCanvas = document.getElementById("bodyCanvas");
     if (clearFirst) {
-        clearRectangleIfCanvasExists(canvas_main, { x: 0, y: 0, width: canvas_main?.width, height: canvas_main?.height });
+        clearRectangleIfCanvasExists(bodyCanvas, { x: 0, y: 0, width: bodyCanvas?.width, height: bodyCanvas?.height });
     }
     for (const square of squares) {
-        drawSquare(canvas_main, square);
+        drawSquare(bodyCanvas, square);
     }
 });
 
-app.ports.clearMain.subscribe(() => {
-    const canvas_main = document.getElementById("canvas_main");
-    clearRectangleIfCanvasExists(canvas_main, { x: 0, y: 0, width: canvas_main?.width, height: canvas_main?.height });
+app.ports.clearBodies.subscribe(() => {
+    const bodyCanvas = document.getElementById("bodyCanvas");
+    clearRectangleIfCanvasExists(bodyCanvas, { x: 0, y: 0, width: bodyCanvas?.width, height: bodyCanvas?.height });
 });
 
-app.ports.renderOverlay.subscribe(squares => {
-    const canvas_overlay = document.getElementById("canvas_overlay");
-    clearRectangleIfCanvasExists(canvas_overlay, { x: 0, y: 0, width: canvas_overlay?.width, height: canvas_overlay?.height }); // Very large numbers don't work; see the commit that added this comment.
+app.ports.renderHeads.subscribe(squares => {
+    const headCanvas = document.getElementById("headCanvas");
+    clearRectangleIfCanvasExists(headCanvas, { x: 0, y: 0, width: headCanvas?.width, height: headCanvas?.height }); // Very large numbers don't work; see the commit that added this comment.
     for (const square of squares) {
-        drawSquare(canvas_overlay, square);
+        drawSquare(headCanvas, square);
     }
 });
 
