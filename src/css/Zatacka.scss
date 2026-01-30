@@ -273,3 +273,15 @@ button {
     box-sizing: border-box;
     width: 1px; /* so width of #wrapper is an even number */
 }
+
+.roundOverReplayHint {
+    position: absolute;
+    bottom: 16px;
+}
+
+.replayControls {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    opacity: 0.5;
+}
