@@ -1,6 +1,7 @@
 module GUI.TextOverlay exposing (textOverlay)
 
 import Colors
+import GUI.ReplayControls exposing (replayControls)
 import GUI.Text
 import Game exposing (GameState(..), LiveOrReplay(..), PausedOrNot(..))
 import Html exposing (Html, div, p)
@@ -27,13 +28,13 @@ content gameState =
 
         Active Replay Paused _ ->
             -- Hint on how to continue deliberately omitted here. See the PR/commit that added this comment for details.
-            [ replayIndicator ]
+            [ replayIndicator, replayControls ]
 
         Active Replay NotPaused _ ->
-            [ replayIndicator ]
+            [ replayIndicator, replayControls ]
 
         RoundOver _ _ ->
-            []
+            [ roundOverReplayHint ]
 
 
 pressSpaceToContinue : Html msg
@@ -47,3 +48,11 @@ replayIndicator =
         [ Attr.class "textInUpperLeftCorner"
         ]
         (GUI.Text.string (GUI.Text.Size 2) Colors.white "R")
+
+
+roundOverReplayHint : Html msg
+roundOverReplayHint =
+    p
+        [ Attr.class "roundOverReplayHint"
+        ]
+        (GUI.Text.string (GUI.Text.Size 1) Colors.white "Press R to replay")
