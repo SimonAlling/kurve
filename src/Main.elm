@@ -307,6 +307,23 @@ update msg ({ config, pressedButtons } as model) =
                         Key "Space" ->
                             ( { model | appState = InGame (Active Replay NotPaused s) }, DoNothing )
 
+                        Key "ArrowLeft" ->
+                            rewindReplay Paused s model
+
+                        Key "ArrowRight" ->
+                            case s of
+                                Spawning _ _ ->
+                                    ( model, DoNothing )
+
+                                Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
+                                    let
+                                        ( tickResult, whatToDraw ) =
+                                            MainLoop.consumeAnimationFrame config (toFloat config.replay.skipStepInMs) leftoverTimeFromPreviousFrame lastTick midRoundState
+                                    in
+                                    ( { model | appState = InGame (tickResultToGameState Replay Paused tickResult) }
+                                    , maybeDrawSomething whatToDraw
+                                    )
+
                         Key "KeyE" ->
                             stepOneTick s model
 
@@ -322,7 +339,7 @@ update msg ({ config, pressedButtons } as model) =
                 InGame (Active Replay NotPaused s) ->
                     case button of
                         Key "ArrowLeft" ->
-                            rewindReplay s model
+                            rewindReplay NotPaused s model
 
                         Key "ArrowRight" ->
                             case s of
@@ -396,8 +413,8 @@ stepOneTick activeGameState model =
             )
 
 
-rewindReplay : ActiveGameState -> Model -> ( Model, Effect )
-rewindReplay activeGameState model =
+rewindReplay : PausedOrNot -> ActiveGameState -> Model -> ( Model, Effect )
+rewindReplay pausedOrNot activeGameState model =
     case activeGameState of
         Spawning _ _ ->
             ( model, DoNothing )
@@ -449,7 +466,7 @@ rewindReplay activeGameState model =
                         Just whatToDrawForSkippingAhead ->
                             mergeWhatToDraw whatToDrawForSpawns whatToDrawForSkippingAhead
             in
-            ( { model | appState = InGame (tickResultToGameState Replay NotPaused tickResult) }
+            ( { model | appState = InGame (tickResultToGameState Replay pausedOrNot tickResult) }
             , ClearAndThenDraw whatToDraw
             )
 
