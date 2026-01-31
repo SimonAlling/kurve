@@ -57,8 +57,8 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
                     RoundKeepsGoing newMidRoundState ->
                         recurse (timeLeftToConsume - timestep) incrementedTick newMidRoundState newDrawingAccumulator
 
-                    RoundEnds finishedRound ->
-                        ( RoundEnds finishedRound
+                    RoundEnds tickThatEndedIt finishedRound ->
+                        ( RoundEnds tickThatEndedIt finishedRound
                         , newDrawingAccumulator
                         )
 

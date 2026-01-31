@@ -32,7 +32,7 @@ content gameState =
         Active Replay NotPaused _ ->
             [ replayIndicator ]
 
-        RoundOver _ _ ->
+        RoundOver _ _ _ _ ->
             []
 
 
