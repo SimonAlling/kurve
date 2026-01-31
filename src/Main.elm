@@ -20,6 +20,7 @@ import Game
         , GameState(..)
         , LiveOrReplay(..)
         , PausedOrNot(..)
+        , RoundOverContext(..)
         , SpawnState
         , firstUpdateTick
         , getActiveRound
@@ -208,7 +209,7 @@ update msg ({ config, pressedButtons } as model) =
                         _ ->
                             ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, DoNothing )
 
-                InGame (RoundOver liveOrReplay tickThatEndedIt finishedRound dialogState) ->
+                InGame (RoundOver roundOverContext finishedRound dialogState) ->
                     case dialogState of
                         Dialog.NotOpen ->
                             let
@@ -222,11 +223,11 @@ update msg ({ config, pressedButtons } as model) =
                             in
                             case button of
                                 Key "ArrowLeft" ->
-                                    case liveOrReplay of
-                                        Live ->
+                                    case roundOverContext of
+                                        LiveRoundEnded ->
                                             ( handleUserInteraction Down button model, DoNothing )
 
-                                        Replay ->
+                                        ReplayEnded tickThatEndedIt ->
                                             let
                                                 fakeActiveGameState : ActiveGameState
                                                 fakeActiveGameState =
@@ -240,7 +241,7 @@ update msg ({ config, pressedButtons } as model) =
                                 Key "Escape" ->
                                     -- Quitting after the final round is not allowed in the original game.
                                     if not gameIsOver then
-                                        ( { model | appState = InGame (RoundOver liveOrReplay tickThatEndedIt finishedRound (Dialog.Open Dialog.Cancel)) }, DoNothing )
+                                        ( { model | appState = InGame (RoundOver roundOverContext finishedRound (Dialog.Open Dialog.Cancel)) }, DoNothing )
 
                                     else
                                         ( handleUserInteraction Down button model, DoNothing )
@@ -259,7 +260,7 @@ update msg ({ config, pressedButtons } as model) =
                             let
                                 cancel : ( Model, Effect )
                                 cancel =
-                                    ( { model | appState = InGame (RoundOver liveOrReplay tickThatEndedIt finishedRound Dialog.NotOpen) }, DoNothing )
+                                    ( { model | appState = InGame (RoundOver roundOverContext finishedRound Dialog.NotOpen) }, DoNothing )
 
                                 confirm : ( Model, Effect )
                                 confirm =
@@ -267,7 +268,7 @@ update msg ({ config, pressedButtons } as model) =
 
                                 select : Dialog.Option -> ( Model, Effect )
                                 select option =
-                                    ( { model | appState = InGame (RoundOver liveOrReplay tickThatEndedIt finishedRound (Dialog.Open option)) }, DoNothing )
+                                    ( { model | appState = InGame (RoundOver roundOverContext finishedRound (Dialog.Open option)) }, DoNothing )
                             in
                             case ( button, selectedOption ) of
                                 ( Key "Escape", _ ) ->
@@ -376,13 +377,13 @@ update msg ({ config, pressedButtons } as model) =
 
         DialogChoiceMade option ->
             case model.appState of
-                InGame (RoundOver liveOrReplay tickThatEndedIt finishedRound (Dialog.Open _)) ->
+                InGame (RoundOver roundOverContext finishedRound (Dialog.Open _)) ->
                     case option of
                         Dialog.Confirm ->
                             goToLobby finishedRound.seed model
 
                         Dialog.Cancel ->
-                            ( { model | appState = InGame (RoundOver liveOrReplay tickThatEndedIt finishedRound Dialog.NotOpen) }, DoNothing )
+                            ( { model | appState = InGame (RoundOver roundOverContext finishedRound Dialog.NotOpen) }, DoNothing )
 
                 _ ->
                     -- Not expected to ever happen.
@@ -525,7 +526,7 @@ subscriptions model =
             InGame (Active _ Paused _) ->
                 Sub.none
 
-            InGame (RoundOver _ _ _ _) ->
+            InGame (RoundOver _ _ _) ->
                 Sub.none
 
             InMenu GameOver _ ->

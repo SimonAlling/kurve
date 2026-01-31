@@ -3,6 +3,7 @@ module Game exposing
     , GameState(..)
     , LiveOrReplay(..)
     , PausedOrNot(..)
+    , RoundOverContext(..)
     , SpawnState
     , TickResult(..)
     , firstUpdateTick
@@ -41,7 +42,7 @@ import World exposing (DrawingPosition, Pixel, Position)
 
 type GameState
     = Active LiveOrReplay PausedOrNot ActiveGameState
-    | RoundOver LiveOrReplay Tick Round Dialog.State
+    | RoundOver RoundOverContext Round Dialog.State
 
 
 type PausedOrNot
@@ -52,6 +53,11 @@ type PausedOrNot
 type ActiveGameState
     = Spawning SpawnState Round
     | Moving LeftoverFrameTime Tick Round
+
+
+type RoundOverContext
+    = LiveRoundEnded
+    | ReplayEnded Tick
 
 
 type TickResult a
@@ -65,7 +71,7 @@ getCurrentRound gameState =
         Active _ _ activeGameState ->
             getActiveRound activeGameState
 
-        RoundOver _ _ round _ ->
+        RoundOver _ round _ ->
             round
 
 
@@ -202,7 +208,17 @@ tickResultToGameState liveOrReplay pausedOrNot tickResult =
             Active liveOrReplay pausedOrNot (Moving leftoverFrameTime tick midRoundState)
 
         RoundEnds tickThatEndedIt finishedRound ->
-            RoundOver liveOrReplay tickThatEndedIt finishedRound Dialog.NotOpen
+            let
+                roundOverContext : RoundOverContext
+                roundOverContext =
+                    case liveOrReplay of
+                        Live ->
+                            LiveRoundEnded
+
+                        Replay ->
+                            ReplayEnded tickThatEndedIt
+            in
+            RoundOver roundOverContext finishedRound Dialog.NotOpen
 
 
 checkIndividualKurve :
