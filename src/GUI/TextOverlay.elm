@@ -37,7 +37,7 @@ content gameState =
             [ roundOverReplayHint ]
 
         RoundOver Replay _ _ _ _ ->
-            [ replayIndicator ]
+            [ replayIndicator, replayControls ]
 
 
 pressSpaceToContinue : Html msg
