@@ -12,7 +12,7 @@ import Html.Events exposing (onClick)
 confirmQuitDialog : (Dialog.Option -> msg) -> GameState -> Html msg
 confirmQuitDialog makeMsg gameState =
     case gameState of
-        RoundOver _ _ (Dialog.Open selectedOption) ->
+        RoundOver _ _ _ (Dialog.Open selectedOption) ->
             div
                 [ Attr.class "overlay"
                 , Attr.class "dialogOverlay"

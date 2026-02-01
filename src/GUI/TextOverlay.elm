@@ -2,7 +2,7 @@ module GUI.TextOverlay exposing (textOverlay)
 
 import Colors
 import GUI.Text
-import Game exposing (GameState(..), LiveOrReplay(..), PausedOrNot(..), RoundOverContext(..))
+import Game exposing (GameState(..), LiveOrReplay(..), PausedOrNot(..))
 import Html exposing (Html, div, p)
 import Html.Attributes as Attr
 
@@ -32,10 +32,10 @@ content gameState =
         Active Replay NotPaused _ ->
             [ replayIndicator ]
 
-        RoundOver LiveRoundEnded _ _ ->
+        RoundOver Live _ _ _ ->
             []
 
-        RoundOver (ReplayEnded _) _ _ ->
+        RoundOver Replay _ _ _ ->
             [ replayIndicator ]
 
 

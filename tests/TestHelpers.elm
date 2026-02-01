@@ -154,7 +154,7 @@ playOutRoundWithEffects config initialState =
                 InGame (Active _ NotPaused (Moving _ _ _)) ->
                     recurse (AnimationFrame frameDeltaInMs) newModel newReversedEffects
 
-                InGame (RoundOver _ _ _) ->
+                InGame (RoundOver _ _ _ _) ->
                     ( newModel, newReversedEffects )
 
                 _ ->
