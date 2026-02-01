@@ -32,10 +32,10 @@ content gameState =
         Active Replay NotPaused _ ->
             [ replayIndicator ]
 
-        RoundOver Live _ _ _ ->
+        RoundOver Live _ _ _ _ ->
             []
 
-        RoundOver Replay _ _ _ ->
+        RoundOver Replay _ _ _ _ ->
             [ replayIndicator ]
 
 
