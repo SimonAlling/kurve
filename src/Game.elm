@@ -41,7 +41,7 @@ import World exposing (DrawingPosition, Pixel, Position)
 
 type GameState
     = Active LiveOrReplay PausedOrNot ActiveGameState
-    | RoundOver Round Dialog.State
+    | RoundOver LiveOrReplay PausedOrNot Tick Round Dialog.State
 
 
 type PausedOrNot
@@ -56,7 +56,7 @@ type ActiveGameState
 
 type TickResult a
     = RoundKeepsGoing a
-    | RoundEnds Round
+    | RoundEnds Tick Round
 
 
 getCurrentRound : GameState -> Round
@@ -65,7 +65,7 @@ getCurrentRound gameState =
         Active _ _ activeGameState ->
             getActiveRound activeGameState
 
-        RoundOver round _ ->
+        RoundOver _ _ _ round _ ->
             round
 
 
@@ -82,11 +82,11 @@ getActiveRound activeGameState =
 modifyMidRoundState : (Round -> Round) -> GameState -> GameState
 modifyMidRoundState f gameState =
     case gameState of
-        Active p liveOrReplay (Moving t leftoverFrameTime midRoundState) ->
-            Active p liveOrReplay <| Moving t leftoverFrameTime <| f midRoundState
+        Active liveOrReplay p (Moving t leftoverFrameTime midRoundState) ->
+            Active liveOrReplay p <| Moving t leftoverFrameTime <| f midRoundState
 
-        Active p liveOrReplay (Spawning s midRoundState) ->
-            Active p liveOrReplay <| Spawning s <| f midRoundState
+        Active liveOrReplay p (Spawning s midRoundState) ->
+            Active liveOrReplay p <| Spawning s <| f midRoundState
 
         _ ->
             gameState
@@ -183,7 +183,7 @@ reactToTick config tick currentRound =
         tickResult : TickResult Round
         tickResult =
             if roundIsOver newKurves then
-                RoundEnds newCurrentRound
+                RoundEnds tick newCurrentRound
 
             else
                 RoundKeepsGoing newCurrentRound
@@ -201,8 +201,8 @@ tickResultToGameState liveOrReplay pausedOrNot tickResult =
         RoundKeepsGoing ( leftoverFrameTime, tick, midRoundState ) ->
             Active liveOrReplay pausedOrNot (Moving leftoverFrameTime tick midRoundState)
 
-        RoundEnds finishedRound ->
-            RoundOver finishedRound Dialog.NotOpen
+        RoundEnds tickThatEndedIt finishedRound ->
+            RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound Dialog.NotOpen
 
 
 checkIndividualKurve :

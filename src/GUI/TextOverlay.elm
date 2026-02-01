@@ -32,8 +32,11 @@ content gameState =
         Active Replay NotPaused _ ->
             [ replayIndicator ]
 
-        RoundOver _ _ ->
+        RoundOver Live _ _ _ _ ->
             []
+
+        RoundOver Replay _ _ _ _ ->
+            [ replayIndicator ]
 
 
 pressSpaceToContinue : Html msg

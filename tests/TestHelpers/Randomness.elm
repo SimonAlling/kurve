@@ -28,8 +28,8 @@ gameStateWithSeed desiredSeed gameState =
         Active liveOrReplay pausedOrNot activeGameState ->
             Active liveOrReplay pausedOrNot (activeGameStateWithSeed desiredSeed activeGameState)
 
-        RoundOver round dialogState ->
-            RoundOver (roundWithSeed desiredSeed round) dialogState
+        RoundOver liveOrReplay pausedOrNot tickThatEndedIt round dialogState ->
+            RoundOver liveOrReplay pausedOrNot tickThatEndedIt (roundWithSeed desiredSeed round) dialogState
 
 
 activeGameStateWithSeed : Random.Seed -> ActiveGameState -> ActiveGameState
