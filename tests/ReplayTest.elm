@@ -2,6 +2,7 @@ module ReplayTest exposing (theTest)
 
 import App exposing (AppState(..))
 import Colors
+import Config exposing (Config)
 import Effect exposing (Effect(..))
 import Expect
 import Game exposing (ActiveGameState(..), GameState(..), LiveOrReplay(..), PausedOrNot(..), prepareReplayRound)
@@ -32,18 +33,23 @@ theTest =
                 |> Expect.equalLists expectedEffects
 
 
+config : Config
+config =
+    TestScenarios.ReplayStraightVerticalLine.config
+
+
 initialModel : Model
 initialModel =
     { pressedButtons = Set.empty
     , appState = InGame (Active Replay NotPaused (Moving 0 Tick.genesis initialRound))
-    , config = TestScenarios.ReplayStraightVerticalLine.config
+    , config = config
     , players = initialPlayers
     }
 
 
 initialRound : Round
 initialRound =
-    prepareReplayRound (roundWith TestScenarios.ReplayStraightVerticalLine.spawnedKurves)
+    prepareReplayRound config.world (roundWith TestScenarios.ReplayStraightVerticalLine.spawnedKurves)
 
 
 messages : List Msg
