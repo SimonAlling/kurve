@@ -251,11 +251,28 @@ update msg ({ config, pressedButtons } as model) =
                                         ( handleUserInteraction Down button model, DoNothing )
 
                                 Key "Space" ->
-                                    if gameIsOver then
-                                        gameOver finishedRound.seed newModel
+                                    case liveOrReplay of
+                                        Live ->
+                                            if gameIsOver then
+                                                gameOver finishedRound.seed newModel
 
-                                    else
-                                        startRound Live newModel <| prepareLiveRound config finishedRound.seed (participating newModel.players) pressedButtons
+                                            else
+                                                startRound Live newModel <| prepareLiveRound config finishedRound.seed (participating newModel.players) pressedButtons
+
+                                        Replay ->
+                                            ( handleUserInteraction Down button model, DoNothing )
+
+                                Key "Enter" ->
+                                    case liveOrReplay of
+                                        Live ->
+                                            ( handleUserInteraction Down button model, DoNothing )
+
+                                        Replay ->
+                                            if gameIsOver then
+                                                gameOver finishedRound.seed newModel
+
+                                            else
+                                                startRound Live newModel <| prepareLiveRound config finishedRound.seed (participating newModel.players) pressedButtons
 
                                 _ ->
                                     ( handleUserInteraction Down button model, DoNothing )
