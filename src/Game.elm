@@ -41,7 +41,7 @@ import World exposing (DrawingPosition, Pixel, Position)
 
 type GameState
     = Active LiveOrReplay PausedOrNot ActiveGameState
-    | RoundOver LiveOrReplay Tick Round Dialog.State
+    | RoundOver LiveOrReplay PausedOrNot Tick Round Dialog.State
 
 
 type PausedOrNot
@@ -65,7 +65,7 @@ getCurrentRound gameState =
         Active _ _ activeGameState ->
             getActiveRound activeGameState
 
-        RoundOver _ _ round _ ->
+        RoundOver _ _ _ round _ ->
             round
 
 
@@ -202,7 +202,7 @@ tickResultToGameState liveOrReplay pausedOrNot tickResult =
             Active liveOrReplay pausedOrNot (Moving leftoverFrameTime tick midRoundState)
 
         RoundEnds tickThatEndedIt finishedRound ->
-            RoundOver liveOrReplay tickThatEndedIt finishedRound Dialog.NotOpen
+            RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound Dialog.NotOpen
 
 
 checkIndividualKurve :
