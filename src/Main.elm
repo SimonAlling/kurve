@@ -180,7 +180,12 @@ update msg ({ config, pressedButtons } as model) =
                 InGame (Active liveOrReplay NotPaused (Moving leftoverTimeFromPreviousFrame lastTick midRoundState)) ->
                     let
                         ( tickResult, whatToDraw ) =
-                            MainLoop.consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState
+                            MainLoop.consumeAnimationFrame
+                                config
+                                delta
+                                leftoverTimeFromPreviousFrame
+                                lastTick
+                                midRoundState
                     in
                     ( { model | appState = InGame (tickResultToGameState liveOrReplay NotPaused tickResult) }
                     , maybeDrawSomething whatToDraw
@@ -331,7 +336,12 @@ update msg ({ config, pressedButtons } as model) =
                                 Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
                                     let
                                         ( tickResult, whatToDraw ) =
-                                            MainLoop.consumeAnimationFrame config (toFloat config.replay.skipStepInMs) leftoverTimeFromPreviousFrame lastTick midRoundState
+                                            MainLoop.consumeAnimationFrame
+                                                config
+                                                (toFloat config.replay.skipStepInMs)
+                                                leftoverTimeFromPreviousFrame
+                                                lastTick
+                                                midRoundState
                                     in
                                     ( { model | appState = InGame (tickResultToGameState Replay Paused tickResult) }
                                     , maybeDrawSomething whatToDraw
@@ -362,7 +372,12 @@ update msg ({ config, pressedButtons } as model) =
                                 Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
                                     let
                                         ( tickResult, whatToDraw ) =
-                                            MainLoop.consumeAnimationFrame config (toFloat config.replay.skipStepInMs) leftoverTimeFromPreviousFrame lastTick midRoundState
+                                            MainLoop.consumeAnimationFrame
+                                                config
+                                                (toFloat config.replay.skipStepInMs)
+                                                leftoverTimeFromPreviousFrame
+                                                lastTick
+                                                midRoundState
                                     in
                                     ( { model | appState = InGame (tickResultToGameState Replay NotPaused tickResult) }
                                     , maybeDrawSomething whatToDraw
@@ -419,7 +434,12 @@ stepOneTick activeGameState model =
                     1000 / Tickrate.toFloat model.config.kurves.tickrate
 
                 ( tickResult, whatToDraw ) =
-                    MainLoop.consumeAnimationFrame model.config timeToSkipInMs leftoverTimeFromPreviousFrame lastTick midRoundState
+                    MainLoop.consumeAnimationFrame
+                        model.config
+                        timeToSkipInMs
+                        leftoverTimeFromPreviousFrame
+                        lastTick
+                        midRoundState
             in
             ( { model | appState = InGame (tickResultToGameState Replay Paused tickResult) }
             , maybeDrawSomething whatToDraw
