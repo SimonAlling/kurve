@@ -54,15 +54,12 @@ replayButtonsAndDescriptions whatSpaceDoes =
 
 showWhatSpaceDoes : WhatSpaceDoes -> String
 showWhatSpaceDoes whatSpaceDoes =
-    (case whatSpaceDoes of
+    case whatSpaceDoes of
         PausesOrResumes ->
             "Pause/resume"
 
         ProceedsToNextRound ->
             "Next round"
-    )
-        -- They must have the same length so that the layout isn't affected when the string is changed.
-        |> String.padRight 12 ' '
 
 
 type WhatSpaceDoes
