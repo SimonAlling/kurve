@@ -48,6 +48,11 @@ replayNavigation whatSpaceDoes =
         )
 
 
+type WhatSpaceDoes
+    = PausesOrResumes
+    | ProceedsToNextRound
+
+
 makeNavigationEntries : WhatSpaceDoes -> List Entry
 makeNavigationEntries whatSpaceDoes =
     [ ( "Space", showWhatSpaceDoes whatSpaceDoes )
@@ -66,8 +71,3 @@ showWhatSpaceDoes whatSpaceDoes =
 
         ProceedsToNextRound ->
             "Next round"
-
-
-type WhatSpaceDoes
-    = PausesOrResumes
-    | ProceedsToNextRound
