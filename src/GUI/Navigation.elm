@@ -9,6 +9,10 @@ import Html exposing (Html, div, p)
 import Html.Attributes as Attr
 
 
+type alias ButtonAndDescription =
+    ( String, String )
+
+
 replayNavigationWhenActive : Html msg
 replayNavigationWhenActive =
     replayNavigation PausesOrResumes
@@ -38,7 +42,7 @@ replayNavigation whatSpaceDoes =
         )
 
 
-replayButtonsAndDescriptions : WhatSpaceDoes -> List ( String, String )
+replayButtonsAndDescriptions : WhatSpaceDoes -> List ButtonAndDescription
 replayButtonsAndDescriptions whatSpaceDoes =
     [ ( "Space", showWhatSpaceDoes whatSpaceDoes )
     , ( "L.Arrow", "Back" )
@@ -66,7 +70,7 @@ type WhatSpaceDoes
     | ProceedsToNextRound
 
 
-replayNavigationLine : ( String, String ) -> String
+replayNavigationLine : ButtonAndDescription -> String
 replayNavigationLine ( button, description ) =
     String.padRight (maxButtonLength + columnSpacing) ' ' button
         ++ description
