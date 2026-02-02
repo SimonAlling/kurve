@@ -85,6 +85,7 @@ startRound liveOrReplay model midRoundState =
         gameState =
             Active liveOrReplay NotPaused <|
                 Spawning
+                    MainLoop.noLeftoverFrameTime
                     { kurvesLeft = midRoundState |> .kurves |> .alive
                     , alreadySpawnedKurves = []
                     , ticksLeft = model.config.spawn.numberOfFlickerTicks
@@ -153,7 +154,7 @@ update msg ({ config } as model) =
 
         SpawnTick ->
             case model.appState of
-                InGame (Active liveOrReplay NotPaused (Spawning spawnState plannedMidRoundState)) ->
+                InGame (Active liveOrReplay NotPaused (Spawning leftoverFrameTime spawnState plannedMidRoundState)) ->
                     let
                         ( maybeSpawnState, whatToDraw ) =
                             stepSpawnState config spawnState
@@ -162,7 +163,7 @@ update msg ({ config } as model) =
                         activeGameState =
                             case maybeSpawnState of
                                 Just newSpawnState ->
-                                    Spawning newSpawnState plannedMidRoundState
+                                    Spawning (Debug.todo "leftoverFrameTime") newSpawnState plannedMidRoundState
 
                                 Nothing ->
                                     Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
@@ -352,7 +353,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
 
                 Key "ArrowRight" ->
                     case s of
-                        Spawning _ _ ->
+                        Spawning _ _ _ ->
                             ( model, DoNothing )
 
                         Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
@@ -388,7 +389,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
 
                 Key "ArrowRight" ->
                     case s of
-                        Spawning _ _ ->
+                        Spawning _ _ _ ->
                             ( model, DoNothing )
 
                         Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
@@ -429,7 +430,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
 stepOneTick : ActiveGameState -> Model -> ( Model, Effect )
 stepOneTick activeGameState model =
     case activeGameState of
-        Spawning _ _ ->
+        Spawning _ _ _ ->
             ( model, DoNothing )
 
         Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
@@ -454,7 +455,7 @@ stepOneTick activeGameState model =
 rewindReplay : PausedOrNot -> ActiveGameState -> Model -> ( Model, Effect )
 rewindReplay pausedOrNot activeGameState model =
     case activeGameState of
-        Spawning _ _ ->
+        Spawning _ _ _ ->
             ( model, DoNothing )
 
         Moving _ lastTick midRoundState ->
@@ -529,7 +530,7 @@ handleUserInteraction direction button model =
         howToModifyRound : Round -> Round
         howToModifyRound =
             case model.appState of
-                InGame (Active Live _ (Spawning _ _)) ->
+                InGame (Active Live _ (Spawning _ _ _)) ->
                     recordInteractionBefore firstUpdateTick
 
                 InGame (Active Live _ (Moving _ lastTick _)) ->
@@ -558,7 +559,7 @@ subscriptions model =
             InMenu Lobby _ ->
                 Sub.none
 
-            InGame (Active _ NotPaused (Spawning _ _)) ->
+            InGame (Active _ NotPaused (Spawning _ _ _)) ->
                 Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always SpawnTick)
 
             InGame (Active _ NotPaused (Moving _ _ _)) ->

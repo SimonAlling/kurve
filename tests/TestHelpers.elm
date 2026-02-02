@@ -15,6 +15,7 @@ import Game
         , reactToTick
         )
 import Main exposing (Model, Msg(..), update)
+import MainLoop
 import Players exposing (initialPlayers)
 import Round exposing (Round, RoundInitialState)
 import Set
@@ -118,6 +119,7 @@ playOutRoundWithEffects config initialState =
         initialGameState =
             Active Live NotPaused <|
                 Spawning
+                    MainLoop.noLeftoverFrameTime
                     { kurvesLeft = initialRound |> .kurves |> .alive
                     , alreadySpawnedKurves = []
                     , ticksLeft = config.spawn.numberOfFlickerTicks
@@ -148,7 +150,7 @@ playOutRoundWithEffects config initialState =
             in
             -- Here we essentially emulate the subscriptions that the complete application hopefully/probably has:
             case newModel.appState of
-                InGame (Active _ NotPaused (Spawning _ _)) ->
+                InGame (Active _ NotPaused (Spawning _ _ _)) ->
                     recurse SpawnTick newModel newReversedEffects
 
                 InGame (Active _ NotPaused (Moving _ _ _)) ->
