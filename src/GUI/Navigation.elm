@@ -66,8 +66,7 @@ type WhatSpaceDoes
 
 replayNavigationLine : ( String, String ) -> String
 replayNavigationLine ( button, description ) =
-    button
-        ++ String.repeat (maxButtonLength - String.length button + columnSpacing) " "
+    String.padRight (maxButtonLength + columnSpacing) ' ' button
         ++ description
 
 
