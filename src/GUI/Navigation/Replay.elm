@@ -1,6 +1,6 @@
 module GUI.Navigation.Replay exposing
-    ( replayNavigationWhenActive
-    , replayNavigationWhenRoundOver
+    ( whenActive
+    , whenRoundOver
     )
 
 import Colors
@@ -10,13 +10,13 @@ import Html exposing (Html, div, p)
 import Html.Attributes as Attr
 
 
-replayNavigationWhenActive : Html msg
-replayNavigationWhenActive =
+whenActive : Html msg
+whenActive =
     replayNavigation PausesOrResumes
 
 
-replayNavigationWhenRoundOver : Html msg
-replayNavigationWhenRoundOver =
+whenRoundOver : Html msg
+whenRoundOver =
     replayNavigation ProceedsToNextRound
 
 
