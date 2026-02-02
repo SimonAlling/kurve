@@ -17,7 +17,7 @@ replayNavigation =
                         (GUI.Text.string
                             (GUI.Text.Size 1)
                             Colors.white
-                            (replayControlLine buttonAndDescription)
+                            (replayNavigationLine buttonAndDescription)
                         )
                 )
         )
@@ -33,8 +33,8 @@ replayButtonsAndDescriptions =
     ]
 
 
-replayControlLine : ( String, String ) -> String
-replayControlLine ( button, description ) =
+replayNavigationLine : ( String, String ) -> String
+replayNavigationLine ( button, description ) =
     button
         ++ String.repeat (maxButtonLength - String.length button + columnSpacing) " "
         ++ description
