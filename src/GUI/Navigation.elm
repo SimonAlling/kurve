@@ -11,14 +11,14 @@ showEntry firstColumnWidth ( button, description ) =
         ++ description
 
 
-columnSpacing : Int
-columnSpacing =
-    2
-
-
 maxButtonLength : List Entry -> Int
 maxButtonLength buttonsAndDescriptions =
     buttonsAndDescriptions
         |> List.map (Tuple.first >> String.length)
         |> List.maximum
         |> Maybe.withDefault 0
+
+
+columnSpacing : Int
+columnSpacing =
+    2
