@@ -42,7 +42,7 @@ messages =
         , pressAndRelease (Key "Space")
 
         -- Kurve spawns:
-        , repeat 7 SpawnTick
+        , repeat 7 (AnimationFrame frameDeltaInMs)
 
         -- Kurve moves for a while, preferably until it has created at least one hole:
         , repeat 240 (AnimationFrame frameDeltaInMs)

@@ -6,7 +6,7 @@ import Browser.Events
 import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
-import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily, mergeWhatToDraw)
+import Drawing exposing (WhatToDraw, drawSpawnsPermanently, mergeWhatToDraw)
 import Effect exposing (Effect(..), maybeDrawSomething)
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
@@ -47,7 +47,6 @@ import Players
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
-import Spawn exposing (stepSpawnState)
 import Types.FrameTime exposing (FrameTime)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -93,8 +92,7 @@ startRound liveOrReplay model midRoundState =
 
 
 type Msg
-    = SpawnTick
-    | AnimationFrame FrameTime
+    = AnimationFrame FrameTime
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
     | FocusLost
@@ -117,32 +115,26 @@ update msg ({ config } as model) =
                 _ ->
                     ( model, DoNothing )
 
-        SpawnTick ->
+        AnimationFrame delta ->
             case model.appState of
                 InGame (Active liveOrReplay NotPaused (Spawning leftoverFrameTime spawnState plannedMidRoundState)) ->
                     let
-                        ( maybeSpawnState, whatToDraw ) =
-                            stepSpawnState config spawnState
+                        ( ( newLeftoverTime, maybeSpawnState ), whatToDraw ) =
+                            MainLoop.consumeAnimationFrame_Spawning config delta leftoverFrameTime spawnState
 
                         activeGameState : ActiveGameState
                         activeGameState =
                             case maybeSpawnState of
                                 Just newSpawnState ->
-                                    Spawning (Debug.todo "leftoverFrameTime") newSpawnState plannedMidRoundState
+                                    Spawning newLeftoverTime newSpawnState plannedMidRoundState
 
                                 Nothing ->
                                     Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
                     in
                     ( { model | appState = InGame <| Active liveOrReplay NotPaused activeGameState }
-                    , DrawSomething whatToDraw
+                    , maybeDrawSomething whatToDraw
                     )
 
-                _ ->
-                    -- Not expected to ever happen.
-                    ( model, DoNothing )
-
-        AnimationFrame delta ->
-            case model.appState of
                 InGame (Active liveOrReplay NotPaused (Moving leftoverTimeFromPreviousFrame lastTick midRoundState)) ->
                     let
                         ( tickResult, whatToDraw ) =
@@ -525,7 +517,7 @@ subscriptions model =
                 Sub.none
 
             InGame (Active _ NotPaused (Spawning _ _ _)) ->
-                Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always SpawnTick)
+                Browser.Events.onAnimationFrameDelta AnimationFrame
 
             InGame (Active _ NotPaused (Moving _ _ _)) ->
                 Browser.Events.onAnimationFrameDelta AnimationFrame
