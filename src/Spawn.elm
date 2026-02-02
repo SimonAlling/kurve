@@ -1,7 +1,8 @@
-module Spawn exposing (generateKurves)
+module Spawn exposing (SpawnState, generateKurves, stepSpawnState)
 
 import Config exposing (Config, SpawnConfig, WorldConfig)
 import Dict
+import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily)
 import Holes exposing (HoleStatus(..), Holiness(..), generateSolidTicks)
 import Input exposing (toStringSetControls)
 import Players exposing (ParticipatingPlayers)
@@ -14,8 +15,47 @@ import Types.Kurve as Kurve exposing (Kurve)
 import Types.Player exposing (Player)
 import Types.PlayerId exposing (PlayerId)
 import Types.Radius as Radius
-import Util exposing (curry)
+import Util exposing (curry, isEven)
 import World exposing (Position, distanceBetween)
+
+
+type alias SpawnState =
+    { kurvesLeft : List Kurve
+    , alreadySpawnedKurves : List Kurve
+    , ticksLeft : Int
+    }
+
+
+stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, WhatToDraw )
+stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
+    case kurvesLeft of
+        [] ->
+            -- All Kurves have spawned.
+            ( Nothing, drawSpawnsPermanently alreadySpawnedKurves )
+
+        spawning :: waiting ->
+            let
+                spawnedAndSpawning : List Kurve
+                spawnedAndSpawning =
+                    alreadySpawnedKurves ++ [ spawning ]
+
+                kurvesToDraw : List Kurve
+                kurvesToDraw =
+                    if isEven ticksLeft then
+                        spawnedAndSpawning
+
+                    else
+                        alreadySpawnedKurves
+
+                newSpawnState : SpawnState
+                newSpawnState =
+                    if ticksLeft == 0 then
+                        { kurvesLeft = waiting, alreadySpawnedKurves = spawnedAndSpawning, ticksLeft = config.spawn.numberOfFlickerTicks }
+
+                    else
+                        { kurvesLeft = spawning :: waiting, alreadySpawnedKurves = alreadySpawnedKurves, ticksLeft = ticksLeft - 1 }
+            in
+            ( Just newSpawnState, drawSpawnsTemporarily kurvesToDraw )
 
 
 generateKurves : Config -> ParticipatingPlayers -> Random.Generator (List Kurve)

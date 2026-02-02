@@ -3,7 +3,6 @@ module Game exposing
     , GameState(..)
     , LiveOrReplay(..)
     , PausedOrNot(..)
-    , SpawnState
     , TickResult(..)
     , firstUpdateTick
     , getActiveRound
@@ -26,7 +25,7 @@ import Players exposing (ParticipatingPlayers)
 import Random
 import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
 import Set exposing (Set)
-import Spawn exposing (generateKurves)
+import Spawn exposing (SpawnState, generateKurves)
 import Thickness exposing (theThickness)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle)
@@ -95,13 +94,6 @@ modifyMidRoundState f gameState =
 type LiveOrReplay
     = Live
     | Replay
-
-
-type alias SpawnState =
-    { kurvesLeft : List Kurve
-    , alreadySpawnedKurves : List Kurve
-    , ticksLeft : Int
-    }
 
 
 firstUpdateTick : Tick

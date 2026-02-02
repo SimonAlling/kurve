@@ -20,7 +20,6 @@ import Game
         , GameState(..)
         , LiveOrReplay(..)
         , PausedOrNot(..)
-        , SpawnState
         , firstUpdateTick
         , getActiveRound
         , modifyMidRoundState
@@ -48,12 +47,10 @@ import Players
 import Random
 import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
-import Time
+import Spawn exposing (stepSpawnState)
 import Types.FrameTime exposing (FrameTime)
-import Types.Kurve exposing (Kurve)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
-import Util exposing (isEven)
 
 
 type alias Model =
@@ -101,38 +98,6 @@ type Msg
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
     | FocusLost
-
-
-stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, WhatToDraw )
-stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
-    case kurvesLeft of
-        [] ->
-            -- All Kurves have spawned.
-            ( Nothing, drawSpawnsPermanently alreadySpawnedKurves )
-
-        spawning :: waiting ->
-            let
-                spawnedAndSpawning : List Kurve
-                spawnedAndSpawning =
-                    alreadySpawnedKurves ++ [ spawning ]
-
-                kurvesToDraw : List Kurve
-                kurvesToDraw =
-                    if isEven ticksLeft then
-                        spawnedAndSpawning
-
-                    else
-                        alreadySpawnedKurves
-
-                newSpawnState : SpawnState
-                newSpawnState =
-                    if ticksLeft == 0 then
-                        { kurvesLeft = waiting, alreadySpawnedKurves = spawnedAndSpawning, ticksLeft = config.spawn.numberOfFlickerTicks }
-
-                    else
-                        { kurvesLeft = spawning :: waiting, alreadySpawnedKurves = alreadySpawnedKurves, ticksLeft = ticksLeft - 1 }
-            in
-            ( Just newSpawnState, drawSpawnsTemporarily kurvesToDraw )
 
 
 update : Msg -> Model -> ( Model, Effect )
