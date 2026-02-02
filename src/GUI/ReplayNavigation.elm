@@ -1,4 +1,4 @@
-module GUI.ReplayControls exposing (replayControls)
+module GUI.ReplayNavigation exposing (replayNavigation)
 
 import Colors
 import GUI.Text
@@ -6,9 +6,9 @@ import Html exposing (Html, div, p)
 import Html.Attributes as Attr
 
 
-replayControls : Html msg
-replayControls =
-    div [ Attr.class "replayControls" ]
+replayNavigation : Html msg
+replayNavigation =
+    div [ Attr.class "replayNavigation" ]
         (replayButtonsAndDescriptions
             |> List.map
                 (\buttonAndDescription ->
