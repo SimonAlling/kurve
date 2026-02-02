@@ -1,11 +1,11 @@
-module GUI.Navigation exposing (ButtonAndDescription, maxButtonLength, showEntry)
+module GUI.Navigation exposing (Entry, maxButtonLength, showEntry)
 
 
-type alias ButtonAndDescription =
+type alias Entry =
     ( String, String )
 
 
-showEntry : Int -> ButtonAndDescription -> String
+showEntry : Int -> Entry -> String
 showEntry firstColumnWidth ( button, description ) =
     String.padRight (firstColumnWidth + columnSpacing) ' ' button
         ++ description
@@ -16,7 +16,7 @@ columnSpacing =
     2
 
 
-maxButtonLength : List ButtonAndDescription -> Int
+maxButtonLength : List Entry -> Int
 maxButtonLength buttonsAndDescriptions =
     buttonsAndDescriptions
         |> List.map (Tuple.first >> String.length)

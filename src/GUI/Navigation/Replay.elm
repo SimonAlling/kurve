@@ -4,7 +4,7 @@ module GUI.Navigation.Replay exposing
     )
 
 import Colors
-import GUI.Navigation exposing (ButtonAndDescription)
+import GUI.Navigation exposing (Entry)
 import GUI.Text
 import Html exposing (Html, div, p)
 import Html.Attributes as Attr
@@ -23,32 +23,32 @@ replayNavigationWhenRoundOver =
 replayNavigation : WhatSpaceDoes -> Html msg
 replayNavigation whatSpaceDoes =
     let
-        buttonsAndDescriptions : List ButtonAndDescription
-        buttonsAndDescriptions =
+        navigationEntries : List Entry
+        navigationEntries =
             replayButtonsAndDescriptions whatSpaceDoes
 
         firstColumnWidth : Int
         firstColumnWidth =
-            GUI.Navigation.maxButtonLength buttonsAndDescriptions
+            GUI.Navigation.maxButtonLength navigationEntries
     in
     div
         [ Attr.class "replayNavigation"
         ]
-        (buttonsAndDescriptions
+        (navigationEntries
             |> List.map
-                (\buttonAndDescription ->
+                (\entry ->
                     p
                         []
                         (GUI.Text.string
                             (GUI.Text.Size 1)
                             Colors.white
-                            (GUI.Navigation.showEntry firstColumnWidth buttonAndDescription)
+                            (GUI.Navigation.showEntry firstColumnWidth entry)
                         )
                 )
         )
 
 
-replayButtonsAndDescriptions : WhatSpaceDoes -> List ButtonAndDescription
+replayButtonsAndDescriptions : WhatSpaceDoes -> List Entry
 replayButtonsAndDescriptions whatSpaceDoes =
     [ ( "Space", showWhatSpaceDoes whatSpaceDoes )
     , ( "L.Arrow", "Back" )
