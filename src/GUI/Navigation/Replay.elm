@@ -4,7 +4,7 @@ module GUI.Navigation.Replay exposing
     )
 
 import Colors
-import GUI.Navigation exposing (Entry)
+import GUI.Navigation
 import GUI.Text
 import Html exposing (Html, div, p)
 import Html.Attributes as Attr
@@ -23,7 +23,7 @@ whenRoundOver =
 replayNavigation : WhatSpaceDoes -> Html msg
 replayNavigation whatSpaceDoes =
     let
-        navigationEntries : List Entry
+        navigationEntries : List GUI.Navigation.Entry
         navigationEntries =
             makeNavigationEntries whatSpaceDoes
 
@@ -53,7 +53,7 @@ type WhatSpaceDoes
     | ProceedsToNextRound
 
 
-makeNavigationEntries : WhatSpaceDoes -> List Entry
+makeNavigationEntries : WhatSpaceDoes -> List GUI.Navigation.Entry
 makeNavigationEntries whatSpaceDoes =
     [ ( "Space", showWhatSpaceDoes whatSpaceDoes )
     , ( "L.Arrow", "Back" )
