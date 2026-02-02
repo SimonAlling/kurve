@@ -21,7 +21,9 @@ replayNavigationWhenRoundOver =
 
 replayNavigation : WhatSpaceDoes -> Html msg
 replayNavigation whatSpaceDoes =
-    div [ Attr.class "replayNavigation" ]
+    div
+        [ Attr.class "replayNavigation"
+        ]
         (replayButtonsAndDescriptions whatSpaceDoes
             |> List.map
                 (\buttonAndDescription ->
