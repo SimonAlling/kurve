@@ -25,10 +25,19 @@ replayNavigationWhenRoundOver =
 
 replayNavigation : WhatSpaceDoes -> Html msg
 replayNavigation whatSpaceDoes =
+    let
+        buttonsAndDescriptions : List ButtonAndDescription
+        buttonsAndDescriptions =
+            replayButtonsAndDescriptions whatSpaceDoes
+
+        firstColumnWidth : Int
+        firstColumnWidth =
+            maxButtonLength buttonsAndDescriptions
+    in
     div
         [ Attr.class "replayNavigation"
         ]
-        (replayButtonsAndDescriptions whatSpaceDoes
+        (buttonsAndDescriptions
             |> List.map
                 (\buttonAndDescription ->
                     p
@@ -36,7 +45,7 @@ replayNavigation whatSpaceDoes =
                         (GUI.Text.string
                             (GUI.Text.Size 1)
                             Colors.white
-                            (replayNavigationLine buttonAndDescription)
+                            (replayNavigationLine firstColumnWidth buttonAndDescription)
                         )
                 )
         )
@@ -67,9 +76,9 @@ type WhatSpaceDoes
     | ProceedsToNextRound
 
 
-replayNavigationLine : ButtonAndDescription -> String
-replayNavigationLine ( button, description ) =
-    String.padRight (maxButtonLength + columnSpacing) ' ' button
+replayNavigationLine : Int -> ButtonAndDescription -> String
+replayNavigationLine firstColumnWidth ( button, description ) =
+    String.padRight (firstColumnWidth + columnSpacing) ' ' button
         ++ description
 
 
@@ -78,15 +87,9 @@ columnSpacing =
     2
 
 
-maxButtonLength : Int
-maxButtonLength =
-    let
-        -- It should not affect the return value of this function, but we have to pass something.
-        dummyWhatSpaceDoes : WhatSpaceDoes
-        dummyWhatSpaceDoes =
-            PausesOrResumes
-    in
-    replayButtonsAndDescriptions dummyWhatSpaceDoes
+maxButtonLength : List ButtonAndDescription -> Int
+maxButtonLength buttonsAndDescriptions =
+    buttonsAndDescriptions
         |> List.map (Tuple.first >> String.length)
         |> List.maximum
         |> Maybe.withDefault 0
