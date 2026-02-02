@@ -1,4 +1,4 @@
-module GUI.ReplayNavigation exposing (replayNavigation)
+module GUI.Navigation exposing (replayNavigation)
 
 import Colors
 import GUI.Text
