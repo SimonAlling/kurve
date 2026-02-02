@@ -45,7 +45,7 @@ replayNavigation whatSpaceDoes =
                         (GUI.Text.string
                             (GUI.Text.Size 1)
                             Colors.white
-                            (replayNavigationLine firstColumnWidth buttonAndDescription)
+                            (replayNavigationEntry firstColumnWidth buttonAndDescription)
                         )
                 )
         )
@@ -76,8 +76,8 @@ type WhatSpaceDoes
     | ProceedsToNextRound
 
 
-replayNavigationLine : Int -> ButtonAndDescription -> String
-replayNavigationLine firstColumnWidth ( button, description ) =
+replayNavigationEntry : Int -> ButtonAndDescription -> String
+replayNavigationEntry firstColumnWidth ( button, description ) =
     String.padRight (firstColumnWidth + columnSpacing) ' ' button
         ++ description
 
