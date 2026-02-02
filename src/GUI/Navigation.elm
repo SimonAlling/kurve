@@ -1,4 +1,7 @@
-module GUI.Navigation exposing (replayNavigation)
+module GUI.Navigation exposing
+    ( replayNavigationWhenActive
+    , replayNavigationWhenRoundOver
+    )
 
 import Colors
 import GUI.Text
@@ -6,10 +9,20 @@ import Html exposing (Html, div, p)
 import Html.Attributes as Attr
 
 
-replayNavigation : Html msg
-replayNavigation =
+replayNavigationWhenActive : Html msg
+replayNavigationWhenActive =
+    replayNavigation PausesOrResumes
+
+
+replayNavigationWhenRoundOver : Html msg
+replayNavigationWhenRoundOver =
+    replayNavigation ProceedsToNextRound
+
+
+replayNavigation : WhatSpaceDoes -> Html msg
+replayNavigation whatSpaceDoes =
     div [ Attr.class "replayNavigation" ]
-        (replayButtonsAndDescriptions
+        (replayButtonsAndDescriptions whatSpaceDoes
             |> List.map
                 (\buttonAndDescription ->
                     p
@@ -23,14 +36,32 @@ replayNavigation =
         )
 
 
-replayButtonsAndDescriptions : List ( String, String )
-replayButtonsAndDescriptions =
-    [ ( "Space", "Pause" )
+replayButtonsAndDescriptions : WhatSpaceDoes -> List ( String, String )
+replayButtonsAndDescriptions whatSpaceDoes =
+    [ ( "Space", showWhatSpaceDoes whatSpaceDoes )
     , ( "L.Arrow", "Back" )
     , ( "R.Arrow", "Forward" )
     , ( "E", "Step" )
     , ( "R", "Restart" )
     ]
+
+
+showWhatSpaceDoes : WhatSpaceDoes -> String
+showWhatSpaceDoes whatSpaceDoes =
+    (case whatSpaceDoes of
+        PausesOrResumes ->
+            "Pause/resume"
+
+        ProceedsToNextRound ->
+            "Next round"
+    )
+        -- They must have the same length so that the layout isn't affected when the string is changed.
+        |> String.padRight 12 ' '
+
+
+type WhatSpaceDoes
+    = PausesOrResumes
+    | ProceedsToNextRound
 
 
 replayNavigationLine : ( String, String ) -> String
@@ -47,7 +78,7 @@ columnSpacing =
 
 maxButtonLength : Int
 maxButtonLength =
-    replayButtonsAndDescriptions
+    replayButtonsAndDescriptions PausesOrResumes
         |> List.map (Tuple.first >> String.length)
         |> List.maximum
         |> Maybe.withDefault 0

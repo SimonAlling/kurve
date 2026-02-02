@@ -1,7 +1,7 @@
 module GUI.TextOverlay exposing (textOverlay)
 
 import Colors
-import GUI.Navigation exposing (replayNavigation)
+import GUI.Navigation exposing (replayNavigationWhenActive, replayNavigationWhenRoundOver)
 import GUI.Text
 import Game exposing (GameState(..), LiveOrReplay(..), PausedOrNot(..))
 import Html exposing (Html, div, p)
@@ -28,16 +28,16 @@ content gameState =
 
         Active Replay Paused _ ->
             -- Hint on how to continue deliberately omitted here. See the PR/commit that added this comment for details.
-            [ replayIndicator, replayNavigation ]
+            [ replayIndicator, replayNavigationWhenActive ]
 
         Active Replay NotPaused _ ->
-            [ replayIndicator, replayNavigation ]
+            [ replayIndicator, replayNavigationWhenActive ]
 
         RoundOver Live _ _ _ _ ->
             [ roundOverReplayHint ]
 
         RoundOver Replay _ _ _ _ ->
-            [ replayIndicator, replayNavigation ]
+            [ replayIndicator, replayNavigationWhenRoundOver ]
 
 
 pressSpaceToContinue : Html msg
