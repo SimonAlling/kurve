@@ -1,4 +1,4 @@
-module GUI.Navigation exposing (Entry, maxButtonLength, showEntry)
+module GUI.Navigation exposing (Entry, computeFirstColumnWidth, showEntry)
 
 
 type alias Entry =
@@ -11,8 +11,8 @@ showEntry firstColumnWidth ( button, description ) =
         ++ description
 
 
-maxButtonLength : List Entry -> Int
-maxButtonLength buttonsAndDescriptions =
+computeFirstColumnWidth : List Entry -> Int
+computeFirstColumnWidth buttonsAndDescriptions =
     buttonsAndDescriptions
         |> List.map (Tuple.first >> String.length)
         |> List.maximum

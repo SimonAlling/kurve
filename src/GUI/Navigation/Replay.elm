@@ -29,7 +29,7 @@ replayNavigation whatSpaceDoes =
 
         firstColumnWidth : Int
         firstColumnWidth =
-            GUI.Navigation.maxButtonLength navigationEntries
+            GUI.Navigation.computeFirstColumnWidth navigationEntries
     in
     div
         [ Attr.class "replayNavigation"
