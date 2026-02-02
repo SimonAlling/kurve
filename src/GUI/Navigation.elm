@@ -80,7 +80,13 @@ columnSpacing =
 
 maxButtonLength : Int
 maxButtonLength =
-    replayButtonsAndDescriptions PausesOrResumes
+    let
+        -- It should not affect the return value of this function, but we have to pass something.
+        dummyWhatSpaceDoes : WhatSpaceDoes
+        dummyWhatSpaceDoes =
+            PausesOrResumes
+    in
+    replayButtonsAndDescriptions dummyWhatSpaceDoes
         |> List.map (Tuple.first >> String.length)
         |> List.maximum
         |> Maybe.withDefault 0
