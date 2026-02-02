@@ -1,7 +1,7 @@
 module GUI.TextOverlay exposing (textOverlay)
 
 import Colors
-import GUI.Navigation exposing (replayNavigationWhenActive, replayNavigationWhenRoundOver)
+import GUI.Navigation.Replay exposing (replayNavigationWhenActive, replayNavigationWhenRoundOver)
 import GUI.Text
 import Game exposing (GameState(..), LiveOrReplay(..), PausedOrNot(..))
 import Html exposing (Html, div, p)
