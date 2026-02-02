@@ -36,7 +36,7 @@ content gameState =
             []
 
         RoundOver Replay _ _ _ _ ->
-            [ replayIndicator ]
+            [ replayIndicator, pressEnterToProceed ]
 
 
 pressSpaceToContinue : Html msg
@@ -50,3 +50,11 @@ replayIndicator =
         [ Attr.class "textInUpperLeftCorner"
         ]
         (GUI.Text.string (GUI.Text.Size 2) Colors.white "R")
+
+
+pressEnterToProceed : Html msg
+pressEnterToProceed =
+    p
+        [ Attr.class "replayFinishedHelp"
+        ]
+        (GUI.Text.string (GUI.Text.Size 1) Colors.white "Press Enter to proceed")

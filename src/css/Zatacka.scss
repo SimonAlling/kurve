@@ -273,3 +273,8 @@ button {
     box-sizing: border-box;
     width: 1px; /* so width of #wrapper is an even number */
 }
+
+.replayFinishedHelp {
+    position: absolute;
+    bottom: 16px;
+}
