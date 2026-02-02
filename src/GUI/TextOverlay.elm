@@ -34,7 +34,7 @@ content gameState =
             [ replayIndicator, replayNavigationWhenActive ]
 
         RoundOver Live _ _ _ _ ->
-            [ roundOverReplayHint ]
+            [ pressRToReplay ]
 
         RoundOver Replay _ _ _ _ ->
             [ replayIndicator, replayNavigationWhenRoundOver ]
@@ -53,8 +53,8 @@ replayIndicator =
         (GUI.Text.string (GUI.Text.Size 2) Colors.white "R")
 
 
-roundOverReplayHint : Html msg
-roundOverReplayHint =
+pressRToReplay : Html msg
+pressRToReplay =
     p
         [ Attr.class "roundOverReplayHint"
         ]
