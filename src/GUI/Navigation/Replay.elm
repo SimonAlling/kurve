@@ -25,7 +25,7 @@ replayNavigation whatSpaceDoes =
     let
         navigationEntries : List Entry
         navigationEntries =
-            replayButtonsAndDescriptions whatSpaceDoes
+            makeNavigationEntries whatSpaceDoes
 
         firstColumnWidth : Int
         firstColumnWidth =
@@ -48,8 +48,8 @@ replayNavigation whatSpaceDoes =
         )
 
 
-replayButtonsAndDescriptions : WhatSpaceDoes -> List Entry
-replayButtonsAndDescriptions whatSpaceDoes =
+makeNavigationEntries : WhatSpaceDoes -> List Entry
+makeNavigationEntries whatSpaceDoes =
     [ ( "Space", showWhatSpaceDoes whatSpaceDoes )
     , ( "L.Arrow", "Back" )
     , ( "R.Arrow", "Forward" )
