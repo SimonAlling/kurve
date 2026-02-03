@@ -1,5 +1,6 @@
 module World exposing
     ( DrawingPosition
+    , OccupiedPixels
     , Pixel
     , Position
     , desiredDrawingPositions
@@ -30,7 +31,11 @@ type alias Pixel =
     ( Int, Int )
 
 
-occupyDrawingPosition : DrawingPosition -> Set Pixel -> Set Pixel
+type alias OccupiedPixels =
+    Set Pixel
+
+
+occupyDrawingPosition : DrawingPosition -> OccupiedPixels -> OccupiedPixels
 occupyDrawingPosition drawingPos occupiedPixels =
     Set.union (pixelsToOccupy drawingPos) occupiedPixels
 

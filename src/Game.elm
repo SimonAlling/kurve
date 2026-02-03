@@ -36,7 +36,7 @@ import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Types.TurningState exposing (TurningState)
-import World exposing (DrawingPosition, Pixel, Position)
+import World exposing (DrawingPosition, OccupiedPixels, Pixel, Position)
 
 
 type GameState
@@ -146,10 +146,10 @@ prepareRoundFromKnownInitialState initialState =
     round
 
 
-initialOccupiedPixels : List Kurve -> Set Pixel
+initialOccupiedPixels : List Kurve -> OccupiedPixels
 initialOccupiedPixels =
     let
-        placeKurve : Kurve -> Set Pixel -> Set Pixel
+        placeKurve : Kurve -> OccupiedPixels -> OccupiedPixels
         placeKurve kurve =
             kurve.state.position
                 |> World.drawingPosition
@@ -209,10 +209,10 @@ checkIndividualKurve :
     Config
     -> Tick
     -> Kurve
-    -> ( Kurves, Set World.Pixel, List ( Color, DrawingPosition ) )
+    -> ( Kurves, OccupiedPixels, List ( Color, DrawingPosition ) )
     ->
         ( Kurves
-        , Set World.Pixel
+        , OccupiedPixels
         , List ( Color, DrawingPosition )
         )
 checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredDrawingPositions ) =
@@ -224,7 +224,7 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
         ( newKurveDrawingPositions, checkedKurve, fate ) =
             updateKurve config turningState occupiedPixels kurve
 
-        occupiedPixelsAfterCheckingThisKurve : Set Pixel
+        occupiedPixelsAfterCheckingThisKurve : OccupiedPixels
         occupiedPixelsAfterCheckingThisKurve =
             List.foldl
                 World.occupyDrawingPosition
@@ -256,7 +256,7 @@ type alias HolinessTransition =
     }
 
 
-evaluateMove : Config -> Position -> Position -> Set Pixel -> HolinessTransition -> ( List DrawingPosition, Fate )
+evaluateMove : Config -> Position -> Position -> OccupiedPixels -> HolinessTransition -> ( List DrawingPosition, Fate )
 evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransition =
     let
         startingPointAsDrawingPosition : DrawingPosition
@@ -349,7 +349,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
 
-updateKurve : Config -> TurningState -> Set Pixel -> Kurve -> ( List DrawingPosition, Kurve, Fate )
+updateKurve : Config -> TurningState -> OccupiedPixels -> Kurve -> ( List DrawingPosition, Kurve, Fate )
 updateKurve config turningState occupiedPixels kurve =
     let
         distanceTraveledSinceLastTick : Float
