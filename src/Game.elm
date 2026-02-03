@@ -275,7 +275,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
 
                 current :: rest ->
                     let
-                        theHitbox : Set Pixel
+                        theHitbox : List Pixel
                         theHitbox =
                             World.hitbox lastChecked current
 
@@ -290,7 +290,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
 
                         crashesIntoKurve : Bool
                         crashesIntoKurve =
-                            not <| Set.isEmpty <| Set.filter (World.isOccupied occupiedPixels) theHitbox
+                            not <| List.isEmpty <| List.filter (World.isOccupied occupiedPixels) theHitbox
 
                         dies : Bool
                         dies =

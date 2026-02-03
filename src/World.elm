@@ -16,7 +16,6 @@ import Array2D exposing (Array2D)
 import Config exposing (WorldConfig)
 import List.Cartesian
 import RasterShapes
-import Set exposing (Set)
 import Thickness exposing (theThickness)
 import Types.Distance exposing (Distance(..))
 
@@ -51,7 +50,7 @@ isOccupied occupiedPixels ( x, y ) =
 
 occupyDrawingPosition : DrawingPosition -> OccupiedPixels -> OccupiedPixels
 occupyDrawingPosition drawingPos occupiedPixels =
-    Set.foldl occupyPixel occupiedPixels (pixelsToOccupy drawingPos)
+    List.foldl occupyPixel occupiedPixels (pixelsToOccupy drawingPos)
 
 
 distanceBetween : Position -> Position -> Distance
@@ -69,7 +68,7 @@ edgeOfSquare xOrY =
     truncate xOrY
 
 
-pixelsToOccupy : DrawingPosition -> Set Pixel
+pixelsToOccupy : DrawingPosition -> List Pixel
 pixelsToOccupy { x, y } =
     let
         rangeFrom : Int -> List Int
@@ -85,7 +84,6 @@ pixelsToOccupy { x, y } =
             rangeFrom y
     in
     List.Cartesian.map2 Tuple.pair xs ys
-        |> Set.fromList
 
 
 occupyPixel : Pixel -> OccupiedPixels -> OccupiedPixels
@@ -104,10 +102,10 @@ desiredDrawingPositions startingPoint desiredEndPoint =
         |> List.drop 1
 
 
-hitbox : DrawingPosition -> DrawingPosition -> Set Pixel
+hitbox : DrawingPosition -> DrawingPosition -> List Pixel
 hitbox oldPosition newPosition =
     let
-        newPixels : Set Pixel
+        newPixels : List Pixel
         newPixels =
             pixelsToOccupy newPosition
 
@@ -115,7 +113,7 @@ hitbox oldPosition newPosition =
         pointInFrontOfKurve =
             computePointInFront oldPosition newPosition
     in
-    newPixels |> Set.filter (isCloseTo pointInFrontOfKurve)
+    newPixels |> List.filter (isCloseTo pointInFrontOfKurve)
 
 
 {-| Computes a point in front of the Kurve from which the hitbox can be computed.
