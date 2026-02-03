@@ -433,7 +433,12 @@ rewindReplay activeGameState model =
                     drawSpawnsPermanently roundAtBeginning.kurves.alive
 
                 ( tickResult, maybeWhatToDrawForSkippingAhead ) =
-                    MainLoop.consumeAnimationFrame model.config millisecondsToSkipAhead 0 Tick.genesis roundAtBeginning
+                    MainLoop.consumeAnimationFrame
+                        model.config
+                        millisecondsToSkipAhead
+                        MainLoop.noLeftoverFrameTime
+                        Tick.genesis
+                        roundAtBeginning
 
                 whatToDraw : WhatToDraw
                 whatToDraw =
