@@ -150,10 +150,10 @@ initialOccupiedPixels : WorldConfig -> List Kurve -> OccupiedPixels
 initialOccupiedPixels worldConfig =
     let
         placeKurve : Kurve -> OccupiedPixels -> OccupiedPixels
-        placeKurve kurve occupiedPixels =
+        placeKurve kurve =
             kurve.state.position
                 |> World.drawingPosition
-                |> (\drawingPosition -> World.occupyDrawingPosition drawingPosition occupiedPixels)
+                |> World.occupyDrawingPosition
     in
     List.foldl placeKurve (World.empty worldConfig)
 
