@@ -540,13 +540,13 @@ view model =
                         [ Attr.id "border"
                         ]
                         [ canvas
-                            [ Attr.id "canvas_main"
+                            [ Attr.id "bodyCanvas"
                             , Attr.width 559
                             , Attr.height 480
                             ]
                             []
                         , canvas
-                            [ Attr.id "canvas_overlay"
+                            [ Attr.id "headCanvas"
                             , Attr.width 559
                             , Attr.height 480
                             , Attr.class "overlay"
