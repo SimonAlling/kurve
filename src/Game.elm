@@ -41,7 +41,7 @@ import World exposing (DrawingPosition, OccupiedPixels, Pixel, Position)
 
 type GameState
     = Active LiveOrReplay PausedOrNot ActiveGameState
-    | RoundOver Round Dialog.State
+    | RoundOver LiveOrReplay Tick Round Dialog.State
 
 
 type PausedOrNot
@@ -56,7 +56,7 @@ type ActiveGameState
 
 type TickResult a
     = RoundKeepsGoing a
-    | RoundEnds Round
+    | RoundEnds Tick Round
 
 
 getCurrentRound : GameState -> Round
@@ -65,7 +65,7 @@ getCurrentRound gameState =
         Active _ _ activeGameState ->
             getActiveRound activeGameState
 
-        RoundOver round _ ->
+        RoundOver _ _ round _ ->
             round
 
 
@@ -183,7 +183,7 @@ reactToTick config tick currentRound =
         tickResult : TickResult Round
         tickResult =
             if roundIsOver newKurves then
-                RoundEnds newCurrentRound
+                RoundEnds tick newCurrentRound
 
             else
                 RoundKeepsGoing newCurrentRound
@@ -201,8 +201,8 @@ tickResultToGameState liveOrReplay pausedOrNot tickResult =
         RoundKeepsGoing ( leftoverFrameTime, tick, midRoundState ) ->
             Active liveOrReplay pausedOrNot (Moving leftoverFrameTime tick midRoundState)
 
-        RoundEnds finishedRound ->
-            RoundOver finishedRound Dialog.NotOpen
+        RoundEnds tickThatEndedIt finishedRound ->
+            RoundOver liveOrReplay tickThatEndedIt finishedRound Dialog.NotOpen
 
 
 checkIndividualKurve :
