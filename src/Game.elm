@@ -290,7 +290,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
 
                         crashesIntoKurve : Bool
                         crashesIntoKurve =
-                            not <| List.isEmpty <| List.filter (World.isOccupied occupiedPixels) theHitbox
+                            List.any (World.isOccupied occupiedPixels) theHitbox
 
                         dies : Bool
                         dies =
