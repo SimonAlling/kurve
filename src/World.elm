@@ -6,10 +6,14 @@ module World exposing
     , desiredDrawingPositions
     , distanceBetween
     , drawingPosition
+    , empty
     , hitbox
+    , isOccupied
     , occupyDrawingPosition
     )
 
+import Array2D exposing (Array2D)
+import Config exposing (WorldConfig)
 import List.Cartesian
 import RasterShapes
 import Set exposing (Set)
@@ -32,12 +36,22 @@ type alias Pixel =
 
 
 type alias OccupiedPixels =
-    Set Pixel
+    Array2D Bool
+
+
+empty : WorldConfig -> OccupiedPixels
+empty { width, height } =
+    Array2D.repeat width height False
+
+
+isOccupied : OccupiedPixels -> Pixel -> Bool
+isOccupied occupiedPixels ( x, y ) =
+    Array2D.get x y occupiedPixels |> Maybe.withDefault False
 
 
 occupyDrawingPosition : DrawingPosition -> OccupiedPixels -> OccupiedPixels
 occupyDrawingPosition drawingPos occupiedPixels =
-    Set.union (pixelsToOccupy drawingPos) occupiedPixels
+    Set.foldl occupyPixel occupiedPixels (pixelsToOccupy drawingPos)
 
 
 distanceBetween : Position -> Position -> Distance
@@ -72,6 +86,11 @@ pixelsToOccupy { x, y } =
     in
     List.Cartesian.map2 Tuple.pair xs ys
         |> Set.fromList
+
+
+occupyPixel : Pixel -> OccupiedPixels -> OccupiedPixels
+occupyPixel ( x, y ) =
+    Array2D.set x y True
 
 
 desiredDrawingPositions : Position -> Position -> List DrawingPosition

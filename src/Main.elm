@@ -262,7 +262,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                                     rewindReplay pausedOrNot fakeActiveGameState model
 
                         Key "KeyR" ->
-                            startRound Replay model <| prepareReplayRound (initialStateForReplaying finishedRound)
+                            startRound Replay model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
 
                         Key "Escape" ->
                             -- Quitting after the final round is not allowed in the original game.
@@ -373,7 +373,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                     stepOneTick s model
 
                 Key "KeyR" ->
-                    startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
+                    startRound Replay model <| prepareReplayRound config.world (initialStateForReplaying (getActiveRound s))
 
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
@@ -409,7 +409,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                     stepOneTick s model
 
                 Key "KeyR" ->
-                    startRound Replay model <| prepareReplayRound (initialStateForReplaying (getActiveRound s))
+                    startRound Replay model <| prepareReplayRound config.world (initialStateForReplaying (getActiveRound s))
 
                 Key "Space" ->
                     ( { model | appState = InGame (Active Replay Paused s) }, DoNothing )
@@ -461,7 +461,7 @@ rewindReplay pausedOrNot activeGameState model =
             let
                 roundAtBeginning : Round
                 roundAtBeginning =
-                    prepareReplayRound (initialStateForReplaying midRoundState)
+                    prepareReplayRound model.config.world (initialStateForReplaying midRoundState)
 
                 tickrateInHz : Float
                 tickrateInHz =

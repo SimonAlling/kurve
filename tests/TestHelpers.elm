@@ -102,7 +102,7 @@ playOutRound config initialState =
 
         round : Round
         round =
-            prepareRoundFromKnownInitialState initialState
+            prepareRoundFromKnownInitialState config.world initialState
     in
     recurse Tick.genesis round
 
@@ -112,7 +112,7 @@ playOutRoundWithEffects config initialState =
     let
         initialRound : Round
         initialRound =
-            prepareRoundFromKnownInitialState initialState
+            prepareRoundFromKnownInitialState config.world initialState
 
         initialGameState : GameState
         initialGameState =

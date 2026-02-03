@@ -18,7 +18,7 @@ module Game exposing
     )
 
 import Color exposing (Color)
-import Config exposing (Config)
+import Config exposing (Config, WorldConfig)
 import Dialog
 import Drawing exposing (WhatToDraw, getColorAndDrawingPosition)
 import Holes exposing (HoleStatus, Holiness(..), getHoliness, updateHoleStatus)
@@ -120,16 +120,16 @@ prepareLiveRound config seed players pressedButtons =
         ( theKurves, seedAfterSpawn ) =
             Random.step (generateKurves config players) seed |> Tuple.mapFirst recordInitialInteractions
     in
-    prepareRoundFromKnownInitialState { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves }
+    prepareRoundFromKnownInitialState config.world { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves }
 
 
-prepareReplayRound : RoundInitialState -> Round
-prepareReplayRound initialState =
-    prepareRoundFromKnownInitialState initialState
+prepareReplayRound : WorldConfig -> RoundInitialState -> Round
+prepareReplayRound worldConfig initialState =
+    prepareRoundFromKnownInitialState worldConfig initialState
 
 
-prepareRoundFromKnownInitialState : RoundInitialState -> Round
-prepareRoundFromKnownInitialState initialState =
+prepareRoundFromKnownInitialState : WorldConfig -> RoundInitialState -> Round
+prepareRoundFromKnownInitialState worldConfig initialState =
     let
         theKurves : List Kurve
         theKurves =
@@ -138,7 +138,7 @@ prepareRoundFromKnownInitialState initialState =
         round : Round
         round =
             { kurves = { alive = theKurves, dead = [] }
-            , occupiedPixels = initialOccupiedPixels theKurves
+            , occupiedPixels = initialOccupiedPixels worldConfig theKurves
             , initialState = initialState
             , seed = initialState.seedAfterSpawn
             }
@@ -146,8 +146,8 @@ prepareRoundFromKnownInitialState initialState =
     round
 
 
-initialOccupiedPixels : List Kurve -> OccupiedPixels
-initialOccupiedPixels =
+initialOccupiedPixels : WorldConfig -> List Kurve -> OccupiedPixels
+initialOccupiedPixels worldConfig =
     let
         placeKurve : Kurve -> OccupiedPixels -> OccupiedPixels
         placeKurve kurve =
@@ -155,7 +155,7 @@ initialOccupiedPixels =
                 |> World.drawingPosition
                 |> World.occupyDrawingPosition
     in
-    List.foldl placeKurve Set.empty
+    List.foldl placeKurve (World.empty worldConfig)
 
 
 reactToTick : Config -> Tick -> Round -> ( TickResult Round, WhatToDraw )
@@ -290,7 +290,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
 
                         crashesIntoKurve : Bool
                         crashesIntoKurve =
-                            not <| Set.isEmpty <| Set.intersect theHitbox occupiedPixels
+                            not <| Set.isEmpty <| Set.filter (World.isOccupied occupiedPixels) theHitbox
 
                         dies : Bool
                         dies =
