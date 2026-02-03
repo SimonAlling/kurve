@@ -14,9 +14,7 @@ module World exposing
 
 import Array2D exposing (Array2D)
 import Config exposing (WorldConfig)
-import List.Cartesian
 import RasterShapes
-import Thickness exposing (theThickness)
 import Types.Distance exposing (Distance(..))
 
 
@@ -70,20 +68,16 @@ edgeOfSquare xOrY =
 
 pixelsToOccupy : DrawingPosition -> List Pixel
 pixelsToOccupy { x, y } =
-    let
-        rangeFrom : Int -> List Int
-        rangeFrom start =
-            List.range start (start + theThickness - 1)
-
-        xs : List Int
-        xs =
-            rangeFrom x
-
-        ys : List Int
-        ys =
-            rangeFrom y
-    in
-    List.Cartesian.map2 Tuple.pair xs ys
+    [ ( x, y )
+    , ( x + 1, y )
+    , ( x + 2, y )
+    , ( x, y + 1 )
+    , ( x + 1, y + 1 )
+    , ( x + 2, y + 1 )
+    , ( x, y + 2 )
+    , ( x + 1, y + 2 )
+    , ( x + 2, y + 2 )
+    ]
 
 
 occupyPixel : Pixel -> OccupiedPixels -> OccupiedPixels
