@@ -135,7 +135,7 @@ stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
 
 
 update : Msg -> Model -> ( Model, Effect )
-update msg ({ config, pressedButtons } as model) =
+update msg ({ config } as model) =
     case msg of
         FocusLost ->
             case model.appState of
@@ -196,212 +196,7 @@ update msg ({ config, pressedButtons } as model) =
                     ( model, DoNothing )
 
         ButtonUsed Down button ->
-            case model.appState of
-                InMenu SplashScreen seed ->
-                    case button of
-                        Key "Space" ->
-                            goToLobby seed model
-
-                        _ ->
-                            ( handleUserInteraction Down button model, DoNothing )
-
-                InMenu Lobby seed ->
-                    case ( button, atLeastOneIsParticipating model.players ) of
-                        ( Key "Space", True ) ->
-                            startRound Live model <| prepareLiveRound config seed (participating model.players) pressedButtons
-
-                        _ ->
-                            ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, DoNothing )
-
-                InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound dialogState) ->
-                    case dialogState of
-                        Dialog.NotOpen ->
-                            let
-                                newModel : Model
-                                newModel =
-                                    { model | players = includeResultsFrom finishedRound model.players }
-
-                                gameIsOver : Bool
-                                gameIsOver =
-                                    isGameOver (participating newModel.players)
-                            in
-                            case button of
-                                Key "ArrowLeft" ->
-                                    case liveOrReplay of
-                                        Live ->
-                                            ( handleUserInteraction Down button model, DoNothing )
-
-                                        Replay ->
-                                            let
-                                                fakeActiveGameState : ActiveGameState
-                                                fakeActiveGameState =
-                                                    Moving MainLoop.noLeftoverFrameTime tickThatEndedIt finishedRound
-                                            in
-                                            rewindReplay pausedOrNot fakeActiveGameState model
-
-                                Key "KeyR" ->
-                                    startRound Replay model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
-
-                                Key "Escape" ->
-                                    -- Quitting after the final round is not allowed in the original game.
-                                    if not gameIsOver then
-                                        ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open Dialog.Cancel)) }, DoNothing )
-
-                                    else
-                                        ( handleUserInteraction Down button model, DoNothing )
-
-                                Key "Space" ->
-                                    if gameIsOver then
-                                        gameOver finishedRound.seed newModel
-
-                                    else
-                                        startRound Live newModel <| prepareLiveRound config finishedRound.seed (participating newModel.players) pressedButtons
-
-                                _ ->
-                                    ( handleUserInteraction Down button model, DoNothing )
-
-                        Dialog.Open selectedOption ->
-                            let
-                                cancel : ( Model, Effect )
-                                cancel =
-                                    ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound Dialog.NotOpen) }, DoNothing )
-
-                                confirm : ( Model, Effect )
-                                confirm =
-                                    goToLobby finishedRound.seed model
-
-                                select : Dialog.Option -> ( Model, Effect )
-                                select option =
-                                    ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open option)) }, DoNothing )
-                            in
-                            case ( button, selectedOption ) of
-                                ( Key "Escape", _ ) ->
-                                    cancel
-
-                                ( Key "Enter", Dialog.Cancel ) ->
-                                    cancel
-
-                                ( Key "Space", Dialog.Cancel ) ->
-                                    cancel
-
-                                ( Key "Enter", Dialog.Confirm ) ->
-                                    confirm
-
-                                ( Key "Space", Dialog.Confirm ) ->
-                                    confirm
-
-                                ( Key "ArrowLeft", _ ) ->
-                                    select Dialog.Confirm
-
-                                ( Key "ArrowRight", _ ) ->
-                                    select Dialog.Cancel
-
-                                ( Key "Tab", _ ) ->
-                                    let
-                                        isShift : Bool
-                                        isShift =
-                                            Set.member "ShiftLeft" model.pressedButtons || Set.member "ShiftRight" model.pressedButtons
-                                    in
-                                    select <|
-                                        if isShift then
-                                            Dialog.Confirm
-
-                                        else
-                                            Dialog.Cancel
-
-                                _ ->
-                                    ( handleUserInteraction Down button model, DoNothing )
-
-                InGame (Active Live Paused s) ->
-                    case button of
-                        Key "Space" ->
-                            ( { model | appState = InGame (Active Live NotPaused s) }, DoNothing )
-
-                        _ ->
-                            ( handleUserInteraction Down button model, DoNothing )
-
-                InGame (Active Replay Paused s) ->
-                    case button of
-                        Key "Space" ->
-                            ( { model | appState = InGame (Active Replay NotPaused s) }, DoNothing )
-
-                        Key "ArrowLeft" ->
-                            rewindReplay Paused s model
-
-                        Key "ArrowRight" ->
-                            case s of
-                                Spawning _ _ ->
-                                    ( model, DoNothing )
-
-                                Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
-                                    let
-                                        ( tickResult, whatToDraw ) =
-                                            MainLoop.consumeAnimationFrame
-                                                config
-                                                (toFloat config.replay.skipStepInMs)
-                                                leftoverTimeFromPreviousFrame
-                                                lastTick
-                                                midRoundState
-                                    in
-                                    ( { model | appState = InGame (tickResultToGameState Replay Paused tickResult) }
-                                    , maybeDrawSomething whatToDraw
-                                    )
-
-                        Key "KeyE" ->
-                            stepOneTick s model
-
-                        Key "KeyR" ->
-                            startRound Replay model <| prepareReplayRound config.world (initialStateForReplaying (getActiveRound s))
-
-                        _ ->
-                            ( handleUserInteraction Down button model, DoNothing )
-
-                InGame (Active Live NotPaused _) ->
-                    ( handleUserInteraction Down button model, DoNothing )
-
-                InGame (Active Replay NotPaused s) ->
-                    case button of
-                        Key "ArrowLeft" ->
-                            rewindReplay NotPaused s model
-
-                        Key "ArrowRight" ->
-                            case s of
-                                Spawning _ _ ->
-                                    ( model, DoNothing )
-
-                                Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
-                                    let
-                                        ( tickResult, whatToDraw ) =
-                                            MainLoop.consumeAnimationFrame
-                                                config
-                                                (toFloat config.replay.skipStepInMs)
-                                                leftoverTimeFromPreviousFrame
-                                                lastTick
-                                                midRoundState
-                                    in
-                                    ( { model | appState = InGame (tickResultToGameState Replay NotPaused tickResult) }
-                                    , maybeDrawSomething whatToDraw
-                                    )
-
-                        Key "KeyE" ->
-                            stepOneTick s model
-
-                        Key "KeyR" ->
-                            startRound Replay model <| prepareReplayRound config.world (initialStateForReplaying (getActiveRound s))
-
-                        Key "Space" ->
-                            ( { model | appState = InGame (Active Replay Paused s) }, DoNothing )
-
-                        _ ->
-                            ( handleUserInteraction Down button model, DoNothing )
-
-                InMenu GameOver seed ->
-                    case button of
-                        Key "Space" ->
-                            goToLobby seed model
-
-                        _ ->
-                            ( handleUserInteraction Down button model, DoNothing )
+            buttonUsed button model
 
         ButtonUsed Up key ->
             ( handleUserInteraction Up key model, DoNothing )
@@ -419,6 +214,216 @@ update msg ({ config, pressedButtons } as model) =
                 _ ->
                     -- Not expected to ever happen.
                     ( model, DoNothing )
+
+
+buttonUsed : Button -> Model -> ( Model, Effect )
+buttonUsed button ({ config, pressedButtons } as model) =
+    case model.appState of
+        InMenu SplashScreen seed ->
+            case button of
+                Key "Space" ->
+                    goToLobby seed model
+
+                _ ->
+                    ( handleUserInteraction Down button model, DoNothing )
+
+        InMenu Lobby seed ->
+            case ( button, atLeastOneIsParticipating model.players ) of
+                ( Key "Space", True ) ->
+                    startRound Live model <| prepareLiveRound config seed (participating model.players) pressedButtons
+
+                _ ->
+                    ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, DoNothing )
+
+        InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound dialogState) ->
+            case dialogState of
+                Dialog.NotOpen ->
+                    let
+                        newModel : Model
+                        newModel =
+                            { model | players = includeResultsFrom finishedRound model.players }
+
+                        gameIsOver : Bool
+                        gameIsOver =
+                            isGameOver (participating newModel.players)
+                    in
+                    case button of
+                        Key "ArrowLeft" ->
+                            case liveOrReplay of
+                                Live ->
+                                    ( handleUserInteraction Down button model, DoNothing )
+
+                                Replay ->
+                                    let
+                                        fakeActiveGameState : ActiveGameState
+                                        fakeActiveGameState =
+                                            Moving MainLoop.noLeftoverFrameTime tickThatEndedIt finishedRound
+                                    in
+                                    rewindReplay pausedOrNot fakeActiveGameState model
+
+                        Key "KeyR" ->
+                            startRound Replay model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
+
+                        Key "Escape" ->
+                            -- Quitting after the final round is not allowed in the original game.
+                            if not gameIsOver then
+                                ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open Dialog.Cancel)) }, DoNothing )
+
+                            else
+                                ( handleUserInteraction Down button model, DoNothing )
+
+                        Key "Space" ->
+                            if gameIsOver then
+                                gameOver finishedRound.seed newModel
+
+                            else
+                                startRound Live newModel <| prepareLiveRound config finishedRound.seed (participating newModel.players) pressedButtons
+
+                        _ ->
+                            ( handleUserInteraction Down button model, DoNothing )
+
+                Dialog.Open selectedOption ->
+                    let
+                        cancel : ( Model, Effect )
+                        cancel =
+                            ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound Dialog.NotOpen) }, DoNothing )
+
+                        confirm : ( Model, Effect )
+                        confirm =
+                            goToLobby finishedRound.seed model
+
+                        select : Dialog.Option -> ( Model, Effect )
+                        select option =
+                            ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open option)) }, DoNothing )
+                    in
+                    case ( button, selectedOption ) of
+                        ( Key "Escape", _ ) ->
+                            cancel
+
+                        ( Key "Enter", Dialog.Cancel ) ->
+                            cancel
+
+                        ( Key "Space", Dialog.Cancel ) ->
+                            cancel
+
+                        ( Key "Enter", Dialog.Confirm ) ->
+                            confirm
+
+                        ( Key "Space", Dialog.Confirm ) ->
+                            confirm
+
+                        ( Key "ArrowLeft", _ ) ->
+                            select Dialog.Confirm
+
+                        ( Key "ArrowRight", _ ) ->
+                            select Dialog.Cancel
+
+                        ( Key "Tab", _ ) ->
+                            let
+                                isShift : Bool
+                                isShift =
+                                    Set.member "ShiftLeft" model.pressedButtons || Set.member "ShiftRight" model.pressedButtons
+                            in
+                            select <|
+                                if isShift then
+                                    Dialog.Confirm
+
+                                else
+                                    Dialog.Cancel
+
+                        _ ->
+                            ( handleUserInteraction Down button model, DoNothing )
+
+        InGame (Active Live Paused s) ->
+            case button of
+                Key "Space" ->
+                    ( { model | appState = InGame (Active Live NotPaused s) }, DoNothing )
+
+                _ ->
+                    ( handleUserInteraction Down button model, DoNothing )
+
+        InGame (Active Replay Paused s) ->
+            case button of
+                Key "Space" ->
+                    ( { model | appState = InGame (Active Replay NotPaused s) }, DoNothing )
+
+                Key "ArrowLeft" ->
+                    rewindReplay Paused s model
+
+                Key "ArrowRight" ->
+                    case s of
+                        Spawning _ _ ->
+                            ( model, DoNothing )
+
+                        Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
+                            let
+                                ( tickResult, whatToDraw ) =
+                                    MainLoop.consumeAnimationFrame
+                                        config
+                                        (toFloat config.replay.skipStepInMs)
+                                        leftoverTimeFromPreviousFrame
+                                        lastTick
+                                        midRoundState
+                            in
+                            ( { model | appState = InGame (tickResultToGameState Replay Paused tickResult) }
+                            , maybeDrawSomething whatToDraw
+                            )
+
+                Key "KeyE" ->
+                    stepOneTick s model
+
+                Key "KeyR" ->
+                    startRound Replay model <| prepareReplayRound config.world (initialStateForReplaying (getActiveRound s))
+
+                _ ->
+                    ( handleUserInteraction Down button model, DoNothing )
+
+        InGame (Active Live NotPaused _) ->
+            ( handleUserInteraction Down button model, DoNothing )
+
+        InGame (Active Replay NotPaused s) ->
+            case button of
+                Key "ArrowLeft" ->
+                    rewindReplay NotPaused s model
+
+                Key "ArrowRight" ->
+                    case s of
+                        Spawning _ _ ->
+                            ( model, DoNothing )
+
+                        Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
+                            let
+                                ( tickResult, whatToDraw ) =
+                                    MainLoop.consumeAnimationFrame
+                                        config
+                                        (toFloat config.replay.skipStepInMs)
+                                        leftoverTimeFromPreviousFrame
+                                        lastTick
+                                        midRoundState
+                            in
+                            ( { model | appState = InGame (tickResultToGameState Replay NotPaused tickResult) }
+                            , maybeDrawSomething whatToDraw
+                            )
+
+                Key "KeyE" ->
+                    stepOneTick s model
+
+                Key "KeyR" ->
+                    startRound Replay model <| prepareReplayRound config.world (initialStateForReplaying (getActiveRound s))
+
+                Key "Space" ->
+                    ( { model | appState = InGame (Active Replay Paused s) }, DoNothing )
+
+                _ ->
+                    ( handleUserInteraction Down button model, DoNothing )
+
+        InMenu GameOver seed ->
+            case button of
+                Key "Space" ->
+                    goToLobby seed model
+
+                _ ->
+                    ( handleUserInteraction Down button model, DoNothing )
 
 
 stepOneTick : ActiveGameState -> Model -> ( Model, Effect )
