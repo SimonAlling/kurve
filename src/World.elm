@@ -68,6 +68,7 @@ edgeOfSquare xOrY =
 
 pixelsToOccupy : DrawingPosition -> List Pixel
 pixelsToOccupy { x, y } =
+    -- Hardcoded for performance; see the PR/commit that added this comment.
     [ ( x, y )
     , ( x + 1, y )
     , ( x + 2, y )
