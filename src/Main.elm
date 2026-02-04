@@ -286,11 +286,11 @@ buttonUsed button ({ config, pressedButtons } as model) =
                     let
                         cancel : ( Model, Effect )
                         cancel =
-                            ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound Dialog.NotOpen) }, DoNothing )
+                            update (DialogChoiceMade Dialog.Cancel) model
 
                         confirm : ( Model, Effect )
                         confirm =
-                            goToLobby finishedRound.seed model
+                            update (DialogChoiceMade Dialog.Confirm) model
 
                         select : Dialog.Option -> ( Model, Effect )
                         select option =
