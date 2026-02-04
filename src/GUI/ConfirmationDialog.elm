@@ -1,7 +1,8 @@
-module GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
+module GUI.ConfirmationDialog exposing (confirmDialog)
 
 import Colors
 import Dialog
+import GUI.DialogQuestion exposing (showQuestion)
 import GUI.Text
 import Game exposing (GameState(..))
 import Html exposing (Attribute, Html, button, div, p)
@@ -9,15 +10,15 @@ import Html.Attributes as Attr
 import Html.Events exposing (onClick)
 
 
-confirmQuitDialog : (Dialog.Option -> msg) -> GameState -> Html msg
-confirmQuitDialog makeMsg gameState =
+confirmDialog : (Dialog.Option -> msg) -> GameState -> Html msg
+confirmDialog makeMsg gameState =
     case gameState of
-        RoundOver _ _ _ _ (Dialog.Open selectedOption) ->
+        RoundOver _ _ _ _ (Dialog.Open question selectedOption) ->
             div
                 [ Attr.class "overlay"
                 , Attr.class "dialogOverlay"
                 ]
-                [ dialogBox makeMsg "Really quit?" selectedOption
+                [ dialogBox makeMsg (showQuestion question) selectedOption
                 ]
 
         _ ->

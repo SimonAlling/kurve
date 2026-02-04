@@ -8,7 +8,8 @@ import Config exposing (Config)
 import Dialog
 import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily, mergeWhatToDraw)
 import Effect exposing (Effect(..), maybeDrawSomething)
-import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
+import GUI.ConfirmationDialog exposing (confirmDialog)
+import GUI.DialogQuestion exposing (DialogQuestion(..))
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
 import GUI.Scoreboard exposing (scoreboard)
@@ -208,10 +209,15 @@ update msg ({ config } as model) =
 handleDialogChoice : Dialog.Option -> Model -> ( Model, Effect )
 handleDialogChoice option model =
     case model.appState of
-        InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open _)) ->
+        InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open question _)) ->
             case option of
                 Dialog.Confirm ->
-                    goToLobby finishedRound.seed model
+                    case question of
+                        ReallyQuit ->
+                            goToLobby finishedRound.seed model
+
+                        ProceedToNextRound ->
+                            proceedToNextRound finishedRound model
 
                 Dialog.Cancel ->
                     ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound Dialog.NotOpen) }, DoNothing )
@@ -243,15 +249,6 @@ buttonUsed button ({ config, pressedButtons } as model) =
         InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound dialogState) ->
             case dialogState of
                 Dialog.NotOpen ->
-                    let
-                        newModel : Model
-                        newModel =
-                            { model | players = includeResultsFrom finishedRound model.players }
-
-                        gameIsOver : Bool
-                        gameIsOver =
-                            isGameOver (participating newModel.players)
-                    in
                     case button of
                         Key "ArrowLeft" ->
                             case liveOrReplay of
@@ -270,24 +267,34 @@ buttonUsed button ({ config, pressedButtons } as model) =
                             startRound Replay model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
 
                         Key "Escape" ->
+                            let
+                                newModel : Model
+                                newModel =
+                                    { model | players = includeResultsFrom finishedRound model.players }
+
+                                gameIsOver : Bool
+                                gameIsOver =
+                                    isGameOver (participating newModel.players)
+                            in
                             -- Quitting after the final round is not allowed in the original game.
                             if not gameIsOver then
-                                ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open Dialog.Cancel)) }, DoNothing )
+                                ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open ReallyQuit Dialog.Cancel)) }, DoNothing )
 
                             else
                                 ( handleUserInteraction Down button model, DoNothing )
 
                         Key "Space" ->
-                            if gameIsOver then
-                                gameOver finishedRound.seed newModel
+                            case liveOrReplay of
+                                Live ->
+                                    proceedToNextRound finishedRound model
 
-                            else
-                                startRound Live newModel <| prepareLiveRound config finishedRound.seed (participating newModel.players) pressedButtons
+                                Replay ->
+                                    ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open ProceedToNextRound Dialog.Cancel)) }, DoNothing )
 
                         _ ->
                             ( handleUserInteraction Down button model, DoNothing )
 
-                Dialog.Open selectedOption ->
+                Dialog.Open question selectedOption ->
                     let
                         cancel : ( Model, Effect )
                         cancel =
@@ -299,7 +306,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
 
                         select : Dialog.Option -> ( Model, Effect )
                         select option =
-                            ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open option)) }, DoNothing )
+                            ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open question option)) }, DoNothing )
                     in
                     case ( button, selectedOption ) of
                         ( Key "Escape", _ ) ->
@@ -524,6 +531,24 @@ goToLobby seed model =
     ( { model | appState = InMenu Lobby seed, players = everyoneLeaves model.players }, DoNothing )
 
 
+proceedToNextRound : Round -> Model -> ( Model, Effect )
+proceedToNextRound finishedRound ({ config, pressedButtons } as model) =
+    let
+        newModel : Model
+        newModel =
+            { model | players = includeResultsFrom finishedRound model.players }
+
+        gameIsOver : Bool
+        gameIsOver =
+            isGameOver (participating newModel.players)
+    in
+    if gameIsOver then
+        gameOver finishedRound.seed newModel
+
+    else
+        startRound Live newModel <| prepareLiveRound config finishedRound.seed (participating newModel.players) pressedButtons
+
+
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
 handleUserInteraction direction button model =
     let
@@ -618,7 +643,7 @@ view model =
                             ]
                             []
                         , textOverlay gameState
-                        , confirmQuitDialog DialogChoiceMade gameState
+                        , confirmDialog DialogChoiceMade gameState
                         ]
                     , scoreboard gameState model.players
                     ]

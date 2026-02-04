@@ -4,8 +4,8 @@ module Dialog exposing
     )
 
 
-type State
-    = Open Option
+type State question
+    = Open question Option
     | NotOpen
 
 

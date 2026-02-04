@@ -21,6 +21,7 @@ import Color exposing (Color)
 import Config exposing (Config, WorldConfig)
 import Dialog
 import Drawing exposing (WhatToDraw, getColorAndDrawingPosition)
+import GUI.DialogQuestion exposing (DialogQuestion)
 import Holes exposing (HoleStatus, Holiness(..), getHoliness, updateHoleStatus)
 import Players exposing (ParticipatingPlayers)
 import Random
@@ -41,7 +42,7 @@ import World exposing (DrawingPosition, OccupiedPixels, Pixel, Position)
 
 type GameState
     = Active LiveOrReplay PausedOrNot ActiveGameState
-    | RoundOver LiveOrReplay PausedOrNot Tick Round Dialog.State
+    | RoundOver LiveOrReplay PausedOrNot Tick Round (Dialog.State DialogQuestion)
 
 
 type PausedOrNot
