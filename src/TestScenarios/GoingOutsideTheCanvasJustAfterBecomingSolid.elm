@@ -168,13 +168,13 @@ expectedOutcome =
                 , headDrawing = [ ( Colors.green, { x = 100, y = 0 } ) ]
                 }
 
-            -- Start of solid segment (body not drawn because position is same as previous one):
+            -- Start of solid segment:
             , DrawSomething
-                { bodyDrawing = []
+                { bodyDrawing = [ ( Colors.green, { x = 100, y = 0 } ) ]
                 , headDrawing = [ ( Colors.green, { x = 100, y = 0 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 100, y = 0 } ) ]
+                { bodyDrawing = []
                 , headDrawing = []
                 }
             ]

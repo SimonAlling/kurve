@@ -87,7 +87,7 @@ expectedOutcome =
                 , headDrawing = [ ( Colors.green, { x = 99, y = 477 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 99, y = 477 } ) ]
+                { bodyDrawing = []
                 , headDrawing = []
                 }
             ]
