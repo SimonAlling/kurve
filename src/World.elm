@@ -1,18 +1,20 @@
 module World exposing
     ( DrawingPosition
+    , OccupiedPixels
     , Pixel
     , Position
     , desiredDrawingPositions
     , distanceBetween
     , drawingPosition
+    , empty
     , hitbox
+    , isOccupied
     , occupyDrawingPosition
     )
 
-import List.Cartesian
+import Array2D exposing (Array2D)
+import Config exposing (WorldConfig)
 import RasterShapes
-import Set exposing (Set)
-import Thickness exposing (theThickness)
 import Types.Distance exposing (Distance(..))
 import Util exposing (sign)
 
@@ -31,9 +33,23 @@ type alias Pixel =
     ( Int, Int )
 
 
-occupyDrawingPosition : DrawingPosition -> Set Pixel -> Set Pixel
+type alias OccupiedPixels =
+    Array2D Bool
+
+
+empty : WorldConfig -> OccupiedPixels
+empty { width, height } =
+    Array2D.repeat width height False
+
+
+isOccupied : OccupiedPixels -> Pixel -> Bool
+isOccupied occupiedPixels ( x, y ) =
+    Array2D.get x y occupiedPixels |> Maybe.withDefault False
+
+
+occupyDrawingPosition : DrawingPosition -> OccupiedPixels -> OccupiedPixels
 occupyDrawingPosition drawingPos occupiedPixels =
-    Set.union (pixelsToOccupy drawingPos) occupiedPixels
+    List.foldl occupyPixel occupiedPixels (pixelsToOccupy drawingPos)
 
 
 distanceBetween : Position -> Position -> Distance
@@ -51,23 +67,24 @@ edgeOfSquare xOrY =
     truncate xOrY
 
 
-pixelsToOccupy : DrawingPosition -> Set Pixel
+pixelsToOccupy : DrawingPosition -> List Pixel
 pixelsToOccupy { x, y } =
-    let
-        rangeFrom : Int -> List Int
-        rangeFrom start =
-            List.range start (start + theThickness - 1)
+    -- Hardcoded for performance; see the PR/commit that added this comment.
+    [ ( x, y )
+    , ( x + 1, y )
+    , ( x + 2, y )
+    , ( x, y + 1 )
+    , ( x + 1, y + 1 )
+    , ( x + 2, y + 1 )
+    , ( x, y + 2 )
+    , ( x + 1, y + 2 )
+    , ( x + 2, y + 2 )
+    ]
 
-        xs : List Int
-        xs =
-            rangeFrom x
 
-        ys : List Int
-        ys =
-            rangeFrom y
-    in
-    List.Cartesian.map2 Tuple.pair xs ys
-        |> Set.fromList
+occupyPixel : Pixel -> OccupiedPixels -> OccupiedPixels
+occupyPixel ( x, y ) =
+    Array2D.set x y True
 
 
 desiredDrawingPositions : Position -> Position -> List DrawingPosition
@@ -110,10 +127,10 @@ desiredDrawingPositions startingPoint desiredEndPoint =
            )
 
 
-hitbox : DrawingPosition -> DrawingPosition -> Set Pixel
+hitbox : DrawingPosition -> DrawingPosition -> List Pixel
 hitbox oldPosition newPosition =
     let
-        newPixels : Set Pixel
+        newPixels : List Pixel
         newPixels =
             pixelsToOccupy newPosition
 
@@ -121,7 +138,7 @@ hitbox oldPosition newPosition =
         pointInFrontOfKurve =
             computePointInFront oldPosition newPosition
     in
-    newPixels |> Set.filter (isCloseTo pointInFrontOfKurve)
+    newPixels |> List.filter (isCloseTo pointInFrontOfKurve)
 
 
 {-| Computes a point in front of the Kurve from which the hitbox can be computed.

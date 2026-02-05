@@ -12,16 +12,15 @@ module Round exposing
 
 import Dict exposing (Dict)
 import Random
-import Set exposing (Set)
 import Types.Kurve as Kurve exposing (Kurve)
 import Types.PlayerId exposing (PlayerId)
 import Types.Score exposing (Score(..))
-import World exposing (Pixel)
+import World exposing (OccupiedPixels)
 
 
 type alias Round =
     { kurves : Kurves
-    , occupiedPixels : Set Pixel
+    , occupiedPixels : OccupiedPixels
     , initialState : RoundInitialState
     , seed : Random.Seed
     }

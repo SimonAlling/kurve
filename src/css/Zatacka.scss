@@ -260,7 +260,7 @@ button {
     }
 }
 
-#canvas_main {
+#bodyCanvas {
     background-color: black;
     overflow: hidden;
 }
@@ -272,4 +272,14 @@ button {
 #left {
     box-sizing: border-box;
     width: 1px; /* so width of #wrapper is an even number */
+}
+
+.replayNavigation {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+
+    p {
+        margin-bottom: 8px;
+    }
 }

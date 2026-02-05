@@ -97,12 +97,12 @@ playOutRound config initialState =
                 RoundKeepsGoing nextMidRoundState ->
                     recurse incrementedTick nextMidRoundState
 
-                RoundEnds actualRoundResult ->
-                    ( incrementedTick, actualRoundResult )
+                RoundEnds tickThatEndedIt actualRoundResult ->
+                    ( tickThatEndedIt, actualRoundResult )
 
         round : Round
         round =
-            prepareRoundFromKnownInitialState initialState
+            prepareRoundFromKnownInitialState config.world initialState
     in
     recurse Tick.genesis round
 
@@ -112,7 +112,7 @@ playOutRoundWithEffects config initialState =
     let
         initialRound : Round
         initialRound =
-            prepareRoundFromKnownInitialState initialState
+            prepareRoundFromKnownInitialState config.world initialState
 
         initialGameState : GameState
         initialGameState =
@@ -154,7 +154,7 @@ playOutRoundWithEffects config initialState =
                 InGame (Active _ NotPaused (Moving _ _ _)) ->
                     recurse (AnimationFrame frameDeltaInMs) newModel newReversedEffects
 
-                InGame (RoundOver _ _) ->
+                InGame (RoundOver _ _ _ _ _) ->
                     ( newModel, newReversedEffects )
 
                 _ ->
