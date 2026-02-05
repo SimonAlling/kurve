@@ -1,6 +1,7 @@
 module GUI.TextOverlay exposing (textOverlay)
 
 import Colors
+import GUI.Hints exposing (Hint(..))
 import GUI.Navigation.Replay
 import GUI.Text
 import Game exposing (GameState(..), LiveOrReplay(..), PausedOrNot(..))
@@ -34,7 +35,8 @@ content gameState =
             [ replayIndicator, GUI.Navigation.Replay.whenActive ]
 
         RoundOver Live _ _ _ _ ->
-            []
+            [ GUI.Hints.render ShowHowToReplay
+            ]
 
         RoundOver Replay _ _ _ _ ->
             [ replayIndicator, GUI.Navigation.Replay.whenRoundOver ]
