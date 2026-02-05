@@ -208,21 +208,21 @@ expectedOutcome =
                 , headDrawing = [ ( Colors.red, { x = 30, y = 30 } ), ( Colors.yellow, { x = 36, y = 36 } ), ( Colors.orange, { x = 22, y = 24 } ), ( Colors.green, { x = 19, y = 46 } ) ]
                 }
 
-            -- Red's last position is drawn:
+            -- Red's last position is drawn "for real":
             , DrawSomething
                 { bodyDrawing = [ ( Colors.red, { x = 31, y = 31 } ), ( Colors.yellow, { x = 35, y = 35 } ), ( Colors.orange, { x = 23, y = 24 } ), ( Colors.green, { x = 20, y = 45 } ) ]
                 , headDrawing = [ ( Colors.red, { x = 31, y = 31 } ), ( Colors.yellow, { x = 35, y = 35 } ), ( Colors.orange, { x = 23, y = 24 } ), ( Colors.green, { x = 20, y = 45 } ) ]
                 }
 
-            -- Yellow's last position is drawn:
+            -- Yellow's last position is drawn "for real"; Red's last position is drawn again:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.yellow, { x = 34, y = 34 } ), ( Colors.orange, { x = 24, y = 24 } ), ( Colors.green, { x = 21, y = 44 } ) ]
+                { bodyDrawing = [ ( Colors.red, { x = 31, y = 31 } ), ( Colors.yellow, { x = 34, y = 34 } ), ( Colors.orange, { x = 24, y = 24 } ), ( Colors.green, { x = 21, y = 44 } ) ]
                 , headDrawing = [ ( Colors.yellow, { x = 34, y = 34 } ), ( Colors.orange, { x = 24, y = 24 } ), ( Colors.green, { x = 21, y = 44 } ) ]
                 }
 
-            -- Only Orange and Green left:
+            -- Only Orange and Green left; Yellow's last position is drawn again:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { x = 25, y = 24 } ), ( Colors.green, { x = 22, y = 43 } ) ]
+                { bodyDrawing = [ ( Colors.yellow, { x = 34, y = 34 } ), ( Colors.orange, { x = 25, y = 24 } ), ( Colors.green, { x = 22, y = 43 } ) ]
                 , headDrawing = [ ( Colors.orange, { x = 25, y = 24 } ), ( Colors.green, { x = 22, y = 43 } ) ]
                 }
             , DrawSomething
@@ -322,7 +322,7 @@ expectedOutcome =
                 , headDrawing = [ ( Colors.orange, { x = 48, y = 24 } ), ( Colors.green, { x = 38, y = 27 } ) ]
                 }
             , DrawSomething
-                { bodyDrawing = [ ( Colors.orange, { x = 49, y = 24 } ) ]
+                { bodyDrawing = [ ( Colors.orange, { x = 49, y = 24 } ), ( Colors.green, { x = 38, y = 27 } ) ]
                 , headDrawing = [ ( Colors.orange, { x = 49, y = 24 } ) ]
                 }
             ]
