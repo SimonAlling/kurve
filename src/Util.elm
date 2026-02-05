@@ -1,7 +1,6 @@
 module Util exposing
     ( curry
     , isEven
-    , sign
     )
 
 
@@ -13,8 +12,3 @@ curry f a b =
 isEven : Int -> Bool
 isEven n =
     modBy 2 n == 0
-
-
-sign : number -> Order
-sign x =
-    compare x 0
