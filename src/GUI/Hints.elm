@@ -2,7 +2,7 @@ module GUI.Hints exposing (Hint(..), Hints, dismiss, initial, render)
 
 import Colors
 import GUI.Text
-import Html exposing (Html, a, p, text)
+import Html exposing (Html, button, p, text)
 import Html.Attributes as Attr
 import Html.Events exposing (onClick)
 
@@ -38,12 +38,12 @@ render makeHintDismissalMsg hints hint =
             [ Attr.class "hint"
             ]
             (GUI.Text.string (GUI.Text.Size 1) Colors.white (show hint ++ " ")
-                ++ [ a
+                ++ [ button
                         [ onClick (makeHintDismissalMsg ShowHowToReplay)
                         , Attr.class "dismissHint"
                         , Attr.title "Dismiss"
                         ]
-                        (GUI.Text.string (GUI.Text.Size 1) Colors.white "[X]")
+                        []
                    ]
             )
 

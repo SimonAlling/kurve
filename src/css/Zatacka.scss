@@ -1,6 +1,5 @@
 $nativeWidth: 640px;
 $nativeHeight: 480px;
-$redPlayerColor: rgb(255, 40, 0);
 
 * {
     margin: 0;
@@ -16,10 +15,6 @@ html, body {
 
 p {
     line-height: 0; // Prevents extra "padding" below the actual letters (which are effectively 8 × 8 bitmap images).
-}
-
-a {
-    cursor: pointer;
 }
 
 body {
@@ -283,10 +278,12 @@ button {
     position: absolute;
     bottom: 16px;
 
-    .dismissHint:hover, .dismissHint:focus {
-        .character {
-            background-color: $redPlayerColor !important;
-        }
+    button.dismissHint {
+        width: 12px;
+        height: 12px;
+        background-image: url("../resources/cross.png");
+        background-repeat: no-repeat;
+        background-position: center;
     }
 }
 
