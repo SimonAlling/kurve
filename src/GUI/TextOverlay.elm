@@ -1,7 +1,7 @@
 module GUI.TextOverlay exposing (textOverlay)
 
 import Colors
-import GUI.Hints exposing (Hint(..))
+import GUI.Hints exposing (Hint(..), Hints)
 import GUI.Navigation.Replay
 import GUI.Text
 import Game exposing (GameState(..), LiveOrReplay(..), PausedOrNot(..))
@@ -9,17 +9,17 @@ import Html exposing (Html, div, p)
 import Html.Attributes as Attr
 
 
-textOverlay : GameState -> Html msg
-textOverlay gameState =
+textOverlay : (Hint -> msg) -> Hints -> GameState -> Html msg
+textOverlay makeHintDismissalMsg hints gameState =
     div
         [ Attr.class "overlay"
         , Attr.class "textOverlay"
         ]
-        (content gameState)
+        (content makeHintDismissalMsg hints gameState)
 
 
-content : GameState -> List (Html msg)
-content gameState =
+content : (Hint -> msg) -> Hints -> GameState -> List (Html msg)
+content makeHintDismissalMsg hints gameState =
     case gameState of
         Active Live Paused _ ->
             [ pressSpaceToContinue ]
@@ -35,7 +35,7 @@ content gameState =
             [ replayIndicator, GUI.Navigation.Replay.whenActive ]
 
         RoundOver Live _ _ _ _ ->
-            [ GUI.Hints.render ShowHowToReplay
+            [ GUI.Hints.render makeHintDismissalMsg hints ShowHowToReplay
             ]
 
         RoundOver Replay _ _ _ _ ->
