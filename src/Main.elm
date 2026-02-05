@@ -202,18 +202,23 @@ update msg ({ config } as model) =
             ( handleUserInteraction Up key model, DoNothing )
 
         DialogChoiceMade option ->
-            case model.appState of
-                InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open _)) ->
-                    case option of
-                        Dialog.Confirm ->
-                            goToLobby finishedRound.seed model
+            handleDialogChoice option model
 
-                        Dialog.Cancel ->
-                            ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound Dialog.NotOpen) }, DoNothing )
 
-                _ ->
-                    -- Not expected to ever happen.
-                    ( model, DoNothing )
+handleDialogChoice : Dialog.Option -> Model -> ( Model, Effect )
+handleDialogChoice option model =
+    case model.appState of
+        InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open _)) ->
+            case option of
+                Dialog.Confirm ->
+                    goToLobby finishedRound.seed model
+
+                Dialog.Cancel ->
+                    ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound Dialog.NotOpen) }, DoNothing )
+
+        _ ->
+            -- Not expected to ever happen.
+            ( model, DoNothing )
 
 
 buttonUsed : Button -> Model -> ( Model, Effect )
@@ -286,11 +291,11 @@ buttonUsed button ({ config, pressedButtons } as model) =
                     let
                         cancel : ( Model, Effect )
                         cancel =
-                            ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound Dialog.NotOpen) }, DoNothing )
+                            handleDialogChoice Dialog.Cancel model
 
                         confirm : ( Model, Effect )
                         confirm =
-                            goToLobby finishedRound.seed model
+                            handleDialogChoice Dialog.Confirm model
 
                         select : Dialog.Option -> ( Model, Effect )
                         select option =
