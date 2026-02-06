@@ -14,6 +14,7 @@ import TestScenarios.CrashIntoWallLeft
 import TestScenarios.CrashIntoWallRight
 import TestScenarios.CrashIntoWallTop
 import TestScenarios.CrashSomewhatSoon
+import TestScenarios.CrashingAfterBecomingSolidAtSameDrawingPosition_Bottom
 import TestScenarios.CrashingWhileBecomingSolid
 import TestScenarios.CuttingCornersBasic
 import TestScenarios.CuttingCornersPerfectOverpainting
@@ -245,6 +246,12 @@ holeTests =
                     |> expectRoundOutcome
                         TestScenarios.CrashingWhileBecomingSolid.config
                         TestScenarios.CrashingWhileBecomingSolid.expectedOutcome
+        , test "First solid position is permanently drawn when becoming solid without changing drawing position and then immediately crashing" <|
+            \_ ->
+                roundWith TestScenarios.CrashingAfterBecomingSolidAtSameDrawingPosition_Bottom.spawnedKurves
+                    |> expectRoundOutcome
+                        TestScenarios.CrashingAfterBecomingSolidAtSameDrawingPosition_Bottom.config
+                        TestScenarios.CrashingAfterBecomingSolidAtSameDrawingPosition_Bottom.expectedOutcome
         , test "First solid position is permanently drawn when becoming solid and then immediately going outside the canvas" <|
             \_ ->
                 roundWith TestScenarios.GoingOutsideTheCanvasJustAfterBecomingSolid.spawnedKurves
