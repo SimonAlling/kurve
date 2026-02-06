@@ -319,7 +319,8 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
                     case oldHoliness of
                         Holy ->
                             -- The Kurve lives and just became solid. Draw everything it wanted to draw.
-                            -- If the Kurve didn't move at all in this tick, then it should still be drawn.
+                            -- If the Kurve didn't visually move at all in this tick, then it should still be drawn.
+                            -- There are at least two ways this can happen; see the PR/commit that added this comment.
                             if List.isEmpty checkedPositionsReversed then
                                 List.singleton startingPointAsDrawingPosition
 
