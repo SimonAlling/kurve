@@ -22,12 +22,12 @@ green =
         { color = Colors.green
         , id = playerIds.green
         , state =
-            { position = ( 100, 20.1 )
+            { position = ( 100, 12.1 )
             , direction = Angle pi
             , holeStatus =
                 RandomHoles
                     { holiness = Solid
-                    , ticksLeft = 12
+                    , ticksLeft = 4
                     , holeSeed = Random.initialSeed 0
                     }
             }
@@ -41,7 +41,7 @@ spawnedKurves =
 
 expectedOutcome : RoundOutcome
 expectedOutcome =
-    { tickThatShouldEndIt = tickNumber 22
+    { tickThatShouldEndIt = tickNumber 14
     , howItShouldEnd =
         { aliveAtTheEnd = []
         , deadAtTheEnd =
@@ -59,7 +59,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 100, y = 20 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 100, y = 12 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -67,7 +67,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 100, y = 20 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 100, y = 12 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -75,48 +75,16 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 100, y = 20 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 100, y = 12 } ) ]
                 }
 
             -- Draw spawn position permanently:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 100, y = 20 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 100, y = 12 } ) ]
                 , headDrawing = []
                 }
 
             -- Start moving:
-            , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 100, y = 19 } ) ]
-                , headDrawing = [ ( Colors.green, { x = 100, y = 19 } ) ]
-                }
-            , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 100, y = 18 } ) ]
-                , headDrawing = [ ( Colors.green, { x = 100, y = 18 } ) ]
-                }
-            , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 100, y = 17 } ) ]
-                , headDrawing = [ ( Colors.green, { x = 100, y = 17 } ) ]
-                }
-            , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 100, y = 16 } ) ]
-                , headDrawing = [ ( Colors.green, { x = 100, y = 16 } ) ]
-                }
-            , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 100, y = 15 } ) ]
-                , headDrawing = [ ( Colors.green, { x = 100, y = 15 } ) ]
-                }
-            , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 100, y = 14 } ) ]
-                , headDrawing = [ ( Colors.green, { x = 100, y = 14 } ) ]
-                }
-            , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 100, y = 13 } ) ]
-                , headDrawing = [ ( Colors.green, { x = 100, y = 13 } ) ]
-                }
-            , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 100, y = 12 } ) ]
-                , headDrawing = [ ( Colors.green, { x = 100, y = 12 } ) ]
-                }
             , DrawSomething
                 { bodyDrawing = [ ( Colors.green, { x = 100, y = 11 } ) ]
                 , headDrawing = [ ( Colors.green, { x = 100, y = 11 } ) ]
