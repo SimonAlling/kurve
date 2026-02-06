@@ -136,7 +136,7 @@ expectedOutcome =
                 , headDrawing = [ ( Colors.green, { x = 100, y = 0 } ) ]
                 }
 
-            -- Start of solid segment:
+            -- Start of solid segment (note that drawing position is same as previous one):
             , DrawSomething
                 { bodyDrawing = [ ( Colors.green, { x = 100, y = 0 } ) ]
                 , headDrawing = [ ( Colors.green, { x = 100, y = 0 } ) ]
