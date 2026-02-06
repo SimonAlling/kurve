@@ -1,4 +1,4 @@
-module TestScenarios.GoingOutsideTheCanvasJustAfterBecomingSolid exposing (config, expectedOutcome, spawnedKurves)
+module TestScenarios.CrashingAfterBecomingSolidAtSameDrawingPosition_Top exposing (config, expectedOutcome, spawnedKurves)
 
 import Colors
 import Config exposing (Config)
