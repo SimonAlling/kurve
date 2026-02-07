@@ -211,7 +211,7 @@ handleDialogChoice option model =
         InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open _)) ->
             case option of
                 Dialog.Confirm ->
-                    goToLobby finishedRound.seed model
+                    goToLobby (Round.unpackFinished finishedRound).seed model
 
                 Dialog.Cancel ->
                     ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound Dialog.NotOpen) }, DoNothing )
@@ -243,6 +243,11 @@ buttonUsed button ({ config, pressedButtons } as model) =
         InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound dialogState) ->
             case dialogState of
                 Dialog.NotOpen ->
+                    let
+                        unpackedFinishedRound : Round
+                        unpackedFinishedRound =
+                            Round.unpackFinished finishedRound
+                    in
                     case button of
                         Key "ArrowLeft" ->
                             case liveOrReplay of
@@ -253,18 +258,18 @@ buttonUsed button ({ config, pressedButtons } as model) =
                                     let
                                         fakeActiveGameState : ActiveGameState
                                         fakeActiveGameState =
-                                            Moving MainLoop.noLeftoverFrameTime tickThatEndedIt finishedRound
+                                            Moving MainLoop.noLeftoverFrameTime tickThatEndedIt unpackedFinishedRound
                                     in
                                     rewindReplay pausedOrNot fakeActiveGameState model
 
                         Key "KeyR" ->
-                            startRound Replay model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
+                            startRound Replay model <| prepareReplayRound config.world (initialStateForReplaying unpackedFinishedRound)
 
                         Key "Escape" ->
                             let
                                 playersWithRecentResults : AllPlayers
                                 playersWithRecentResults =
-                                    includeResultsFrom finishedRound model.players
+                                    includeResultsFrom unpackedFinishedRound model.players
                             in
                             -- Quitting after the final round is not allowed in the original game.
                             if not (isGameOver (participating playersWithRecentResults)) then
@@ -277,17 +282,17 @@ buttonUsed button ({ config, pressedButtons } as model) =
                             let
                                 playersWithRecentResults : AllPlayers
                                 playersWithRecentResults =
-                                    includeResultsFrom finishedRound model.players
+                                    includeResultsFrom unpackedFinishedRound model.players
 
                                 modelWithRecentResults : Model
                                 modelWithRecentResults =
                                     { model | players = playersWithRecentResults }
                             in
                             if isGameOver (participating playersWithRecentResults) then
-                                gameOver finishedRound.seed modelWithRecentResults
+                                gameOver unpackedFinishedRound.seed modelWithRecentResults
 
                             else
-                                startRound Live modelWithRecentResults <| prepareLiveRound config finishedRound.seed (participating playersWithRecentResults) pressedButtons
+                                startRound Live modelWithRecentResults <| prepareLiveRound config unpackedFinishedRound.seed (participating playersWithRecentResults) pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button model, DoNothing )
