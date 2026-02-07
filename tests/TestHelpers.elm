@@ -98,7 +98,7 @@ playOutRound config initialState =
                     recurse incrementedTick nextMidRoundState
 
                 RoundEnds tickThatEndedIt actualRoundResult ->
-                    ( tickThatEndedIt, Finished actualRoundResult )
+                    ( tickThatEndedIt, actualRoundResult )
 
         round : Round
         round =

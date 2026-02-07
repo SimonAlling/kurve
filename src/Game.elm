@@ -56,7 +56,7 @@ type ActiveGameState
 
 type TickResult a
     = RoundKeepsGoing a
-    | RoundEnds Tick Round
+    | RoundEnds Tick FinishedRound
 
 
 getCurrentRound : GameState -> Round
@@ -193,7 +193,7 @@ reactToTick config tick currentRound =
         tickResult : TickResult Round
         tickResult =
             if roundIsOver newKurves then
-                RoundEnds tick newCurrentRound
+                RoundEnds tick (Finished newCurrentRound)
 
             else
                 RoundKeepsGoing newCurrentRound
@@ -217,7 +217,7 @@ tickResultToGameState liveOrReplay pausedOrNot tickResult =
                 liveOrReplayWithFinishedRound =
                     case liveOrReplay of
                         Live () ->
-                            Live (Finished finishedRound)
+                            Live finishedRound
 
                         Replay originalFinishedRound ->
                             -- The freshly computed finished round should™ be equal to the original one that we already have, so we should be able to use either one.
