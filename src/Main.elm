@@ -247,10 +247,6 @@ buttonUsed button ({ config, pressedButtons } as model) =
                         newModel : Model
                         newModel =
                             { model | players = includeResultsFrom finishedRound model.players }
-
-                        gameIsOver : Bool
-                        gameIsOver =
-                            isGameOver (participating newModel.players)
                     in
                     case button of
                         Key "ArrowLeft" ->
@@ -271,14 +267,14 @@ buttonUsed button ({ config, pressedButtons } as model) =
 
                         Key "Escape" ->
                             -- Quitting after the final round is not allowed in the original game.
-                            if not gameIsOver then
+                            if not (isGameOver (participating newModel.players)) then
                                 ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open Dialog.Cancel)) }, DoNothing )
 
                             else
                                 ( handleUserInteraction Down button model, DoNothing )
 
                         Key "Space" ->
-                            if gameIsOver then
+                            if isGameOver (participating newModel.players) then
                                 gameOver finishedRound.seed newModel
 
                             else
