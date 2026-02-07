@@ -13,7 +13,12 @@ customElements.define(
   },
 );
 
-const app = Elm.Main.init({ node: document.getElementById("elm-node") });
+const app = Elm.Main.init({
+    node: document.getElementById("elm-node"),
+    flags: {
+        initialSeedValue: Math.round(Math.random() * Number.MAX_SAFE_INTEGER),
+    },
+});
 
 function drawSquare(canvas, { position: { x, y }, thickness, color }) {
     const context = canvas.getContext("2d");
