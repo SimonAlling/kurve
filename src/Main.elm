@@ -33,6 +33,7 @@ import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
 import IsGameOver exposing (isGameOver)
+import JavaScript exposing (magicClassNameToPreventUnload)
 import MainLoop
 import Menu exposing (MenuState(..))
 import Players
@@ -631,6 +632,7 @@ view model =
         InGame gameState ->
             elmRoot
                 [ Attr.class "in-game"
+                , Attr.class magicClassNameToPreventUnload
                 ]
                 [ div
                     [ Attr.id "wrapper"
