@@ -288,20 +288,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                                 ( handleUserInteraction Down button model, DoNothing )
 
                         Key "Space" ->
-                            let
-                                playersWithRecentResults : AllPlayers
-                                playersWithRecentResults =
-                                    includeResultsFrom unpackedFinishedRound model.players
-
-                                modelWithRecentResults : Model
-                                modelWithRecentResults =
-                                    { model | players = playersWithRecentResults }
-                            in
-                            if isGameOver (participating playersWithRecentResults) then
-                                gameOver unpackedFinishedRound.seed modelWithRecentResults
-
-                            else
-                                startRound (Live ()) modelWithRecentResults <| prepareLiveRound config unpackedFinishedRound.seed (participating playersWithRecentResults) pressedButtons
+                            proceedToNextRound finishedRound model
 
                         _ ->
                             ( handleUserInteraction Down button model, DoNothing )
@@ -448,6 +435,28 @@ buttonUsed button ({ config, pressedButtons } as model) =
 
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
+
+
+proceedToNextRound : FinishedRound -> Model -> ( Model, Effect )
+proceedToNextRound finishedRound ({ config, pressedButtons } as model) =
+    let
+        unpackedFinishedRound : Round
+        unpackedFinishedRound =
+            Round.unpackFinished finishedRound
+
+        playersWithRecentResults : AllPlayers
+        playersWithRecentResults =
+            includeResultsFrom unpackedFinishedRound model.players
+
+        modelWithRecentResults : Model
+        modelWithRecentResults =
+            { model | players = playersWithRecentResults }
+    in
+    if isGameOver (participating playersWithRecentResults) then
+        gameOver unpackedFinishedRound.seed modelWithRecentResults
+
+    else
+        startRound (Live ()) modelWithRecentResults <| prepareLiveRound config unpackedFinishedRound.seed (participating playersWithRecentResults) pressedButtons
 
 
 stepOneTick : ActiveGameState -> FinishedRound -> Model -> ( Model, Effect )
