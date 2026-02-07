@@ -37,7 +37,7 @@ replayNavigation =
 
 makeNavigationEntries : List GUI.Navigation.Entry
 makeNavigationEntries =
-    [ ( "Space", "Next round" )
+    [ ( "Enter", "Pause/resume" )
     , ( "L.Arrow", "Back" )
     , ( "R.Arrow", "Forward" )
     , ( "E", "Step" )

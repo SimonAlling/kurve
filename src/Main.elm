@@ -358,6 +358,9 @@ buttonUsed button ({ config, pressedButtons } as model) =
                 Key "Space" ->
                     proceedToNextRound finishedRound model
 
+                Key "Enter" ->
+                    ( { model | appState = InGame (Active (Replay finishedRound) NotPaused s) }, DoNothing )
+
                 Key "ArrowLeft" ->
                     rewindReplay Paused s finishedRound model
 
@@ -424,6 +427,9 @@ buttonUsed button ({ config, pressedButtons } as model) =
 
                 Key "Space" ->
                     proceedToNextRound finishedRound model
+
+                Key "Enter" ->
+                    ( { model | appState = InGame (Active (Replay finishedRound) Paused s) }, DoNothing )
 
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
