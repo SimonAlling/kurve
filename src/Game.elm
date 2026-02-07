@@ -86,8 +86,8 @@ getFinishedRound liveOrReplay =
         Live finishedRound ->
             finishedRound
 
-        Replay replayedRound ->
-            replayedRound
+        Replay finishedRound ->
+            finishedRound
 
 
 modifyMidRoundState : (Round -> Round) -> GameState -> GameState
@@ -220,9 +220,9 @@ tickResultToGameState liveOrReplay pausedOrNot tickResult =
                         Live () ->
                             Live finishedRound
 
-                        Replay replayedRound ->
-                            -- The freshly computed finished round should™ be equal to the replayed round that we already have, so we should be able to use either one.
-                            Replay replayedRound
+                        Replay originalFinishedRound ->
+                            -- The freshly computed finished round should™ be equal to the original one that we already have, so we should be able to use either one.
+                            Replay originalFinishedRound
             in
             RoundOver liveOrReplayWithFinishedRound pausedOrNot tickThatEndedIt Dialog.NotOpen
 

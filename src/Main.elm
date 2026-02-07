@@ -363,13 +363,13 @@ buttonUsed button ({ config, pressedButtons } as model) =
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
 
-        InGame (Active (Replay replayedRound) Paused s) ->
+        InGame (Active (Replay finishedRound) Paused s) ->
             case button of
                 Key "Space" ->
-                    ( { model | appState = InGame (Active (Replay replayedRound) NotPaused s) }, DoNothing )
+                    ( { model | appState = InGame (Active (Replay finishedRound) NotPaused s) }, DoNothing )
 
                 Key "ArrowLeft" ->
-                    rewindReplay Paused s replayedRound model
+                    rewindReplay Paused s finishedRound model
 
                 Key "ArrowRight" ->
                     case s of
@@ -386,15 +386,15 @@ buttonUsed button ({ config, pressedButtons } as model) =
                                         lastTick
                                         midRoundState
                             in
-                            ( { model | appState = InGame (tickResultToGameState (Replay replayedRound) Paused tickResult) }
+                            ( { model | appState = InGame (tickResultToGameState (Replay finishedRound) Paused tickResult) }
                             , maybeDrawSomething whatToDraw
                             )
 
                 Key "KeyE" ->
-                    stepOneTick s replayedRound model
+                    stepOneTick s finishedRound model
 
                 Key "KeyR" ->
-                    startRound (Replay replayedRound) model <| prepareReplayRound config.world (initialStateForReplaying (getActiveRound s))
+                    startRound (Replay finishedRound) model <| prepareReplayRound config.world (initialStateForReplaying (getActiveRound s))
 
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
@@ -402,10 +402,10 @@ buttonUsed button ({ config, pressedButtons } as model) =
         InGame (Active (Live ()) NotPaused _) ->
             ( handleUserInteraction Down button model, DoNothing )
 
-        InGame (Active (Replay replayedRound) NotPaused s) ->
+        InGame (Active (Replay finishedRound) NotPaused s) ->
             case button of
                 Key "ArrowLeft" ->
-                    rewindReplay NotPaused s replayedRound model
+                    rewindReplay NotPaused s finishedRound model
 
                 Key "ArrowRight" ->
                     case s of
@@ -422,18 +422,18 @@ buttonUsed button ({ config, pressedButtons } as model) =
                                         lastTick
                                         midRoundState
                             in
-                            ( { model | appState = InGame (tickResultToGameState (Replay replayedRound) NotPaused tickResult) }
+                            ( { model | appState = InGame (tickResultToGameState (Replay finishedRound) NotPaused tickResult) }
                             , maybeDrawSomething whatToDraw
                             )
 
                 Key "KeyE" ->
-                    stepOneTick s replayedRound model
+                    stepOneTick s finishedRound model
 
                 Key "KeyR" ->
-                    startRound (Replay replayedRound) model <| prepareReplayRound config.world (initialStateForReplaying (getActiveRound s))
+                    startRound (Replay finishedRound) model <| prepareReplayRound config.world (initialStateForReplaying (getActiveRound s))
 
                 Key "Space" ->
-                    ( { model | appState = InGame (Active (Replay replayedRound) Paused s) }, DoNothing )
+                    ( { model | appState = InGame (Active (Replay finishedRound) Paused s) }, DoNothing )
 
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
@@ -448,7 +448,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
 
 
 stepOneTick : ActiveGameState -> Round -> Model -> ( Model, Effect )
-stepOneTick activeGameState replayedRound model =
+stepOneTick activeGameState finishedRound model =
     case activeGameState of
         Spawning _ _ ->
             ( model, DoNothing )
@@ -467,13 +467,13 @@ stepOneTick activeGameState replayedRound model =
                         lastTick
                         midRoundState
             in
-            ( { model | appState = InGame (tickResultToGameState (Replay replayedRound) Paused tickResult) }
+            ( { model | appState = InGame (tickResultToGameState (Replay finishedRound) Paused tickResult) }
             , maybeDrawSomething whatToDraw
             )
 
 
 rewindReplay : PausedOrNot -> ActiveGameState -> Round -> Model -> ( Model, Effect )
-rewindReplay pausedOrNot activeGameState replayedRound model =
+rewindReplay pausedOrNot activeGameState finishedRound model =
     case activeGameState of
         Spawning _ _ ->
             ( model, DoNothing )
@@ -525,7 +525,7 @@ rewindReplay pausedOrNot activeGameState replayedRound model =
                         Just whatToDrawForSkippingAhead ->
                             mergeWhatToDraw whatToDrawForSpawns whatToDrawForSkippingAhead
             in
-            ( { model | appState = InGame (tickResultToGameState (Replay replayedRound) pausedOrNot tickResult) }
+            ( { model | appState = InGame (tickResultToGameState (Replay finishedRound) pausedOrNot tickResult) }
             , ClearAndThenDraw whatToDraw
             )
 
