@@ -24,7 +24,7 @@ import Drawing exposing (WhatToDraw, getColorAndDrawingPosition)
 import Holes exposing (HoleStatus, Holiness(..), getHoliness, updateHoleStatus)
 import Players exposing (ParticipatingPlayers)
 import Random
-import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
+import Round exposing (FinishedRound(..), Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
 import Set exposing (Set)
 import Spawn exposing (generateKurves)
 import Thickness exposing (theThickness)
@@ -41,7 +41,7 @@ import World exposing (DrawingPosition, OccupiedPixels, Pixel, Position)
 
 type GameState
     = Active LiveOrReplay PausedOrNot ActiveGameState
-    | RoundOver LiveOrReplay PausedOrNot Tick Round Dialog.State
+    | RoundOver LiveOrReplay PausedOrNot Tick FinishedRound Dialog.State
 
 
 type PausedOrNot
@@ -56,7 +56,7 @@ type ActiveGameState
 
 type TickResult a
     = RoundKeepsGoing a
-    | RoundEnds Tick Round
+    | RoundEnds Tick FinishedRound
 
 
 getCurrentRound : GameState -> Round
@@ -65,8 +65,8 @@ getCurrentRound gameState =
         Active _ _ activeGameState ->
             getActiveRound activeGameState
 
-        RoundOver _ _ _ round _ ->
-            round
+        RoundOver _ _ _ finishedRound _ ->
+            finishedRound |> Round.unpackFinished
 
 
 getActiveRound : ActiveGameState -> Round
@@ -183,7 +183,7 @@ reactToTick config tick currentRound =
         tickResult : TickResult Round
         tickResult =
             if roundIsOver newKurves then
-                RoundEnds tick newCurrentRound
+                RoundEnds tick (Finished newCurrentRound)
 
             else
                 RoundKeepsGoing newCurrentRound
