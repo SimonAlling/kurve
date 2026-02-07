@@ -221,6 +221,7 @@ tickResultToGameState liveOrReplay pausedOrNot tickResult =
 
                         Replay originalFinishedRound ->
                             -- The freshly computed finished round should™ be equal to the original one that we already have, so we should be able to use either one.
+                            -- I think it feels more natural to keep the one we already have.
                             Replay originalFinishedRound
             in
             RoundOver liveOrReplayWithFinishedRound pausedOrNot tickThatEndedIt Dialog.NotOpen
