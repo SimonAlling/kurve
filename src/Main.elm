@@ -243,11 +243,6 @@ buttonUsed button ({ config, pressedButtons } as model) =
         InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound dialogState) ->
             case dialogState of
                 Dialog.NotOpen ->
-                    let
-                        newModel : Model
-                        newModel =
-                            { model | players = includeResultsFrom finishedRound model.players }
-                    in
                     case button of
                         Key "ArrowLeft" ->
                             case liveOrReplay of
@@ -266,19 +261,33 @@ buttonUsed button ({ config, pressedButtons } as model) =
                             startRound Replay model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
 
                         Key "Escape" ->
+                            let
+                                playersWithRecentResults : AllPlayers
+                                playersWithRecentResults =
+                                    includeResultsFrom finishedRound model.players
+                            in
                             -- Quitting after the final round is not allowed in the original game.
-                            if not (isGameOver (participating newModel.players)) then
+                            if not (isGameOver (participating playersWithRecentResults)) then
                                 ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound (Dialog.Open Dialog.Cancel)) }, DoNothing )
 
                             else
                                 ( handleUserInteraction Down button model, DoNothing )
 
                         Key "Space" ->
-                            if isGameOver (participating newModel.players) then
-                                gameOver finishedRound.seed newModel
+                            let
+                                playersWithRecentResults : AllPlayers
+                                playersWithRecentResults =
+                                    includeResultsFrom finishedRound model.players
+
+                                modelWithRecentResults : Model
+                                modelWithRecentResults =
+                                    { model | players = playersWithRecentResults }
+                            in
+                            if isGameOver (participating playersWithRecentResults) then
+                                gameOver finishedRound.seed modelWithRecentResults
 
                             else
-                                startRound Live newModel <| prepareLiveRound config finishedRound.seed (participating newModel.players) pressedButtons
+                                startRound Live modelWithRecentResults <| prepareLiveRound config finishedRound.seed (participating playersWithRecentResults) pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button model, DoNothing )
