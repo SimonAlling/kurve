@@ -1,4 +1,4 @@
-module TestHelpers exposing (expectRoundOutcome)
+module TestHelpers exposing (expectRoundOutcome, playOutRound)
 
 import App exposing (AppState(..))
 import Config exposing (Config)
@@ -116,7 +116,7 @@ playOutRoundWithEffects config initialState =
 
         initialGameState : GameState
         initialGameState =
-            Active Live NotPaused <|
+            Active (Live ()) NotPaused <|
                 Spawning
                     { kurvesLeft = initialRound |> .kurves |> .alive
                     , alreadySpawnedKurves = []
@@ -154,7 +154,7 @@ playOutRoundWithEffects config initialState =
                 InGame (Active _ NotPaused (Moving _ _ _)) ->
                     recurse (AnimationFrame frameDeltaInMs) newModel newReversedEffects
 
-                InGame (RoundOver _ _ _ _ _) ->
+                InGame (RoundOver _ _ _ _) ->
                     ( newModel, newReversedEffects )
 
                 _ ->

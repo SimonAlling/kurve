@@ -78,8 +78,8 @@ roundIsOver kurves =
     someoneHasWonInMultiPlayer || playerHasDiedInSinglePlayer
 
 
-initialStateForReplaying : Round -> RoundInitialState
-initialStateForReplaying round =
+initialStateForReplaying : FinishedRound -> RoundInitialState
+initialStateForReplaying (Finished round) =
     let
         initialState : RoundInitialState
         initialState =
