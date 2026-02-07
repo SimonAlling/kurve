@@ -356,6 +356,9 @@ buttonUsed button ({ config, pressedButtons } as model) =
         InGame (Active (Replay finishedRound) Paused s) ->
             case button of
                 Key "Space" ->
+                    proceedToNextRound finishedRound model
+
+                Key "Enter" ->
                     ( { model | appState = InGame (Active (Replay finishedRound) NotPaused s) }, DoNothing )
 
                 Key "ArrowLeft" ->
@@ -423,6 +426,9 @@ buttonUsed button ({ config, pressedButtons } as model) =
                     startRound (Replay finishedRound) model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
 
                 Key "Space" ->
+                    proceedToNextRound finishedRound model
+
+                Key "Enter" ->
                     ( { model | appState = InGame (Active (Replay finishedRound) Paused s) }, DoNothing )
 
                 _ ->

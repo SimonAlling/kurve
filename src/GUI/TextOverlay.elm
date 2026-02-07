@@ -29,17 +29,17 @@ content gameState =
 
         Active (Replay _) Paused _ ->
             -- Hint on how to continue deliberately omitted here. See the PR/commit that added this comment for details.
-            [ replayIndicator, GUI.Navigation.Replay.whenActive ]
+            [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
         Active (Replay _) NotPaused _ ->
-            [ replayIndicator, GUI.Navigation.Replay.whenActive ]
+            [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
         RoundOver (Live _) _ _ _ ->
             [ GUI.Hints.render ShowHowToReplay
             ]
 
         RoundOver (Replay _) _ _ _ ->
-            [ replayIndicator, GUI.Navigation.Replay.whenRoundOver ]
+            [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
 
 pressSpaceToContinue : Html msg
