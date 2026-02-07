@@ -1,7 +1,4 @@
-module GUI.Navigation.Replay exposing
-    ( whenActive
-    , whenRoundOver
-    )
+module GUI.Navigation.Replay exposing (replayNavigation)
 
 import Colors
 import GUI.Navigation
@@ -10,22 +7,12 @@ import Html exposing (Html, div, p)
 import Html.Attributes as Attr
 
 
-whenActive : Html msg
-whenActive =
-    replayNavigation PausesOrResumes
-
-
-whenRoundOver : Html msg
-whenRoundOver =
-    replayNavigation ProceedsToNextRound
-
-
-replayNavigation : WhatSpaceDoes -> Html msg
-replayNavigation whatSpaceDoes =
+replayNavigation : Html msg
+replayNavigation =
     let
         navigationEntries : List GUI.Navigation.Entry
         navigationEntries =
-            makeNavigationEntries whatSpaceDoes
+            makeNavigationEntries
 
         firstColumnWidth : Int
         firstColumnWidth =
@@ -48,26 +35,11 @@ replayNavigation whatSpaceDoes =
         )
 
 
-type WhatSpaceDoes
-    = PausesOrResumes
-    | ProceedsToNextRound
-
-
-makeNavigationEntries : WhatSpaceDoes -> List GUI.Navigation.Entry
-makeNavigationEntries whatSpaceDoes =
-    [ ( "Space", showWhatSpaceDoes whatSpaceDoes )
+makeNavigationEntries : List GUI.Navigation.Entry
+makeNavigationEntries =
+    [ ( "Space", "Next round" )
     , ( "L.Arrow", "Back" )
     , ( "R.Arrow", "Forward" )
     , ( "E", "Step" )
     , ( "R", "Restart" )
     ]
-
-
-showWhatSpaceDoes : WhatSpaceDoes -> String
-showWhatSpaceDoes whatSpaceDoes =
-    case whatSpaceDoes of
-        PausesOrResumes ->
-            "Pause/resume"
-
-        ProceedsToNextRound ->
-            "Next round"
