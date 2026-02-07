@@ -8,6 +8,7 @@ module Game exposing
     , firstUpdateTick
     , getActiveRound
     , getCurrentRound
+    , getFinishedRound
     , modifyMidRoundState
     , prepareLiveRound
     , prepareReplayRound
@@ -40,8 +41,8 @@ import World exposing (DrawingPosition, OccupiedPixels, Pixel, Position)
 
 
 type GameState
-    = Active LiveOrReplay PausedOrNot ActiveGameState
-    | RoundOver LiveOrReplay PausedOrNot Tick Round Dialog.State
+    = Active (LiveOrReplay ()) PausedOrNot ActiveGameState
+    | RoundOver (LiveOrReplay Round) PausedOrNot Tick Dialog.State
 
 
 type PausedOrNot
@@ -65,8 +66,8 @@ getCurrentRound gameState =
         Active _ _ activeGameState ->
             getActiveRound activeGameState
 
-        RoundOver _ _ _ round _ ->
-            round
+        RoundOver liveOrReplay _ _ _ ->
+            getFinishedRound liveOrReplay
 
 
 getActiveRound : ActiveGameState -> Round
@@ -77,6 +78,16 @@ getActiveRound activeGameState =
 
         Moving _ _ round ->
             round
+
+
+getFinishedRound : LiveOrReplay Round -> Round
+getFinishedRound liveOrReplay =
+    case liveOrReplay of
+        Live finishedRound ->
+            finishedRound
+
+        Replay replayedRound ->
+            replayedRound
 
 
 modifyMidRoundState : (Round -> Round) -> GameState -> GameState
@@ -92,9 +103,9 @@ modifyMidRoundState f gameState =
             gameState
 
 
-type LiveOrReplay
-    = Live
-    | Replay
+type LiveOrReplay liveData
+    = Live liveData
+    | Replay Round
 
 
 type alias SpawnState =
@@ -195,14 +206,25 @@ reactToTick config tick currentRound =
     )
 
 
-tickResultToGameState : LiveOrReplay -> PausedOrNot -> TickResult ( LeftoverFrameTime, Tick, Round ) -> GameState
+tickResultToGameState : LiveOrReplay () -> PausedOrNot -> TickResult ( LeftoverFrameTime, Tick, Round ) -> GameState
 tickResultToGameState liveOrReplay pausedOrNot tickResult =
     case tickResult of
         RoundKeepsGoing ( leftoverFrameTime, tick, midRoundState ) ->
             Active liveOrReplay pausedOrNot (Moving leftoverFrameTime tick midRoundState)
 
         RoundEnds tickThatEndedIt finishedRound ->
-            RoundOver liveOrReplay pausedOrNot tickThatEndedIt finishedRound Dialog.NotOpen
+            let
+                liveOrReplayWithFinishedRound : LiveOrReplay Round
+                liveOrReplayWithFinishedRound =
+                    case liveOrReplay of
+                        Live () ->
+                            Live finishedRound
+
+                        Replay replayedRound ->
+                            -- The freshly computed finished round should™ be equal to the replayed round that we already have, so we should be able to use either one.
+                            Replay replayedRound
+            in
+            RoundOver liveOrReplayWithFinishedRound pausedOrNot tickThatEndedIt Dialog.NotOpen
 
 
 checkIndividualKurve :
