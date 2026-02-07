@@ -22,7 +22,6 @@ import Game
         , PausedOrNot(..)
         , SpawnState
         , firstUpdateTick
-        , getActiveRound
         , getFinishedRound
         , modifyMidRoundState
         , prepareLiveRound
@@ -47,7 +46,7 @@ import Players
         , participating
         )
 import Random
-import Round exposing (Round, initialStateForReplaying, modifyAlive, modifyKurves)
+import Round exposing (FinishedRound, Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
 import Time
 import Types.FrameTime exposing (FrameTime)
@@ -213,11 +212,11 @@ handleDialogChoice option model =
             case option of
                 Dialog.Confirm ->
                     let
-                        finishedRound : Round
+                        finishedRound : FinishedRound
                         finishedRound =
                             getFinishedRound liveOrReplay
                     in
-                    goToLobby finishedRound.seed model
+                    goToLobby (Round.unpackFinished finishedRound).seed model
 
                 Dialog.Cancel ->
                     ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt Dialog.NotOpen) }, DoNothing )
@@ -250,9 +249,13 @@ buttonUsed button ({ config, pressedButtons } as model) =
             case dialogState of
                 Dialog.NotOpen ->
                     let
-                        finishedRound : Round
+                        finishedRound : FinishedRound
                         finishedRound =
                             getFinishedRound liveOrReplay
+
+                        unpackedFinishedRound : Round
+                        unpackedFinishedRound =
+                            Round.unpackFinished finishedRound
                     in
                     case button of
                         Key "ArrowLeft" ->
@@ -264,7 +267,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                                     let
                                         fakeActiveGameState : ActiveGameState
                                         fakeActiveGameState =
-                                            Moving MainLoop.noLeftoverFrameTime tickThatEndedIt finishedRound
+                                            Moving MainLoop.noLeftoverFrameTime tickThatEndedIt unpackedFinishedRound
                                     in
                                     rewindReplay pausedOrNot fakeActiveGameState finishedRound model
 
@@ -275,7 +278,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                             let
                                 playersWithRecentResults : AllPlayers
                                 playersWithRecentResults =
-                                    includeResultsFrom finishedRound model.players
+                                    includeResultsFrom unpackedFinishedRound model.players
                             in
                             -- Quitting after the final round is not allowed in the original game.
                             if not (isGameOver (participating playersWithRecentResults)) then
@@ -288,17 +291,17 @@ buttonUsed button ({ config, pressedButtons } as model) =
                             let
                                 playersWithRecentResults : AllPlayers
                                 playersWithRecentResults =
-                                    includeResultsFrom finishedRound model.players
+                                    includeResultsFrom unpackedFinishedRound model.players
 
                                 modelWithRecentResults : Model
                                 modelWithRecentResults =
                                     { model | players = playersWithRecentResults }
                             in
                             if isGameOver (participating playersWithRecentResults) then
-                                gameOver finishedRound.seed modelWithRecentResults
+                                gameOver unpackedFinishedRound.seed modelWithRecentResults
 
                             else
-                                startRound (Live ()) modelWithRecentResults <| prepareLiveRound config finishedRound.seed (participating playersWithRecentResults) pressedButtons
+                                startRound (Live ()) modelWithRecentResults <| prepareLiveRound config unpackedFinishedRound.seed (participating playersWithRecentResults) pressedButtons
 
                         _ ->
                             ( handleUserInteraction Down button model, DoNothing )
@@ -394,7 +397,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                     stepOneTick s finishedRound model
 
                 Key "KeyR" ->
-                    startRound (Replay finishedRound) model <| prepareReplayRound config.world (initialStateForReplaying (getActiveRound s))
+                    startRound (Replay finishedRound) model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
 
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
@@ -430,7 +433,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                     stepOneTick s finishedRound model
 
                 Key "KeyR" ->
-                    startRound (Replay finishedRound) model <| prepareReplayRound config.world (initialStateForReplaying (getActiveRound s))
+                    startRound (Replay finishedRound) model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
 
                 Key "Space" ->
                     ( { model | appState = InGame (Active (Replay finishedRound) Paused s) }, DoNothing )
@@ -447,7 +450,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                     ( handleUserInteraction Down button model, DoNothing )
 
 
-stepOneTick : ActiveGameState -> Round -> Model -> ( Model, Effect )
+stepOneTick : ActiveGameState -> FinishedRound -> Model -> ( Model, Effect )
 stepOneTick activeGameState finishedRound model =
     case activeGameState of
         Spawning _ _ ->
@@ -472,17 +475,17 @@ stepOneTick activeGameState finishedRound model =
             )
 
 
-rewindReplay : PausedOrNot -> ActiveGameState -> Round -> Model -> ( Model, Effect )
+rewindReplay : PausedOrNot -> ActiveGameState -> FinishedRound -> Model -> ( Model, Effect )
 rewindReplay pausedOrNot activeGameState finishedRound model =
     case activeGameState of
         Spawning _ _ ->
             ( model, DoNothing )
 
-        Moving _ lastTick midRoundState ->
+        Moving _ lastTick _ ->
             let
                 roundAtBeginning : Round
                 roundAtBeginning =
-                    prepareReplayRound model.config.world (initialStateForReplaying midRoundState)
+                    prepareReplayRound model.config.world (initialStateForReplaying finishedRound)
 
                 tickrateInHz : Float
                 tickrateInHz =

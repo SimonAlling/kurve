@@ -6,7 +6,6 @@ module Game exposing
     , SpawnState
     , TickResult(..)
     , firstUpdateTick
-    , getActiveRound
     , getCurrentRound
     , getFinishedRound
     , modifyMidRoundState
@@ -25,7 +24,7 @@ import Drawing exposing (WhatToDraw, getColorAndDrawingPosition)
 import Holes exposing (HoleStatus, Holiness(..), getHoliness, updateHoleStatus)
 import Players exposing (ParticipatingPlayers)
 import Random
-import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
+import Round exposing (FinishedRound(..), Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
 import Set exposing (Set)
 import Spawn exposing (generateKurves)
 import Thickness exposing (theThickness)
@@ -42,7 +41,7 @@ import World exposing (DrawingPosition, OccupiedPixels, Pixel, Position)
 
 type GameState
     = Active (LiveOrReplay ()) PausedOrNot ActiveGameState
-    | RoundOver (LiveOrReplay Round) PausedOrNot Tick Dialog.State
+    | RoundOver (LiveOrReplay FinishedRound) PausedOrNot Tick Dialog.State
 
 
 type PausedOrNot
@@ -67,7 +66,7 @@ getCurrentRound gameState =
             getActiveRound activeGameState
 
         RoundOver liveOrReplay _ _ _ ->
-            getFinishedRound liveOrReplay
+            getFinishedRound liveOrReplay |> Round.unpackFinished
 
 
 getActiveRound : ActiveGameState -> Round
@@ -80,7 +79,7 @@ getActiveRound activeGameState =
             round
 
 
-getFinishedRound : LiveOrReplay Round -> Round
+getFinishedRound : LiveOrReplay FinishedRound -> FinishedRound
 getFinishedRound liveOrReplay =
     case liveOrReplay of
         Live finishedRound ->
@@ -105,7 +104,7 @@ modifyMidRoundState f gameState =
 
 type LiveOrReplay liveData
     = Live liveData
-    | Replay Round
+    | Replay FinishedRound
 
 
 type alias SpawnState =
@@ -214,11 +213,11 @@ tickResultToGameState liveOrReplay pausedOrNot tickResult =
 
         RoundEnds tickThatEndedIt finishedRound ->
             let
-                liveOrReplayWithFinishedRound : LiveOrReplay Round
+                liveOrReplayWithFinishedRound : LiveOrReplay FinishedRound
                 liveOrReplayWithFinishedRound =
                     case liveOrReplay of
                         Live () ->
-                            Live finishedRound
+                            Live (Finished finishedRound)
 
                         Replay originalFinishedRound ->
                             -- The freshly computed finished round should™ be equal to the original one that we already have, so we should be able to use either one.

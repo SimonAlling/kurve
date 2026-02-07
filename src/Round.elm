@@ -1,5 +1,6 @@
 module Round exposing
-    ( Kurves
+    ( FinishedRound(..)
+    , Kurves
     , Round
     , RoundInitialState
     , initialStateForReplaying
@@ -8,6 +9,7 @@ module Round exposing
     , modifyKurves
     , roundIsOver
     , scores
+    , unpackFinished
     )
 
 import Dict exposing (Dict)
@@ -24,6 +26,15 @@ type alias Round =
     , initialState : RoundInitialState
     , seed : Random.Seed
     }
+
+
+type FinishedRound
+    = Finished Round
+
+
+unpackFinished : FinishedRound -> Round
+unpackFinished (Finished round) =
+    round
 
 
 type alias Kurves =
@@ -67,8 +78,8 @@ roundIsOver kurves =
     someoneHasWonInMultiPlayer || playerHasDiedInSinglePlayer
 
 
-initialStateForReplaying : Round -> RoundInitialState
-initialStateForReplaying round =
+initialStateForReplaying : FinishedRound -> RoundInitialState
+initialStateForReplaying (Finished round) =
     let
         initialState : RoundInitialState
         initialState =
