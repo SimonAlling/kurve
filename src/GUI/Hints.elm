@@ -7,7 +7,7 @@ import Html.Attributes as Attr
 
 
 type Hint
-    = ShowHowToReplay
+    = HowToReplay
 
 
 render : Hint -> Html msg
@@ -21,5 +21,5 @@ render hint =
 show : Hint -> String
 show hint =
     case hint of
-        ShowHowToReplay ->
+        HowToReplay ->
             "Press R to replay"
