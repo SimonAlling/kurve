@@ -35,7 +35,7 @@ content gameState =
             [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
         RoundOver (Live _) _ _ _ ->
-            [ GUI.Hints.render ShowHowToReplay
+            [ GUI.Hints.render HowToReplay
             ]
 
         RoundOver (Replay _) _ _ _ ->
