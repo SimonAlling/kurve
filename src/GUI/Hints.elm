@@ -37,7 +37,12 @@ render makeHintDismissalMsg hints hint =
         span
             [ Attr.class "hint"
             ]
-            (GUI.Text.string (GUI.Text.Size 1) Colors.white (show hint ++ " ") ++ [ dismissButton makeHintDismissalMsg ])
+            [ span
+                [ Attr.class "hintText"
+                ]
+                (GUI.Text.string (GUI.Text.Size 1) Colors.white (show hint))
+            , dismissButton makeHintDismissalMsg
+            ]
 
     else
         text ""
