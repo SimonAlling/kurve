@@ -36,23 +36,6 @@ dismiss hint (Hints hints) =
             Hints { hints | howToReplay = Dismissed }
 
 
-render : (Hint -> msg) -> Hints -> Hint -> Html msg
-render makeHintDismissalMsg hints hint =
-    if isActive hint hints then
-        span
-            [ Attr.class "hint"
-            ]
-            [ span
-                [ Attr.class "hintText"
-                ]
-                (GUI.Text.string (GUI.Text.Size 1) Colors.white (show hint))
-            , dismissButton makeHintDismissalMsg
-            ]
-
-    else
-        text ""
-
-
 isActive : Hint -> Hints -> Bool
 isActive hint hints =
     case getState hint hints of
@@ -68,6 +51,23 @@ getState hint (Hints hints) =
     case hint of
         HowToReplay ->
             hints.howToReplay
+
+
+render : (Hint -> msg) -> Hints -> Hint -> Html msg
+render makeHintDismissalMsg hints hint =
+    if isActive hint hints then
+        span
+            [ Attr.class "hint"
+            ]
+            [ span
+                [ Attr.class "hintText"
+                ]
+                (GUI.Text.string (GUI.Text.Size 1) Colors.white (show hint))
+            , dismissButton makeHintDismissalMsg
+            ]
+
+    else
+        text ""
 
 
 dismissButton : (Hint -> msg) -> Html msg
