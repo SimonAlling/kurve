@@ -37,15 +37,7 @@ render makeHintDismissalMsg hints hint =
         span
             [ Attr.class "hint"
             ]
-            (GUI.Text.string (GUI.Text.Size 1) Colors.white (show hint ++ " ")
-                ++ [ button
-                        [ onClick (makeHintDismissalMsg ShowHowToReplay)
-                        , Attr.class "dismissHint"
-                        , Attr.title "Dismiss"
-                        ]
-                        []
-                   ]
-            )
+            (GUI.Text.string (GUI.Text.Size 1) Colors.white (show hint ++ " ") ++ [ dismissButton makeHintDismissalMsg ])
 
     else
         text ""
@@ -56,6 +48,16 @@ isActive hint (Hints hints) =
     case hint of
         ShowHowToReplay ->
             hints.showHowToReplay
+
+
+dismissButton : (Hint -> msg) -> Html msg
+dismissButton makeHintDismissalMsg =
+    button
+        [ onClick (makeHintDismissalMsg ShowHowToReplay)
+        , Attr.class "dismissHint"
+        , Attr.title "Dismiss"
+        ]
+        []
 
 
 show : Hint -> String
