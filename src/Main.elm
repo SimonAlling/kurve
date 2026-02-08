@@ -121,7 +121,7 @@ update msg ({ config } as model) =
                 InGame (Active liveOrReplay NotPaused (Spawning spawnState plannedMidRoundState)) ->
                     let
                         ( maybeSpawnState, whatToDraw ) =
-                            stepSpawnState config spawnState
+                            stepSpawnState spawnState
 
                         activeGameState : ActiveGameState
                         activeGameState =

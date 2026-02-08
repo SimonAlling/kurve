@@ -23,20 +23,27 @@ import World exposing (Position, distanceBetween)
 type alias SpawnState =
     { kurvesLeft : List Kurve
     , alreadySpawnedKurves : List Kurve
+    , ticksLeftStartingValue : Int
     , ticksLeft : Int
     }
 
 
 makeSpawnState : Int -> Round -> SpawnState
 makeSpawnState numberOfFlickerTicks round =
+    let
+        ticksLeftStartingValue : Int
+        ticksLeftStartingValue =
+            numberOfFlickerTicks - 1
+    in
     { kurvesLeft = round |> .kurves |> .alive
     , alreadySpawnedKurves = []
-    , ticksLeft = numberOfFlickerTicks - 1
+    , ticksLeftStartingValue = ticksLeftStartingValue
+    , ticksLeft = ticksLeftStartingValue
     }
 
 
-stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, WhatToDraw )
-stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
+stepSpawnState : SpawnState -> ( Maybe SpawnState, WhatToDraw )
+stepSpawnState ({ kurvesLeft, alreadySpawnedKurves, ticksLeftStartingValue, ticksLeft } as spawnState) =
     case kurvesLeft of
         [] ->
             -- All Kurves have spawned.
@@ -59,10 +66,10 @@ stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
                 newSpawnState : SpawnState
                 newSpawnState =
                     if ticksLeft == 0 then
-                        { kurvesLeft = waiting, alreadySpawnedKurves = spawnedAndSpawning, ticksLeft = config.spawn.numberOfFlickerTicks - 1 }
+                        { spawnState | kurvesLeft = waiting, alreadySpawnedKurves = spawnedAndSpawning, ticksLeft = ticksLeftStartingValue }
 
                     else
-                        { kurvesLeft = spawning :: waiting, alreadySpawnedKurves = alreadySpawnedKurves, ticksLeft = ticksLeft - 1 }
+                        { spawnState | ticksLeft = ticksLeft - 1 }
             in
             ( Just newSpawnState, drawSpawnsTemporarily kurvesToDraw )
 
