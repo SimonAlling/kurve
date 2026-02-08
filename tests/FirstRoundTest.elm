@@ -62,10 +62,6 @@ expectedEffects =
     , DoNothing
     , DrawSomething
         { bodyDrawing = []
-        , headDrawing = []
-        }
-    , DrawSomething
-        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
         }
     , DrawSomething
@@ -83,6 +79,10 @@ expectedEffects =
     , DrawSomething
         { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
+        }
+    , DrawSomething
+        { bodyDrawing = []
+        , headDrawing = []
         }
     , DrawSomething
         { bodyDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]

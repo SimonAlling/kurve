@@ -55,10 +55,6 @@ expectedOutcome =
             [ -- Spawning:
               DrawSomething
                 { bodyDrawing = []
-                , headDrawing = []
-                }
-            , DrawSomething
-                { bodyDrawing = []
                 , headDrawing = [ ( Colors.green, { x = 100, y = 12 } ) ]
                 }
             , DrawSomething
@@ -76,6 +72,10 @@ expectedOutcome =
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.green, { x = 100, y = 12 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
                 }
 
             -- Draw spawn position permanently:
