@@ -9,7 +9,7 @@ import Html.Events exposing (onClick)
 
 type Hints
     = Hints
-        { howToReplay : Bool
+        { howToReplay : HintState
         }
 
 
@@ -17,10 +17,15 @@ type Hint
     = HowToReplay
 
 
+type HintState
+    = Active
+    | Dismissed
+
+
 initial : Hints
 initial =
     Hints
-        { howToReplay = True
+        { howToReplay = Active
         }
 
 
@@ -28,7 +33,7 @@ dismiss : Hint -> Hints -> Hints
 dismiss hint (Hints hints) =
     case hint of
         HowToReplay ->
-            Hints { hints | howToReplay = False }
+            Hints { hints | howToReplay = Dismissed }
 
 
 render : (Hint -> msg) -> Hints -> Hint -> Html msg
@@ -49,7 +54,17 @@ render makeHintDismissalMsg hints hint =
 
 
 isActive : Hint -> Hints -> Bool
-isActive hint (Hints hints) =
+isActive hint hints =
+    case getState hint hints of
+        Active ->
+            True
+
+        Dismissed ->
+            False
+
+
+getState : Hint -> Hints -> HintState
+getState hint (Hints hints) =
     case hint of
         HowToReplay ->
             hints.howToReplay
