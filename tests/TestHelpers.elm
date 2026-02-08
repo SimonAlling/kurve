@@ -4,6 +4,7 @@ import App exposing (AppState(..))
 import Config exposing (Config)
 import Effect exposing (Effect)
 import Expect
+import GUI.Hints as Hints
 import Game
     exposing
         ( ActiveGameState(..)
@@ -130,6 +131,7 @@ playOutRoundWithEffects config initialState =
             , appState = InGame initialGameState
             , config = config
             , players = initialPlayers
+            , hints = Hints.initial
             }
 
         frameDeltaInMs : FrameTime

@@ -11,6 +11,7 @@ import Effect exposing (Effect(..), maybeDrawSomething)
 import Events
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
+import GUI.Hints exposing (Hint, Hints)
 import GUI.Lobby exposing (lobby)
 import GUI.Scoreboard exposing (scoreboard)
 import GUI.SplashScreen exposing (splashScreen)
@@ -63,6 +64,7 @@ type alias Model =
     , appState : AppState
     , config : Config
     , players : AllPlayers
+    , hints : Hints
     }
 
 
@@ -75,6 +77,7 @@ init _ =
       , appState = InMenu SplashScreen (Random.initialSeed 1337)
       , config = Config.default
       , players = initialPlayers
+      , hints = GUI.Hints.initial
       }
     , Cmd.none
     )
@@ -101,6 +104,7 @@ type Msg
     | AnimationFrame FrameTime
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
+    | HintDismissed Hint
     | FocusLost
 
 
@@ -206,6 +210,9 @@ update msg ({ config } as model) =
         DialogChoiceMade option ->
             handleDialogChoice option model
 
+        HintDismissed hint ->
+            handleHintDismissed hint model
+
 
 handleDialogChoice : Dialog.Option -> Model -> ( Model, Effect )
 handleDialogChoice option model =
@@ -226,6 +233,13 @@ handleDialogChoice option model =
         _ ->
             -- Not expected to ever happen.
             ( model, DoNothing )
+
+
+handleHintDismissed : Hint -> Model -> ( Model, Effect )
+handleHintDismissed hint model =
+    ( { model | hints = GUI.Hints.dismiss hint model.hints }
+    , DoNothing
+    )
 
 
 buttonUsed : Button -> Model -> ( Model, Effect )
@@ -654,7 +668,7 @@ view model =
                             , Attr.class "overlay"
                             ]
                             []
-                        , textOverlay gameState
+                        , textOverlay HintDismissed model.hints gameState
                         , confirmQuitDialog DialogChoiceMade gameState
                         ]
                     , scoreboard gameState model.players
