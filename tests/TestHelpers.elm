@@ -1,4 +1,4 @@
-module TestHelpers exposing (expectRoundOutcome)
+module TestHelpers exposing (expectRoundOutcome, playOutRound)
 
 import App exposing (AppState(..))
 import Config exposing (Config)
@@ -17,7 +17,7 @@ import Game
         )
 import Main exposing (Model, Msg(..), update)
 import Players exposing (initialPlayers)
-import Round exposing (Round, RoundInitialState)
+import Round exposing (FinishedRound(..), Round, RoundInitialState)
 import Set
 import TestScenarioHelpers
     exposing
@@ -60,8 +60,8 @@ expectRoundOutcome config { tickThatShouldEndIt, howItShouldEnd, effectsItShould
         ()
 
 
-interpretRoundEnding : Round -> RoundEndingInterpretation
-interpretRoundEnding { kurves } =
+interpretRoundEnding : FinishedRound -> RoundEndingInterpretation
+interpretRoundEnding (Finished { kurves }) =
     { aliveAtTheEnd =
         kurves.alive
             |> List.map
@@ -80,10 +80,10 @@ interpretRoundEnding { kurves } =
     }
 
 
-playOutRound : Config -> RoundInitialState -> ( Tick, Round )
+playOutRound : Config -> RoundInitialState -> ( Tick, FinishedRound )
 playOutRound config initialState =
     let
-        recurse : Tick -> Round -> ( Tick, Round )
+        recurse : Tick -> Round -> ( Tick, FinishedRound )
         recurse lastTick midRoundState =
             let
                 incrementedTick : Tick
@@ -117,7 +117,7 @@ playOutRoundWithEffects config initialState =
 
         initialGameState : GameState
         initialGameState =
-            Active Live NotPaused <|
+            Active (Live ()) NotPaused <|
                 Spawning
                     { kurvesLeft = initialRound |> .kurves |> .alive
                     , alreadySpawnedKurves = []
@@ -156,7 +156,7 @@ playOutRoundWithEffects config initialState =
                 InGame (Active _ NotPaused (Moving _ _ _)) ->
                     recurse (AnimationFrame frameDeltaInMs) newModel newReversedEffects
 
-                InGame (RoundOver _ _ _ _ _) ->
+                InGame (RoundOver _ _ _ _) ->
                     ( newModel, newReversedEffects )
 
                 _ ->

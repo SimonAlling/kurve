@@ -1,27 +1,6 @@
-port module Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, toStringSetControls, updatePressedButtons)
+module Input exposing (Button(..), ButtonDirection(..), toStringSetControls, updatePressedButtons)
 
 import Set exposing (Set)
-
-
-port onKeydown : (String -> msg) -> Sub msg
-
-
-port onKeyup : (String -> msg) -> Sub msg
-
-
-port onMousedown : (Int -> msg) -> Sub msg
-
-
-port onMouseup : (Int -> msg) -> Sub msg
-
-
-inputSubscriptions : (ButtonDirection -> Button -> msg) -> List (Sub msg)
-inputSubscriptions makeMsg =
-    [ onKeydown (Key >> makeMsg Down)
-    , onKeyup (Key >> makeMsg Up)
-    , onMousedown (Mouse >> makeMsg Down)
-    , onMouseup (Mouse >> makeMsg Up)
-    ]
 
 
 type ButtonDirection

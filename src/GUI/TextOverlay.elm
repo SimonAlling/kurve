@@ -21,25 +21,25 @@ textOverlay makeHintDismissalMsg hints gameState =
 content : (Hint -> msg) -> Hints -> GameState -> List (Html msg)
 content makeHintDismissalMsg hints gameState =
     case gameState of
-        Active Live Paused _ ->
+        Active (Live _) Paused _ ->
             [ pressSpaceToContinue ]
 
-        Active Live NotPaused _ ->
+        Active (Live _) NotPaused _ ->
             []
 
-        Active Replay Paused _ ->
+        Active (Replay _) Paused _ ->
             -- Hint on how to continue deliberately omitted here. See the PR/commit that added this comment for details.
-            [ replayIndicator, GUI.Navigation.Replay.whenActive ]
+            [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
-        Active Replay NotPaused _ ->
-            [ replayIndicator, GUI.Navigation.Replay.whenActive ]
+        Active (Replay _) NotPaused _ ->
+            [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
-        RoundOver Live _ _ _ _ ->
+        RoundOver (Live _) _ _ _ ->
             [ GUI.Hints.render makeHintDismissalMsg hints ShowHowToReplay
             ]
 
-        RoundOver Replay _ _ _ _ ->
-            [ replayIndicator, GUI.Navigation.Replay.whenRoundOver ]
+        RoundOver (Replay _) _ _ _ ->
+            [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
 
 pressSpaceToContinue : Html msg

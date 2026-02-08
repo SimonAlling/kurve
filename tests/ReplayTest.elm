@@ -14,6 +14,7 @@ import Players exposing (initialPlayers)
 import Round exposing (Round)
 import Set
 import Test
+import TestHelpers exposing (playOutRound)
 import TestHelpers.EndToEnd exposing (endToEndTest)
 import TestHelpers.PlayerInput exposing (pressAndRelease)
 import TestScenarioHelpers exposing (roundWith)
@@ -41,8 +42,12 @@ config =
 
 initialModel : Model
 initialModel =
+    let
+        ( _, finishedRound ) =
+            playOutRound config (roundWith TestScenarios.ReplayStraightVerticalLine.spawnedKurves)
+    in
     { pressedButtons = Set.empty
-    , appState = InGame (Active Replay NotPaused (Moving 0 Tick.genesis initialRound))
+    , appState = InGame (Active (Replay finishedRound) NotPaused (Moving 0 Tick.genesis initialRound))
     , config = config
     , players = initialPlayers
     , hints = Hints.initial
