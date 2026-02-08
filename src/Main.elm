@@ -49,7 +49,7 @@ import Players
 import Random
 import Round exposing (FinishedRound, Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
-import Spawn exposing (makeSpawnState, stepSpawnState)
+import Spawn exposing (flickerFrequencyToTicksPerSecond, makeSpawnState, stepSpawnState)
 import Time
 import Types.FrameTime exposing (FrameTime)
 import Types.Tick as Tick exposing (Tick)
@@ -85,7 +85,7 @@ startRound liveOrReplay model midRoundState =
         gameState =
             Active liveOrReplay NotPaused <|
                 Spawning
-                    (makeSpawnState model.config.spawn.numberOfFlickerTicks midRoundState)
+                    (makeSpawnState model.config.spawn.numberOfFlickers midRoundState)
                     midRoundState
     in
     ( { model | appState = InGame gameState }, ClearEverything )
@@ -563,7 +563,7 @@ subscriptions model =
                 Sub.none
 
             InGame (Active _ NotPaused (Spawning _ _)) ->
-                Time.every (1000 / model.config.spawn.flickerTicksPerSecond) (always SpawnTick)
+                Time.every (1000 / toFloat (flickerFrequencyToTicksPerSecond model.config.spawn.flickerFrequency)) (always SpawnTick)
 
             InGame (Active _ NotPaused (Moving _ _ _)) ->
                 Browser.Events.onAnimationFrameDelta AnimationFrame

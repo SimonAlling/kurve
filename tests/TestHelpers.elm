@@ -119,7 +119,7 @@ playOutRoundWithEffects config initialState =
         initialGameState =
             Active (Live ()) NotPaused <|
                 Spawning
-                    (makeSpawnState config.spawn.numberOfFlickerTicks initialRound)
+                    (makeSpawnState config.spawn.numberOfFlickers initialRound)
                     initialRound
 
         initialModel : Model
@@ -175,4 +175,4 @@ refreshRateInTests =
 
 getNumberOfSpawnTicks : SpawnConfig -> Int
 getNumberOfSpawnTicks spawnConfig =
-    spawnConfig.numberOfFlickerTicks + 1
+    2 * spawnConfig.numberOfFlickers + 1

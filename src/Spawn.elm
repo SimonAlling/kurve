@@ -1,4 +1,4 @@
-module Spawn exposing (SpawnState, generateKurves, makeSpawnState, stepSpawnState)
+module Spawn exposing (SpawnState, flickerFrequencyToTicksPerSecond, generateKurves, makeSpawnState, stepSpawnState)
 
 import Config exposing (Config, SpawnConfig, WorldConfig)
 import Dict
@@ -29,11 +29,11 @@ type alias SpawnState =
 
 
 makeSpawnState : Int -> Round -> SpawnState
-makeSpawnState numberOfFlickerTicks round =
+makeSpawnState numberOfFlickers round =
     let
         ticksLeftStartingValue : Int
         ticksLeftStartingValue =
-            numberOfFlickerTicks - 1
+            flickerFrequencyToTicksPerSecond numberOfFlickers - 1
     in
     { kurvesLeft = round |> .kurves |> .alive
     , alreadySpawnedKurves = []
@@ -72,6 +72,11 @@ stepSpawnState ({ kurvesLeft, alreadySpawnedKurves, ticksLeftStartingValue, tick
                         { spawnState | ticksLeft = ticksLeft - 1 }
             in
             ( Just newSpawnState, drawSpawnsTemporarily kurvesToDraw )
+
+
+flickerFrequencyToTicksPerSecond : Int -> Int
+flickerFrequencyToTicksPerSecond flickersPerSecond =
+    2 * flickersPerSecond
 
 
 generateKurves : Config -> ParticipatingPlayers -> Random.Generator (List Kurve)
