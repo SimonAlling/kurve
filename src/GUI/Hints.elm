@@ -2,7 +2,7 @@ module GUI.Hints exposing (Hint(..), Hints, dismiss, initial, render)
 
 import Colors
 import GUI.Text
-import Html exposing (Html, button, p, text)
+import Html exposing (Html, button, span, text)
 import Html.Attributes as Attr
 import Html.Events exposing (onClick)
 
@@ -34,7 +34,7 @@ dismiss hint (Hints hints) =
 render : (Hint -> msg) -> Hints -> Hint -> Html msg
 render makeHintDismissalMsg hints hint =
     if isActive hint hints then
-        p
+        span
             [ Attr.class "hint"
             ]
             (GUI.Text.string (GUI.Text.Size 1) Colors.white (show hint ++ " ")
