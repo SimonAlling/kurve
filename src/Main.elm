@@ -630,7 +630,8 @@ view model =
             elmRoot Events.AllowDefault [] [ splashScreen ]
 
         InGame gameState ->
-            elmRoot (Game.eventPrevention gameState)
+            elmRoot
+                (Game.eventPrevention gameState)
                 [ Attr.class "in-game"
                 , Attr.class magicClassNameToPreventUnload
                 ]
