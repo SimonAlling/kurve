@@ -35,7 +35,7 @@ content makeHintDismissalMsg hints gameState =
             [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
         RoundOver (Live _) _ _ _ ->
-            [ GUI.Hints.render makeHintDismissalMsg hints ShowHowToReplay
+            [ GUI.Hints.render makeHintDismissalMsg hints HowToReplay
             ]
 
         RoundOver (Replay _) _ _ _ ->

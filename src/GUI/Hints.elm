@@ -9,26 +9,26 @@ import Html.Events exposing (onClick)
 
 type Hints
     = Hints
-        { showHowToReplay : Bool
+        { howToReplay : Bool
         }
 
 
 type Hint
-    = ShowHowToReplay
+    = HowToReplay
 
 
 initial : Hints
 initial =
     Hints
-        { showHowToReplay = True
+        { howToReplay = True
         }
 
 
 dismiss : Hint -> Hints -> Hints
 dismiss hint (Hints hints) =
     case hint of
-        ShowHowToReplay ->
-            Hints { hints | showHowToReplay = False }
+        HowToReplay ->
+            Hints { hints | howToReplay = False }
 
 
 render : (Hint -> msg) -> Hints -> Hint -> Html msg
@@ -51,14 +51,14 @@ render makeHintDismissalMsg hints hint =
 isActive : Hint -> Hints -> Bool
 isActive hint (Hints hints) =
     case hint of
-        ShowHowToReplay ->
-            hints.showHowToReplay
+        HowToReplay ->
+            hints.howToReplay
 
 
 dismissButton : (Hint -> msg) -> Html msg
 dismissButton makeHintDismissalMsg =
     button
-        [ onClick (makeHintDismissalMsg ShowHowToReplay)
+        [ onClick (makeHintDismissalMsg HowToReplay)
         , Attr.class "dismissHint"
         , Attr.title "Dismiss"
         ]
@@ -68,5 +68,5 @@ dismissButton makeHintDismissalMsg =
 show : Hint -> String
 show hint =
     case hint of
-        ShowHowToReplay ->
+        HowToReplay ->
             "Press R to replay"

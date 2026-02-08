@@ -86,7 +86,7 @@ messages =
         , release (Key "ArrowLeft")
 
         -- Replay hint is dismissed:
-        , [ HintDismissed ShowHowToReplay ]
+        , [ HintDismissed HowToReplay ]
 
         -- Round is replayed:
         , pressAndRelease (Key "KeyR")
@@ -109,7 +109,7 @@ expectedModel =
     , appState = InMenu Lobby dummySeed
     , config = config
     , players = initialPlayers
-    , hints = Hints.initial |> Hints.dismiss ShowHowToReplay
+    , hints = Hints.initial |> Hints.dismiss HowToReplay
     }
 
 
