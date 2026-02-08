@@ -69,10 +69,10 @@ type alias Model =
 port focusLost : (() -> msg) -> Sub msg
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
+init : Flags -> ( Model, Cmd Msg )
+init flags =
     ( { pressedButtons = Set.empty
-      , appState = InMenu SplashScreen (Random.initialSeed 1337)
+      , appState = InMenu SplashScreen (Random.initialSeed flags.initialSeedValue)
       , config = Config.default
       , players = initialPlayers
       }
@@ -102,6 +102,11 @@ type Msg
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
     | FocusLost
+
+
+type alias Flags =
+    { initialSeedValue : Int
+    }
 
 
 stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, WhatToDraw )
@@ -667,7 +672,7 @@ elmRoot prevention attrs content =
     div (Attr.id "elm-root" :: attrs) (Events.eventsElement prevention ButtonUsed :: content)
 
 
-main : Program () Model Msg
+main : Program Flags Model Msg
 main =
     Browser.element
         { init = init

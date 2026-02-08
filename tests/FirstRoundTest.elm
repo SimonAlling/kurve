@@ -27,7 +27,7 @@ theTest =
 
 initialModel : Model
 initialModel =
-    init () |> Tuple.first
+    init { initialSeedValue = 1337 } |> Tuple.first
 
 
 messages : Int -> List Msg
