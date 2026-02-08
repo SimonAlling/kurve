@@ -119,7 +119,7 @@ stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
 
                 kurvesToDraw : List Kurve
                 kurvesToDraw =
-                    if isEven ticksLeft then
+                    if not (isEven ticksLeft) then
                         spawnedAndSpawning
 
                     else

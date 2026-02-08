@@ -48,10 +48,6 @@ expectedOutcome =
         ExpectEffects
             [ DrawSomething
                 { bodyDrawing = []
-                , headDrawing = []
-                }
-            , DrawSomething
-                { bodyDrawing = []
                 , headDrawing = [ ( Colors.green, { x = 99, y = 3 } ) ]
                 }
             , DrawSomething
@@ -69,6 +65,10 @@ expectedOutcome =
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.green, { x = 99, y = 3 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
                 }
             , DrawSomething
                 { bodyDrawing = [ ( Colors.green, { x = 99, y = 3 } ) ]
