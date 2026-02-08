@@ -67,3 +67,13 @@ document.addEventListener("contextmenu", event => {
 window.addEventListener("blur", () => {
     app.ports.focusLost.send(null);
 });
+
+window.addEventListener("beforeunload", event => {
+    if (shouldPreventUnload()) {
+        event.preventDefault();
+    }
+});
+
+function shouldPreventUnload() {
+    return document.getElementsByClassName("magic-class-name-to-prevent-unload").length > 0;
+}
