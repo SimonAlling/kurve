@@ -7,6 +7,7 @@ import Input exposing (Button(..))
 import List exposing (repeat)
 import Main exposing (Model, Msg(..), init)
 import Test
+import TestHelpers exposing (getNumberOfSpawnTicks)
 import TestHelpers.EndToEnd exposing (endToEndTest)
 import TestHelpers.PlayerInput exposing (pressAndRelease)
 import Types.FrameTime exposing (FrameTime)
@@ -16,7 +17,7 @@ theTest : Test.Test
 theTest =
     let
         ( _, actualEffects ) =
-            endToEndTest initialModel messages
+            endToEndTest initialModel (messages (getNumberOfSpawnTicks initialModel.config.spawn))
     in
     Test.test "How the first round starts" <|
         \_ ->
@@ -29,8 +30,8 @@ initialModel =
     init () |> Tuple.first
 
 
-messages : List Msg
-messages =
+messages : Int -> List Msg
+messages numberOfSpawnTicks =
     List.concat
         [ -- User proceeds to lobby:
           pressAndRelease (Key "Space")
@@ -42,7 +43,7 @@ messages =
         , pressAndRelease (Key "Space")
 
         -- Kurve spawns:
-        , repeat 7 SpawnTick
+        , repeat numberOfSpawnTicks SpawnTick
 
         -- Kurve moves for a while, preferably until it has created at least one hole:
         , repeat 240 (AnimationFrame frameDeltaInMs)

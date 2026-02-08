@@ -1,7 +1,7 @@
-module TestHelpers exposing (expectRoundOutcome, playOutRound)
+module TestHelpers exposing (expectRoundOutcome, getNumberOfSpawnTicks, playOutRound)
 
 import App exposing (AppState(..))
-import Config exposing (Config)
+import Config exposing (Config, SpawnConfig)
 import Effect exposing (Effect)
 import Expect
 import Game
@@ -173,3 +173,8 @@ showTick =
 refreshRateInTests : RefreshRate
 refreshRateInTests =
     60
+
+
+getNumberOfSpawnTicks : SpawnConfig -> Int
+getNumberOfSpawnTicks spawnConfig =
+    spawnConfig.numberOfFlickerTicks + 2
