@@ -1,5 +1,18 @@
 "use strict";
 
+customElements.define(
+  "window-events-workaround",
+  class extends HTMLElement {
+    addEventListener(...args) {
+      return window.addEventListener(...args);
+    }
+
+    removeEventListener(...args) {
+      return window.removeEventListener(...args);
+    }
+  },
+);
+
 const app = Elm.Main.init({ node: document.getElementById("elm-node") });
 
 function drawSquare(canvas, { position: { x, y }, thickness, color }) {
@@ -36,31 +49,6 @@ app.ports.renderHeads.subscribe(squares => {
     }
 });
 
-document.addEventListener("keydown", event => {
-    const isDeveloperCommand = (
-        ["F5", "F12"].includes(event.key)
-        ||
-        (event.ctrlKey && event.key === "r") // Ctrl + R
-        ||
-        (event.metaKey && event.key === "r") // Cmd + R on macOS 👀
-    );
-    if (!isDeveloperCommand) {
-        event.preventDefault();
-    }
-    if (!event.repeat) {
-        app.ports.onKeydown.send(event.code);
-    }
-});
-document.addEventListener("keyup", event => {
-    // Traditionally we never prevented default on keyup.
-    app.ports.onKeyup.send(event.code);
-});
-document.addEventListener("mousedown", event => {
-    app.ports.onMousedown.send(event.button);
-});
-document.addEventListener("mouseup", event => {
-    app.ports.onMouseup.send(event.button);
-});
 document.addEventListener("contextmenu", event => {
     event.preventDefault();
 });

@@ -8,6 +8,7 @@ import Config exposing (Config)
 import Dialog
 import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily, mergeWhatToDraw)
 import Effect exposing (Effect(..), maybeDrawSomething)
+import Events
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
@@ -31,7 +32,7 @@ import Game
         )
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
-import Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, updatePressedButtons)
+import Input exposing (Button(..), ButtonDirection(..), updatePressedButtons)
 import IsGameOver exposing (isGameOver)
 import JavaScript exposing (magicClassNameToPreventUnload)
 import MainLoop
@@ -591,7 +592,7 @@ handleUserInteraction direction button model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch <|
-        (case model.appState of
+        [ case model.appState of
             InMenu SplashScreen _ ->
                 Sub.none
 
@@ -612,25 +613,25 @@ subscriptions model =
 
             InMenu GameOver _ ->
                 Sub.none
-        )
-            :: focusLost (always FocusLost)
-            :: inputSubscriptions ButtonUsed
+        , focusLost (always FocusLost)
+        ]
 
 
 view : Model -> Html Msg
 view model =
     case model.appState of
         InMenu Lobby _ ->
-            elmRoot [] [ lobby model.players ]
+            elmRoot Events.AllowDefault [] [ lobby model.players ]
 
         InMenu GameOver _ ->
-            elmRoot [] [ endScreen model.players ]
+            elmRoot Events.AllowDefault [] [ endScreen model.players ]
 
         InMenu SplashScreen _ ->
-            elmRoot [] [ splashScreen ]
+            elmRoot Events.AllowDefault [] [ splashScreen ]
 
         InGame gameState ->
             elmRoot
+                (Game.eventPrevention gameState)
                 [ Attr.class "in-game"
                 , Attr.class magicClassNameToPreventUnload
                 ]
@@ -661,9 +662,9 @@ view model =
                 ]
 
 
-elmRoot : List (Html.Attribute msg) -> List (Html msg) -> Html msg
-elmRoot attrs =
-    div (Attr.id "elm-root" :: attrs)
+elmRoot : Events.Prevention -> List (Html.Attribute Msg) -> List (Html Msg) -> Html Msg
+elmRoot prevention attrs content =
+    div (Attr.id "elm-root" :: attrs) (Events.eventsElement prevention ButtonUsed :: content)
 
 
 main : Program () Model Msg

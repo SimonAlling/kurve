@@ -5,6 +5,7 @@ module Game exposing
     , PausedOrNot(..)
     , SpawnState
     , TickResult(..)
+    , eventPrevention
     , firstUpdateTick
     , getCurrentRound
     , getFinishedRound
@@ -21,6 +22,7 @@ import Color exposing (Color)
 import Config exposing (Config, WorldConfig)
 import Dialog
 import Drawing exposing (WhatToDraw, getColorAndDrawingPosition)
+import Events exposing (Prevention(..))
 import Holes exposing (HoleStatus, Holiness(..), getHoliness, updateHoleStatus)
 import Players exposing (ParticipatingPlayers)
 import Random
@@ -447,3 +449,21 @@ recordUserInteraction pressedButtons nextTick kurve =
             computeTurningState pressedButtons kurve
     in
     modifyReversedInteractions ((::) (HappenedBefore nextTick newTurningState)) kurve
+
+
+eventPrevention : GameState -> Events.Prevention
+eventPrevention gameState =
+    case gameState of
+        Active liveOrReplay _ _ ->
+            case liveOrReplay of
+                Live _ ->
+                    -- The goal is to prevent as many inadvertent disruptions as possible while playing. Examples:
+                    -- * Accidentally hitting F5
+                    -- * Player inputs clashing with keyboard shortcuts (e.g. Alt to open the menu bar or Ctrl + 1 to switch to the first tab)
+                    PreventDefault
+
+                Replay _ ->
+                    AllowDefault
+
+        RoundOver _ _ _ _ ->
+            AllowDefault
