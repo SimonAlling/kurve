@@ -18,6 +18,7 @@ import Main exposing (Model, Msg(..), update)
 import Players exposing (initialPlayers)
 import Round exposing (FinishedRound(..), Round, RoundInitialState)
 import Set
+import Spawn exposing (makeSpawnState)
 import TestScenarioHelpers
     exposing
         ( EffectsExpectation(..)
@@ -118,10 +119,7 @@ playOutRoundWithEffects config initialState =
         initialGameState =
             Active (Live ()) NotPaused <|
                 Spawning
-                    { kurvesLeft = initialRound |> .kurves |> .alive
-                    , alreadySpawnedKurves = []
-                    , ticksLeft = config.spawn.numberOfFlickerTicks
-                    }
+                    (makeSpawnState config.spawn.numberOfFlickerTicks initialRound)
                     initialRound
 
         initialModel : Model

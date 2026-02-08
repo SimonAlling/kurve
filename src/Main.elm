@@ -6,7 +6,7 @@ import Browser.Events
 import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
-import Drawing exposing (WhatToDraw, drawSpawnsPermanently, drawSpawnsTemporarily, mergeWhatToDraw)
+import Drawing exposing (WhatToDraw, drawSpawnsPermanently, mergeWhatToDraw)
 import Effect exposing (Effect(..), maybeDrawSomething)
 import Events
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
@@ -21,7 +21,6 @@ import Game
         , GameState(..)
         , LiveOrReplay(..)
         , PausedOrNot(..)
-        , SpawnState
         , firstUpdateTick
         , getFinishedRound
         , modifyMidRoundState
@@ -50,12 +49,11 @@ import Players
 import Random
 import Round exposing (FinishedRound, Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
+import Spawn exposing (makeSpawnState, stepSpawnState)
 import Time
 import Types.FrameTime exposing (FrameTime)
-import Types.Kurve exposing (Kurve)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
-import Util exposing (isEven)
 
 
 type alias Model =
@@ -87,10 +85,7 @@ startRound liveOrReplay model midRoundState =
         gameState =
             Active liveOrReplay NotPaused <|
                 Spawning
-                    { kurvesLeft = midRoundState |> .kurves |> .alive
-                    , alreadySpawnedKurves = []
-                    , ticksLeft = model.config.spawn.numberOfFlickerTicks
-                    }
+                    (makeSpawnState model.config.spawn.numberOfFlickerTicks midRoundState)
                     midRoundState
     in
     ( { model | appState = InGame gameState }, ClearEverything )
@@ -102,38 +97,6 @@ type Msg
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
     | FocusLost
-
-
-stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, WhatToDraw )
-stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
-    case kurvesLeft of
-        [] ->
-            -- All Kurves have spawned.
-            ( Nothing, drawSpawnsPermanently alreadySpawnedKurves )
-
-        spawning :: waiting ->
-            let
-                spawnedAndSpawning : List Kurve
-                spawnedAndSpawning =
-                    alreadySpawnedKurves ++ [ spawning ]
-
-                kurvesToDraw : List Kurve
-                kurvesToDraw =
-                    if not (isEven ticksLeft) then
-                        spawnedAndSpawning
-
-                    else
-                        alreadySpawnedKurves
-
-                newSpawnState : SpawnState
-                newSpawnState =
-                    if ticksLeft == 0 then
-                        { kurvesLeft = waiting, alreadySpawnedKurves = spawnedAndSpawning, ticksLeft = config.spawn.numberOfFlickerTicks }
-
-                    else
-                        { kurvesLeft = spawning :: waiting, alreadySpawnedKurves = alreadySpawnedKurves, ticksLeft = ticksLeft - 1 }
-            in
-            ( Just newSpawnState, drawSpawnsTemporarily kurvesToDraw )
 
 
 update : Msg -> Model -> ( Model, Effect )
