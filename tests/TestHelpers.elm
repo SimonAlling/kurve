@@ -175,4 +175,4 @@ refreshRateInTests =
 
 getNumberOfSpawnTicks : SpawnConfig -> Int
 getNumberOfSpawnTicks spawnConfig =
-    spawnConfig.numberOfFlickerTicks + 2
+    spawnConfig.numberOfFlickerTicks + 1

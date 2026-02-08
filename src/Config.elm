@@ -33,7 +33,7 @@ default =
         , desiredMinimumDistanceTurningRadiusFactor = 1
         , protectionAudacity = 0.25 -- Closer to 1 ⇔ less risk of spawn kills but higher risk of no solution
         , flickerTicksPerSecond = 20 -- At each tick, the spawning Kurve is toggled between visible and invisible.
-        , numberOfFlickerTicks = 5
+        , numberOfFlickerTicks = 6
         , angleInterval = ( 0, pi )
         }
     , world =

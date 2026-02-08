@@ -31,7 +31,7 @@ makeSpawnState : Int -> Round -> SpawnState
 makeSpawnState numberOfFlickerTicks round =
     { kurvesLeft = round |> .kurves |> .alive
     , alreadySpawnedKurves = []
-    , ticksLeft = numberOfFlickerTicks
+    , ticksLeft = numberOfFlickerTicks - 1
     }
 
 
@@ -59,7 +59,7 @@ stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
                 newSpawnState : SpawnState
                 newSpawnState =
                     if ticksLeft == 0 then
-                        { kurvesLeft = waiting, alreadySpawnedKurves = spawnedAndSpawning, ticksLeft = config.spawn.numberOfFlickerTicks }
+                        { kurvesLeft = waiting, alreadySpawnedKurves = spawnedAndSpawning, ticksLeft = config.spawn.numberOfFlickerTicks - 1 }
 
                     else
                         { kurvesLeft = spawning :: waiting, alreadySpawnedKurves = alreadySpawnedKurves, ticksLeft = ticksLeft - 1 }
