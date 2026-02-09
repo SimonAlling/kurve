@@ -426,8 +426,19 @@ stepOneTick activeGameState finishedRound model =
 fastForwardReplay : PausedOrNot -> ActiveGameState -> FinishedRound -> Model -> ( Model, Effect )
 fastForwardReplay pausedOrNot activeGameState finishedRound ({ config } as model) =
     case activeGameState of
-        Spawning _ _ ->
-            ( model, DoNothing )
+        Spawning _ plannedMidRoundState ->
+            let
+                newActiveGameState : ActiveGameState
+                newActiveGameState =
+                    Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
+
+                whatToDraw : WhatToDraw
+                whatToDraw =
+                    drawSpawnsPermanently plannedMidRoundState.kurves.alive
+            in
+            ( { model | appState = InGame <| Active (Replay finishedRound) NotPaused newActiveGameState }
+            , DrawSomething whatToDraw
+            )
 
         Moving _ lastTick midRoundState ->
             let
@@ -448,7 +459,7 @@ rewindReplay : PausedOrNot -> ActiveGameState -> FinishedRound -> Model -> ( Mod
 rewindReplay pausedOrNot activeGameState finishedRound model =
     case activeGameState of
         Spawning _ _ ->
-            ( model, DoNothing )
+            startRound (Replay finishedRound) model <| prepareReplayRound model.config.world (initialStateForReplaying finishedRound)
 
         Moving _ lastTick _ ->
             let
