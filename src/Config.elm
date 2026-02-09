@@ -24,8 +24,8 @@ default =
         , holes =
             { minSolidTicks = 90
             , maxSolidTicks = 300
-            , minHolyTicks = 9
-            , maxHolyTicks = 13
+            , minHolyTicks = 7
+            , maxHolyTicks = 11
             }
         }
     , spawn =
