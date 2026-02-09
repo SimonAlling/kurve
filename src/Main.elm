@@ -334,13 +334,13 @@ buttonUsed button ({ config, pressedButtons } as model) =
                         Spawning _ _ ->
                             ( model, DoNothing )
 
-                        Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
+                        Moving _ lastTick midRoundState ->
                             let
                                 ( tickResult, whatToDraw ) =
                                     MainLoop.consumeAnimationFrame
                                         config
-                                        (toFloat config.replay.skipStepInMs)
-                                        leftoverTimeFromPreviousFrame
+                                        (toFloat config.replay.skipStepInMs |> MainLoop.withFloatingPointRoundingErrorCompensation)
+                                        MainLoop.noLeftoverFrameTime
                                         lastTick
                                         midRoundState
                             in
@@ -370,13 +370,13 @@ buttonUsed button ({ config, pressedButtons } as model) =
                         Spawning _ _ ->
                             ( model, DoNothing )
 
-                        Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
+                        Moving _ lastTick midRoundState ->
                             let
                                 ( tickResult, whatToDraw ) =
                                     MainLoop.consumeAnimationFrame
                                         config
-                                        (toFloat config.replay.skipStepInMs)
-                                        leftoverTimeFromPreviousFrame
+                                        (toFloat config.replay.skipStepInMs |> MainLoop.withFloatingPointRoundingErrorCompensation)
+                                        MainLoop.noLeftoverFrameTime
                                         lastTick
                                         midRoundState
                             in
@@ -436,7 +436,7 @@ stepOneTick activeGameState finishedRound model =
         Spawning _ _ ->
             ( model, DoNothing )
 
-        Moving leftoverTimeFromPreviousFrame lastTick midRoundState ->
+        Moving _ lastTick midRoundState ->
             let
                 timeToSkipInMs : FrameTime
                 timeToSkipInMs =
@@ -446,7 +446,7 @@ stepOneTick activeGameState finishedRound model =
                     MainLoop.consumeAnimationFrame
                         model.config
                         timeToSkipInMs
-                        leftoverTimeFromPreviousFrame
+                        MainLoop.noLeftoverFrameTime
                         lastTick
                         midRoundState
             in
@@ -485,7 +485,7 @@ rewindReplay pausedOrNot activeGameState finishedRound model =
 
                 millisecondsToSkipAhead : FrameTime
                 millisecondsToSkipAhead =
-                    ((tickToGoTo |> Tick.toInt |> toFloat) / tickrateInHz) * 1000
+                    ((tickToGoTo |> Tick.toInt |> toFloat) / tickrateInHz) * 1000 |> MainLoop.withFloatingPointRoundingErrorCompensation
 
                 whatToDrawForSpawns : WhatToDraw
                 whatToDrawForSpawns =
