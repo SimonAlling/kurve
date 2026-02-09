@@ -2,7 +2,7 @@ module Events exposing (Prevention(..), eventsElement)
 
 import Html exposing (Html)
 import Html.Events
-import Input exposing (Button(..), ButtonDirection(..))
+import Input exposing (Button(..), ButtonDirection(..), buttonsWithSpecialMeaning)
 import Json.Decode as Decode exposing (Decoder)
 
 
@@ -48,5 +48,5 @@ shouldPreventDefault prevention button =
         PreventDefault ->
             True
 
-        AllowDefaultExcept buttons ->
-            List.member button buttons
+        AllowDefaultExcept playerButtons ->
+            List.member button playerButtons || List.member button buttonsWithSpecialMeaning
