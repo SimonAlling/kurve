@@ -49,8 +49,7 @@ import Players
 import Random
 import Round exposing (FinishedRound, Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
-import Spawn exposing (flickerFrequencyToTicksPerSecond, makeSpawnState, stepSpawnState)
-import Time
+import Spawn exposing (makeSpawnState)
 import Types.FrameTime exposing (FrameTime)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -85,6 +84,7 @@ startRound liveOrReplay model midRoundState =
         gameState =
             Active liveOrReplay NotPaused <|
                 Spawning
+                    MainLoop.noLeftoverFrameTime
                     (makeSpawnState model.config.spawn.numberOfFlickers midRoundState)
                     midRoundState
     in
@@ -92,8 +92,7 @@ startRound liveOrReplay model midRoundState =
 
 
 type Msg
-    = SpawnTick
-    | AnimationFrame FrameTime
+    = AnimationFrame FrameTime
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
     | FocusLost
@@ -116,32 +115,26 @@ update msg ({ config } as model) =
                 _ ->
                     ( model, DoNothing )
 
-        SpawnTick ->
+        AnimationFrame delta ->
             case model.appState of
-                InGame (Active liveOrReplay NotPaused (Spawning spawnState plannedMidRoundState)) ->
+                InGame (Active liveOrReplay NotPaused (Spawning leftoverFrameTime spawnState plannedMidRoundState)) ->
                     let
-                        ( maybeSpawnState, whatToDraw ) =
-                            stepSpawnState spawnState
+                        ( ( newLeftoverTime, maybeSpawnState ), whatToDraw ) =
+                            MainLoop.consumeAnimationFrame_Spawning config delta leftoverFrameTime spawnState
 
                         activeGameState : ActiveGameState
                         activeGameState =
                             case maybeSpawnState of
                                 Just newSpawnState ->
-                                    Spawning newSpawnState plannedMidRoundState
+                                    Spawning newLeftoverTime newSpawnState plannedMidRoundState
 
                                 Nothing ->
                                     Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
                     in
                     ( { model | appState = InGame <| Active liveOrReplay NotPaused activeGameState }
-                    , DrawSomething whatToDraw
+                    , maybeDrawSomething whatToDraw
                     )
 
-                _ ->
-                    -- Not expected to ever happen.
-                    ( model, DoNothing )
-
-        AnimationFrame delta ->
-            case model.appState of
                 InGame (Active liveOrReplay NotPaused (Moving leftoverTimeFromPreviousFrame lastTick midRoundState)) ->
                     let
                         ( tickResult, whatToDraw ) =
@@ -331,7 +324,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
 
                 Key "ArrowRight" ->
                     case s of
-                        Spawning _ _ ->
+                        Spawning _ _ _ ->
                             ( model, DoNothing )
 
                         Moving _ lastTick midRoundState ->
@@ -367,7 +360,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
 
                 Key "ArrowRight" ->
                     case s of
-                        Spawning _ _ ->
+                        Spawning _ _ _ ->
                             ( model, DoNothing )
 
                         Moving _ lastTick midRoundState ->
@@ -433,7 +426,7 @@ proceedToNextRound finishedRound ({ config, pressedButtons } as model) =
 stepOneTick : ActiveGameState -> FinishedRound -> Model -> ( Model, Effect )
 stepOneTick activeGameState finishedRound model =
     case activeGameState of
-        Spawning _ _ ->
+        Spawning _ _ _ ->
             ( model, DoNothing )
 
         Moving _ lastTick midRoundState ->
@@ -458,7 +451,7 @@ stepOneTick activeGameState finishedRound model =
 rewindReplay : PausedOrNot -> ActiveGameState -> FinishedRound -> Model -> ( Model, Effect )
 rewindReplay pausedOrNot activeGameState finishedRound model =
     case activeGameState of
-        Spawning _ _ ->
+        Spawning _ _ _ ->
             ( model, DoNothing )
 
         Moving _ lastTick _ ->
@@ -533,7 +526,7 @@ handleUserInteraction direction button model =
         howToModifyRound : Round -> Round
         howToModifyRound =
             case model.appState of
-                InGame (Active (Live _) _ (Spawning _ _)) ->
+                InGame (Active (Live _) _ (Spawning _ _ _)) ->
                     recordInteractionBefore firstUpdateTick
 
                 InGame (Active (Live _) _ (Moving _ lastTick _)) ->
@@ -562,8 +555,8 @@ subscriptions model =
             InMenu Lobby _ ->
                 Sub.none
 
-            InGame (Active _ NotPaused (Spawning _ _)) ->
-                Time.every (1000 / flickerFrequencyToTicksPerSecond model.config.spawn.flickerFrequency) (always SpawnTick)
+            InGame (Active _ NotPaused (Spawning _ _ _)) ->
+                Browser.Events.onAnimationFrameDelta AnimationFrame
 
             InGame (Active _ NotPaused (Moving _ _ _)) ->
                 Browser.Events.onAnimationFrameDelta AnimationFrame

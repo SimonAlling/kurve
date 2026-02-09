@@ -1,4 +1,4 @@
-module TestHelpers exposing (expectRoundOutcome, getNumberOfSpawnTicks, playOutRound)
+module TestHelpers exposing (expectRoundOutcome, getNumberOfSpawnAnimationFrames, playOutRound)
 
 import App exposing (AppState(..))
 import Config exposing (Config, SpawnConfig)
@@ -15,6 +15,7 @@ import Game
         , reactToTick
         )
 import Main exposing (Model, Msg(..), update)
+import MainLoop
 import Players exposing (initialPlayers)
 import Round exposing (FinishedRound(..), Round, RoundInitialState)
 import Set
@@ -119,6 +120,7 @@ playOutRoundWithEffects config initialState =
         initialGameState =
             Active (Live ()) NotPaused <|
                 Spawning
+                    MainLoop.noLeftoverFrameTime
                     (makeSpawnState config.spawn.numberOfFlickers initialRound)
                     initialRound
 
@@ -146,8 +148,8 @@ playOutRoundWithEffects config initialState =
             in
             -- Here we essentially emulate the subscriptions that the complete application hopefully/probably has:
             case newModel.appState of
-                InGame (Active _ NotPaused (Spawning _ _)) ->
-                    recurse SpawnTick newModel newReversedEffects
+                InGame (Active _ NotPaused (Spawning _ _ _)) ->
+                    recurse (AnimationFrame frameDeltaInMs) newModel newReversedEffects
 
                 InGame (Active _ NotPaused (Moving _ _ _)) ->
                     recurse (AnimationFrame frameDeltaInMs) newModel newReversedEffects
@@ -158,7 +160,7 @@ playOutRoundWithEffects config initialState =
                 _ ->
                     Debug.todo <| "Unexpected app state: " ++ Debug.toString newModel.appState
     in
-    recurse SpawnTick initialModel []
+    recurse (AnimationFrame frameDeltaInMs) initialModel []
         |> Tuple.second
         |> List.reverse
 
@@ -173,6 +175,11 @@ refreshRateInTests =
     60
 
 
-getNumberOfSpawnTicks : SpawnConfig -> Int
-getNumberOfSpawnTicks spawnConfig =
-    2 * spawnConfig.numberOfFlickers + 1
+getNumberOfSpawnAnimationFrames : SpawnConfig -> Int
+getNumberOfSpawnAnimationFrames spawnConfig =
+    let
+        framesPerFlicker : Float
+        framesPerFlicker =
+            toFloat refreshRateInTests / spawnConfig.flickerFrequency
+    in
+    round framesPerFlicker * spawnConfig.numberOfFlickers + round (framesPerFlicker / 2)

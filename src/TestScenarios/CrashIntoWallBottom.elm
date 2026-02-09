@@ -46,30 +46,44 @@ expectedOutcome =
         }
     , effectsItShouldProduce =
         ExpectEffects
-            [ DrawSomething
-                { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 99, y = 474 } ) ]
-                }
-            , DrawSomething
-                { bodyDrawing = []
-                , headDrawing = []
-                }
+            [ DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.green, { x = 99, y = 474 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = []
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.green, { x = 99, y = 474 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = []
                 }
+            , DoNothing
+            , DoNothing
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Colors.green, { x = 99, y = 474 } ) ]
+                }
+            , DoNothing
+            , DoNothing
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = [ ( Colors.green, { x = 99, y = 474 } ) ]
                 , headDrawing = []

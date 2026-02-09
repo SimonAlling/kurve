@@ -1,4 +1,4 @@
-module MainLoop exposing (consumeAnimationFrame, noLeftoverFrameTime, withFloatingPointRoundingErrorCompensation)
+module MainLoop exposing (consumeAnimationFrame, consumeAnimationFrame_Spawning, noLeftoverFrameTime, withFloatingPointRoundingErrorCompensation)
 
 {-| Based on Isaac Sukin's `MainLoop.js`.
 
@@ -11,6 +11,7 @@ import Config exposing (Config)
 import Drawing exposing (DrawingAccumulator, WhatToDraw)
 import Game exposing (TickResult(..))
 import Round exposing (Round)
+import Spawn exposing (SpawnState, flickerFrequencyToTicksPerSecond, stepSpawnState)
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -68,6 +69,54 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
                 )
     in
     recurse timeToConsume lastTick midRoundState Drawing.initialize |> Tuple.mapSecond Drawing.finalize
+
+
+consumeAnimationFrame_Spawning :
+    Config
+    -> FrameTime
+    -> LeftoverFrameTime
+    -> SpawnState
+    -> ( ( LeftoverFrameTime, Maybe SpawnState ), Maybe WhatToDraw )
+consumeAnimationFrame_Spawning config delta leftoverTimeFromPreviousFrame ogSpawnState =
+    let
+        timeToConsume : FrameTime
+        timeToConsume =
+            delta + leftoverTimeFromPreviousFrame
+
+        timestep : FrameTime
+        timestep =
+            1000 / flickerFrequencyToTicksPerSecond config.spawn.flickerFrequency
+
+        recurse :
+            LeftoverFrameTime
+            -> SpawnState
+            -> DrawingAccumulator
+            -> ( ( LeftoverFrameTime, Maybe SpawnState ), DrawingAccumulator )
+        recurse timeLeftToConsume spawnStateSoFar drawingAccumulator =
+            if timeLeftToConsume >= timestep then
+                let
+                    ( maybeSpawnState, whatToDrawForThisTick ) =
+                        stepSpawnState spawnStateSoFar
+
+                    newDrawingAccumulator : DrawingAccumulator
+                    newDrawingAccumulator =
+                        Drawing.accumulate drawingAccumulator whatToDrawForThisTick
+                in
+                case maybeSpawnState of
+                    Just newSpawnState ->
+                        recurse (timeLeftToConsume - timestep) newSpawnState newDrawingAccumulator
+
+                    Nothing ->
+                        ( ( timeLeftToConsume, Nothing )
+                        , newDrawingAccumulator
+                        )
+
+            else
+                ( ( timeLeftToConsume, Just spawnStateSoFar )
+                , drawingAccumulator
+                )
+    in
+    recurse timeToConsume ogSpawnState Drawing.initialize |> Tuple.mapSecond Drawing.finalize
 
 
 noLeftoverFrameTime : LeftoverFrameTime
