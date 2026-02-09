@@ -339,7 +339,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                                 ( tickResult, whatToDraw ) =
                                     MainLoop.consumeAnimationFrame
                                         config
-                                        (toFloat config.replay.skipStepInMs)
+                                        (toFloat config.replay.skipStepInMs |> MainLoop.withFloatingPointRoundingErrorCompensation)
                                         MainLoop.noLeftoverFrameTime
                                         lastTick
                                         midRoundState
@@ -375,7 +375,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                                 ( tickResult, whatToDraw ) =
                                     MainLoop.consumeAnimationFrame
                                         config
-                                        (toFloat config.replay.skipStepInMs)
+                                        (toFloat config.replay.skipStepInMs |> MainLoop.withFloatingPointRoundingErrorCompensation)
                                         MainLoop.noLeftoverFrameTime
                                         lastTick
                                         midRoundState
@@ -485,7 +485,7 @@ rewindReplay pausedOrNot activeGameState finishedRound model =
 
                 millisecondsToSkipAhead : FrameTime
                 millisecondsToSkipAhead =
-                    ((tickToGoTo |> Tick.toInt |> toFloat) / tickrateInHz) * 1000
+                    ((tickToGoTo |> Tick.toInt |> toFloat) / tickrateInHz) * 1000 |> MainLoop.withFloatingPointRoundingErrorCompensation
 
                 whatToDrawForSpawns : WhatToDraw
                 whatToDrawForSpawns =

@@ -568,14 +568,11 @@ expectedEffects =
             , ( Colors.green, { x = 100, y = 117 } )
             , ( Colors.green, { x = 100, y = 118 } )
             , ( Colors.green, { x = 100, y = 119 } )
+            , ( Colors.green, { x = 100, y = 120 } )
             ]
-        , headDrawing = [ ( Colors.green, { x = 100, y = 119 } ) ]
-        }
-    , DoNothing
-    , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 100, y = 120 } ) ]
         , headDrawing = [ ( Colors.green, { x = 100, y = 120 } ) ]
         }
+    , DoNothing
     , DrawSomething
         { bodyDrawing = [ ( Colors.green, { x = 100, y = 121 } ) ]
         , headDrawing = [ ( Colors.green, { x = 100, y = 121 } ) ]
@@ -611,6 +608,10 @@ expectedEffects =
     , DrawSomething
         { bodyDrawing = [ ( Colors.green, { x = 100, y = 129 } ) ]
         , headDrawing = [ ( Colors.green, { x = 100, y = 129 } ) ]
+        }
+    , DrawSomething
+        { bodyDrawing = [ ( Colors.green, { x = 100, y = 130 } ) ]
+        , headDrawing = [ ( Colors.green, { x = 100, y = 130 } ) ]
         }
     ]
 
