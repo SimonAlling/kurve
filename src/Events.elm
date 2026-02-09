@@ -8,7 +8,7 @@ import Json.Decode as Decode exposing (Decoder)
 
 type Prevention
     = PreventDefault
-    | AllowDefault
+    | AllowDefaultExcept (List Button)
 
 
 eventsElement : Prevention -> (ButtonDirection -> Button -> msg) -> Html msg
@@ -18,7 +18,7 @@ eventsElement prevention makeMsg =
         on eventName decoder buttonDirection =
             Html.Events.preventDefaultOn
                 eventName
-                (decoder |> Decode.map (makeMsg buttonDirection >> maybePreventDefault prevention))
+                (decoder |> Decode.map (\button -> ( makeMsg buttonDirection button, shouldPreventDefault prevention button )))
     in
     Html.node
         "window-events-workaround"
@@ -42,16 +42,11 @@ mouseButtonDecoder =
         |> Decode.map Mouse
 
 
-maybePreventDefault : Prevention -> msg -> ( msg, Bool )
-maybePreventDefault prevention msg =
-    ( msg, shouldPreventDefault prevention )
-
-
-shouldPreventDefault : Prevention -> Bool
-shouldPreventDefault prevention =
+shouldPreventDefault : Prevention -> Button -> Bool
+shouldPreventDefault prevention button =
     case prevention of
         PreventDefault ->
             True
 
-        AllowDefault ->
-            False
+        AllowDefaultExcept buttons ->
+            List.member button buttons

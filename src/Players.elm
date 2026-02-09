@@ -3,6 +3,7 @@ module Players exposing
     , ParticipatingPlayers
     , atLeastOneIsParticipating
     , everyoneLeaves
+    , getAllPlayerButtons
     , handlePlayerJoiningOrLeaving
     , includeResultsFrom
     , initialPlayers
@@ -145,3 +146,17 @@ players =
     , pink
     , blue
     ]
+
+
+getAllPlayerButtons : AllPlayers -> List Button
+getAllPlayerButtons =
+    Dict.foldl (\_ ( player, _ ) acc -> buttonsFor player ++ acc) []
+
+
+buttonsFor : Player -> List Button
+buttonsFor player =
+    let
+        ( leftButtons, rightButtons ) =
+            player.controls
+    in
+    leftButtons ++ rightButtons
