@@ -12,7 +12,7 @@ import Events
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
-import GUI.Scoreboard exposing (scoreboard)
+import GUI.Scoreboard exposing (scoreboard, scoreboardContainer)
 import GUI.SplashScreen exposing (splashScreen)
 import GUI.TextOverlay exposing (textOverlay)
 import Game
@@ -584,7 +584,20 @@ view : Model -> Html Msg
 view model =
     case model.appState of
         InMenu Lobby _ ->
-            elmRoot Events.AllowDefault [] [ lobby model.players ]
+            elmRoot Events.AllowDefault
+                [ Attr.class "in-game-ish"
+                ]
+                [ div
+                    [ Attr.id "wrapper"
+                    ]
+                    [ div
+                        [ Attr.id "border"
+                        ]
+                        [ lobby model.players
+                        ]
+                    , scoreboardContainer []
+                    ]
+                ]
 
         InMenu GameOver _ ->
             elmRoot Events.AllowDefault [] [ endScreen model.players ]
@@ -595,7 +608,7 @@ view model =
         InGame gameState ->
             elmRoot
                 (Game.eventPrevention gameState)
-                [ Attr.class "in-game"
+                [ Attr.class "in-game-ish"
                 , Attr.class magicClassNameToPreventUnload
                 ]
                 [ div
