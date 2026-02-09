@@ -60,30 +60,44 @@ expectedEffects =
     , DoNothing
     , ClearEverything
     , DoNothing
+    , DoNothing
+    , DoNothing
     , DrawSomething
         { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
         }
+    , DoNothing
+    , DoNothing
     , DrawSomething
         { bodyDrawing = []
         , headDrawing = []
         }
+    , DoNothing
+    , DoNothing
     , DrawSomething
         { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
         }
+    , DoNothing
+    , DoNothing
     , DrawSomething
         { bodyDrawing = []
         , headDrawing = []
         }
+    , DoNothing
+    , DoNothing
     , DrawSomething
         { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
         }
+    , DoNothing
+    , DoNothing
     , DrawSomething
         { bodyDrawing = []
         , headDrawing = []
         }
+    , DoNothing
+    , DoNothing
     , DrawSomething
         { bodyDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
         , headDrawing = []

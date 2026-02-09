@@ -95,104 +95,154 @@ expectedOutcome =
     , effectsItShouldProduce =
         ExpectEffects
             [ -- Spawning:
-              DrawSomething
+              DoNothing
+            , DoNothing
+            , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = []
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = []
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = []
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.orange, { x = 20, y = 24 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.orange, { x = 20, y = 24 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.orange, { x = 20, y = 24 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.orange, { x = 20, y = 24 } ), ( Colors.green, { x = 18, y = 47 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.orange, { x = 20, y = 24 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.orange, { x = 20, y = 24 } ), ( Colors.green, { x = 18, y = 47 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.orange, { x = 20, y = 24 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.orange, { x = 20, y = 24 } ), ( Colors.green, { x = 18, y = 47 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.orange, { x = 20, y = 24 } ) ]
                 }
 
             -- Spawns are drawn permanently:
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.orange, { x = 20, y = 24 } ), ( Colors.green, { x = 18, y = 47 } ) ]
                 , headDrawing = []
