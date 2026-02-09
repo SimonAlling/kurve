@@ -66,7 +66,7 @@ type alias SpawnConfig =
     { margin : Float
     , desiredMinimumDistanceTurningRadiusFactor : Float
     , protectionAudacity : Float
-    , flickerFrequency : Int
+    , flickerFrequency : Float
     , numberOfFlickers : Int
     , angleInterval : ( Float, Float )
     }

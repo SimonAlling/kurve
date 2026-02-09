@@ -33,7 +33,7 @@ makeSpawnState numberOfFlickers round =
     let
         ticksLeftStartingValue : Int
         ticksLeftStartingValue =
-            flickerFrequencyToTicksPerSecond numberOfFlickers - 1
+            numberOfFlickersToNumberOfTicks numberOfFlickers - 1
     in
     { kurvesLeft = round |> .kurves |> .alive
     , alreadySpawnedKurves = []
@@ -74,9 +74,14 @@ stepSpawnState ({ kurvesLeft, alreadySpawnedKurves, ticksLeftStartingValue, tick
             ( Just newSpawnState, drawSpawnsTemporarily kurvesToDraw )
 
 
-flickerFrequencyToTicksPerSecond : Int -> Int
-flickerFrequencyToTicksPerSecond flickersPerSecond =
-    2 * flickersPerSecond
+numberOfFlickersToNumberOfTicks : Int -> Int
+numberOfFlickersToNumberOfTicks =
+    (*) 2
+
+
+flickerFrequencyToTicksPerSecond : Float -> Float
+flickerFrequencyToTicksPerSecond =
+    (*) 2
 
 
 generateKurves : Config -> ParticipatingPlayers -> Random.Generator (List Kurve)

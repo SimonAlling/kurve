@@ -563,7 +563,7 @@ subscriptions model =
                 Sub.none
 
             InGame (Active _ NotPaused (Spawning _ _)) ->
-                Time.every (1000 / toFloat (flickerFrequencyToTicksPerSecond model.config.spawn.flickerFrequency)) (always SpawnTick)
+                Time.every (1000 / flickerFrequencyToTicksPerSecond model.config.spawn.flickerFrequency) (always SpawnTick)
 
             InGame (Active _ NotPaused (Moving _ _ _)) ->
                 Browser.Events.onAnimationFrameDelta AnimationFrame
