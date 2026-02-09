@@ -330,23 +330,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                     rewindReplay Paused s finishedRound model
 
                 Key "ArrowRight" ->
-                    case s of
-                        Spawning _ _ ->
-                            ( model, DoNothing )
-
-                        Moving _ lastTick midRoundState ->
-                            let
-                                ( tickResult, whatToDraw ) =
-                                    MainLoop.consumeAnimationFrame
-                                        config
-                                        (toFloat config.replay.skipStepInMs |> MainLoop.withFloatingPointRoundingErrorCompensation)
-                                        MainLoop.noLeftoverFrameTime
-                                        lastTick
-                                        midRoundState
-                            in
-                            ( { model | appState = InGame (tickResultToGameState (Replay finishedRound) Paused tickResult) }
-                            , maybeDrawSomething whatToDraw
-                            )
+                    fastForwardReplay Paused s finishedRound model
 
                 Key "KeyE" ->
                     stepOneTick s finishedRound model
@@ -366,23 +350,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                     rewindReplay NotPaused s finishedRound model
 
                 Key "ArrowRight" ->
-                    case s of
-                        Spawning _ _ ->
-                            ( model, DoNothing )
-
-                        Moving _ lastTick midRoundState ->
-                            let
-                                ( tickResult, whatToDraw ) =
-                                    MainLoop.consumeAnimationFrame
-                                        config
-                                        (toFloat config.replay.skipStepInMs |> MainLoop.withFloatingPointRoundingErrorCompensation)
-                                        MainLoop.noLeftoverFrameTime
-                                        lastTick
-                                        midRoundState
-                            in
-                            ( { model | appState = InGame (tickResultToGameState (Replay finishedRound) NotPaused tickResult) }
-                            , maybeDrawSomething whatToDraw
-                            )
+                    fastForwardReplay NotPaused s finishedRound model
 
                 Key "KeyE" ->
                     stepOneTick s finishedRound model
@@ -451,6 +419,27 @@ stepOneTick activeGameState finishedRound model =
                         midRoundState
             in
             ( { model | appState = InGame (tickResultToGameState (Replay finishedRound) Paused tickResult) }
+            , maybeDrawSomething whatToDraw
+            )
+
+
+fastForwardReplay : PausedOrNot -> ActiveGameState -> FinishedRound -> Model -> ( Model, Effect )
+fastForwardReplay pausedOrNot activeGameState finishedRound ({ config } as model) =
+    case activeGameState of
+        Spawning _ _ ->
+            ( model, DoNothing )
+
+        Moving _ lastTick midRoundState ->
+            let
+                ( tickResult, whatToDraw ) =
+                    MainLoop.consumeAnimationFrame
+                        config
+                        (toFloat config.replay.skipStepInMs |> MainLoop.withFloatingPointRoundingErrorCompensation)
+                        MainLoop.noLeftoverFrameTime
+                        lastTick
+                        midRoundState
+            in
+            ( { model | appState = InGame (tickResultToGameState (Replay finishedRound) pausedOrNot tickResult) }
             , maybeDrawSomething whatToDraw
             )
 
