@@ -177,4 +177,9 @@ refreshRateInTests =
 
 getNumberOfSpawnAnimationFrames : SpawnConfig -> Int
 getNumberOfSpawnAnimationFrames spawnConfig =
-    2 * floor (toFloat refreshRateInTests / spawnConfig.flickerFrequency) * spawnConfig.numberOfFlickers + 1
+    let
+        framesPerFlicker : Float
+        framesPerFlicker =
+            toFloat refreshRateInTests / spawnConfig.flickerFrequency
+    in
+    round framesPerFlicker * spawnConfig.numberOfFlickers + round (framesPerFlicker / 2)
