@@ -97,10 +97,6 @@ expectedOutcome =
             [ -- Spawning:
               DrawSomething
                 { bodyDrawing = []
-                , headDrawing = []
-                }
-            , DrawSomething
-                { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
@@ -121,7 +117,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
+                , headDrawing = []
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -145,7 +141,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ) ]
+                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -169,7 +165,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.orange, { x = 20, y = 24 } ) ]
+                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -190,6 +186,10 @@ expectedOutcome =
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.orange, { x = 20, y = 24 } ), ( Colors.green, { x = 18, y = 47 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Colors.red, { x = 29, y = 29 } ), ( Colors.yellow, { x = 37, y = 37 } ), ( Colors.orange, { x = 20, y = 24 } ) ]
                 }
 
             -- Spawns are drawn permanently:

@@ -1,4 +1,4 @@
-module Spawn exposing (SpawnState, generateKurves, stepSpawnState)
+module Spawn exposing (SpawnState, flickerFrequencyToTicksPerSecond, generateKurves, makeSpawnState, stepSpawnState)
 
 import Config exposing (Config, SpawnConfig, WorldConfig)
 import Dict
@@ -8,6 +8,7 @@ import Input exposing (toStringSetControls)
 import Players exposing (ParticipatingPlayers)
 import Random
 import Random.Extra as Random
+import Round exposing (Round)
 import Thickness exposing (theThickness)
 import Types.Angle exposing (Angle(..))
 import Types.Distance as Distance
@@ -22,12 +23,27 @@ import World exposing (Position, distanceBetween)
 type alias SpawnState =
     { kurvesLeft : List Kurve
     , alreadySpawnedKurves : List Kurve
+    , ticksLeftStartingValue : Int
     , ticksLeft : Int
     }
 
 
-stepSpawnState : Config -> SpawnState -> ( Maybe SpawnState, WhatToDraw )
-stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
+makeSpawnState : Int -> Round -> SpawnState
+makeSpawnState numberOfFlickers round =
+    let
+        ticksLeftStartingValue : Int
+        ticksLeftStartingValue =
+            numberOfFlickersToNumberOfTicks numberOfFlickers - 1
+    in
+    { kurvesLeft = round |> .kurves |> .alive
+    , alreadySpawnedKurves = []
+    , ticksLeftStartingValue = ticksLeftStartingValue
+    , ticksLeft = ticksLeftStartingValue
+    }
+
+
+stepSpawnState : SpawnState -> ( Maybe SpawnState, WhatToDraw )
+stepSpawnState ({ kurvesLeft, alreadySpawnedKurves, ticksLeftStartingValue, ticksLeft } as spawnState) =
     case kurvesLeft of
         [] ->
             -- All Kurves have spawned.
@@ -41,7 +57,7 @@ stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
 
                 kurvesToDraw : List Kurve
                 kurvesToDraw =
-                    if isEven ticksLeft then
+                    if not (isEven ticksLeft) then
                         spawnedAndSpawning
 
                     else
@@ -50,12 +66,22 @@ stepSpawnState config { kurvesLeft, alreadySpawnedKurves, ticksLeft } =
                 newSpawnState : SpawnState
                 newSpawnState =
                     if ticksLeft == 0 then
-                        { kurvesLeft = waiting, alreadySpawnedKurves = spawnedAndSpawning, ticksLeft = config.spawn.numberOfFlickerTicks }
+                        { spawnState | kurvesLeft = waiting, alreadySpawnedKurves = spawnedAndSpawning, ticksLeft = ticksLeftStartingValue }
 
                     else
-                        { kurvesLeft = spawning :: waiting, alreadySpawnedKurves = alreadySpawnedKurves, ticksLeft = ticksLeft - 1 }
+                        { spawnState | ticksLeft = ticksLeft - 1 }
             in
             ( Just newSpawnState, drawSpawnsTemporarily kurvesToDraw )
+
+
+numberOfFlickersToNumberOfTicks : Int -> Int
+numberOfFlickersToNumberOfTicks =
+    (*) 2
+
+
+flickerFrequencyToTicksPerSecond : Float -> Float
+flickerFrequencyToTicksPerSecond =
+    (*) 2
 
 
 generateKurves : Config -> ParticipatingPlayers -> Random.Generator (List Kurve)

@@ -11,11 +11,12 @@ import Players exposing (initialPlayers)
 import Random
 import Set
 import Test
+import TestHelpers exposing (getNumberOfSpawnAnimationFrames)
 import TestHelpers.Effects exposing (clearsEverything, drawsBodySquares)
 import TestHelpers.EndToEnd exposing (endToEndTest)
 import TestHelpers.ListLength exposing (expectAtLeast, expectExactly)
 import TestHelpers.PlayerInput exposing (press, pressAndRelease, release)
-import TestHelpers.Randomness exposing (withSeed)
+import TestHelpers.Randomness exposing (withSeedIfInMenu)
 import Types.FrameTime exposing (FrameTime)
 
 
@@ -23,13 +24,13 @@ theTest : Test.Test
 theTest =
     let
         ( actualModel, actualEffects ) =
-            endToEndTest initialModel messages
+            endToEndTest initialModel (messages (getNumberOfSpawnAnimationFrames initialModel.config.spawn))
     in
     Test.describe "End-to-end test of an entire session"
         [ Test.test "Resulting model is correct" <|
             \_ ->
                 actualModel
-                    |> withSeed dummySeed
+                    |> withSeedIfInMenu dummySeed
                     |> Expect.equal expectedModel
         , Test.test "Body squares were drawn a considerable number of times" <|
             \_ ->
@@ -58,8 +59,8 @@ initialModel =
     }
 
 
-messages : List Msg
-messages =
+messages : Int -> List Msg
+messages numberOfSpawnAnimationFrames =
     List.concat
         [ -- User proceeds to lobby:
           pressAndRelease (Key "Space")
@@ -71,7 +72,7 @@ messages =
         , pressAndRelease (Key "Space")
 
         -- Kurves spawn:
-        , repeat 12 SpawnTick
+        , repeat numberOfSpawnAnimationFrames (AnimationFrame frameDeltaInMs)
 
         -- A short while passes by:
         , repeat 20 (AnimationFrame frameDeltaInMs)
@@ -87,7 +88,7 @@ messages =
         , pressAndRelease (Key "KeyR")
 
         -- User waits for the replay to finish:
-        , repeat 12 SpawnTick
+        , repeat numberOfSpawnAnimationFrames (AnimationFrame frameDeltaInMs)
         , repeat 20 (AnimationFrame frameDeltaInMs)
         , repeat 166 (AnimationFrame frameDeltaInMs)
 

@@ -1,4 +1,4 @@
-module MainLoop exposing (consumeAnimationFrame, consumeAnimationFrame_Spawning, noLeftoverFrameTime)
+module MainLoop exposing (consumeAnimationFrame, consumeAnimationFrame_Spawning, noLeftoverFrameTime, withFloatingPointRoundingErrorCompensation)
 
 {-| Based on Isaac Sukin's `MainLoop.js`.
 
@@ -11,7 +11,7 @@ import Config exposing (Config)
 import Drawing exposing (DrawingAccumulator, WhatToDraw)
 import Game exposing (TickResult(..))
 import Round exposing (Round)
-import Spawn exposing (SpawnState, stepSpawnState)
+import Spawn exposing (SpawnState, flickerFrequencyToTicksPerSecond, stepSpawnState)
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -31,7 +31,7 @@ consumeAnimationFrame_Spawning config delta leftoverTimeFromPreviousFrame ogSpaw
 
         timestep : FrameTime
         timestep =
-            1000 / config.spawn.flickerTicksPerSecond
+            1000 / flickerFrequencyToTicksPerSecond config.spawn.flickerFrequency
 
         recurse :
             LeftoverFrameTime
@@ -42,7 +42,7 @@ consumeAnimationFrame_Spawning config delta leftoverTimeFromPreviousFrame ogSpaw
             if timeLeftToConsume >= timestep then
                 let
                     ( maybeSpawnState, whatToDrawForThisTick ) =
-                        stepSpawnState config spawnStateSoFar
+                        stepSpawnState spawnStateSoFar
 
                     newDrawingAccumulator : DrawingAccumulator
                     newDrawingAccumulator =
@@ -122,3 +122,8 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
 noLeftoverFrameTime : LeftoverFrameTime
 noLeftoverFrameTime =
     0
+
+
+withFloatingPointRoundingErrorCompensation : Float -> Float
+withFloatingPointRoundingErrorCompensation skipStepInMs =
+    skipStepInMs + 1
