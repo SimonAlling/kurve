@@ -63,32 +63,46 @@ expectedOutcome =
     , effectsItShouldProduce =
         ExpectEffects
             [ -- Spawning:
-              DrawSomething
+              DoNothing
+            , DoNothing
+            , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.green, { x = 100, y = 458 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = []
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.green, { x = 100, y = 458 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = []
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.green, { x = 100, y = 458 } ) ]
                 }
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = []
                 }
 
             -- Spawn is drawn permanently:
+            , DoNothing
+            , DoNothing
             , DrawSomething
                 { bodyDrawing = [ ( Colors.green, { x = 100, y = 458 } ) ]
                 , headDrawing = []

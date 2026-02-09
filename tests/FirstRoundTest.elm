@@ -7,7 +7,7 @@ import Input exposing (Button(..))
 import List exposing (repeat)
 import Main exposing (Model, Msg(..), init)
 import Test
-import TestHelpers exposing (getNumberOfSpawnTicks)
+import TestHelpers exposing (getNumberOfSpawnAnimationFrames)
 import TestHelpers.EndToEnd exposing (endToEndTest)
 import TestHelpers.PlayerInput exposing (pressAndRelease)
 import Types.FrameTime exposing (FrameTime)
@@ -17,7 +17,7 @@ theTest : Test.Test
 theTest =
     let
         ( _, actualEffects ) =
-            endToEndTest initialModel (messages (getNumberOfSpawnTicks initialModel.config.spawn))
+            endToEndTest initialModel (messages (getNumberOfSpawnAnimationFrames initialModel.config.spawn))
     in
     Test.test "How the first round starts" <|
         \_ ->
@@ -31,7 +31,7 @@ initialModel =
 
 
 messages : Int -> List Msg
-messages numberOfSpawnTicks =
+messages numberOfSpawnAnimationFrames =
     List.concat
         [ -- User proceeds to lobby:
           pressAndRelease (Key "Space")
@@ -43,7 +43,7 @@ messages numberOfSpawnTicks =
         , pressAndRelease (Key "Space")
 
         -- Kurve spawns:
-        , repeat numberOfSpawnTicks SpawnTick
+        , repeat numberOfSpawnAnimationFrames (AnimationFrame frameDeltaInMs)
 
         -- Kurve moves for a while, preferably until it has created at least one hole:
         , repeat 240 (AnimationFrame frameDeltaInMs)
@@ -60,30 +60,44 @@ expectedEffects =
     , DoNothing
     , ClearEverything
     , DoNothing
+    , DoNothing
+    , DoNothing
     , DrawSomething
         { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
         }
+    , DoNothing
+    , DoNothing
     , DrawSomething
         { bodyDrawing = []
         , headDrawing = []
         }
+    , DoNothing
+    , DoNothing
     , DrawSomething
         { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
         }
+    , DoNothing
+    , DoNothing
     , DrawSomething
         { bodyDrawing = []
         , headDrawing = []
         }
+    , DoNothing
+    , DoNothing
     , DrawSomething
         { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
         }
+    , DoNothing
+    , DoNothing
     , DrawSomething
         { bodyDrawing = []
         , headDrawing = []
         }
+    , DoNothing
+    , DoNothing
     , DrawSomething
         { bodyDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
         , headDrawing = []
