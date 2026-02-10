@@ -81,6 +81,15 @@ $leftMargin: (
     );
     margin: $borderWidth;
     margin-left: $leftMargin + $borderWidth;
+
+    &.replay-mode {
+        box-shadow: (
+            0 0 0 1px #e2e2e2,
+            0 0 0 2px #c1c1c1,
+            0 0 0 3px #a1a1a1,
+            0 0 0 4px #818181,
+        );
+    }
 }
 
 $minWidthForCenteredCanvas: (
