@@ -269,11 +269,11 @@ buttonUsed button ({ config, pressedButtons } as model) =
                                     includeResultsFrom unpackedFinishedRound model.players
                             in
                             -- Quitting after the final round is not allowed in the original game.
-                            if not (isGameOver (participating playersWithRecentResults)) then
-                                ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt (Dialog.Open Dialog.Cancel)) }, DoNothing )
+                            if isGameOver (participating playersWithRecentResults) then
+                                ( handleUserInteraction Down button model, DoNothing )
 
                             else
-                                ( handleUserInteraction Down button model, DoNothing )
+                                ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt (Dialog.Open Dialog.Cancel)) }, DoNothing )
 
                         Key "Space" ->
                             proceedToNextRound finishedRound model
