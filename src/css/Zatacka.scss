@@ -284,7 +284,7 @@ button {
     bottom: 16px;
     left: 16px;
 
-    p {
+    p:not(:last-child) {
         margin-bottom: 8px;
     }
 }
