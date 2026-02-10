@@ -12,6 +12,7 @@ buttonsWithSpecialMeaning =
     , Key "Enter"
     , Key "Escape"
     , Key "KeyE"
+    , Key "KeyO"
     , Key "KeyR"
     , Key "Space"
     , Key "Tab"

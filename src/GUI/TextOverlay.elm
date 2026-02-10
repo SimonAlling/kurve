@@ -7,6 +7,7 @@ import GUI.Text
 import Game exposing (GameState(..), LiveOrReplay(..), PausedOrNot(..))
 import Html exposing (Html, div, p)
 import Html.Attributes as Attr
+import Overlay
 
 
 textOverlay : GameState -> Html msg
@@ -27,19 +28,25 @@ content gameState =
         Active (Live _) NotPaused _ ->
             []
 
-        Active (Replay _) Paused _ ->
-            -- Hint on how to continue deliberately omitted here. See the PR/commit that added this comment for details.
-            [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
+        Active (Replay overlayState _) Paused _ ->
+            Overlay.ifVisible
+                overlayState
+                -- Hint on how to continue deliberately omitted here. See the PR/commit that added this comment for details.
+                [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
-        Active (Replay _) NotPaused _ ->
-            [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
+        Active (Replay overlayState _) NotPaused _ ->
+            Overlay.ifVisible
+                overlayState
+                [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
         RoundOver (Live _) _ _ _ ->
             [ GUI.Hints.render HowToReplay
             ]
 
-        RoundOver (Replay _) _ _ _ ->
-            [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
+        RoundOver (Replay overlayState _) _ _ _ ->
+            Overlay.ifVisible
+                overlayState
+                [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
 
 pressSpaceToContinue : Html msg

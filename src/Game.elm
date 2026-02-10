@@ -24,6 +24,7 @@ import Drawing exposing (WhatToDraw, getColorAndDrawingPosition)
 import Events exposing (Prevention(..))
 import Holes exposing (HoleStatus, Holiness(..), getHoliness, updateHoleStatus)
 import Input exposing (Button)
+import Overlay
 import Players exposing (ParticipatingPlayers)
 import Random
 import Round exposing (FinishedRound(..), Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
@@ -87,7 +88,7 @@ getFinishedRound liveOrReplay =
         Live finishedRound ->
             finishedRound
 
-        Replay finishedRound ->
+        Replay _ finishedRound ->
             finishedRound
 
 
@@ -106,7 +107,7 @@ modifyMidRoundState f gameState =
 
 type LiveOrReplay liveData
     = Live liveData
-    | Replay FinishedRound
+    | Replay Overlay.State FinishedRound
 
 
 firstUpdateTick : Tick
@@ -214,10 +215,10 @@ tickResultToGameState liveOrReplay pausedOrNot tickResult =
                         Live () ->
                             Live finishedRound
 
-                        Replay originalFinishedRound ->
+                        Replay overlayState originalFinishedRound ->
                             -- The freshly computed finished round should™ be equal to the original one that we already have, so we should be able to use either one.
                             -- I think it feels more natural to keep the one we already have.
-                            Replay originalFinishedRound
+                            Replay overlayState originalFinishedRound
             in
             RoundOver liveOrReplayWithFinishedRound pausedOrNot tickThatEndedIt Dialog.NotOpen
 
@@ -455,7 +456,7 @@ eventPrevention playerButtons gameState =
                     -- * Player inputs clashing with keyboard shortcuts (e.g. Alt to open the menu bar or Ctrl + 1 to switch to the first tab)
                     PreventDefault
 
-                Replay _ ->
+                Replay _ _ ->
                     AllowDefaultExcept playerButtons
 
         RoundOver _ _ _ _ ->
