@@ -1,6 +1,21 @@
-module Input exposing (Button(..), ButtonDirection(..), toStringSetControls, updatePressedButtons)
+module Input exposing (Button(..), ButtonDirection(..), buttonsWithSpecialMeaning, toStringSetControls, updatePressedButtons)
 
 import Set exposing (Set)
+
+
+{-| Buttons that are used in the game for things other than controlling players. Please DRY up.
+-}
+buttonsWithSpecialMeaning : List Button
+buttonsWithSpecialMeaning =
+    [ Key "ArrowLeft"
+    , Key "ArrowRight"
+    , Key "Enter"
+    , Key "Escape"
+    , Key "KeyE"
+    , Key "KeyR"
+    , Key "Space"
+    , Key "Tab"
+    ]
 
 
 type ButtonDirection

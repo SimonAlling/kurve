@@ -23,6 +23,7 @@ import Dialog
 import Drawing exposing (WhatToDraw, getColorAndDrawingPosition)
 import Events exposing (Prevention(..))
 import Holes exposing (HoleStatus, Holiness(..), getHoliness, updateHoleStatus)
+import Input exposing (Button)
 import Players exposing (ParticipatingPlayers)
 import Random
 import Round exposing (FinishedRound(..), Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
@@ -443,8 +444,8 @@ recordUserInteraction pressedButtons nextTick kurve =
     modifyReversedInteractions ((::) (HappenedBefore nextTick newTurningState)) kurve
 
 
-eventPrevention : GameState -> Events.Prevention
-eventPrevention gameState =
+eventPrevention : List Button -> GameState -> Events.Prevention
+eventPrevention playerButtons gameState =
     case gameState of
         Active liveOrReplay _ _ ->
             case liveOrReplay of
@@ -455,7 +456,7 @@ eventPrevention gameState =
                     PreventDefault
 
                 Replay _ ->
-                    AllowDefault
+                    AllowDefaultExcept playerButtons
 
         RoundOver _ _ _ _ ->
-            AllowDefault
+            AllowDefaultExcept playerButtons

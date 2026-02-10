@@ -41,6 +41,7 @@ import Players
         ( AllPlayers
         , atLeastOneIsParticipating
         , everyoneLeaves
+        , getAllPlayerButtons
         , handlePlayerJoiningOrLeaving
         , includeResultsFrom
         , initialPlayers
@@ -582,9 +583,14 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
+    let
+        playerButtons : List Button
+        playerButtons =
+            getAllPlayerButtons model.players
+    in
     case model.appState of
         InMenu Lobby _ ->
-            elmRoot Events.AllowDefault
+            elmRoot (Events.AllowDefaultExcept playerButtons)
                 [ Attr.class "in-game-ish"
                 ]
                 [ div
@@ -600,14 +606,14 @@ view model =
                 ]
 
         InMenu GameOver _ ->
-            elmRoot Events.AllowDefault [] [ endScreen model.players ]
+            elmRoot (Events.AllowDefaultExcept playerButtons) [] [ endScreen model.players ]
 
         InMenu SplashScreen _ ->
-            elmRoot Events.AllowDefault [] [ splashScreen ]
+            elmRoot (Events.AllowDefaultExcept playerButtons) [] [ splashScreen ]
 
         InGame gameState ->
             elmRoot
-                (Game.eventPrevention gameState)
+                (Game.eventPrevention playerButtons gameState)
                 [ Attr.class "in-game-ish"
                 , Attr.class magicClassNameToPreventUnload
                 ]
