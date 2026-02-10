@@ -33,7 +33,7 @@ default =
         , desiredMinimumDistanceTurningRadiusFactor = 1
         , protectionAudacity = 0.25 -- Closer to 1 ⇔ less risk of spawn kills but higher risk of no solution
         , flickerFrequency = 10 -- How many times per second the spawning Kurve performs a full cycle of being visible and then invisible.
-        , numberOfFlickers = 3
+        , numberOfFlickers = 8
         , angleInterval = ( 0, pi )
         }
     , world =
