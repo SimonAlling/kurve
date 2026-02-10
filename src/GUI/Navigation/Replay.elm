@@ -1,9 +1,7 @@
 module GUI.Navigation.Replay exposing (replayNavigation)
 
-import Colors
 import GUI.Navigation
-import GUI.Text
-import Html exposing (Html, div, p)
+import Html exposing (Html, div)
 import Html.Attributes as Attr
 
 
@@ -13,26 +11,11 @@ replayNavigation =
         navigationEntries : List GUI.Navigation.Entry
         navigationEntries =
             makeNavigationEntries
-
-        firstColumnWidth : Int
-        firstColumnWidth =
-            GUI.Navigation.computeFirstColumnWidth navigationEntries
     in
     div
         [ Attr.class "replayNavigation"
         ]
-        (navigationEntries
-            |> List.map
-                (\entry ->
-                    p
-                        []
-                        (GUI.Text.string
-                            (GUI.Text.Size 1)
-                            Colors.white
-                            (GUI.Navigation.showEntry firstColumnWidth entry)
-                        )
-                )
-        )
+        (GUI.Navigation.entries navigationEntries)
 
 
 makeNavigationEntries : List GUI.Navigation.Entry
