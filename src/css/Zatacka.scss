@@ -33,7 +33,7 @@ body {
     align-items: center;
     justify-content: center;
 
-    &.in-game {
+    &.in-game-ish {
         background-color: #3C3C3C;
     }
 }
@@ -89,13 +89,13 @@ $minWidthForCenteredCanvas: (
 );
 
 @media (max-width: $minWidthForCenteredCanvas) {
-    #elm-root.in-game {
+    #elm-root.in-game-ish {
         justify-content: flex-end; // Prioritizes visible scoreboard over centered canvas.
     }
 }
 
 @media (min-width: $minWidthForCenteredCanvas) {
-    #elm-root.in-game {
+    #elm-root.in-game-ish {
         justify-content: center;
     }
 }
