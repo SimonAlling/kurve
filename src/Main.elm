@@ -23,6 +23,7 @@ import Game
         , PausedOrNot(..)
         , firstUpdateTick
         , getFinishedRound
+        , isReplay
         , modifyMidRoundState
         , prepareLiveRound
         , prepareReplayRound
@@ -621,8 +622,9 @@ view model =
                     [ Attr.id "wrapper"
                     ]
                     [ div
-                        [ Attr.id "border"
-                        ]
+                        (Attr.id "border"
+                            :: borderAttributes gameState
+                        )
                         [ canvas
                             [ Attr.id "bodyCanvas"
                             , Attr.width 559
@@ -647,6 +649,15 @@ view model =
 elmRoot : Events.Prevention -> List (Html.Attribute Msg) -> List (Html Msg) -> Html Msg
 elmRoot prevention attrs content =
     div (Attr.id "elm-root" :: attrs) (Events.eventsElement prevention ButtonUsed :: content)
+
+
+borderAttributes : GameState -> List (Html.Attribute msg)
+borderAttributes gameState =
+    if isReplay gameState then
+        [ Attr.class "replay-mode" ]
+
+    else
+        []
 
 
 main : Program () Model Msg
