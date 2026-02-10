@@ -29,24 +29,18 @@ content gameState =
             []
 
         Active (Replay overlayState _) Paused _ ->
-            Overlay.ifVisible
-                overlayState
-                -- Hint on how to continue deliberately omitted here. See the PR/commit that added this comment for details.
-                [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
+            -- Hint on how to continue deliberately omitted here. See the PR/commit that added this comment for details.
+            Overlay.ifVisible overlayState [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
         Active (Replay overlayState _) NotPaused _ ->
-            Overlay.ifVisible
-                overlayState
-                [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
+            Overlay.ifVisible overlayState [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
         RoundOver (Live _) _ _ _ ->
             [ GUI.Hints.render HowToReplay
             ]
 
         RoundOver (Replay overlayState _) _ _ _ ->
-            Overlay.ifVisible
-                overlayState
-                [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
+            Overlay.ifVisible overlayState [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
 
 pressSpaceToContinue : Html msg
