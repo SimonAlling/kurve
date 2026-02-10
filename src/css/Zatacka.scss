@@ -205,11 +205,14 @@ button {
     box-sizing: border-box;
     padding-bottom: 80px;
 
-    .source-link {
+    .splashscreen-link {
+        cursor: pointer;
         opacity: 0.5;
+
+        margin-top: 8px;
     }
 
-    .source-link:hover, .source-link:focus {
+    .splashscreen-link:hover, .splashscreen-link:focus {
         opacity: 1;
     }
 }
