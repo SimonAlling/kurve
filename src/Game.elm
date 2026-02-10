@@ -8,6 +8,7 @@ module Game exposing
     , firstUpdateTick
     , getCurrentRound
     , getFinishedRound
+    , isReplay
     , modifyMidRoundState
     , prepareLiveRound
     , prepareReplayRound
@@ -108,6 +109,26 @@ modifyMidRoundState f gameState =
 type LiveOrReplay liveData
     = Live liveData
     | Replay Overlay.State FinishedRound
+
+
+isReplay : GameState -> Bool
+isReplay gameState =
+    case gameState of
+        Active liveOrReplay _ _ ->
+            case liveOrReplay of
+                Live _ ->
+                    False
+
+                Replay _ _ ->
+                    True
+
+        RoundOver liveOrReplay _ _ _ ->
+            case liveOrReplay of
+                Live _ ->
+                    False
+
+                Replay _ _ ->
+                    True
 
 
 firstUpdateTick : Tick
