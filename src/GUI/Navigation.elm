@@ -1,8 +1,32 @@
-module GUI.Navigation exposing (Entry, computeFirstColumnWidth, showEntry)
+module GUI.Navigation exposing (Entry, entries)
+
+import Colors
+import GUI.Text
+import Html exposing (p)
 
 
 type alias Entry =
     ( String, String )
+
+
+entries : List Entry -> List (Html.Html msg)
+entries navigationEntries =
+    let
+        firstColumnWidth : Int
+        firstColumnWidth =
+            computeFirstColumnWidth navigationEntries
+    in
+    navigationEntries
+        |> List.map
+            (\entry ->
+                p
+                    []
+                    (GUI.Text.string
+                        (GUI.Text.Size 1)
+                        Colors.white
+                        (showEntry firstColumnWidth entry)
+                    )
+            )
 
 
 showEntry : Int -> Entry -> String
