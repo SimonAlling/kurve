@@ -24,4 +24,5 @@ makeNavigationEntries =
     , ( "Arrows", "Seek" )
     , ( "E", "Step" )
     , ( "R", "Restart" )
+    , ( "O", "Overlay" )
     ]
