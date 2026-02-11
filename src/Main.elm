@@ -70,6 +70,9 @@ type alias Model =
 port focusLost : (() -> msg) -> Sub msg
 
 
+port toggleFullscreen : () -> Cmd msg
+
+
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedButtons = Set.empty
@@ -100,6 +103,7 @@ type Msg
     | ButtonUsed ButtonDirection Button
     | DialogChoiceMade Dialog.Option
     | FocusLost
+    | RequestToggleFullscreen
 
 
 update : Msg -> Model -> ( Model, Effect )
@@ -118,6 +122,9 @@ update msg ({ config } as model) =
 
                 _ ->
                     ( model, DoNothing )
+
+        RequestToggleFullscreen ->
+            ( model, ToggleFullscreen )
 
         SpawnTick ->
             case model.appState of
@@ -637,7 +644,7 @@ view model =
             elmRoot (Events.AllowDefaultExcept playerButtons) [] [ endScreen model.players ]
 
         InMenu SplashScreen _ ->
-            elmRoot (Events.AllowDefaultExcept playerButtons) [] [ splashScreen ]
+            elmRoot (Events.AllowDefaultExcept playerButtons) [] [ splashScreen RequestToggleFullscreen ]
 
         InGame gameState ->
             elmRoot
@@ -713,6 +720,9 @@ makeCmd effect =
 
         ClearEverything ->
             clearEverything
+
+        ToggleFullscreen ->
+            toggleFullscreen ()
 
         DoNothing ->
             Cmd.none
