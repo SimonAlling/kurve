@@ -1,4 +1,4 @@
-module TestScenarios.CrashingWhileBecomingSolid exposing (config, expectedOutcome, spawnedKurves)
+module TestScenarios.CrashingAfterBecomingSolidAtSameDrawingPosition_Bottom exposing (config, expectedOutcome, spawnedKurves)
 
 import Colors
 import Config exposing (Config)
@@ -13,7 +13,7 @@ import Types.Kurve exposing (Kurve)
 config : Config
 config =
     Config.default
-        |> Config.withHardcodedHoles 100 8
+        |> Config.withHardcodedHoles 100 4
 
 
 green : Kurve
@@ -22,12 +22,12 @@ green =
         { color = Colors.green
         , id = playerIds.green
         , state =
-            { position = ( 546, 100 )
-            , direction = Angle (pi / 2)
+            { position = ( 103.6, 473.6 )
+            , direction = Angle (pi / 4)
             , holeStatus =
                 RandomHoles
                     { holiness = Solid
-                    , ticksLeft = 2
+                    , ticksLeft = 1
                     , holeSeed = Random.initialSeed 0
                     }
             }
@@ -41,12 +41,12 @@ spawnedKurves =
 
 expectedOutcome : RoundOutcome
 expectedOutcome =
-    { tickThatShouldEndIt = tickNumber 11
+    { tickThatShouldEndIt = tickNumber 7
     , howItShouldEnd =
         { aliveAtTheEnd = []
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { x = 557, y = 100 }
+              , theDrawingPositionItNeverMadeItTo = { x = 108, y = 478 }
               }
             ]
         }
@@ -55,7 +55,7 @@ expectedOutcome =
             [ -- Spawning:
               DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 546, y = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 103, y = 473 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -63,7 +63,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 546, y = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 103, y = 473 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -71,7 +71,7 @@ expectedOutcome =
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 546, y = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 103, y = 473 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
@@ -80,57 +80,41 @@ expectedOutcome =
 
             -- Draw spawn position permanently:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 546, y = 100 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 103, y = 473 } ) ]
                 , headDrawing = []
                 }
 
             -- Start moving:
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 547, y = 100 } ) ]
-                , headDrawing = [ ( Colors.green, { x = 547, y = 100 } ) ]
-                }
-            , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 548, y = 100 } ) ]
-                , headDrawing = [ ( Colors.green, { x = 548, y = 100 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 104, y = 474 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 104, y = 474 } ) ]
                 }
 
             -- Start of hole:
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 549, y = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 105, y = 475 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 550, y = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 105, y = 475 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 551, y = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 106, y = 476 } ) ]
                 }
             , DrawSomething
                 { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 552, y = 100 } ) ]
-                }
-            , DrawSomething
-                { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 553, y = 100 } ) ]
-                }
-            , DrawSomething
-                { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 554, y = 100 } ) ]
-                }
-            , DrawSomething
-                { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 555, y = 100 } ) ]
-                }
-            , DrawSomething
-                { bodyDrawing = []
-                , headDrawing = [ ( Colors.green, { x = 556, y = 100 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 107, y = 477 } ) ]
                 }
 
-            -- Draw death position permanently:
+            -- Start of solid segment (note that drawing position is same as previous one):
             , DrawSomething
-                { bodyDrawing = [ ( Colors.green, { x = 556, y = 100 } ) ]
+                { bodyDrawing = [ ( Colors.green, { x = 107, y = 477 } ) ]
+                , headDrawing = [ ( Colors.green, { x = 107, y = 477 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
                 , headDrawing = []
                 }
             ]

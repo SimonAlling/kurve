@@ -24,16 +24,16 @@ default =
         , holes =
             { minSolidTicks = 90
             , maxSolidTicks = 300
-            , minHolyTicks = 9
-            , maxHolyTicks = 13
+            , minHolyTicks = 7
+            , maxHolyTicks = 11
             }
         }
     , spawn =
         { margin = 100 -- The minimum distance from the wall that a Kurve can spawn.
         , desiredMinimumDistanceTurningRadiusFactor = 1
         , protectionAudacity = 0.25 -- Closer to 1 ⇔ less risk of spawn kills but higher risk of no solution
-        , flickerTicksPerSecond = 20 -- At each tick, the spawning Kurve is toggled between visible and invisible.
-        , numberOfFlickerTicks = 5
+        , flickerFrequency = 10 -- How many times per second the spawning Kurve performs a full cycle of being visible and then invisible.
+        , numberOfFlickers = 3
         , angleInterval = ( 0, pi )
         }
     , world =
@@ -66,8 +66,8 @@ type alias SpawnConfig =
     { margin : Float
     , desiredMinimumDistanceTurningRadiusFactor : Float
     , protectionAudacity : Float
-    , flickerTicksPerSecond : Float
-    , numberOfFlickerTicks : Int
+    , flickerFrequency : Float
+    , numberOfFlickers : Int
     , angleInterval : ( Float, Float )
     }
 

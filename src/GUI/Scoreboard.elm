@@ -1,4 +1,4 @@
-module GUI.Scoreboard exposing (scoreboard)
+module GUI.Scoreboard exposing (scoreboard, scoreboardContainer)
 
 import Dict
 import GUI.Digits
@@ -14,11 +14,16 @@ import Types.Score exposing (Score(..))
 
 scoreboard : GameState -> AllPlayers -> Html msg
 scoreboard gameState players =
+    scoreboardContainer
+        (content players (Game.getCurrentRound gameState))
+
+
+scoreboardContainer : List (Html msg) -> Html msg
+scoreboardContainer =
     div
         [ Attr.id "scoreboard"
         , Attr.class "canvasHeight"
         ]
-        (content players (Game.getCurrentRound gameState))
 
 
 content : AllPlayers -> Round -> List (Html msg)

@@ -3,11 +3,12 @@ module Game exposing
     , GameState(..)
     , LiveOrReplay(..)
     , PausedOrNot(..)
-    , SpawnState
     , TickResult(..)
+    , eventPrevention
     , firstUpdateTick
-    , getActiveRound
     , getCurrentRound
+    , getFinishedRound
+    , isReplay
     , modifyMidRoundState
     , prepareLiveRound
     , prepareReplayRound
@@ -18,15 +19,18 @@ module Game exposing
     )
 
 import Color exposing (Color)
-import Config exposing (Config)
+import Config exposing (Config, WorldConfig)
 import Dialog
 import Drawing exposing (WhatToDraw, getColorAndDrawingPosition)
+import Events exposing (Prevention(..))
 import Holes exposing (HoleStatus, Holiness(..), getHoliness, updateHoleStatus)
+import Input exposing (Button)
+import Overlay
 import Players exposing (ParticipatingPlayers)
 import Random
-import Round exposing (Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
+import Round exposing (FinishedRound(..), Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
 import Set exposing (Set)
-import Spawn exposing (generateKurves)
+import Spawn exposing (SpawnState, generateKurves)
 import Thickness exposing (theThickness)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle)
@@ -36,12 +40,12 @@ import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
 import Types.TurningState exposing (TurningState)
-import World exposing (DrawingPosition, Pixel, Position)
+import World exposing (DrawingPosition, OccupiedPixels, Pixel, Position)
 
 
 type GameState
-    = Active LiveOrReplay PausedOrNot ActiveGameState
-    | RoundOver Round Dialog.State
+    = Active (LiveOrReplay ()) PausedOrNot ActiveGameState
+    | RoundOver (LiveOrReplay FinishedRound) PausedOrNot Tick Dialog.State
 
 
 type PausedOrNot
@@ -56,7 +60,7 @@ type ActiveGameState
 
 type TickResult a
     = RoundKeepsGoing a
-    | RoundEnds Round
+    | RoundEnds Tick FinishedRound
 
 
 getCurrentRound : GameState -> Round
@@ -65,8 +69,8 @@ getCurrentRound gameState =
         Active _ _ activeGameState ->
             getActiveRound activeGameState
 
-        RoundOver round _ ->
-            round
+        RoundOver liveOrReplay _ _ _ ->
+            getFinishedRound liveOrReplay |> Round.unpackFinished
 
 
 getActiveRound : ActiveGameState -> Round
@@ -79,29 +83,52 @@ getActiveRound activeGameState =
             round
 
 
+getFinishedRound : LiveOrReplay FinishedRound -> FinishedRound
+getFinishedRound liveOrReplay =
+    case liveOrReplay of
+        Live finishedRound ->
+            finishedRound
+
+        Replay _ finishedRound ->
+            finishedRound
+
+
 modifyMidRoundState : (Round -> Round) -> GameState -> GameState
 modifyMidRoundState f gameState =
     case gameState of
-        Active p liveOrReplay (Moving t leftoverFrameTime midRoundState) ->
-            Active p liveOrReplay <| Moving t leftoverFrameTime <| f midRoundState
+        Active liveOrReplay p (Moving t leftoverFrameTime midRoundState) ->
+            Active liveOrReplay p <| Moving t leftoverFrameTime <| f midRoundState
 
-        Active p liveOrReplay (Spawning s midRoundState) ->
-            Active p liveOrReplay <| Spawning s <| f midRoundState
+        Active liveOrReplay p (Spawning s midRoundState) ->
+            Active liveOrReplay p <| Spawning s <| f midRoundState
 
         _ ->
             gameState
 
 
-type LiveOrReplay
-    = Live
-    | Replay
+type LiveOrReplay liveData
+    = Live liveData
+    | Replay Overlay.State FinishedRound
 
 
-type alias SpawnState =
-    { kurvesLeft : List Kurve
-    , alreadySpawnedKurves : List Kurve
-    , ticksLeft : Int
-    }
+isReplay : GameState -> Bool
+isReplay gameState =
+    case gameState of
+        Active liveOrReplay _ _ ->
+            case liveOrReplay of
+                Live _ ->
+                    False
+
+                Replay _ _ ->
+                    True
+
+        RoundOver liveOrReplay _ _ _ ->
+            case liveOrReplay of
+                Live _ ->
+                    False
+
+                Replay _ _ ->
+                    True
 
 
 firstUpdateTick : Tick
@@ -120,16 +147,16 @@ prepareLiveRound config seed players pressedButtons =
         ( theKurves, seedAfterSpawn ) =
             Random.step (generateKurves config players) seed |> Tuple.mapFirst recordInitialInteractions
     in
-    prepareRoundFromKnownInitialState { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves }
+    prepareRoundFromKnownInitialState config.world { seedAfterSpawn = seedAfterSpawn, spawnedKurves = theKurves }
 
 
-prepareReplayRound : RoundInitialState -> Round
-prepareReplayRound initialState =
-    prepareRoundFromKnownInitialState initialState
+prepareReplayRound : WorldConfig -> RoundInitialState -> Round
+prepareReplayRound worldConfig initialState =
+    prepareRoundFromKnownInitialState worldConfig initialState
 
 
-prepareRoundFromKnownInitialState : RoundInitialState -> Round
-prepareRoundFromKnownInitialState initialState =
+prepareRoundFromKnownInitialState : WorldConfig -> RoundInitialState -> Round
+prepareRoundFromKnownInitialState worldConfig initialState =
     let
         theKurves : List Kurve
         theKurves =
@@ -138,7 +165,7 @@ prepareRoundFromKnownInitialState initialState =
         round : Round
         round =
             { kurves = { alive = theKurves, dead = [] }
-            , occupiedPixels = initialOccupiedPixels theKurves
+            , occupiedPixels = initialOccupiedPixels worldConfig theKurves
             , initialState = initialState
             , seed = initialState.seedAfterSpawn
             }
@@ -146,16 +173,16 @@ prepareRoundFromKnownInitialState initialState =
     round
 
 
-initialOccupiedPixels : List Kurve -> Set Pixel
-initialOccupiedPixels =
+initialOccupiedPixels : WorldConfig -> List Kurve -> OccupiedPixels
+initialOccupiedPixels worldConfig =
     let
-        placeKurve : Kurve -> Set Pixel -> Set Pixel
+        placeKurve : Kurve -> OccupiedPixels -> OccupiedPixels
         placeKurve kurve =
             kurve.state.position
                 |> World.drawingPosition
                 |> World.occupyDrawingPosition
     in
-    List.foldl placeKurve Set.empty
+    List.foldl placeKurve (World.empty worldConfig)
 
 
 reactToTick : Config -> Tick -> Round -> ( TickResult Round, WhatToDraw )
@@ -183,7 +210,7 @@ reactToTick config tick currentRound =
         tickResult : TickResult Round
         tickResult =
             if roundIsOver newKurves then
-                RoundEnds newCurrentRound
+                RoundEnds tick (Finished newCurrentRound)
 
             else
                 RoundKeepsGoing newCurrentRound
@@ -195,24 +222,36 @@ reactToTick config tick currentRound =
     )
 
 
-tickResultToGameState : LiveOrReplay -> PausedOrNot -> TickResult ( LeftoverFrameTime, Tick, Round ) -> GameState
+tickResultToGameState : LiveOrReplay () -> PausedOrNot -> TickResult ( LeftoverFrameTime, Tick, Round ) -> GameState
 tickResultToGameState liveOrReplay pausedOrNot tickResult =
     case tickResult of
         RoundKeepsGoing ( leftoverFrameTime, tick, midRoundState ) ->
             Active liveOrReplay pausedOrNot (Moving leftoverFrameTime tick midRoundState)
 
-        RoundEnds finishedRound ->
-            RoundOver finishedRound Dialog.NotOpen
+        RoundEnds tickThatEndedIt finishedRound ->
+            let
+                liveOrReplayWithFinishedRound : LiveOrReplay FinishedRound
+                liveOrReplayWithFinishedRound =
+                    case liveOrReplay of
+                        Live () ->
+                            Live finishedRound
+
+                        Replay overlayState originalFinishedRound ->
+                            -- The freshly computed finished round should™ be equal to the original one that we already have, so we should be able to use either one.
+                            -- I think it feels more natural to keep the one we already have.
+                            Replay overlayState originalFinishedRound
+            in
+            RoundOver liveOrReplayWithFinishedRound pausedOrNot tickThatEndedIt Dialog.NotOpen
 
 
 checkIndividualKurve :
     Config
     -> Tick
     -> Kurve
-    -> ( Kurves, Set World.Pixel, List ( Color, DrawingPosition ) )
+    -> ( Kurves, OccupiedPixels, List ( Color, DrawingPosition ) )
     ->
         ( Kurves
-        , Set World.Pixel
+        , OccupiedPixels
         , List ( Color, DrawingPosition )
         )
 checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredDrawingPositions ) =
@@ -224,7 +263,7 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
         ( newKurveDrawingPositions, checkedKurve, fate ) =
             updateKurve config turningState occupiedPixels kurve
 
-        occupiedPixelsAfterCheckingThisKurve : Set Pixel
+        occupiedPixelsAfterCheckingThisKurve : OccupiedPixels
         occupiedPixelsAfterCheckingThisKurve =
             List.foldl
                 World.occupyDrawingPosition
@@ -256,7 +295,7 @@ type alias HolinessTransition =
     }
 
 
-evaluateMove : Config -> Position -> Position -> Set Pixel -> HolinessTransition -> ( List DrawingPosition, Fate )
+evaluateMove : Config -> Position -> Position -> OccupiedPixels -> HolinessTransition -> ( List DrawingPosition, Fate )
 evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransition =
     let
         startingPointAsDrawingPosition : DrawingPosition
@@ -275,7 +314,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
 
                 current :: rest ->
                     let
-                        theHitbox : Set Pixel
+                        theHitbox : List Pixel
                         theHitbox =
                             World.hitbox lastChecked current
 
@@ -290,7 +329,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
 
                         crashesIntoKurve : Bool
                         crashesIntoKurve =
-                            not <| Set.isEmpty <| Set.intersect theHitbox occupiedPixels
+                            List.any (World.isOccupied occupiedPixels) theHitbox
 
                         dies : Bool
                         dies =
@@ -316,8 +355,20 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
                     []
 
                 ( Lives, Solid ) ->
-                    -- The Kurve lives and is solid. Draw everything it wanted to draw.
-                    checkedPositionsReversed
+                    case oldHoliness of
+                        Holy ->
+                            -- The Kurve lives and just became solid. Draw everything it wanted to draw.
+                            -- If the Kurve didn't visually move at all in this tick, then it should still be drawn.
+                            -- There are at least two ways this can happen; see the PR/commit that added this comment.
+                            if List.isEmpty checkedPositionsReversed then
+                                List.singleton startingPointAsDrawingPosition
+
+                            else
+                                checkedPositionsReversed
+
+                        Solid ->
+                            -- The Kurve lives and is solid. Draw everything it wanted to draw.
+                            checkedPositionsReversed
 
                 ( Dies, Holy ) ->
                     case oldHoliness of
@@ -349,7 +400,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
     ( positionsToDraw |> List.reverse, evaluatedStatus )
 
 
-updateKurve : Config -> TurningState -> Set Pixel -> Kurve -> ( List DrawingPosition, Kurve, Fate )
+updateKurve : Config -> TurningState -> OccupiedPixels -> Kurve -> ( List DrawingPosition, Kurve, Fate )
 updateKurve config turningState occupiedPixels kurve =
     let
         distanceTraveledSinceLastTick : Float
@@ -413,3 +464,21 @@ recordUserInteraction pressedButtons nextTick kurve =
             computeTurningState pressedButtons kurve
     in
     modifyReversedInteractions ((::) (HappenedBefore nextTick newTurningState)) kurve
+
+
+eventPrevention : List Button -> GameState -> Events.Prevention
+eventPrevention playerButtons gameState =
+    case gameState of
+        Active liveOrReplay _ _ ->
+            case liveOrReplay of
+                Live _ ->
+                    -- The goal is to prevent as many inadvertent disruptions as possible while playing. Examples:
+                    -- * Accidentally hitting F5
+                    -- * Player inputs clashing with keyboard shortcuts (e.g. Alt to open the menu bar or Ctrl + 1 to switch to the first tab)
+                    PreventDefault
+
+                Replay _ _ ->
+                    AllowDefaultExcept playerButtons
+
+        RoundOver _ _ _ _ ->
+            AllowDefaultExcept playerButtons

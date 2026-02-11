@@ -18,6 +18,9 @@ drawsBodySquares effect =
         ClearEverything ->
             False
 
+        ToggleFullscreen ->
+            False
+
         DoNothing ->
             False
 
@@ -33,6 +36,9 @@ clearsEverything effect =
 
         ClearEverything ->
             True
+
+        ToggleFullscreen ->
+            False
 
         DoNothing ->
             False

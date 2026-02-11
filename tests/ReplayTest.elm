@@ -2,16 +2,19 @@ module ReplayTest exposing (theTest)
 
 import App exposing (AppState(..))
 import Colors
+import Config exposing (Config)
 import Effect exposing (Effect(..))
 import Expect
 import Game exposing (ActiveGameState(..), GameState(..), LiveOrReplay(..), PausedOrNot(..), prepareReplayRound)
 import Input exposing (Button(..))
 import List exposing (repeat)
 import Main exposing (Model, Msg(..))
+import Overlay
 import Players exposing (initialPlayers)
 import Round exposing (Round)
 import Set
 import Test
+import TestHelpers exposing (playOutRound)
 import TestHelpers.EndToEnd exposing (endToEndTest)
 import TestHelpers.PlayerInput exposing (pressAndRelease)
 import TestScenarioHelpers exposing (roundWith)
@@ -32,18 +35,27 @@ theTest =
                 |> Expect.equalLists expectedEffects
 
 
+config : Config
+config =
+    TestScenarios.ReplayStraightVerticalLine.config
+
+
 initialModel : Model
 initialModel =
+    let
+        ( _, finishedRound ) =
+            playOutRound config (roundWith TestScenarios.ReplayStraightVerticalLine.spawnedKurves)
+    in
     { pressedButtons = Set.empty
-    , appState = InGame (Active Replay NotPaused (Moving 0 Tick.genesis initialRound))
-    , config = TestScenarios.ReplayStraightVerticalLine.config
+    , appState = InGame (Active (Replay Overlay.Visible finishedRound) NotPaused (Moving 0 Tick.genesis initialRound))
+    , config = config
     , players = initialPlayers
     }
 
 
 initialRound : Round
 initialRound =
-    prepareReplayRound (roundWith TestScenarios.ReplayStraightVerticalLine.spawnedKurves)
+    prepareReplayRound config.world (roundWith TestScenarios.ReplayStraightVerticalLine.spawnedKurves)
 
 
 messages : List Msg
@@ -557,14 +569,11 @@ expectedEffects =
             , ( Colors.green, { x = 100, y = 117 } )
             , ( Colors.green, { x = 100, y = 118 } )
             , ( Colors.green, { x = 100, y = 119 } )
+            , ( Colors.green, { x = 100, y = 120 } )
             ]
-        , headDrawing = [ ( Colors.green, { x = 100, y = 119 } ) ]
-        }
-    , DoNothing
-    , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 100, y = 120 } ) ]
         , headDrawing = [ ( Colors.green, { x = 100, y = 120 } ) ]
         }
+    , DoNothing
     , DrawSomething
         { bodyDrawing = [ ( Colors.green, { x = 100, y = 121 } ) ]
         , headDrawing = [ ( Colors.green, { x = 100, y = 121 } ) ]
@@ -600,6 +609,10 @@ expectedEffects =
     , DrawSomething
         { bodyDrawing = [ ( Colors.green, { x = 100, y = 129 } ) ]
         , headDrawing = [ ( Colors.green, { x = 100, y = 129 } ) ]
+        }
+    , DrawSomething
+        { bodyDrawing = [ ( Colors.green, { x = 100, y = 130 } ) ]
+        , headDrawing = [ ( Colors.green, { x = 100, y = 130 } ) ]
         }
     ]
 

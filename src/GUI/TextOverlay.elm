@@ -1,10 +1,13 @@
 module GUI.TextOverlay exposing (textOverlay)
 
 import Colors
+import GUI.Hints exposing (Hint(..))
+import GUI.Navigation.Replay
 import GUI.Text
 import Game exposing (GameState(..), LiveOrReplay(..), PausedOrNot(..))
 import Html exposing (Html, div, p)
 import Html.Attributes as Attr
+import Overlay
 
 
 textOverlay : GameState -> Html msg
@@ -19,21 +22,25 @@ textOverlay gameState =
 content : GameState -> List (Html msg)
 content gameState =
     case gameState of
-        Active Live Paused _ ->
+        Active (Live _) Paused _ ->
             [ pressSpaceToContinue ]
 
-        Active Live NotPaused _ ->
+        Active (Live _) NotPaused _ ->
             []
 
-        Active Replay Paused _ ->
+        Active (Replay overlayState _) Paused _ ->
             -- Hint on how to continue deliberately omitted here. See the PR/commit that added this comment for details.
-            [ replayIndicator ]
+            Overlay.ifVisible overlayState [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
-        Active Replay NotPaused _ ->
-            [ replayIndicator ]
+        Active (Replay overlayState _) NotPaused _ ->
+            Overlay.ifVisible overlayState [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
-        RoundOver _ _ ->
-            []
+        RoundOver (Live _) _ _ _ ->
+            [ GUI.Hints.render HowToReplay
+            ]
+
+        RoundOver (Replay overlayState _) _ _ _ ->
+            Overlay.ifVisible overlayState [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
 
 pressSpaceToContinue : Html msg
