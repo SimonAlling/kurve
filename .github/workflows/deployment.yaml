@@ -55,11 +55,11 @@ jobs:
 
       - name: Copy legacy JavaScript version
         run: |
-          cp --recursive legacy-javascript-version/ website-root # Assumption: target directory doesn't already exist; created here.
+          cp --recursive legacy-javascript-version/ website-root/legacy # Assumption: target directory doesn't already exist; created here.
 
       - name: Copy Elm version
         run: |
-          cp --recursive elm-version/_site/ website-root/elm
+          cp --recursive elm-version/_site/ website-root
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5.0.0
