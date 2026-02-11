@@ -48,7 +48,8 @@ expectedOutcome =
         }
     , effectsItShouldProduce =
         ExpectEffects
-            [ DrawSomething
+            [ -- Spawning:
+              DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.green, { x = 100, y = 460 } ) ]
                 }
@@ -72,10 +73,14 @@ expectedOutcome =
                 { bodyDrawing = []
                 , headDrawing = []
                 }
+
+            -- Draw spawn position permanently:
             , DrawSomething
                 { bodyDrawing = [ ( Colors.green, { x = 100, y = 460 } ) ]
                 , headDrawing = []
                 }
+
+            -- Start moving:
             , DrawSomething
                 { bodyDrawing = [ ( Colors.green, { x = 100, y = 461 } ), ( Colors.green, { x = 100, y = 462 } ), ( Colors.green, { x = 100, y = 463 } ) ]
                 , headDrawing = [ ( Colors.green, { x = 100, y = 463 } ) ]
