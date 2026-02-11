@@ -137,7 +137,7 @@ firstUpdateTick =
     Tick.succ Tick.genesis
 
 
-prepareLiveRound : Config -> Random.Seed -> ParticipatingPlayers -> Set String -> Round
+prepareLiveRound : Config -> Random.Seed -> ParticipatingPlayers (Maybe HoleStatus) -> Set String -> Round
 prepareLiveRound config seed players pressedButtons =
     let
         recordInitialInteractions : List Kurve -> List Kurve

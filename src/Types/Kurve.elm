@@ -3,6 +3,8 @@ module Types.Kurve exposing
     , Kurve
     , State
     , UserInteraction(..)
+    , getHoleStatus
+    , hasPlayerId
     , modifyReversedInteractions
     , reset
     )
@@ -51,3 +53,13 @@ type Fate
 reset : Kurve -> Kurve
 reset kurve =
     { kurve | state = kurve.stateAtSpawn }
+
+
+hasPlayerId : PlayerId -> Kurve -> Bool
+hasPlayerId id kurve =
+    kurve.id == id
+
+
+getHoleStatus : Kurve -> HoleStatus
+getHoleStatus =
+    .state >> .holeStatus

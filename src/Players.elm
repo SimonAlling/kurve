@@ -7,6 +7,7 @@ module Players exposing
     , handlePlayerJoiningOrLeaving
     , includeResultsFrom
     , initialPlayers
+    , noExtraData
     , participating
     )
 
@@ -24,8 +25,8 @@ type alias AllPlayers =
     Dict PlayerId ( Player, PlayerStatus )
 
 
-type alias ParticipatingPlayers =
-    Dict PlayerId ( Player, Score )
+type alias ParticipatingPlayers extraData =
+    Dict PlayerId ( Player, Score, extraData )
 
 
 handlePlayerJoiningOrLeaving : Button -> AllPlayers -> AllPlayers
@@ -58,14 +59,14 @@ everyoneLeaves =
     Dict.map (always (Tuple.mapSecond (always NotParticipating)))
 
 
-participating : AllPlayers -> ParticipatingPlayers
-participating =
+participating : (PlayerId -> extraData) -> AllPlayers -> ParticipatingPlayers extraData
+participating getPlayerData =
     let
-        includeIfParticipating : PlayerId -> ( Player, PlayerStatus ) -> ParticipatingPlayers -> ParticipatingPlayers
+        includeIfParticipating : PlayerId -> ( Player, PlayerStatus ) -> ParticipatingPlayers extraData -> ParticipatingPlayers extraData
         includeIfParticipating id ( player, status ) =
             case status of
                 Participating score ->
-                    Dict.insert id ( player, score )
+                    Dict.insert id ( player, score, getPlayerData id )
 
                 NotParticipating ->
                     identity
@@ -75,7 +76,12 @@ participating =
 
 atLeastOneIsParticipating : AllPlayers -> Bool
 atLeastOneIsParticipating =
-    participating >> Dict.isEmpty >> not
+    participating noExtraData >> Dict.isEmpty >> not
+
+
+noExtraData : PlayerId -> ()
+noExtraData =
+    always ()
 
 
 {-| Merges the results from the given (ongoing or finished) round with the existing ones. Players are assumed to be represented in both sets of results.
