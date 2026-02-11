@@ -124,7 +124,7 @@ players =
         green : Player
         green =
             { color = Colors.green
-            , controls = ( [ Key "ArrowLeft" ], [ Key "ArrowDown" ] )
+            , controls = ( [ Key "ArrowLeft" ], [ Key "ArrowDown", Key "ArrowRight" ] )
             }
 
         pink : Player
