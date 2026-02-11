@@ -4,8 +4,7 @@ The classic MS-DOS game *Achtung, die Kurve!* from 1995 in the browser!
 
 ## Play
 
-* **Online:** Go to [kurve.se](http://kurve.se) (legacy JavaScript version) or [kurve.se/elm](http://kurve.se/elm) (Elm version).
-* **Locally:** [Download the game](/SimonAlling/kurve/archive/master.zip) (legacy JavaScript version) and open `ZATACKA.html` in your browser.
+Go to [kurve.se](http://kurve.se) (or [kurve.se/legacy](http://kurve.se/legacy) for the legacy JavaScript version).
 
 Fullscreen is recommended for the best experience.
 
