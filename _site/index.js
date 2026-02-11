@@ -16,7 +16,7 @@ customElements.define(
 const app = Elm.Main.init({
     node: document.getElementById("elm-node"),
     flags: {
-        initialSeedValue: Math.round(Math.random() * Number.MAX_SAFE_INTEGER),
+        initialSeedValue: Math.floor(Math.random() * 0x100000000),
     },
 });
 
