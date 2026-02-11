@@ -210,6 +210,12 @@ $minWidthForCenteredCanvas: (
     box-sizing: border-box;
     padding-bottom: 80px;
 
+    #splashscreen-start-hint {
+        opacity: 0.5;
+        position: absolute;
+        top: 300px;
+    }
+
     .splashscreen-link {
         opacity: 0.5;
         margin-top: 8px;
