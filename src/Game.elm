@@ -3,12 +3,12 @@ module Game exposing
     , GameState(..)
     , LiveOrReplay(..)
     , PausedOrNot(..)
-    , SpawnState
     , TickResult(..)
     , eventPrevention
     , firstUpdateTick
     , getCurrentRound
     , getFinishedRound
+    , isReplay
     , modifyMidRoundState
     , prepareLiveRound
     , prepareReplayRound
@@ -24,11 +24,13 @@ import Dialog
 import Drawing exposing (WhatToDraw, getColorAndDrawingPosition)
 import Events exposing (Prevention(..))
 import Holes exposing (HoleStatus, Holiness(..), getHoliness, updateHoleStatus)
+import Input exposing (Button)
+import Overlay
 import Players exposing (ParticipatingPlayers)
 import Random
 import Round exposing (FinishedRound(..), Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
 import Set exposing (Set)
-import Spawn exposing (generateKurves)
+import Spawn exposing (SpawnState, generateKurves)
 import Thickness exposing (theThickness)
 import Turning exposing (computeAngleChange, computeTurningState, turningStateFromHistory)
 import Types.Angle as Angle exposing (Angle)
@@ -87,7 +89,7 @@ getFinishedRound liveOrReplay =
         Live finishedRound ->
             finishedRound
 
-        Replay finishedRound ->
+        Replay _ finishedRound ->
             finishedRound
 
 
@@ -106,14 +108,27 @@ modifyMidRoundState f gameState =
 
 type LiveOrReplay liveData
     = Live liveData
-    | Replay FinishedRound
+    | Replay Overlay.State FinishedRound
 
 
-type alias SpawnState =
-    { kurvesLeft : List Kurve
-    , alreadySpawnedKurves : List Kurve
-    , ticksLeft : Int
-    }
+isReplay : GameState -> Bool
+isReplay gameState =
+    case gameState of
+        Active liveOrReplay _ _ ->
+            case liveOrReplay of
+                Live _ ->
+                    False
+
+                Replay _ _ ->
+                    True
+
+        RoundOver liveOrReplay _ _ _ ->
+            case liveOrReplay of
+                Live _ ->
+                    False
+
+                Replay _ _ ->
+                    True
 
 
 firstUpdateTick : Tick
@@ -221,10 +236,10 @@ tickResultToGameState liveOrReplay pausedOrNot tickResult =
                         Live () ->
                             Live finishedRound
 
-                        Replay originalFinishedRound ->
+                        Replay overlayState originalFinishedRound ->
                             -- The freshly computed finished round should™ be equal to the original one that we already have, so we should be able to use either one.
                             -- I think it feels more natural to keep the one we already have.
-                            Replay originalFinishedRound
+                            Replay overlayState originalFinishedRound
             in
             RoundOver liveOrReplayWithFinishedRound pausedOrNot tickThatEndedIt Dialog.NotOpen
 
@@ -451,8 +466,8 @@ recordUserInteraction pressedButtons nextTick kurve =
     modifyReversedInteractions ((::) (HappenedBefore nextTick newTurningState)) kurve
 
 
-eventPrevention : GameState -> Events.Prevention
-eventPrevention gameState =
+eventPrevention : List Button -> GameState -> Events.Prevention
+eventPrevention playerButtons gameState =
     case gameState of
         Active liveOrReplay _ _ ->
             case liveOrReplay of
@@ -462,8 +477,8 @@ eventPrevention gameState =
                     -- * Player inputs clashing with keyboard shortcuts (e.g. Alt to open the menu bar or Ctrl + 1 to switch to the first tab)
                     PreventDefault
 
-                Replay _ ->
-                    AllowDefault
+                Replay _ _ ->
+                    AllowDefaultExcept playerButtons
 
         RoundOver _ _ _ _ ->
-            AllowDefault
+            AllowDefaultExcept playerButtons

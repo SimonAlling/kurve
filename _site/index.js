@@ -54,6 +54,8 @@ app.ports.renderHeads.subscribe(squares => {
     }
 });
 
+app.ports.toggleFullscreen.subscribe(toggleFullscreen);
+
 document.addEventListener("contextmenu", event => {
     event.preventDefault();
 });
@@ -66,6 +68,17 @@ window.addEventListener("beforeunload", event => {
         event.preventDefault();
     }
 });
+
+function toggleFullscreen() {
+    if (document.fullscreenElement !== null) {
+        document.exitFullscreen();
+        return;
+    }
+
+    document.documentElement.requestFullscreen().catch((err) => {
+        console.error(`Error enabling fullscreen: ${err.message}`);
+    });
+}
 
 function shouldPreventUnload() {
     return document.getElementsByClassName("magic-class-name-to-prevent-unload").length > 0;
