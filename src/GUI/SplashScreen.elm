@@ -2,7 +2,7 @@ module GUI.SplashScreen exposing (splashScreen)
 
 import Colors
 import GUI.Text as Text
-import Html exposing (Html, a, div, span)
+import Html exposing (Html, a, button, div)
 import Html.Attributes as Attr
 import Html.Events
 
@@ -12,7 +12,7 @@ splashScreen fullscreenMsg =
     div
         [ Attr.id "splashScreen"
         ]
-        [ span
+        [ button
             [ Attr.class "splashscreen-link"
             , Html.Events.onClick fullscreenMsg
             ]

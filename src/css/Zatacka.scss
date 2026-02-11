@@ -24,6 +24,12 @@ body {
     font-size: 12px;
 }
 
+button {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
 #elm-root {
     min-width: $nativeWidth;
     min-height: $nativeHeight;
@@ -175,22 +181,21 @@ $minWidthForCenteredCanvas: (
     button:not(:last-child) {
         margin-right: 8px;
     }
-}
 
-button {
-    background-color: black;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    color: white;
-    height: 32px;
-    cursor: pointer;
+    button {
+        background-color: black;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        color: white;
+        height: 32px;
 
-    &.focused {
-        border-color: white;
-    }
+        &.focused {
+            border-color: white;
+        }
 
-    &:hover {
-        border-color: white;
-        background-color: rgba(255, 255, 255, 0.1);
+        &:hover {
+            border-color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
     }
 }
 
