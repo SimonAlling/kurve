@@ -12,6 +12,7 @@ import Players exposing (initialPlayers)
 import Random
 import Set
 import Test
+import TestHelpers exposing (getNumberOfSpawnTicks)
 import TestHelpers.Effects exposing (clearsEverything, drawsBodySquares)
 import TestHelpers.EndToEnd exposing (endToEndTest)
 import TestHelpers.ListLength exposing (expectAtLeast, expectExactly)
@@ -24,7 +25,7 @@ theTest : Test.Test
 theTest =
     let
         ( actualModel, actualEffects ) =
-            endToEndTest initialModel messages
+            endToEndTest initialModel (messages (getNumberOfSpawnTicks initialModel.config.spawn))
     in
     Test.describe "End-to-end test of an entire session"
         [ Test.test "Resulting model is correct" <|
@@ -60,8 +61,8 @@ initialModel =
     }
 
 
-messages : List Msg
-messages =
+messages : Int -> List Msg
+messages numberOfSpawnTicks =
     List.concat
         [ -- User proceeds to lobby:
           pressAndRelease (Key "Space")
@@ -73,7 +74,7 @@ messages =
         , pressAndRelease (Key "Space")
 
         -- Kurves spawn:
-        , repeat 12 SpawnTick
+        , repeat numberOfSpawnTicks SpawnTick
 
         -- A short while passes by:
         , repeat 20 (AnimationFrame frameDeltaInMs)
@@ -92,7 +93,7 @@ messages =
         , pressAndRelease (Key "KeyR")
 
         -- User waits for the replay to finish:
-        , repeat 12 SpawnTick
+        , repeat numberOfSpawnTicks SpawnTick
         , repeat 20 (AnimationFrame frameDeltaInMs)
         , repeat 166 (AnimationFrame frameDeltaInMs)
 

@@ -10,6 +10,7 @@ import Game exposing (ActiveGameState(..), GameState(..), LiveOrReplay(..), Paus
 import Input exposing (Button(..))
 import List exposing (repeat)
 import Main exposing (Model, Msg(..))
+import Overlay
 import Players exposing (initialPlayers)
 import Round exposing (Round)
 import Set
@@ -47,7 +48,7 @@ initialModel =
             playOutRound config (roundWith TestScenarios.ReplayStraightVerticalLine.spawnedKurves)
     in
     { pressedButtons = Set.empty
-    , appState = InGame (Active (Replay finishedRound) NotPaused (Moving 0 Tick.genesis initialRound))
+    , appState = InGame (Active (Replay Overlay.Visible finishedRound) NotPaused (Moving 0 Tick.genesis initialRound))
     , config = config
     , players = initialPlayers
     , hints = Hints.initial
@@ -570,14 +571,11 @@ expectedEffects =
             , ( Colors.green, { x = 100, y = 117 } )
             , ( Colors.green, { x = 100, y = 118 } )
             , ( Colors.green, { x = 100, y = 119 } )
+            , ( Colors.green, { x = 100, y = 120 } )
             ]
-        , headDrawing = [ ( Colors.green, { x = 100, y = 119 } ) ]
-        }
-    , DoNothing
-    , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 100, y = 120 } ) ]
         , headDrawing = [ ( Colors.green, { x = 100, y = 120 } ) ]
         }
+    , DoNothing
     , DrawSomething
         { bodyDrawing = [ ( Colors.green, { x = 100, y = 121 } ) ]
         , headDrawing = [ ( Colors.green, { x = 100, y = 121 } ) ]
@@ -613,6 +611,10 @@ expectedEffects =
     , DrawSomething
         { bodyDrawing = [ ( Colors.green, { x = 100, y = 129 } ) ]
         , headDrawing = [ ( Colors.green, { x = 100, y = 129 } ) ]
+        }
+    , DrawSomething
+        { bodyDrawing = [ ( Colors.green, { x = 100, y = 130 } ) ]
+        , headDrawing = [ ( Colors.green, { x = 100, y = 130 } ) ]
         }
     ]
 

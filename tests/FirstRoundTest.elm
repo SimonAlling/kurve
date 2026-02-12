@@ -7,6 +7,7 @@ import Input exposing (Button(..))
 import List exposing (repeat)
 import Main exposing (Model, Msg(..), init)
 import Test
+import TestHelpers exposing (getNumberOfSpawnTicks)
 import TestHelpers.EndToEnd exposing (endToEndTest)
 import TestHelpers.PlayerInput exposing (pressAndRelease)
 import Types.FrameTime exposing (FrameTime)
@@ -16,7 +17,7 @@ theTest : Test.Test
 theTest =
     let
         ( _, actualEffects ) =
-            endToEndTest initialModel messages
+            endToEndTest initialModel (messages (getNumberOfSpawnTicks initialModel.config.spawn))
     in
     Test.test "How the first round starts" <|
         \_ ->
@@ -26,11 +27,11 @@ theTest =
 
 initialModel : Model
 initialModel =
-    init () |> Tuple.first
+    init { settingsJsonFromLocalStorage = Nothing } |> Tuple.first
 
 
-messages : List Msg
-messages =
+messages : Int -> List Msg
+messages numberOfSpawnTicks =
     List.concat
         [ -- User proceeds to lobby:
           pressAndRelease (Key "Space")
@@ -42,7 +43,7 @@ messages =
         , pressAndRelease (Key "Space")
 
         -- Kurve spawns:
-        , repeat 7 SpawnTick
+        , repeat numberOfSpawnTicks SpawnTick
 
         -- Kurve moves for a while, preferably until it has created at least one hole:
         , repeat 240 (AnimationFrame frameDeltaInMs)
@@ -59,18 +60,8 @@ expectedEffects =
     , DoNothing
     , ClearEverything
     , DoNothing
-    , DrawSomething
-        { bodyDrawing = []
-        , headDrawing = []
-        }
-    , DrawSomething
-        { bodyDrawing = []
-        , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
-        }
-    , DrawSomething
-        { bodyDrawing = []
-        , headDrawing = []
-        }
+
+    -- Spawning:
     , DrawSomething
         { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
@@ -83,10 +74,26 @@ expectedEffects =
         { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
         }
+    , DrawSomething
+        { bodyDrawing = []
+        , headDrawing = []
+        }
+    , DrawSomething
+        { bodyDrawing = []
+        , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
+        }
+    , DrawSomething
+        { bodyDrawing = []
+        , headDrawing = []
+        }
+
+    -- Draw spawn position permanently:
     , DrawSomething
         { bodyDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
         , headDrawing = []
         }
+
+    -- Start moving:
     , DrawSomething
         { bodyDrawing = [ ( Colors.green, { x = 212, y = 192 } ) ]
         , headDrawing = [ ( Colors.green, { x = 212, y = 192 } ) ]
@@ -988,11 +995,11 @@ expectedEffects =
         , headDrawing = [ ( Colors.green, { x = 430, y = 141 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = []
+        { bodyDrawing = [ ( Colors.green, { x = 431, y = 140 } ) ]
         , headDrawing = [ ( Colors.green, { x = 431, y = 140 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = []
+        { bodyDrawing = [ ( Colors.green, { x = 432, y = 140 } ) ]
         , headDrawing = [ ( Colors.green, { x = 432, y = 140 } ) ]
         }
     , DrawSomething

@@ -1,7 +1,7 @@
-module TestHelpers exposing (expectRoundOutcome, playOutRound)
+module TestHelpers exposing (expectRoundOutcome, getNumberOfSpawnTicks, playOutRound)
 
 import App exposing (AppState(..))
-import Config exposing (Config)
+import Config exposing (Config, SpawnConfig)
 import Effect exposing (Effect)
 import Expect
 import GUI.Hints as Hints
@@ -19,6 +19,7 @@ import Main exposing (Model, Msg(..), update)
 import Players exposing (initialPlayers)
 import Round exposing (FinishedRound(..), Round, RoundInitialState)
 import Set
+import Spawn exposing (makeSpawnState)
 import TestScenarioHelpers
     exposing
         ( EffectsExpectation(..)
@@ -119,10 +120,7 @@ playOutRoundWithEffects config initialState =
         initialGameState =
             Active (Live ()) NotPaused <|
                 Spawning
-                    { kurvesLeft = initialRound |> .kurves |> .alive
-                    , alreadySpawnedKurves = []
-                    , ticksLeft = config.spawn.numberOfFlickerTicks
-                    }
+                    (makeSpawnState config.spawn.numberOfFlickers initialRound)
                     initialRound
 
         initialModel : Model
@@ -175,3 +173,8 @@ showTick =
 refreshRateInTests : RefreshRate
 refreshRateInTests =
     60
+
+
+getNumberOfSpawnTicks : SpawnConfig -> Int
+getNumberOfSpawnTicks spawnConfig =
+    2 * spawnConfig.numberOfFlickers + 1

@@ -3,19 +3,20 @@ module GUI.Lobby exposing (lobby)
 import Dict
 import GUI.Controls
 import GUI.Text as Text
-import Html exposing (Html, div)
+import Html exposing (Html, button, div)
 import Html.Attributes as Attr
+import Html.Events
 import Players exposing (AllPlayers)
 import Types.Player exposing (Player)
 import Types.PlayerStatus exposing (PlayerStatus(..))
 
 
-lobby : AllPlayers -> Html msg
-lobby players =
+lobby : msg -> AllPlayers -> Html msg
+lobby onSettingsButtonClick players =
     div
         [ Attr.id "lobby"
         ]
-        (Dict.values players |> List.map playerEntry)
+        (settingsButton onSettingsButtonClick :: (Dict.values players |> List.map playerEntry))
 
 
 playerEntry : ( Player, PlayerStatus ) -> Html msg
@@ -42,3 +43,16 @@ playerEntry ( player, status ) =
             ]
             (Text.string (Text.Size 2) player.color "READY")
         ]
+
+
+settingsButton : msg -> Html msg
+settingsButton onClick =
+    button
+        [ Attr.id "button-show-settings"
+        , Attr.class "icon-button"
+        , Attr.class "in-top-right-corner"
+        , Attr.title "Settings"
+        , Attr.class "stop-propagation-on-mousedown" -- to prevent Blue from joining when button clicked
+        , Html.Events.onClick onClick
+        ]
+        []

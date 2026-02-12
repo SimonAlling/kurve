@@ -6,10 +6,14 @@ module Config exposing
     , SpawnConfig
     , WorldConfig
     , default
+    , getSettings
     , withHardcodedHoles
+    , withSettings
+    , withSpawnkillProtection
     , withSpeed
     )
 
+import Settings exposing (Settings)
 import Types.Radius exposing (Radius(..))
 import Types.Speed exposing (Speed(..))
 import Types.Tickrate exposing (Tickrate(..))
@@ -24,17 +28,18 @@ default =
         , holes =
             { minSolidTicks = 90
             , maxSolidTicks = 300
-            , minHolyTicks = 9
-            , maxHolyTicks = 13
+            , minHolyTicks = 7
+            , maxHolyTicks = 11
             }
         }
     , spawn =
         { margin = 100 -- The minimum distance from the wall that a Kurve can spawn.
         , desiredMinimumDistanceTurningRadiusFactor = 1
         , protectionAudacity = 0.25 -- Closer to 1 ⇔ less risk of spawn kills but higher risk of no solution
-        , flickerTicksPerSecond = 20 -- At each tick, the spawning Kurve is toggled between visible and invisible.
-        , numberOfFlickerTicks = 5
+        , flickerFrequency = 10 -- How many times per second the spawning Kurve performs a full cycle of being visible and then invisible.
+        , numberOfFlickers = 3
         , angleInterval = ( 0, pi )
+        , spawnkillProtection = Settings.default.spawnkillProtection
         }
     , world =
         { width = 559
@@ -66,9 +71,10 @@ type alias SpawnConfig =
     { margin : Float
     , desiredMinimumDistanceTurningRadiusFactor : Float
     , protectionAudacity : Float
-    , flickerTicksPerSecond : Float
-    , numberOfFlickerTicks : Int
+    , flickerFrequency : Float
+    , numberOfFlickers : Int
     , angleInterval : ( Float, Float )
+    , spawnkillProtection : Bool
     }
 
 
@@ -89,6 +95,28 @@ type alias HoleConfig =
     , minHolyTicks : Int
     , maxHolyTicks : Int
     }
+
+
+getSettings : Config -> Settings
+getSettings config =
+    { spawnkillProtection = config.spawn.spawnkillProtection
+    }
+
+
+withSettings : Settings -> Config -> Config
+withSettings settings config =
+    config
+        |> withSpawnkillProtection settings.spawnkillProtection
+
+
+withSpawnkillProtection : Bool -> Config -> Config
+withSpawnkillProtection newValue config =
+    let
+        spawnConfig : SpawnConfig
+        spawnConfig =
+            config.spawn
+    in
+    { config | spawn = { spawnConfig | spawnkillProtection = newValue } }
 
 
 withSpeed : Speed -> Config -> Config

@@ -24,6 +24,12 @@ body {
     font-size: 12px;
 }
 
+button {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
 #elm-root {
     min-width: $nativeWidth;
     min-height: $nativeHeight;
@@ -33,7 +39,7 @@ body {
     align-items: center;
     justify-content: center;
 
-    &.in-game {
+    &.in-game-ish {
         background-color: #3C3C3C;
     }
 }
@@ -49,6 +55,76 @@ a:link, a:visited {
 
 a:hover, a:focus, a:active {
     text-decoration: none;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+/* Checkbox and label: */
+input[type="checkbox"] + label {
+    padding-left: 18px;
+    position: relative;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    cursor: pointer;
+}
+
+/* Actual checkbox: */
+input[type="checkbox"] + label::before {
+    background-image: url("../resources/kurve-icons.png");
+    background-repeat: no-repeat;
+    box-sizing: border-box;
+    content: "";
+    height: 12px;
+    left: 0;
+    position: absolute;
+    top: 2px;
+    width: 12px;
+    border: 1px white solid;
+    background-position: 0 -48px;
+}
+
+/* Actual checkbox on hover/focus: */
+input[type="checkbox"] + label:hover::before, input[type="checkbox"] + label:focus::before {
+    border: 1px white solid;
+    background-position: -16px -48px;
+}
+
+/* Actual checkbox when checked: */
+input[type="checkbox"]:checked + label::before {
+    background-position: -32px -48px;
+}
+
+/* Actual checkbox when checked on hover/focus: */
+input[type="checkbox"]:checked + label:hover::before, input[type="checkbox"]:checked + label:focus::before {
+    background-position: -48px -48px;
+}
+
+.icon-button {
+    background-image: url("../resources/kurve-icons.png");
+    cursor: pointer;
+    height: 16px;
+    opacity: 0.75;
+    width: 16px;
+
+    &:hover, &:focus, &:active {
+        opacity: 1;
+    }
+}
+
+.in-top-right-corner {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+}
+
+#button-show-settings {
+    background-position: 0 -32px;
+}
+
+#button-hide-settings {
+    background-position: 0 -16px;
 }
 
 #wrapper {
@@ -81,6 +157,15 @@ $leftMargin: (
     );
     margin: $borderWidth;
     margin-left: $leftMargin + $borderWidth;
+
+    &.replay-mode {
+        box-shadow: (
+            0 0 0 1px #e2e2e2,
+            0 0 0 2px #c1c1c1,
+            0 0 0 3px #a1a1a1,
+            0 0 0 4px #818181,
+        );
+    }
 }
 
 $minWidthForCenteredCanvas: (
@@ -89,13 +174,13 @@ $minWidthForCenteredCanvas: (
 );
 
 @media (max-width: $minWidthForCenteredCanvas) {
-    #elm-root.in-game {
+    #elm-root.in-game-ish {
         justify-content: flex-end; // Prioritizes visible scoreboard over centered canvas.
     }
 }
 
 @media (min-width: $minWidthForCenteredCanvas) {
-    #elm-root.in-game {
+    #elm-root.in-game-ish {
         justify-content: center;
     }
 }
@@ -166,22 +251,21 @@ $minWidthForCenteredCanvas: (
     button:not(:last-child) {
         margin-right: 8px;
     }
-}
 
-button {
-    background-color: black;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    color: white;
-    height: 32px;
-    cursor: pointer;
+    button {
+        background-color: black;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        color: white;
+        height: 32px;
 
-    &.focused {
-        border-color: white;
-    }
+        &.focused {
+            border-color: white;
+        }
 
-    &:hover {
-        border-color: white;
-        background-color: rgba(255, 255, 255, 0.1);
+        &:hover {
+            border-color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
     }
 }
 
@@ -196,11 +280,12 @@ button {
     box-sizing: border-box;
     padding-bottom: 80px;
 
-    .source-link {
+    .splashscreen-link {
         opacity: 0.5;
+        margin-top: 8px;
     }
 
-    .source-link:hover, .source-link:focus {
+    .splashscreen-link:hover, .splashscreen-link:focus {
         opacity: 1;
     }
 }
@@ -227,6 +312,21 @@ button {
             width: 160px;
         }
     }
+}
+
+#settings-screen {
+    padding-top: 50px;
+    padding-left: 80px;
+}
+
+#settings-screen > div {
+    box-sizing: border-box;
+    margin-bottom: 12px;
+    opacity: 0.6;
+}
+
+#settings-screen > div:hover {
+    opacity: 1;
 }
 
 #scoreboard {
@@ -304,7 +404,7 @@ button {
     left: 16px;
     opacity: 0.5;
 
-    p {
+    p:not(:last-child) {
         margin-bottom: 8px;
     }
 }
