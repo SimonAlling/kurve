@@ -220,6 +220,9 @@ update msg ({ config } as model) =
                     case settingId of
                         SpawnProtection ->
                             Config.withSpawnkillProtection newValue model.config
+
+                        PersistHoleStatus ->
+                            Config.withPersistHoleStatus newValue model.config
             in
             ( { model | config = newConfig }, SaveSettings (Config.getSettings newConfig) )
 

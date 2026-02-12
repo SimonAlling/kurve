@@ -161,14 +161,20 @@ generateKurveState config numberOfPlayers existingPositions holeStatusFromPrevio
             { position = generatedPosition
             , direction = generatedAngle
             , holeStatus =
-                holeStatusFromPreviousRound
-                    |> Maybe.withDefault
-                        (RandomHoles
+                let
+                    freshHoleStatus : HoleStatus
+                    freshHoleStatus =
+                        RandomHoles
                             { holiness = Solid
                             , ticksLeft = generatedSolidTicks
                             , holeSeed = generatedHoleSeed
                             }
-                        )
+                in
+                if config.kurves.holes.persistBetweenRounds then
+                    holeStatusFromPreviousRound |> Maybe.withDefault freshHoleStatus
+
+                else
+                    freshHoleStatus
             }
         )
         maybeSafeSpawnPosition
