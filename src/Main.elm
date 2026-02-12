@@ -13,6 +13,7 @@ import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
 import GUI.Scoreboard exposing (scoreboard, scoreboardContainer)
+import GUI.Settings
 import GUI.SplashScreen exposing (splashScreen)
 import GUI.TextOverlay exposing (textOverlay)
 import Game
@@ -54,6 +55,7 @@ import Players
 import Random
 import Round exposing (FinishedRound, Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
+import Settings exposing (SettingId(..))
 import Spawn exposing (flickerFrequencyToTicksPerSecond, makeSpawnState, stepSpawnState)
 import Time
 import Types.FrameTime exposing (FrameTime)
@@ -78,11 +80,14 @@ port focusLost : (() -> msg) -> Sub msg
 port toggleFullscreen : () -> Cmd msg
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
+port saveToLocalStorage : String -> Cmd msg
+
+
+init : Flags -> ( Model, Cmd Msg )
+init flags =
     ( { pressedButtons = Set.empty
       , appState = InMenu SplashScreen (Random.initialSeed 1337)
-      , config = Config.default
+      , config = Config.default |> Config.withSettings (Settings.parse flags.settingsJsonFromLocalStorage)
       , players = initialPlayers
       }
     , Cmd.none
@@ -106,9 +111,16 @@ type Msg
     = SpawnTick
     | AnimationFrame FrameTime
     | ButtonUsed ButtonDirection Button
+    | ToggleSettingsScreen
+    | SettingChanged SettingId Bool
     | DialogChoiceMade Dialog.Option
     | FocusLost
     | RequestToggleFullscreen
+
+
+type alias Flags =
+    { settingsJsonFromLocalStorage : Maybe String
+    }
 
 
 update : Msg -> Model -> ( Model, Effect )
@@ -181,6 +193,36 @@ update msg ({ config } as model) =
         ButtonUsed Up key ->
             ( handleUserInteraction Up key model, DoNothing )
 
+        ToggleSettingsScreen ->
+            case model.appState of
+                InMenu SplashScreen _ ->
+                    -- Not expected to ever happen.
+                    ( model, DoNothing )
+
+                InMenu SettingsScreen seed ->
+                    closeSettings seed model
+
+                InMenu Lobby seed ->
+                    openSettings seed model
+
+                InMenu GameOver _ ->
+                    -- Not expected to ever happen.
+                    ( model, DoNothing )
+
+                InGame _ ->
+                    -- Not expected to ever happen.
+                    ( model, DoNothing )
+
+        SettingChanged settingId newValue ->
+            let
+                newConfig : Config
+                newConfig =
+                    case settingId of
+                        SpawnProtection ->
+                            Config.withSpawnkillProtection newValue model.config
+            in
+            ( { model | config = newConfig }, SaveSettings (Config.getSettings newConfig) )
+
         DialogChoiceMade option ->
             handleDialogChoice option model
 
@@ -224,6 +266,14 @@ buttonUsed button ({ config, pressedButtons } as model) =
 
                 _ ->
                     ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, DoNothing )
+
+        InMenu SettingsScreen seed ->
+            case button of
+                Key "Escape" ->
+                    closeSettings seed model
+
+                _ ->
+                    ( handleUserInteraction Down button model, DoNothing )
 
         InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt dialogState) ->
             case dialogState of
@@ -574,6 +624,17 @@ goToLobby seed model =
     ( { model | appState = InMenu Lobby seed, players = everyoneLeaves model.players }, DoNothing )
 
 
+openSettings : Random.Seed -> Model -> ( Model, Effect )
+openSettings seed model =
+    ( { model | appState = InMenu SettingsScreen seed }, DoNothing )
+
+
+closeSettings : Random.Seed -> Model -> ( Model, Effect )
+closeSettings seed model =
+    -- Cannot use goToLobby because then we'd "forget" the participating players.
+    ( { model | appState = InMenu Lobby seed }, DoNothing )
+
+
 handleUserInteraction : ButtonDirection -> Button -> Model -> Model
 handleUserInteraction direction button model =
     let
@@ -613,6 +674,9 @@ subscriptions model =
             InMenu Lobby _ ->
                 Sub.none
 
+            InMenu SettingsScreen _ ->
+                Sub.none
+
             InGame (Active _ NotPaused (Spawning _ _)) ->
                 Time.every (1000 / flickerFrequencyToTicksPerSecond model.config.spawn.flickerFrequency) (always SpawnTick)
 
@@ -649,7 +713,23 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ lobby model.players
+                        [ lobby ToggleSettingsScreen model.players
+                        ]
+                    , scoreboardContainer []
+                    ]
+                ]
+
+        InMenu SettingsScreen _ ->
+            elmRoot (Events.AllowDefaultExcept playerButtons)
+                [ Attr.class "in-game-ish"
+                ]
+                [ div
+                    [ Attr.id "wrapper"
+                    ]
+                    [ div
+                        [ Attr.id "border"
+                        ]
+                        [ GUI.Settings.settings SettingChanged ToggleSettingsScreen model.config
                         ]
                     , scoreboardContainer []
                     ]
@@ -709,7 +789,7 @@ borderAttributes gameState =
         []
 
 
-main : Program () Model Msg
+main : Program Flags Model Msg
 main =
     Browser.element
         { init = init
@@ -738,6 +818,9 @@ makeCmd effect =
 
         ToggleFullscreen ->
             toggleFullscreen ()
+
+        SaveSettings settings ->
+            saveToLocalStorage (Settings.stringify settings)
 
         DoNothing ->
             Cmd.none

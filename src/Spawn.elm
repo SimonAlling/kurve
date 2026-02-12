@@ -148,9 +148,13 @@ generateKurve config id numberOfPlayers existingPositions player holeStatusFromP
 generateKurveState : Config -> Int -> List Position -> Maybe HoleStatus -> Random.Generator Kurve.State
 generateKurveState config numberOfPlayers existingPositions holeStatusFromPreviousRound =
     let
-        safeSpawnPosition : Random.Generator Position
-        safeSpawnPosition =
-            generateSpawnPosition config.spawn config.world |> Random.filter (isSafeNewPosition config numberOfPlayers existingPositions)
+        maybeSafeSpawnPosition : Random.Generator Position
+        maybeSafeSpawnPosition =
+            if config.spawn.spawnkillProtection then
+                generateSpawnPosition config.spawn config.world |> Random.filter (isSafeNewPosition config numberOfPlayers existingPositions)
+
+            else
+                generateSpawnPosition config.spawn config.world
     in
     Random.map4
         (\generatedPosition generatedAngle generatedSolidTicks generatedHoleSeed ->
@@ -167,7 +171,7 @@ generateKurveState config numberOfPlayers existingPositions holeStatusFromPrevio
                         )
             }
         )
-        safeSpawnPosition
+        maybeSafeSpawnPosition
         (generateSpawnAngle config.spawn.angleInterval)
         (generateSolidTicks config.kurves)
         Random.independentSeed

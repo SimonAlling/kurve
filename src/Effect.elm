@@ -1,6 +1,7 @@
 module Effect exposing (Effect(..), maybeDrawSomething)
 
 import Drawing exposing (WhatToDraw)
+import Settings exposing (Settings)
 
 
 type Effect
@@ -8,6 +9,7 @@ type Effect
     | ClearAndThenDraw WhatToDraw
     | ClearEverything
     | ToggleFullscreen
+    | SaveSettings Settings
     | DoNothing
 
 
