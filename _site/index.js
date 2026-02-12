@@ -13,7 +13,13 @@ customElements.define(
   },
 );
 
-const app = Elm.Main.init({ node: document.getElementById("elm-node") });
+const THE_SETTINGS_KEY = "zatacka_settings";
+
+const flags = {
+    settingsJsonFromLocalStorage: window.localStorage.getItem(THE_SETTINGS_KEY),
+};
+
+const app = Elm.Main.init({ node: document.getElementById("elm-node"), flags: flags });
 
 function drawSquare(canvas, { position: { x, y }, thickness, color }) {
     const context = canvas.getContext("2d");
@@ -51,12 +57,24 @@ app.ports.renderHeads.subscribe(squares => {
 
 app.ports.toggleFullscreen.subscribe(toggleFullscreen);
 
+app.ports.saveToLocalStorage.subscribe(saveToLocalStorage);
+
 document.addEventListener("contextmenu", event => {
     event.preventDefault();
 });
 window.addEventListener("blur", () => {
     app.ports.focusLost.send(null);
 });
+
+window.addEventListener(
+    "mousedown",
+    (event) => {
+        if (event.target.closest(".stop-propagation-on-mousedown") !== null) {
+            event.stopPropagation();
+        }
+    },
+    true,
+);
 
 window.addEventListener("beforeunload", event => {
     if (shouldPreventUnload()) {
@@ -73,6 +91,10 @@ function toggleFullscreen() {
     document.documentElement.requestFullscreen().catch((err) => {
         console.error(`Error enabling fullscreen: ${err.message}`);
     });
+}
+
+function saveToLocalStorage(jsonString) {
+    window.localStorage.setItem(THE_SETTINGS_KEY, jsonString);
 }
 
 function shouldPreventUnload() {

@@ -6,10 +6,14 @@ module Config exposing
     , SpawnConfig
     , WorldConfig
     , default
+    , getSettings
     , withHardcodedHoles
+    , withSettings
+    , withSpawnkillProtection
     , withSpeed
     )
 
+import Settings exposing (Settings)
 import Types.Radius exposing (Radius(..))
 import Types.Speed exposing (Speed(..))
 import Types.Tickrate exposing (Tickrate(..))
@@ -35,6 +39,7 @@ default =
         , flickerFrequency = 10 -- How many times per second the spawning Kurve performs a full cycle of being visible and then invisible.
         , numberOfFlickers = 3
         , angleInterval = ( 0, pi )
+        , spawnkillProtection = Settings.default.spawnkillProtection
         }
     , world =
         { width = 559
@@ -69,6 +74,7 @@ type alias SpawnConfig =
     , flickerFrequency : Float
     , numberOfFlickers : Int
     , angleInterval : ( Float, Float )
+    , spawnkillProtection : Bool
     }
 
 
@@ -89,6 +95,28 @@ type alias HoleConfig =
     , minHolyTicks : Int
     , maxHolyTicks : Int
     }
+
+
+getSettings : Config -> Settings
+getSettings config =
+    { spawnkillProtection = config.spawn.spawnkillProtection
+    }
+
+
+withSettings : Settings -> Config -> Config
+withSettings settings config =
+    config
+        |> withSpawnkillProtection settings.spawnkillProtection
+
+
+withSpawnkillProtection : Bool -> Config -> Config
+withSpawnkillProtection newValue config =
+    let
+        spawnConfig : SpawnConfig
+        spawnConfig =
+            config.spawn
+    in
+    { config | spawn = { spawnConfig | spawnkillProtection = newValue } }
 
 
 withSpeed : Speed -> Config -> Config
