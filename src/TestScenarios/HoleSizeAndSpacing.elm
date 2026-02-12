@@ -65,10 +65,6 @@ expectedOutcome =
             [ -- Spawning:
               DrawSomething
                 { bodyDrawing = []
-                , headDrawing = []
-                }
-            , DrawSomething
-                { bodyDrawing = []
                 , headDrawing = [ ( Colors.green, { x = 100, y = 458 } ) ]
                 }
             , DrawSomething
@@ -86,6 +82,10 @@ expectedOutcome =
             , DrawSomething
                 { bodyDrawing = []
                 , headDrawing = [ ( Colors.green, { x = 100, y = 458 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
                 }
 
             -- Spawn is drawn permanently:

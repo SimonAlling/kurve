@@ -1,4 +1,4 @@
-module MainLoop exposing (consumeAnimationFrame, noLeftoverFrameTime)
+module MainLoop exposing (consumeAnimationFrame, noLeftoverFrameTime, withFloatingPointRoundingErrorCompensation)
 
 {-| Based on Isaac Sukin's `MainLoop.js`.
 
@@ -57,8 +57,8 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
                     RoundKeepsGoing newMidRoundState ->
                         recurse (timeLeftToConsume - timestep) incrementedTick newMidRoundState newDrawingAccumulator
 
-                    RoundEnds finishedRound ->
-                        ( RoundEnds finishedRound
+                    RoundEnds tickThatEndedIt finishedRound ->
+                        ( RoundEnds tickThatEndedIt finishedRound
                         , newDrawingAccumulator
                         )
 
@@ -73,3 +73,8 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
 noLeftoverFrameTime : LeftoverFrameTime
 noLeftoverFrameTime =
     0
+
+
+withFloatingPointRoundingErrorCompensation : Float -> Float
+withFloatingPointRoundingErrorCompensation skipStepInMs =
+    skipStepInMs + 1

@@ -7,6 +7,7 @@ type Effect
     = DrawSomething WhatToDraw
     | ClearAndThenDraw WhatToDraw
     | ClearEverything
+    | ToggleFullscreen
     | DoNothing
 
 

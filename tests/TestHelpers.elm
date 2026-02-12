@@ -1,7 +1,7 @@
-module TestHelpers exposing (expectRoundOutcome)
+module TestHelpers exposing (expectRoundOutcome, getNumberOfSpawnTicks, playOutRound)
 
 import App exposing (AppState(..))
-import Config exposing (Config)
+import Config exposing (Config, SpawnConfig)
 import Effect exposing (Effect)
 import Expect
 import Game
@@ -16,8 +16,9 @@ import Game
         )
 import Main exposing (Model, Msg(..), update)
 import Players exposing (initialPlayers)
-import Round exposing (Round, RoundInitialState)
+import Round exposing (FinishedRound(..), Round, RoundInitialState)
 import Set
+import Spawn exposing (makeSpawnState)
 import TestScenarioHelpers
     exposing
         ( EffectsExpectation(..)
@@ -59,8 +60,8 @@ expectRoundOutcome config { tickThatShouldEndIt, howItShouldEnd, effectsItShould
         ()
 
 
-interpretRoundEnding : Round -> RoundEndingInterpretation
-interpretRoundEnding { kurves } =
+interpretRoundEnding : FinishedRound -> RoundEndingInterpretation
+interpretRoundEnding (Finished { kurves }) =
     { aliveAtTheEnd =
         kurves.alive
             |> List.map
@@ -79,10 +80,10 @@ interpretRoundEnding { kurves } =
     }
 
 
-playOutRound : Config -> RoundInitialState -> ( Tick, Round )
+playOutRound : Config -> RoundInitialState -> ( Tick, FinishedRound )
 playOutRound config initialState =
     let
-        recurse : Tick -> Round -> ( Tick, Round )
+        recurse : Tick -> Round -> ( Tick, FinishedRound )
         recurse lastTick midRoundState =
             let
                 incrementedTick : Tick
@@ -97,12 +98,12 @@ playOutRound config initialState =
                 RoundKeepsGoing nextMidRoundState ->
                     recurse incrementedTick nextMidRoundState
 
-                RoundEnds actualRoundResult ->
-                    ( incrementedTick, actualRoundResult )
+                RoundEnds tickThatEndedIt actualRoundResult ->
+                    ( tickThatEndedIt, actualRoundResult )
 
         round : Round
         round =
-            prepareRoundFromKnownInitialState initialState
+            prepareRoundFromKnownInitialState config.world initialState
     in
     recurse Tick.genesis round
 
@@ -112,16 +113,13 @@ playOutRoundWithEffects config initialState =
     let
         initialRound : Round
         initialRound =
-            prepareRoundFromKnownInitialState initialState
+            prepareRoundFromKnownInitialState config.world initialState
 
         initialGameState : GameState
         initialGameState =
-            Active Live NotPaused <|
+            Active (Live ()) NotPaused <|
                 Spawning
-                    { kurvesLeft = initialRound |> .kurves |> .alive
-                    , alreadySpawnedKurves = []
-                    , ticksLeft = config.spawn.numberOfFlickerTicks
-                    }
+                    (makeSpawnState config.spawn.numberOfFlickers initialRound)
                     initialRound
 
         initialModel : Model
@@ -154,7 +152,7 @@ playOutRoundWithEffects config initialState =
                 InGame (Active _ NotPaused (Moving _ _ _)) ->
                     recurse (AnimationFrame frameDeltaInMs) newModel newReversedEffects
 
-                InGame (RoundOver _ _) ->
+                InGame (RoundOver _ _ _ _) ->
                     ( newModel, newReversedEffects )
 
                 _ ->
@@ -173,3 +171,8 @@ showTick =
 refreshRateInTests : RefreshRate
 refreshRateInTests =
     60
+
+
+getNumberOfSpawnTicks : SpawnConfig -> Int
+getNumberOfSpawnTicks spawnConfig =
+    2 * spawnConfig.numberOfFlickers + 1

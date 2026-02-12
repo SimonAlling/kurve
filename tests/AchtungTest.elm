@@ -14,6 +14,8 @@ import TestScenarios.CrashIntoWallLeft
 import TestScenarios.CrashIntoWallRight
 import TestScenarios.CrashIntoWallTop
 import TestScenarios.CrashSomewhatSoon
+import TestScenarios.CrashingAfterBecomingSolidAtSameDrawingPosition_Bottom
+import TestScenarios.CrashingAfterBecomingSolidAtSameDrawingPosition_Top
 import TestScenarios.CrashingWhileBecomingSolid
 import TestScenarios.CuttingCornersBasic
 import TestScenarios.CuttingCornersPerfectOverpainting
@@ -244,6 +246,18 @@ holeTests =
                     |> expectRoundOutcome
                         TestScenarios.CrashingWhileBecomingSolid.config
                         TestScenarios.CrashingWhileBecomingSolid.expectedOutcome
+        , test "First solid position is permanently drawn when becoming solid without changing drawing position and then immediately crashing" <|
+            \_ ->
+                roundWith TestScenarios.CrashingAfterBecomingSolidAtSameDrawingPosition_Bottom.spawnedKurves
+                    |> expectRoundOutcome
+                        TestScenarios.CrashingAfterBecomingSolidAtSameDrawingPosition_Bottom.config
+                        TestScenarios.CrashingAfterBecomingSolidAtSameDrawingPosition_Bottom.expectedOutcome
+        , test "First solid position is permanently drawn when becoming solid just outside the canvas (at effectively the same drawing position as the previous one)" <|
+            \_ ->
+                roundWith TestScenarios.CrashingAfterBecomingSolidAtSameDrawingPosition_Top.spawnedKurves
+                    |> expectRoundOutcome
+                        TestScenarios.CrashingAfterBecomingSolidAtSameDrawingPosition_Top.config
+                        TestScenarios.CrashingAfterBecomingSolidAtSameDrawingPosition_Top.expectedOutcome
         , test "Hole size and spacing are correct" <|
             \_ ->
                 roundWith TestScenarios.HoleSizeAndSpacing.spawnedKurves

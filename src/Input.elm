@@ -1,26 +1,21 @@
-port module Input exposing (Button(..), ButtonDirection(..), inputSubscriptions, toStringSetControls, updatePressedButtons)
+module Input exposing (Button(..), ButtonDirection(..), buttonsWithSpecialMeaning, toStringSetControls, updatePressedButtons)
 
 import Set exposing (Set)
 
 
-port onKeydown : (String -> msg) -> Sub msg
-
-
-port onKeyup : (String -> msg) -> Sub msg
-
-
-port onMousedown : (Int -> msg) -> Sub msg
-
-
-port onMouseup : (Int -> msg) -> Sub msg
-
-
-inputSubscriptions : (ButtonDirection -> Button -> msg) -> List (Sub msg)
-inputSubscriptions makeMsg =
-    [ onKeydown (Key >> makeMsg Down)
-    , onKeyup (Key >> makeMsg Up)
-    , onMousedown (Mouse >> makeMsg Down)
-    , onMouseup (Mouse >> makeMsg Up)
+{-| Buttons that are used in the game for things other than controlling players. Please DRY up.
+-}
+buttonsWithSpecialMeaning : List Button
+buttonsWithSpecialMeaning =
+    [ Key "ArrowLeft"
+    , Key "ArrowRight"
+    , Key "Enter"
+    , Key "Escape"
+    , Key "KeyE"
+    , Key "KeyO"
+    , Key "KeyR"
+    , Key "Space"
+    , Key "Tab"
     ]
 
 
