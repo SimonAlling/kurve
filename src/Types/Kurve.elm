@@ -5,12 +5,13 @@ module Types.Kurve exposing
     , UserInteraction(..)
     , getHoleStatus
     , hasPlayerId
+    , isSolid
     , modifyReversedInteractions
     , reset
     )
 
 import Color exposing (Color)
-import Holes exposing (HoleStatus)
+import Holes exposing (HoleStatus, Holiness(..), getHoliness)
 import Set exposing (Set)
 import Types.Angle exposing (Angle)
 import Types.PlayerId exposing (PlayerId)
@@ -63,3 +64,8 @@ hasPlayerId id kurve =
 getHoleStatus : Kurve -> HoleStatus
 getHoleStatus =
     .state >> .holeStatus
+
+
+isSolid : Kurve -> Bool
+isSolid =
+    getHoleStatus >> getHoliness >> (==) Solid

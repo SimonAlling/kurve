@@ -182,7 +182,7 @@ initialOccupiedPixels worldConfig =
                 |> World.drawingPosition
                 |> World.occupyDrawingPosition
     in
-    List.foldl placeKurve (World.empty worldConfig)
+    List.filter Kurve.isSolid >> List.foldl placeKurve (World.empty worldConfig)
 
 
 reactToTick : Config -> Tick -> Round -> ( TickResult Round, WhatToDraw )
