@@ -57,6 +57,76 @@ a:hover, a:focus, a:active {
     text-decoration: none;
 }
 
+input[type="checkbox"] {
+    display: none;
+}
+
+/* Checkbox and label: */
+input[type="checkbox"] + label {
+    padding-left: 18px;
+    position: relative;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    cursor: pointer;
+}
+
+/* Actual checkbox: */
+input[type="checkbox"] + label::before {
+    background-image: url("../resources/kurve-icons.png");
+    background-repeat: no-repeat;
+    box-sizing: border-box;
+    content: "";
+    height: 12px;
+    left: 0;
+    position: absolute;
+    top: 2px;
+    width: 12px;
+    border: 1px white solid;
+    background-position: 0 -48px;
+}
+
+/* Actual checkbox on hover/focus: */
+input[type="checkbox"] + label:hover::before, input[type="checkbox"] + label:focus::before {
+    border: 1px white solid;
+    background-position: -16px -48px;
+}
+
+/* Actual checkbox when checked: */
+input[type="checkbox"]:checked + label::before {
+    background-position: -32px -48px;
+}
+
+/* Actual checkbox when checked on hover/focus: */
+input[type="checkbox"]:checked + label:hover::before, input[type="checkbox"]:checked + label:focus::before {
+    background-position: -48px -48px;
+}
+
+.icon-button {
+    background-image: url("../resources/kurve-icons.png");
+    cursor: pointer;
+    height: 16px;
+    opacity: 0.75;
+    width: 16px;
+
+    &:hover, &:focus, &:active {
+        opacity: 1;
+    }
+}
+
+.in-top-right-corner {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+}
+
+#button-show-settings {
+    background-position: 0 -32px;
+}
+
+#button-hide-settings {
+    background-position: 0 -16px;
+}
+
 #wrapper {
     align-items: center;
     display: flex;
@@ -242,6 +312,21 @@ $minWidthForCenteredCanvas: (
             width: 160px;
         }
     }
+}
+
+#settings-screen {
+    padding-top: 50px;
+    padding-left: 80px;
+}
+
+#settings-screen > div {
+    box-sizing: border-box;
+    margin-bottom: 12px;
+    opacity: 0.6;
+}
+
+#settings-screen > div:hover {
+    opacity: 1;
 }
 
 #scoreboard {

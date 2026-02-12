@@ -27,7 +27,7 @@ theTest =
 
 initialModel : Model
 initialModel =
-    init { initialSeedValue = 1337 } |> Tuple.first
+    init { initialSeedValue = 1337, settingsJsonFromLocalStorage = Nothing } |> Tuple.first
 
 
 messages : Int -> List Msg
