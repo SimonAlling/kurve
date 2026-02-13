@@ -137,7 +137,7 @@ firstUpdateTick =
     Tick.succ Tick.genesis
 
 
-prepareLiveRound : Config -> Random.Seed -> ParticipatingPlayers -> Set String -> Round
+prepareLiveRound : Config -> Random.Seed -> ParticipatingPlayers (Maybe HoleStatus) -> Set String -> Round
 prepareLiveRound config seed players pressedButtons =
     let
         recordInitialInteractions : List Kurve -> List Kurve
@@ -182,7 +182,7 @@ initialOccupiedPixels worldConfig =
                 |> World.drawingPosition
                 |> World.occupyDrawingPosition
     in
-    List.foldl placeKurve (World.empty worldConfig)
+    List.filter Kurve.isSolid >> List.foldl placeKurve (World.empty worldConfig)
 
 
 reactToTick : Config -> Tick -> Round -> ( TickResult Round, WhatToDraw )

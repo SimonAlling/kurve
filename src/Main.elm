@@ -31,6 +31,7 @@ import Game
         , recordUserInteraction
         , tickResultToGameState
         )
+import Holes exposing (HoleStatus)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), updatePressedButtons)
@@ -48,6 +49,7 @@ import Players
         , handlePlayerJoiningOrLeaving
         , includeResultsFrom
         , initialPlayers
+        , noExtraData
         , participating
         )
 import Random
@@ -57,8 +59,11 @@ import Settings exposing (SettingId(..))
 import Spawn exposing (flickerFrequencyToTicksPerSecond, makeSpawnState, stepSpawnState)
 import Time
 import Types.FrameTime exposing (FrameTime)
+import Types.Kurve exposing (Kurve, getHoleStatus, hasPlayerId)
+import Types.PlayerId exposing (PlayerId)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
+import Util exposing (find)
 
 
 type alias Model =
@@ -216,6 +221,9 @@ update msg ({ config } as model) =
                         SpawnProtection ->
                             Config.withSpawnkillProtection newValue model.config
 
+                        PersistHoleStatus ->
+                            Config.withPersistHoleStatus newValue model.config
+
                         EnableAlternativeControls ->
                             Config.withEnableAlternativeControls newValue model.config
             in
@@ -260,7 +268,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
         InMenu Lobby seed ->
             case ( button, atLeastOneIsParticipating model.players ) of
                 ( Key "Space", True ) ->
-                    startRound (Live ()) model <| prepareLiveRound config seed (participating model.players) pressedButtons
+                    startRound (Live ()) model <| prepareLiveRound config seed (participating (always Nothing) model.players) pressedButtons
 
                 _ ->
                     ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving config.enableAlternativeControls button model.players }, DoNothing )
@@ -329,7 +337,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                                     includeResultsFrom unpackedFinishedRound model.players
                             in
                             -- Quitting after the final round is not allowed in the original game.
-                            if isGameOver (participating playersWithRecentResults) then
+                            if isGameOver (participating noExtraData playersWithRecentResults) then
                                 ( handleUserInteraction Down button model, DoNothing )
 
                             else
@@ -479,12 +487,22 @@ proceedToNextRound finishedRound ({ config, pressedButtons } as model) =
         modelWithRecentResults : Model
         modelWithRecentResults =
             { model | players = playersWithRecentResults }
+
+        theKurvesInNoParticularOrder : List Kurve
+        theKurvesInNoParticularOrder =
+            unpackedFinishedRound.kurves.alive ++ unpackedFinishedRound.kurves.dead
+
+        getHoleStatusById : PlayerId -> Maybe HoleStatus
+        getHoleStatusById id =
+            theKurvesInNoParticularOrder
+                |> find (hasPlayerId id)
+                |> Maybe.map getHoleStatus
     in
-    if isGameOver (participating playersWithRecentResults) then
+    if isGameOver (participating noExtraData playersWithRecentResults) then
         gameOver unpackedFinishedRound.seed modelWithRecentResults
 
     else
-        startRound (Live ()) modelWithRecentResults <| prepareLiveRound config unpackedFinishedRound.seed (participating playersWithRecentResults) pressedButtons
+        startRound (Live ()) modelWithRecentResults <| prepareLiveRound config unpackedFinishedRound.seed (participating getHoleStatusById playersWithRecentResults) pressedButtons
 
 
 stepOneTick : Overlay.State -> ActiveGameState -> FinishedRound -> Model -> ( Model, Effect )

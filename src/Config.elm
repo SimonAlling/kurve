@@ -9,6 +9,7 @@ module Config exposing
     , getSettings
     , withEnableAlternativeControls
     , withHardcodedHoles
+    , withPersistHoleStatus
     , withSettings
     , withSpawnkillProtection
     , withSpeed
@@ -31,6 +32,7 @@ default =
             , maxSolidTicks = 300
             , minHolyTicks = 7
             , maxHolyTicks = 11
+            , persistBetweenRounds = Settings.default.persistHoleStatus
             }
         }
     , spawn =
@@ -97,12 +99,14 @@ type alias HoleConfig =
     , maxSolidTicks : Int
     , minHolyTicks : Int
     , maxHolyTicks : Int
+    , persistBetweenRounds : Bool
     }
 
 
 getSettings : Config -> Settings
 getSettings config =
     { spawnkillProtection = config.spawn.spawnkillProtection
+    , persistHoleStatus = config.kurves.holes.persistBetweenRounds
     , enableAlternativeControls = config.enableAlternativeControls
     }
 
@@ -111,6 +115,7 @@ withSettings : Settings -> Config -> Config
 withSettings settings config =
     config
         |> withSpawnkillProtection settings.spawnkillProtection
+        |> withPersistHoleStatus settings.persistHoleStatus
         |> withEnableAlternativeControls settings.enableAlternativeControls
 
 
@@ -122,6 +127,20 @@ withSpawnkillProtection newValue config =
             config.spawn
     in
     { config | spawn = { spawnConfig | spawnkillProtection = newValue } }
+
+
+withPersistHoleStatus : Bool -> Config -> Config
+withPersistHoleStatus newValue config =
+    let
+        kurveConfig : KurveConfig
+        kurveConfig =
+            config.kurves
+
+        holeConfig : HoleConfig
+        holeConfig =
+            kurveConfig.holes
+    in
+    { config | kurves = { kurveConfig | holes = { holeConfig | persistBetweenRounds = newValue } } }
 
 
 withEnableAlternativeControls : Bool -> Config -> Config
@@ -159,6 +178,7 @@ withHardcodedHoles solidTicks holyTicks config =
                     , maxSolidTicks = solidTicks
                     , minHolyTicks = holyTicks
                     , maxHolyTicks = holyTicks
+                    , persistBetweenRounds = defaultKurveConfig.holes.persistBetweenRounds
                     }
             }
     }

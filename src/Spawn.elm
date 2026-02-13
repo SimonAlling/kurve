@@ -84,20 +84,20 @@ flickerFrequencyToTicksPerSecond =
     (*) 2
 
 
-generateKurves : Config -> ParticipatingPlayers -> Random.Generator (List Kurve)
+generateKurves : Config -> ParticipatingPlayers (Maybe HoleStatus) -> Random.Generator (List Kurve)
 generateKurves config players =
     let
         numberOfPlayers : Int
         numberOfPlayers =
             Dict.size players
 
-        generateNewAndPrepend : ( PlayerId, Player ) -> List Kurve -> Random.Generator (List Kurve)
-        generateNewAndPrepend ( id, player ) precedingKurves =
-            generateKurve config id numberOfPlayers (List.map (.state >> .position) precedingKurves) player
+        generateNewAndPrepend : Maybe HoleStatus -> ( PlayerId, Player ) -> List Kurve -> Random.Generator (List Kurve)
+        generateNewAndPrepend maybeHoleStatus ( id, player ) precedingKurves =
+            generateKurve config id numberOfPlayers (List.map (.state >> .position) precedingKurves) player maybeHoleStatus
                 |> Random.map (\kurve -> kurve :: precedingKurves)
     in
     Dict.foldr
-        (\id ( player, _ ) -> curry (Random.andThen << generateNewAndPrepend) id player)
+        (\id ( player, _, maybeHoleStatusFromPreviousRound ) -> curry (Random.andThen << generateNewAndPrepend maybeHoleStatusFromPreviousRound) id player)
         (Random.constant [])
         players
 
@@ -130,9 +130,9 @@ isTooCloseFor numberOfPlayers config point1 point2 =
     Distance.toFloat (distanceBetween point1 point2) < min desiredMinimumDistance maxAllowedMinimumDistance
 
 
-generateKurve : Config -> PlayerId -> Int -> List Position -> Player -> Random.Generator Kurve
-generateKurve config id numberOfPlayers existingPositions player =
-    generateKurveState config numberOfPlayers existingPositions
+generateKurve : Config -> PlayerId -> Int -> List Position -> Player -> Maybe HoleStatus -> Random.Generator Kurve
+generateKurve config id numberOfPlayers existingPositions player holeStatusFromPreviousRound =
+    generateKurveState config numberOfPlayers existingPositions holeStatusFromPreviousRound
         |> Random.map
             (\state ->
                 { color = player.color
@@ -145,8 +145,8 @@ generateKurve config id numberOfPlayers existingPositions player =
             )
 
 
-generateKurveState : Config -> Int -> List Position -> Random.Generator Kurve.State
-generateKurveState config numberOfPlayers existingPositions =
+generateKurveState : Config -> Int -> List Position -> Maybe HoleStatus -> Random.Generator Kurve.State
+generateKurveState config numberOfPlayers existingPositions holeStatusFromPreviousRound =
     let
         maybeSafeSpawnPosition : Random.Generator Position
         maybeSafeSpawnPosition =
@@ -161,11 +161,20 @@ generateKurveState config numberOfPlayers existingPositions =
             { position = generatedPosition
             , direction = generatedAngle
             , holeStatus =
-                RandomHoles
-                    { holiness = Solid
-                    , ticksLeft = generatedSolidTicks
-                    , holeSeed = generatedHoleSeed
-                    }
+                let
+                    freshHoleStatus : HoleStatus
+                    freshHoleStatus =
+                        RandomHoles
+                            { holiness = Solid
+                            , ticksLeft = generatedSolidTicks
+                            , holeSeed = generatedHoleSeed
+                            }
+                in
+                if config.kurves.holes.persistBetweenRounds then
+                    holeStatusFromPreviousRound |> Maybe.withDefault freshHoleStatus
+
+                else
+                    freshHoleStatus
             }
         )
         maybeSafeSpawnPosition

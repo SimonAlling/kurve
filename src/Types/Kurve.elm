@@ -3,12 +3,15 @@ module Types.Kurve exposing
     , Kurve
     , State
     , UserInteraction(..)
+    , getHoleStatus
+    , hasPlayerId
+    , isSolid
     , modifyReversedInteractions
     , reset
     )
 
 import Color exposing (Color)
-import Holes exposing (HoleStatus)
+import Holes exposing (HoleStatus, Holiness(..), getHoliness)
 import Set exposing (Set)
 import Types.Angle exposing (Angle)
 import Types.PlayerId exposing (PlayerId)
@@ -51,3 +54,18 @@ type Fate
 reset : Kurve -> Kurve
 reset kurve =
     { kurve | state = kurve.stateAtSpawn }
+
+
+hasPlayerId : PlayerId -> Kurve -> Bool
+hasPlayerId id kurve =
+    kurve.id == id
+
+
+getHoleStatus : Kurve -> HoleStatus
+getHoleStatus =
+    .state >> .holeStatus
+
+
+isSolid : Kurve -> Bool
+isSolid =
+    getHoleStatus >> getHoliness >> (==) Solid
