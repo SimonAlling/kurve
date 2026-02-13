@@ -46,6 +46,7 @@ makeSettingsEntries : Config -> List SettingsEntry
 makeSettingsEntries config =
     [ ( SpawnProtection, "Prevent spawnkills", config.spawn.spawnkillProtection )
     , ( PersistHoleStatus, "Persist hole status between rounds", config.kurves.holes.persistBetweenRounds )
+    , ( EnableAlternativeControls, "Enable alternative controls", config.enableAlternativeControls )
     ]
 
 
@@ -69,3 +70,6 @@ idFor settingId =
 
         PersistHoleStatus ->
             "persist-hole-status"
+
+        EnableAlternativeControls ->
+            "enable-alternative-controls"

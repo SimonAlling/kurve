@@ -29,13 +29,13 @@ type alias ParticipatingPlayers extraData =
     Dict PlayerId ( Player, Score, extraData )
 
 
-handlePlayerJoiningOrLeaving : Button -> AllPlayers -> AllPlayers
-handlePlayerJoiningOrLeaving button =
+handlePlayerJoiningOrLeaving : Bool -> Button -> AllPlayers -> AllPlayers
+handlePlayerJoiningOrLeaving enableAlternativeControls button =
     Dict.map
         (\_ ( player, status ) ->
             let
                 ( leftButtons, rightButtons ) =
-                    player.controls
+                    player.controls |> Input.withOnlyPrimaryUnless enableAlternativeControls
 
                 newStatus : PlayerStatus
                 newStatus =
@@ -130,7 +130,7 @@ players =
         green : Player
         green =
             { color = Colors.green
-            , controls = ( [ Key "ArrowLeft" ], [ Key "ArrowDown" ] )
+            , controls = ( [ Key "ArrowLeft" ], [ Key "ArrowDown", Key "ArrowRight" ] )
             }
 
         pink : Player

@@ -223,6 +223,9 @@ update msg ({ config } as model) =
 
                         PersistHoleStatus ->
                             Config.withPersistHoleStatus newValue model.config
+
+                        EnableAlternativeControls ->
+                            Config.withEnableAlternativeControls newValue model.config
             in
             ( { model | config = newConfig }, SaveSettings (Config.getSettings newConfig) )
 
@@ -268,7 +271,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                     startRound (Live ()) model <| prepareLiveRound config seed (participating (always Nothing) model.players) pressedButtons
 
                 _ ->
-                    ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, DoNothing )
+                    ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving config.enableAlternativeControls button model.players }, DoNothing )
 
         InMenu SettingsScreen seed ->
             case button of
@@ -716,7 +719,7 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ lobby ToggleSettingsScreen model.players
+                        [ lobby model.config.enableAlternativeControls ToggleSettingsScreen model.players
                         ]
                     , scoreboardContainer []
                     ]

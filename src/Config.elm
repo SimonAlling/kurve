@@ -7,6 +7,7 @@ module Config exposing
     , WorldConfig
     , default
     , getSettings
+    , withEnableAlternativeControls
     , withHardcodedHoles
     , withPersistHoleStatus
     , withSettings
@@ -50,6 +51,7 @@ default =
     , replay =
         { skipStepInMs = 5000
         }
+    , enableAlternativeControls = Settings.default.enableAlternativeControls
     }
 
 
@@ -58,6 +60,7 @@ type alias Config =
     , spawn : SpawnConfig
     , world : WorldConfig
     , replay : ReplayConfig
+    , enableAlternativeControls : Bool
     }
 
 
@@ -104,6 +107,7 @@ getSettings : Config -> Settings
 getSettings config =
     { spawnkillProtection = config.spawn.spawnkillProtection
     , persistHoleStatus = config.kurves.holes.persistBetweenRounds
+    , enableAlternativeControls = config.enableAlternativeControls
     }
 
 
@@ -112,6 +116,7 @@ withSettings settings config =
     config
         |> withSpawnkillProtection settings.spawnkillProtection
         |> withPersistHoleStatus settings.persistHoleStatus
+        |> withEnableAlternativeControls settings.enableAlternativeControls
 
 
 withSpawnkillProtection : Bool -> Config -> Config
@@ -136,6 +141,11 @@ withPersistHoleStatus newValue config =
             kurveConfig.holes
     in
     { config | kurves = { kurveConfig | holes = { holeConfig | persistBetweenRounds = newValue } } }
+
+
+withEnableAlternativeControls : Bool -> Config -> Config
+withEnableAlternativeControls newValue config =
+    { config | enableAlternativeControls = newValue }
 
 
 withSpeed : Speed -> Config -> Config
