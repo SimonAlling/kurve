@@ -44,7 +44,7 @@ showEntry makeMsg ( settingId, settingLabel, currentValue ) =
 
 makeSettingsEntries : Config -> List SettingsEntry
 makeSettingsEntries config =
-    [ ( SpawnProtection, "Spawnkill protection", config.spawn.spawnkillProtection )
+    [ ( SpawnProtection, "Prevent spawnkills", config.spawn.spawnkillProtection )
     , ( PersistHoleStatus, "Persist hole status between rounds", config.kurves.holes.persistBetweenRounds )
     ]
 
