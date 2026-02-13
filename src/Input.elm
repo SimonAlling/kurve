@@ -1,4 +1,4 @@
-module Input exposing (Button(..), ButtonDirection(..), buttonsWithSpecialMeaning, toStringSetControls, updatePressedButtons, withOnlyPrimaryUnless)
+module Input exposing (Button(..), ButtonDirection(..), buttonsWithSpecialMeaning, toStringSetControls, updatePressedButtons)
 
 import Set exposing (Set)
 
@@ -51,20 +51,11 @@ buttonToString button =
             "Mouse" ++ String.fromInt buttonNumber
 
 
-toStringSetControls : Bool -> ( List Button, List Button ) -> ( Set String, Set String )
-toStringSetControls enableExtraControls =
-    withOnlyPrimaryUnless enableExtraControls >> Tuple.mapBoth buttonListToStringSet buttonListToStringSet
+toStringSetControls : ( List Button, List Button ) -> ( Set String, Set String )
+toStringSetControls =
+    Tuple.mapBoth buttonListToStringSet buttonListToStringSet
 
 
 buttonListToStringSet : List Button -> Set String
 buttonListToStringSet =
     List.map buttonToString >> Set.fromList
-
-
-withOnlyPrimaryUnless : Bool -> ( List Button, List Button ) -> ( List Button, List Button )
-withOnlyPrimaryUnless enableExtraControls =
-    if enableExtraControls then
-        identity
-
-    else
-        Tuple.mapBoth (List.take 1) (List.take 1)

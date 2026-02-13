@@ -215,9 +215,6 @@ update msg ({ config } as model) =
                     case settingId of
                         SpawnProtection ->
                             Config.withSpawnkillProtection newValue model.config
-
-                        EnableExtraControls ->
-                            Config.withEnableExtraControls newValue model.config
             in
             ( { model | config = newConfig }, SaveSettings (Config.getSettings newConfig) )
 
@@ -263,7 +260,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                     startRound (Live ()) model <| prepareLiveRound config seed (participating model.players) pressedButtons
 
                 _ ->
-                    ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving config.enableExtraControls button model.players }, DoNothing )
+                    ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, DoNothing )
 
         InMenu SettingsScreen seed ->
             case button of
@@ -701,7 +698,7 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ lobby model.config.enableExtraControls ToggleSettingsScreen model.players
+                        [ lobby ToggleSettingsScreen model.players
                         ]
                     , scoreboardContainer []
                     ]

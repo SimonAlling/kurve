@@ -11,16 +11,16 @@ import Types.Player exposing (Player)
 import Types.PlayerStatus exposing (PlayerStatus(..))
 
 
-lobby : Bool -> msg -> AllPlayers -> Html msg
-lobby enableExtraControls onSettingsButtonClick players =
+lobby : msg -> AllPlayers -> Html msg
+lobby onSettingsButtonClick players =
     div
         [ Attr.id "lobby"
         ]
-        (settingsButton onSettingsButtonClick :: (Dict.values players |> List.map (playerEntry enableExtraControls)))
+        (settingsButton onSettingsButtonClick :: (Dict.values players |> List.map playerEntry))
 
 
-playerEntry : Bool -> ( Player, PlayerStatus ) -> Html msg
-playerEntry enableExtraControls ( player, status ) =
+playerEntry : ( Player, PlayerStatus ) -> Html msg
+playerEntry ( player, status ) =
     let
         ( left, right ) =
             GUI.Controls.showControls player
@@ -34,9 +34,7 @@ playerEntry enableExtraControls ( player, status ) =
                 []
                 (Text.string (Text.Size 1) player.color <| "(" ++ left ++ " " ++ right ++ ")")
             , p
-                [ Attr.class "extra-controls"
-                , Attr.hidden (not enableExtraControls)
-                ]
+                [ Attr.class "extra-controls" ]
                 (Text.string (Text.Size 1) player.color (GUI.Controls.showExtraControls player))
             ]
         , Html.div

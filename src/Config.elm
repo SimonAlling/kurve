@@ -7,7 +7,6 @@ module Config exposing
     , WorldConfig
     , default
     , getSettings
-    , withEnableExtraControls
     , withHardcodedHoles
     , withSettings
     , withSpawnkillProtection
@@ -49,7 +48,6 @@ default =
     , replay =
         { skipStepInMs = 5000
         }
-    , enableExtraControls = Settings.default.enableExtraControls
     }
 
 
@@ -58,7 +56,6 @@ type alias Config =
     , spawn : SpawnConfig
     , world : WorldConfig
     , replay : ReplayConfig
-    , enableExtraControls : Bool
     }
 
 
@@ -103,7 +100,6 @@ type alias HoleConfig =
 getSettings : Config -> Settings
 getSettings config =
     { spawnkillProtection = config.spawn.spawnkillProtection
-    , enableExtraControls = config.enableExtraControls
     }
 
 
@@ -111,7 +107,6 @@ withSettings : Settings -> Config -> Config
 withSettings settings config =
     config
         |> withSpawnkillProtection settings.spawnkillProtection
-        |> withEnableExtraControls settings.enableExtraControls
 
 
 withSpawnkillProtection : Bool -> Config -> Config
@@ -122,11 +117,6 @@ withSpawnkillProtection newValue config =
             config.spawn
     in
     { config | spawn = { spawnConfig | spawnkillProtection = newValue } }
-
-
-withEnableExtraControls : Bool -> Config -> Config
-withEnableExtraControls newValue config =
-    { config | enableExtraControls = newValue }
 
 
 withSpeed : Speed -> Config -> Config
