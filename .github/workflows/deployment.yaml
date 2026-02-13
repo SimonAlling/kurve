@@ -53,13 +53,13 @@ jobs:
             /resources/
           sparse-checkout-cone-mode: false
 
-      - name: Copy legacy JavaScript version
-        run: |
-          cp --recursive legacy-javascript-version/ website-root/legacy # Assumption: target directory doesn't already exist; created here.
-
       - name: Copy Elm version
         run: |
           cp --recursive elm-version/_site/ website-root
+
+      - name: Copy legacy JavaScript version
+        run: |
+          cp --recursive legacy-javascript-version/ website-root/legacy # Assumption: target directory doesn't already exist; created here.
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5.0.0
