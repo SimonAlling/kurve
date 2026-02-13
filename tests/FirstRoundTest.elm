@@ -86,6 +86,46 @@ expectedEffects =
         { bodyDrawing = []
         , headDrawing = []
         }
+    , DrawSomething
+        { bodyDrawing = []
+        , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
+        }
+    , DrawSomething
+        { bodyDrawing = []
+        , headDrawing = []
+        }
+    , DrawSomething
+        { bodyDrawing = []
+        , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
+        }
+    , DrawSomething
+        { bodyDrawing = []
+        , headDrawing = []
+        }
+    , DrawSomething
+        { bodyDrawing = []
+        , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
+        }
+    , DrawSomething
+        { bodyDrawing = []
+        , headDrawing = []
+        }
+    , DrawSomething
+        { bodyDrawing = []
+        , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
+        }
+    , DrawSomething
+        { bodyDrawing = []
+        , headDrawing = []
+        }
+    , DrawSomething
+        { bodyDrawing = []
+        , headDrawing = [ ( Colors.green, { x = 211, y = 192 } ) ]
+        }
+    , DrawSomething
+        { bodyDrawing = []
+        , headDrawing = []
+        }
 
     -- Draw spawn position permanently:
     , DrawSomething
@@ -487,35 +527,35 @@ expectedEffects =
         , headDrawing = [ ( Colors.green, { x = 306, y = 169 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 307, y = 169 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 307, y = 169 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 308, y = 169 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 308, y = 169 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 309, y = 169 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 309, y = 169 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 310, y = 169 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 310, y = 169 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 311, y = 168 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 311, y = 168 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 312, y = 168 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 312, y = 168 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 313, y = 168 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 313, y = 168 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 314, y = 168 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 314, y = 168 } ) ]
         }
     , DrawSomething
@@ -963,35 +1003,35 @@ expectedEffects =
         , headDrawing = [ ( Colors.green, { x = 422, y = 142 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = []
+        { bodyDrawing = [ ( Colors.green, { x = 423, y = 142 } ) ]
         , headDrawing = [ ( Colors.green, { x = 423, y = 142 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = []
+        { bodyDrawing = [ ( Colors.green, { x = 424, y = 142 } ) ]
         , headDrawing = [ ( Colors.green, { x = 424, y = 142 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = []
+        { bodyDrawing = [ ( Colors.green, { x = 425, y = 142 } ) ]
         , headDrawing = [ ( Colors.green, { x = 425, y = 142 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = []
+        { bodyDrawing = [ ( Colors.green, { x = 426, y = 141 } ) ]
         , headDrawing = [ ( Colors.green, { x = 426, y = 141 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = []
+        { bodyDrawing = [ ( Colors.green, { x = 427, y = 141 } ) ]
         , headDrawing = [ ( Colors.green, { x = 427, y = 141 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = []
+        { bodyDrawing = [ ( Colors.green, { x = 428, y = 141 } ) ]
         , headDrawing = [ ( Colors.green, { x = 428, y = 141 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = []
+        { bodyDrawing = [ ( Colors.green, { x = 429, y = 141 } ) ]
         , headDrawing = [ ( Colors.green, { x = 429, y = 141 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = []
+        { bodyDrawing = [ ( Colors.green, { x = 430, y = 141 } ) ]
         , headDrawing = [ ( Colors.green, { x = 430, y = 141 } ) ]
         }
     , DrawSomething
@@ -1031,27 +1071,27 @@ expectedEffects =
         , headDrawing = [ ( Colors.green, { x = 439, y = 138 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 440, y = 138 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 440, y = 138 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 441, y = 138 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 441, y = 138 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 442, y = 138 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 442, y = 138 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 443, y = 138 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 443, y = 138 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 444, y = 137 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 444, y = 137 } ) ]
         }
     , DrawSomething
-        { bodyDrawing = [ ( Colors.green, { x = 445, y = 137 } ) ]
+        { bodyDrawing = []
         , headDrawing = [ ( Colors.green, { x = 445, y = 137 } ) ]
         }
     ]
