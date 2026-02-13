@@ -1,4 +1,4 @@
-module Settings exposing (SettingId(..), Settings, default, parse, stringify)
+module Settings exposing (SettingId(..), Settings, default, parse, stringify, trueOriginalExperience)
 
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
@@ -22,6 +22,14 @@ default =
     { spawnkillProtection = True
     , persistHoleStatus = False
     , enableAlternativeControls = True
+    }
+
+
+trueOriginalExperience : Settings
+trueOriginalExperience =
+    { spawnkillProtection = False
+    , persistHoleStatus = True
+    , enableAlternativeControls = False
     }
 
 
