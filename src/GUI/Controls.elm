@@ -1,4 +1,4 @@
-module GUI.Controls exposing (showControls)
+module GUI.Controls exposing (showControls, showExtraControls)
 
 import GUI.Buttons.Keyboard exposing (keyCodeRepresentation)
 import GUI.Buttons.Mouse exposing (mouseButtonRepresentation)
@@ -14,6 +14,21 @@ showControls { controls } =
             List.head >> Maybe.map showButton >> Maybe.withDefault "N/A"
     in
     Tuple.mapBoth showFirst showFirst controls
+
+
+showExtraControls : Player -> String
+showExtraControls { controls } =
+    let
+        ( left, right ) =
+            controls
+
+        allExtra : List Button
+        allExtra =
+            List.drop 1 left ++ List.drop 1 right
+    in
+    allExtra
+        |> List.map showButton
+        |> String.join " "
 
 
 showButton : Button -> String

@@ -3,7 +3,7 @@ module GUI.Lobby exposing (lobby)
 import Dict
 import GUI.Controls
 import GUI.Text as Text
-import Html exposing (Html, button, div)
+import Html exposing (Html, button, div, p)
 import Html.Attributes as Attr
 import Html.Events
 import Players exposing (AllPlayers)
@@ -30,7 +30,13 @@ playerEntry ( player, status ) =
         [ Html.div
             [ Attr.class "controls"
             ]
-            (Text.string (Text.Size 1) player.color <| "(" ++ left ++ " " ++ right ++ ")")
+            [ p
+                []
+                (Text.string (Text.Size 1) player.color <| "(" ++ left ++ " " ++ right ++ ")")
+            , p
+                [ Attr.class "extra-controls" ]
+                (Text.string (Text.Size 1) player.color (GUI.Controls.showExtraControls player))
+            ]
         , Html.div
             [ Attr.style "visibility"
                 (case status of

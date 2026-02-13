@@ -316,6 +316,11 @@ $minWidthForCenteredCanvas: (
         .controls {
             width: 160px;
         }
+
+        .extra-controls {
+            opacity: 0.4;
+            margin-top: 4px;
+        }
     }
 }
 
