@@ -252,21 +252,21 @@ $minWidthForCenteredCanvas: (
     button:not(:last-child) {
         margin-right: 8px;
     }
+}
 
-    button {
-        background-color: black;
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        color: white;
-        height: 32px;
+button.buttony-button {
+    background-color: black;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    height: 32px;
 
-        &.focused {
-            border-color: white;
-        }
+    &.focused {
+        border-color: white;
+    }
 
-        &:hover {
-            border-color: white;
-            background-color: rgba(255, 255, 255, 0.1);
-        }
+    &:hover {
+        border-color: white;
+        background-color: rgba(255, 255, 255, 0.1);
     }
 }
 
@@ -328,6 +328,11 @@ $minWidthForCenteredCanvas: (
 #settings-screen {
     padding-top: 50px;
     padding-left: 80px;
+    padding-right: 80px;
+    padding-bottom: 50px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 #settings-screen > div {
@@ -338,6 +343,24 @@ $minWidthForCenteredCanvas: (
 
 #settings-screen > div:hover {
     opacity: 1;
+}
+
+#settings-screen footer {
+    margin-top: auto;
+
+    h2 {
+        border-bottom: 1px solid white;
+        margin-bottom: 8px;
+    }
+
+    #preset-buttons {
+        display: flex;
+        gap: 12px;
+
+        button {
+            flex-grow: 1;
+        }
+    }
 }
 
 #scoreboard {

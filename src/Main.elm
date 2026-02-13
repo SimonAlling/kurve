@@ -55,7 +55,7 @@ import Players
 import Random
 import Round exposing (FinishedRound, Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
-import Settings exposing (SettingId(..))
+import Settings exposing (SettingId(..), Settings)
 import Spawn exposing (flickerFrequencyToTicksPerSecond, makeSpawnState, stepSpawnState)
 import Time
 import Types.FrameTime exposing (FrameTime)
@@ -113,6 +113,7 @@ type Msg
     | ButtonUsed ButtonDirection Button
     | ToggleSettingsScreen
     | SettingChanged SettingId Bool
+    | SettingsPresetApplied Settings
     | DialogChoiceMade Dialog.Option
     | FocusLost
     | RequestToggleFullscreen
@@ -228,6 +229,9 @@ update msg ({ config } as model) =
                             Config.withEnableAlternativeControls newValue model.config
             in
             ( { model | config = newConfig }, SaveSettings (Config.getSettings newConfig) )
+
+        SettingsPresetApplied newSettings ->
+            ( { model | config = Config.withSettings newSettings config }, SaveSettings newSettings )
 
         DialogChoiceMade option ->
             handleDialogChoice option model
@@ -735,7 +739,7 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ GUI.Settings.settings SettingChanged ToggleSettingsScreen model.config
+                        [ GUI.Settings.settings SettingChanged SettingsPresetApplied ToggleSettingsScreen model.config
                         ]
                     , scoreboardContainer []
                     ]

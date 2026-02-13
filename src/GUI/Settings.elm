@@ -3,17 +3,20 @@ module GUI.Settings exposing (settings)
 import Colors
 import Config exposing (Config)
 import GUI.Text as Text
-import Html exposing (Html, button, div, input, label)
+import Html exposing (Html, button, div, footer, h2, input, label)
 import Html.Attributes as Attr
 import Html.Events
-import Settings exposing (SettingId(..))
+import Settings exposing (SettingId(..), Settings)
 
 
-settings : (SettingId -> Bool -> msg) -> msg -> Config -> Html msg
-settings makeMsg closeMsg config =
+settings : (SettingId -> Bool -> msg) -> (Settings -> msg) -> msg -> Config -> Html msg
+settings makeMsg makeApplyPresetMsg closeMsg config =
     div
         [ Attr.id "settings-screen" ]
-        (closeButton closeMsg :: (makeSettingsEntries config |> List.map (showEntry makeMsg)))
+        (closeButton closeMsg
+            :: (makeSettingsEntries config |> List.map (showEntry makeMsg))
+            ++ [ presetsFooter makeApplyPresetMsg thePresets ]
+        )
 
 
 type alias SettingsEntry =
@@ -48,6 +51,48 @@ makeSettingsEntries config =
     , ( PersistHoleStatus, "Persist hole status between rounds", config.kurves.holes.persistBetweenRounds )
     , ( EnableAlternativeControls, "Enable alternative controls", config.enableAlternativeControls )
     ]
+
+
+thePresets : List Preset
+thePresets =
+    [ ( Settings.default, "Sane defaults" )
+    , ( Settings.trueOriginalExperience, "True Original Experience(tm)" )
+    ]
+
+
+type alias Preset =
+    ( Settings, String )
+
+
+presetsFooter : (Settings -> msg) -> List Preset -> Html msg
+presetsFooter makeMsg presets =
+    footer
+        []
+        [ presetsHeading, presetButtons makeMsg presets ]
+
+
+presetsHeading : Html msg
+presetsHeading =
+    h2
+        []
+        (Text.string (Text.Size 1) Colors.white "Presets")
+
+
+presetButtons : (Settings -> msg) -> List Preset -> Html msg
+presetButtons makeMsg presets =
+    div
+        [ Attr.id "preset-buttons"
+        ]
+        (List.map (makeButton makeMsg) presets)
+
+
+makeButton : (Settings -> msg) -> Preset -> Html msg
+makeButton makeMsg ( settingsRecord, buttonLabel ) =
+    button
+        [ Attr.class "buttony-button"
+        , Html.Events.onClick (makeMsg settingsRecord)
+        ]
+        (Text.string (Text.Size 1) Colors.white buttonLabel)
 
 
 closeButton : msg -> Html msg
