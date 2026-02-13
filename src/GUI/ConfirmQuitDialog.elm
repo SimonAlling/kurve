@@ -29,7 +29,12 @@ dialogBox makeMsg question selectedOption =
     let
         optionButton : Dialog.Option -> String -> Html msg
         optionButton option label =
-            button (onClick (makeMsg option) :: focusedIf selectedOption option) (smallWhiteText label)
+            button
+                (onClick (makeMsg option)
+                    :: Attr.class "buttony-button"
+                    :: focusedIf selectedOption option
+                )
+                (smallWhiteText label)
     in
     div [ Attr.class "dialog" ]
         [ p [] (smallWhiteText question)

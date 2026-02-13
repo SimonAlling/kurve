@@ -16,6 +16,7 @@ customElements.define(
 const THE_SETTINGS_KEY = "zatacka_settings";
 
 const flags = {
+    initialSeedValue: Math.floor(Math.random() * 0x100000000),
     settingsJsonFromLocalStorage: window.localStorage.getItem(THE_SETTINGS_KEY),
 };
 
