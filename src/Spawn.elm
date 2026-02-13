@@ -137,7 +137,7 @@ generateKurve config id numberOfPlayers existingPositions player =
             (\state ->
                 { color = player.color
                 , id = id
-                , controls = toStringSetControls player.controls
+                , controls = toStringSetControls config.enableAlternativeControls player.controls
                 , state = state
                 , stateAtSpawn = state
                 , reversedInteractions = []

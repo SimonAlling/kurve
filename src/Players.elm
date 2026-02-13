@@ -28,13 +28,13 @@ type alias ParticipatingPlayers =
     Dict PlayerId ( Player, Score )
 
 
-handlePlayerJoiningOrLeaving : Button -> AllPlayers -> AllPlayers
-handlePlayerJoiningOrLeaving button =
+handlePlayerJoiningOrLeaving : Bool -> Button -> AllPlayers -> AllPlayers
+handlePlayerJoiningOrLeaving enableAlternativeControls button =
     Dict.map
         (\_ ( player, status ) ->
             let
                 ( leftButtons, rightButtons ) =
-                    player.controls
+                    player.controls |> Input.withOnlyPrimaryUnless enableAlternativeControls
 
                 newStatus : PlayerStatus
                 newStatus =
