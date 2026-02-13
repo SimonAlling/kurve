@@ -1,7 +1,7 @@
 module Drawing exposing (DrawingAccumulator, WhatToDraw, accumulate, drawSpawnsPermanently, drawSpawnsTemporarily, finalize, getColorAndDrawingPosition, initialize, mergeWhatToDraw)
 
 import Color exposing (Color)
-import Types.Kurve exposing (Kurve)
+import Types.Kurve exposing (Kurve, isSolid)
 import World exposing (DrawingPosition)
 
 
@@ -63,7 +63,7 @@ mergeWhatToDraw whatFirst whatThen =
 drawSpawnsPermanently : List Kurve -> WhatToDraw
 drawSpawnsPermanently kurves =
     { headDrawing = []
-    , bodyDrawing = kurves |> List.map getColorAndDrawingPosition
+    , bodyDrawing = kurves |> List.filter isSolid |> List.map getColorAndDrawingPosition
     }
 
 

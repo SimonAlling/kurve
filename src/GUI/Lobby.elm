@@ -3,7 +3,7 @@ module GUI.Lobby exposing (lobby)
 import Dict
 import GUI.Controls
 import GUI.Text as Text
-import Html exposing (Html, button, div)
+import Html exposing (Html, button, div, p)
 import Html.Attributes as Attr
 import Html.Events
 import Players exposing (AllPlayers)
@@ -11,16 +11,16 @@ import Types.Player exposing (Player)
 import Types.PlayerStatus exposing (PlayerStatus(..))
 
 
-lobby : msg -> AllPlayers -> Html msg
-lobby onSettingsButtonClick players =
+lobby : Bool -> msg -> AllPlayers -> Html msg
+lobby enableAlternativeControls onSettingsButtonClick players =
     div
         [ Attr.id "lobby"
         ]
-        (settingsButton onSettingsButtonClick :: (Dict.values players |> List.map playerEntry))
+        (settingsButton onSettingsButtonClick :: (Dict.values players |> List.map (playerEntry enableAlternativeControls)))
 
 
-playerEntry : ( Player, PlayerStatus ) -> Html msg
-playerEntry ( player, status ) =
+playerEntry : Bool -> ( Player, PlayerStatus ) -> Html msg
+playerEntry enableAlternativeControls ( player, status ) =
     let
         ( left, right ) =
             GUI.Controls.showControls player
@@ -30,7 +30,16 @@ playerEntry ( player, status ) =
         [ Html.div
             [ Attr.class "controls"
             ]
-            (Text.string (Text.Size 1) player.color <| "(" ++ left ++ " " ++ right ++ ")")
+            [ p
+                []
+                (Text.string (Text.Size 1) player.color <| "(" ++ left ++ " " ++ right ++ ")")
+            , p
+                [ Attr.class "alternative-controls"
+                , Attr.title "Alternative controls"
+                , Attr.hidden (not enableAlternativeControls)
+                ]
+                (Text.string (Text.Size 1) player.color (GUI.Controls.showAlternativeControls player))
+            ]
         , Html.div
             [ Attr.style "visibility"
                 (case status of
