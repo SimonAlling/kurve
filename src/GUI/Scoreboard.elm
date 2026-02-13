@@ -5,7 +5,7 @@ import GUI.Digits
 import Game exposing (GameState)
 import Html exposing (Html, div)
 import Html.Attributes as Attr
-import Players exposing (AllPlayers, includeResultsFrom, participating)
+import Players exposing (AllPlayers, includeResultsFrom, noExtraData, participating)
 import Round exposing (Round)
 import Types.Player exposing (Player)
 import Types.PlayerStatus exposing (PlayerStatus(..))
@@ -28,7 +28,7 @@ scoreboardContainer =
 
 content : AllPlayers -> Round -> List (Html msg)
 content players currentRound =
-    if Dict.size (participating players) > 1 then
+    if Dict.size (participating noExtraData players) > 1 then
         players |> includeResultsFrom currentRound |> Dict.toList |> List.map (Tuple.second >> scoreboardEntry)
 
     else

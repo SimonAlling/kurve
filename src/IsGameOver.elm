@@ -5,7 +5,7 @@ import Players exposing (ParticipatingPlayers)
 import Types.Score exposing (Score(..), isAtLeast)
 
 
-isGameOver : ParticipatingPlayers -> Bool
+isGameOver : ParticipatingPlayers () -> Bool
 isGameOver participatingPlayers =
     let
         numberOfPlayers : Int
@@ -20,6 +20,11 @@ isGameOver participatingPlayers =
         someoneHasReachedTargetScore =
             not <|
                 Dict.isEmpty <|
-                    Dict.filter (always (Tuple.second >> isAtLeast targetScore)) participatingPlayers
+                    Dict.filter (always (tripleSecond >> isAtLeast targetScore)) participatingPlayers
     in
     numberOfPlayers > 1 && someoneHasReachedTargetScore
+
+
+tripleSecond : ( a, b, c ) -> b
+tripleSecond ( _, b, _ ) =
+    b

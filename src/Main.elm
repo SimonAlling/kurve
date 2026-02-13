@@ -32,6 +32,7 @@ import Game
         , recordUserInteraction
         , tickResultToGameState
         )
+import Holes exposing (HoleStatus)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
 import Input exposing (Button(..), ButtonDirection(..), updatePressedButtons)
@@ -49,17 +50,21 @@ import Players
         , handlePlayerJoiningOrLeaving
         , includeResultsFrom
         , initialPlayers
+        , noExtraData
         , participating
         )
 import Random
 import Round exposing (FinishedRound, Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
-import Settings exposing (SettingId(..))
+import Settings exposing (SettingId(..), Settings)
 import Spawn exposing (flickerFrequencyToTicksPerSecond, makeSpawnState, stepSpawnState)
 import Time
 import Types.FrameTime exposing (FrameTime)
+import Types.Kurve exposing (Kurve, getHoleStatus, hasPlayerId)
+import Types.PlayerId exposing (PlayerId)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
+import Util exposing (find)
 
 
 type alias Model =
@@ -111,6 +116,7 @@ type Msg
     | ButtonUsed ButtonDirection Button
     | ToggleSettingsScreen
     | SettingChanged SettingId Bool
+    | SettingsPresetApplied Settings
     | DialogChoiceMade Dialog.Option
     | HintDismissed Hint
     | FocusLost
@@ -219,8 +225,17 @@ update msg ({ config } as model) =
                     case settingId of
                         SpawnProtection ->
                             Config.withSpawnkillProtection newValue model.config
+
+                        PersistHoleStatus ->
+                            Config.withPersistHoleStatus newValue model.config
+
+                        EnableAlternativeControls ->
+                            Config.withEnableAlternativeControls newValue model.config
             in
             ( { model | config = newConfig }, SaveSettings (Config.getSettings newConfig) )
+
+        SettingsPresetApplied newSettings ->
+            ( { model | config = Config.withSettings newSettings config }, SaveSettings newSettings )
 
         DialogChoiceMade option ->
             handleDialogChoice option model
@@ -271,10 +286,10 @@ buttonUsed button ({ config, pressedButtons } as model) =
         InMenu Lobby seed ->
             case ( button, atLeastOneIsParticipating model.players ) of
                 ( Key "Space", True ) ->
-                    startRound (Live ()) model <| prepareLiveRound config seed (participating model.players) pressedButtons
+                    startRound (Live ()) model <| prepareLiveRound config seed (participating (always Nothing) model.players) pressedButtons
 
                 _ ->
-                    ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving button model.players }, DoNothing )
+                    ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving config.enableAlternativeControls button model.players }, DoNothing )
 
         InMenu SettingsScreen seed ->
             case button of
@@ -340,7 +355,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                                     includeResultsFrom unpackedFinishedRound model.players
                             in
                             -- Quitting after the final round is not allowed in the original game.
-                            if isGameOver (participating playersWithRecentResults) then
+                            if isGameOver (participating noExtraData playersWithRecentResults) then
                                 ( handleUserInteraction Down button model, DoNothing )
 
                             else
@@ -490,12 +505,22 @@ proceedToNextRound finishedRound ({ config, pressedButtons } as model) =
         modelWithRecentResults : Model
         modelWithRecentResults =
             { model | players = playersWithRecentResults }
+
+        theKurvesInNoParticularOrder : List Kurve
+        theKurvesInNoParticularOrder =
+            unpackedFinishedRound.kurves.alive ++ unpackedFinishedRound.kurves.dead
+
+        getHoleStatusById : PlayerId -> Maybe HoleStatus
+        getHoleStatusById id =
+            theKurvesInNoParticularOrder
+                |> find (hasPlayerId id)
+                |> Maybe.map getHoleStatus
     in
-    if isGameOver (participating playersWithRecentResults) then
+    if isGameOver (participating noExtraData playersWithRecentResults) then
         gameOver unpackedFinishedRound.seed modelWithRecentResults
 
     else
-        startRound (Live ()) modelWithRecentResults <| prepareLiveRound config unpackedFinishedRound.seed (participating playersWithRecentResults) pressedButtons
+        startRound (Live ()) modelWithRecentResults <| prepareLiveRound config unpackedFinishedRound.seed (participating getHoleStatusById playersWithRecentResults) pressedButtons
 
 
 stepOneTick : Overlay.State -> ActiveGameState -> FinishedRound -> Model -> ( Model, Effect )
@@ -712,7 +737,7 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ lobby ToggleSettingsScreen model.players
+                        [ lobby model.config.enableAlternativeControls ToggleSettingsScreen model.players
                         ]
                     , scoreboardContainer []
                     ]
@@ -728,7 +753,7 @@ view model =
                     [ div
                         [ Attr.id "border"
                         ]
-                        [ GUI.Settings.settings SettingChanged ToggleSettingsScreen model.config
+                        [ GUI.Settings.settings SettingChanged SettingsPresetApplied ToggleSettingsScreen model.config
                         ]
                     , scoreboardContainer []
                     ]

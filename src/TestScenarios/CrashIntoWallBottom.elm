@@ -71,6 +71,46 @@ expectedOutcome =
                 { bodyDrawing = []
                 , headDrawing = []
                 }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Colors.green, { x = 99, y = 474 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Colors.green, { x = 99, y = 474 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Colors.green, { x = 99, y = 474 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Colors.green, { x = 99, y = 474 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = [ ( Colors.green, { x = 99, y = 474 } ) ]
+                }
+            , DrawSomething
+                { bodyDrawing = []
+                , headDrawing = []
+                }
 
             -- Draw spawn position permanently:
             , DrawSomething

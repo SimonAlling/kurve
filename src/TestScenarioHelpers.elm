@@ -4,6 +4,7 @@ module TestScenarioHelpers exposing
     , RefreshRate
     , RoundEndingInterpretation
     , RoundOutcome
+    , kurvesToInitialAllPlayers
     , makeUserInteractions
     , makeZombieKurve
     , playerIds
@@ -12,12 +13,16 @@ module TestScenarioHelpers exposing
     )
 
 import Color
+import Dict
 import Effect exposing (Effect)
+import Players exposing (AllPlayers)
 import Random
 import Round exposing (RoundInitialState)
 import Set
 import Types.Kurve as Kurve exposing (Kurve, UserInteraction(..))
 import Types.PlayerId exposing (PlayerId)
+import Types.PlayerStatus exposing (PlayerStatus(..))
+import Types.Score exposing (Score(..))
 import Types.Tick as Tick exposing (Tick)
 import Types.TurningState exposing (TurningState)
 import World exposing (DrawingPosition)
@@ -59,6 +64,21 @@ roundWith spawnedKurves =
     { seedAfterSpawn = Random.initialSeed 0
     , spawnedKurves = spawnedKurves
     }
+
+
+kurvesToInitialAllPlayers : List Kurve -> AllPlayers
+kurvesToInitialAllPlayers =
+    let
+        joinWithKurve : Kurve -> AllPlayers -> AllPlayers
+        joinWithKurve kurve =
+            Dict.insert kurve.id
+                ( { color = kurve.color
+                  , controls = ( [], [] )
+                  }
+                , Participating (Score 0)
+                )
+    in
+    List.foldl joinWithKurve Dict.empty
 
 
 {-| How many ticks to wait before performing some action, and that action.

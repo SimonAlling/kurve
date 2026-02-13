@@ -7,7 +7,9 @@ module Config exposing
     , WorldConfig
     , default
     , getSettings
+    , withEnableAlternativeControls
     , withHardcodedHoles
+    , withPersistHoleStatus
     , withSettings
     , withSpawnkillProtection
     , withSpeed
@@ -30,6 +32,7 @@ default =
             , maxSolidTicks = 300
             , minHolyTicks = 7
             , maxHolyTicks = 11
+            , persistBetweenRounds = Settings.default.persistHoleStatus
             }
         }
     , spawn =
@@ -37,7 +40,7 @@ default =
         , desiredMinimumDistanceTurningRadiusFactor = 1
         , protectionAudacity = 0.25 -- Closer to 1 ⇔ less risk of spawn kills but higher risk of no solution
         , flickerFrequency = 10 -- How many times per second the spawning Kurve performs a full cycle of being visible and then invisible.
-        , numberOfFlickers = 3
+        , numberOfFlickers = 8
         , angleInterval = ( 0, pi )
         , spawnkillProtection = Settings.default.spawnkillProtection
         }
@@ -48,6 +51,7 @@ default =
     , replay =
         { skipStepInMs = 5000
         }
+    , enableAlternativeControls = Settings.default.enableAlternativeControls
     }
 
 
@@ -56,6 +60,7 @@ type alias Config =
     , spawn : SpawnConfig
     , world : WorldConfig
     , replay : ReplayConfig
+    , enableAlternativeControls : Bool
     }
 
 
@@ -94,12 +99,15 @@ type alias HoleConfig =
     , maxSolidTicks : Int
     , minHolyTicks : Int
     , maxHolyTicks : Int
+    , persistBetweenRounds : Bool
     }
 
 
 getSettings : Config -> Settings
 getSettings config =
     { spawnkillProtection = config.spawn.spawnkillProtection
+    , persistHoleStatus = config.kurves.holes.persistBetweenRounds
+    , enableAlternativeControls = config.enableAlternativeControls
     }
 
 
@@ -107,6 +115,8 @@ withSettings : Settings -> Config -> Config
 withSettings settings config =
     config
         |> withSpawnkillProtection settings.spawnkillProtection
+        |> withPersistHoleStatus settings.persistHoleStatus
+        |> withEnableAlternativeControls settings.enableAlternativeControls
 
 
 withSpawnkillProtection : Bool -> Config -> Config
@@ -117,6 +127,25 @@ withSpawnkillProtection newValue config =
             config.spawn
     in
     { config | spawn = { spawnConfig | spawnkillProtection = newValue } }
+
+
+withPersistHoleStatus : Bool -> Config -> Config
+withPersistHoleStatus newValue config =
+    let
+        kurveConfig : KurveConfig
+        kurveConfig =
+            config.kurves
+
+        holeConfig : HoleConfig
+        holeConfig =
+            kurveConfig.holes
+    in
+    { config | kurves = { kurveConfig | holes = { holeConfig | persistBetweenRounds = newValue } } }
+
+
+withEnableAlternativeControls : Bool -> Config -> Config
+withEnableAlternativeControls newValue config =
+    { config | enableAlternativeControls = newValue }
 
 
 withSpeed : Speed -> Config -> Config
@@ -149,6 +178,7 @@ withHardcodedHoles solidTicks holyTicks config =
                     , maxSolidTicks = solidTicks
                     , minHolyTicks = holyTicks
                     , maxHolyTicks = holyTicks
+                    , persistBetweenRounds = defaultKurveConfig.holes.persistBetweenRounds
                     }
             }
     }
