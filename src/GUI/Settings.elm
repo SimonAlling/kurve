@@ -44,7 +44,8 @@ showEntry makeMsg ( settingId, settingLabel, currentValue ) =
 
 makeSettingsEntries : Config -> List SettingsEntry
 makeSettingsEntries config =
-    [ ( SpawnProtection, "Spawnkill protection", config.spawn.spawnkillProtection )
+    [ ( SpawnProtection, "Prevent spawnkills", config.spawn.spawnkillProtection )
+    , ( EnableAlternativeControls, "Enable alternative controls", config.enableAlternativeControls )
     ]
 
 
@@ -65,3 +66,6 @@ idFor settingId =
     case settingId of
         SpawnProtection ->
             "spawn-protection"
+
+        EnableAlternativeControls ->
+            "enable-alternative-controls"
