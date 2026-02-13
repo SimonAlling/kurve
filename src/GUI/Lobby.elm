@@ -34,10 +34,10 @@ playerEntry ( player, status ) =
                 []
                 (Text.string (Text.Size 1) player.color <| "(" ++ left ++ " " ++ right ++ ")")
             , p
-                [ Attr.class "extra-controls"
-                , Attr.title "Extra controls"
+                [ Attr.class "alternative-controls"
+                , Attr.title "Alternative controls"
                 ]
-                (Text.string (Text.Size 1) player.color (GUI.Controls.showExtraControls player))
+                (Text.string (Text.Size 1) player.color (GUI.Controls.showAlternativeControls player))
             ]
         , Html.div
             [ Attr.style "visibility"
