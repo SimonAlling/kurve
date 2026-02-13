@@ -86,7 +86,7 @@ port saveToLocalStorage : String -> Cmd msg
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { pressedButtons = Set.empty
-      , appState = InMenu SplashScreen (Random.initialSeed 1337)
+      , appState = InMenu SplashScreen (Random.initialSeed flags.initialSeedValue)
       , config = Config.default |> Config.withSettings (Settings.parse flags.settingsJsonFromLocalStorage)
       , players = initialPlayers
       }
@@ -120,7 +120,8 @@ type Msg
 
 
 type alias Flags =
-    { settingsJsonFromLocalStorage : Maybe String
+    { initialSeedValue : Int
+    , settingsJsonFromLocalStorage : Maybe String
     }
 
 
