@@ -12,6 +12,7 @@ import Types.Kurve exposing (Kurve)
 config : Config
 config =
     Config.default
+        |> Config.withPersistHoleStatus True
 
 
 red : Kurve

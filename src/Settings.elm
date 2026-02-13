@@ -20,7 +20,7 @@ type alias Settings =
 default : Settings
 default =
     { spawnkillProtection = True
-    , persistHoleStatus = True
+    , persistHoleStatus = False
     , enableAlternativeControls = True
     }
 
