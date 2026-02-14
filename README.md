@@ -1,6 +1,8 @@
-# Achtung, die Kurve! in Elm
+# Achtung, die Kurve! Classic
 
 The classic MS-DOS game *Achtung, die Kurve!* from 1995 in the browser!
+
+Written in Elm by Simon Alling and Simon Lydell.
 
 ## Play
 
