@@ -275,6 +275,9 @@ buttonUsed button ({ config, pressedButtons } as model) =
                 ( Key "Space", True ) ->
                     startRound (Live ()) model <| prepareLiveRound config seed (participating (always Nothing) model.players) pressedButtons
 
+                ( Key "Escape", _ ) ->
+                    goToSplashScreen seed model
+
                 _ ->
                     ( handleUserInteraction Down button { model | players = handlePlayerJoiningOrLeaving config.enableAlternativeControls button model.players }, DoNothing )
 
@@ -472,7 +475,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
         InMenu GameOver seed ->
             case button of
                 Key "Space" ->
-                    goToLobby seed model
+                    goToSplashScreen seed model
 
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
@@ -628,6 +631,11 @@ rewindReplay overlayState pausedOrNot activeGameState finishedRound model =
 gameOver : Random.Seed -> Model -> ( Model, Effect )
 gameOver seed model =
     ( { model | appState = InMenu GameOver seed }, DoNothing )
+
+
+goToSplashScreen : Random.Seed -> Model -> ( Model, Effect )
+goToSplashScreen seed model =
+    ( { model | appState = InMenu SplashScreen seed, players = everyoneLeaves model.players }, DoNothing )
 
 
 goToLobby : Random.Seed -> Model -> ( Model, Effect )
