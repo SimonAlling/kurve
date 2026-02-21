@@ -56,14 +56,18 @@ distanceBetween ( x1, y1 ) ( x2, y2 ) =
     Distance <| sqrt ((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
 
 
-drawingPosition : Position -> DrawingPosition
-drawingPosition ( x, y ) =
-    { x = edgeOfSquare x, y = edgeOfSquare y }
+drawingPosition : Bool -> Position -> DrawingPosition
+drawingPosition replicateTruncationBug ( x, y ) =
+    { x = edgeOfSquare replicateTruncationBug x, y = edgeOfSquare replicateTruncationBug y }
 
 
-edgeOfSquare : Float -> Int
-edgeOfSquare xOrY =
-    truncate xOrY
+edgeOfSquare : Bool -> Float -> Int
+edgeOfSquare replicateTruncationBug xOrY =
+    if replicateTruncationBug then
+        truncate xOrY
+
+    else
+        floor xOrY
 
 
 pixelsToOccupy : DrawingPosition -> List Pixel
@@ -86,11 +90,11 @@ occupyPixel ( x, y ) =
     Array2D.set x y True
 
 
-desiredDrawingPositions : Position -> Position -> List DrawingPosition
-desiredDrawingPositions startingPoint desiredEndPoint =
+desiredDrawingPositions : Bool -> Position -> Position -> List DrawingPosition
+desiredDrawingPositions replicateTruncationBug startingPoint desiredEndPoint =
     RasterShapes.line
-        (drawingPosition startingPoint)
-        (drawingPosition desiredEndPoint)
+        (drawingPosition replicateTruncationBug startingPoint)
+        (drawingPosition replicateTruncationBug desiredEndPoint)
         -- The RasterShapes library returns the positions in reverse order.
         |> List.reverse
         -- The first element in the list is the starting position, which is assumed to already have been drawn.

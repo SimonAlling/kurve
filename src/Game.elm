@@ -179,7 +179,7 @@ initialOccupiedPixels worldConfig =
         placeKurve : Kurve -> OccupiedPixels -> OccupiedPixels
         placeKurve kurve =
             kurve.state.position
-                |> World.drawingPosition
+                |> World.drawingPosition worldConfig.replicateTruncationBug
                 |> World.occupyDrawingPosition
     in
     List.filter Kurve.isSolid >> List.foldl placeKurve (World.empty worldConfig)
@@ -216,7 +216,7 @@ reactToTick config tick currentRound =
                 RoundKeepsGoing newCurrentRound
     in
     ( tickResult
-    , { headDrawing = newKurves.alive |> List.map getColorAndDrawingPosition
+    , { headDrawing = newKurves.alive |> List.map (getColorAndDrawingPosition config.world.replicateTruncationBug)
       , bodyDrawing = newColoredDrawingPositions
       }
     )
@@ -298,13 +298,17 @@ type alias HolinessTransition =
 evaluateMove : Config -> Position -> Position -> OccupiedPixels -> HolinessTransition -> ( List DrawingPosition, Fate )
 evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransition =
     let
+        replicateTruncationBug : Bool
+        replicateTruncationBug =
+            config.world.replicateTruncationBug
+
         startingPointAsDrawingPosition : DrawingPosition
         startingPointAsDrawingPosition =
-            World.drawingPosition startingPoint
+            World.drawingPosition replicateTruncationBug startingPoint
 
         positionsToCheck : List DrawingPosition
         positionsToCheck =
-            World.desiredDrawingPositions startingPoint desiredEndPoint
+            World.desiredDrawingPositions replicateTruncationBug startingPoint desiredEndPoint
 
         checkPositions : List DrawingPosition -> DrawingPosition -> List DrawingPosition -> ( List DrawingPosition, Fate )
         checkPositions checked lastChecked remaining =

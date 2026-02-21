@@ -62,6 +62,11 @@ makeSettingsEntries config =
       , settingDescription = "Remember each player's hole status (e.g. solid with the next hole coming up in 5 ticks) when proceeding to the next round."
       , currentValue = config.kurves.holes.persistBetweenRounds
       }
+    , { settingId = ReplicateTruncationBug
+      , settingLabel = "Replicate position truncation bug"
+      , settingDescription = "Round positions <1 pixel outside the top and left edge of the canvas to 0 instead of –1, effectively making those edges easier to avoid."
+      , currentValue = config.world.replicateTruncationBug
+      }
     , { settingId = EnableAlternativeControls
       , settingLabel = "Enable alternative controls"
       , settingDescription = "Make it easier to control players whose default controls are tricky to use in some way, or not present on all keyboards."
@@ -132,6 +137,9 @@ idFor settingId =
 
         PersistHoleStatus ->
             "persist-hole-status"
+
+        ReplicateTruncationBug ->
+            "replicate-truncation-bug"
 
         EnableAlternativeControls ->
             "enable-alternative-controls"

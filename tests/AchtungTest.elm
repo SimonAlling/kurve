@@ -21,6 +21,7 @@ import TestScenarios.CuttingCornersPerfectOverpainting
 import TestScenarios.HoleSizeAndSpacing
 import TestScenarios.SpeedEffectOnGame
 import TestScenarios.StressTestRealisticTurtleSurvivalRound
+import TestScenarios.TruncationBug
 import Types.Speed as Speed exposing (Speed(..))
 
 
@@ -30,6 +31,7 @@ tests =
         [ basicTests
         , crashingIntoKurveTests
         , crashingIntoWallTests
+        , truncationBugTests
         , crashTimingTests
         , cuttingCornersTests
         , speedTests
@@ -96,6 +98,24 @@ crashingIntoWallTests =
                     |> expectRoundOutcome
                         TestScenarios.CrashIntoWallLeft.config
                         TestScenarios.CrashIntoWallLeft.expectedOutcome
+        ]
+
+
+truncationBugTests : Test
+truncationBugTests =
+    describe "Truncation bug"
+        [ test "Without bug" <|
+            \_ ->
+                roundWith TestScenarios.TruncationBug.spawnedKurves
+                    |> expectRoundOutcome
+                        (TestScenarios.TruncationBug.config False)
+                        (TestScenarios.TruncationBug.expectedOutcome False)
+        , test "With bug" <|
+            \_ ->
+                roundWith TestScenarios.TruncationBug.spawnedKurves
+                    |> expectRoundOutcome
+                        (TestScenarios.TruncationBug.config True)
+                        (TestScenarios.TruncationBug.expectedOutcome True)
         ]
 
 
