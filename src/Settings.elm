@@ -55,7 +55,7 @@ settingsDecoder =
         Settings
         (Decode.maybe (Decode.field "spawnkillProtectionSetting" Decode.bool) |> Decode.map (Maybe.withDefault default.spawnkillProtection))
         (Decode.maybe (Decode.field "persistHoleStatusSetting" Decode.bool) |> Decode.map (Maybe.withDefault default.persistHoleStatus))
-        (Decode.maybe (Decode.field "EnableAlternativeControlsSetting" Decode.bool) |> Decode.map (Maybe.withDefault default.enableAlternativeControls))
+        (Decode.maybe (Decode.field "enableAlternativeControlsSetting" Decode.bool) |> Decode.map (Maybe.withDefault default.enableAlternativeControls))
 
 
 settingsEncoder : Settings -> Encode.Value
@@ -63,5 +63,5 @@ settingsEncoder settings =
     Encode.object
         [ ( "spawnkillProtectionSetting", Encode.bool settings.spawnkillProtection )
         , ( "persistHoleStatusSetting", Encode.bool settings.persistHoleStatus )
-        , ( "EnableAlternativeControlsSetting", Encode.bool settings.enableAlternativeControls )
+        , ( "enableAlternativeControlsSetting", Encode.bool settings.enableAlternativeControls )
         ]
