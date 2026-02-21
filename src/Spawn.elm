@@ -141,6 +141,7 @@ generateKurve config id numberOfPlayers existingPositions player holeStatusFromP
                 , state = state
                 , stateAtSpawn = state
                 , reversedInteractions = []
+                , reversedMoves = []
                 }
             )
 

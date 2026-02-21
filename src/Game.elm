@@ -28,6 +28,7 @@ import Input exposing (Button)
 import Overlay
 import Players exposing (ParticipatingPlayers)
 import Random
+import Replay exposing (Move)
 import Round exposing (FinishedRound(..), Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
 import Set exposing (Set)
 import Spawn exposing (SpawnState, generateKurves)
@@ -446,9 +447,16 @@ updateKurve config turningState occupiedPixels kurve =
             , holeStatus = newHoleStatus
             }
 
+        newMoves : List Move
+        newMoves =
+            []
+
         newKurve : Kurve
         newKurve =
-            { kurve | state = newKurveState }
+            { kurve
+                | state = newKurveState
+                , reversedMoves = newMoves ++ kurve.reversedMoves
+            }
     in
     ( confirmedDrawingPositions
     , newKurve

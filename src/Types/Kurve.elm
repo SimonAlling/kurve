@@ -12,6 +12,7 @@ module Types.Kurve exposing
 
 import Color exposing (Color)
 import Holes exposing (HoleStatus, Holiness(..), getHoliness)
+import Replay exposing (Move)
 import Set exposing (Set)
 import Types.Angle exposing (Angle)
 import Types.PlayerId exposing (PlayerId)
@@ -27,6 +28,7 @@ type alias Kurve =
     , state : State
     , stateAtSpawn : State
     , reversedInteractions : List UserInteraction
+    , reversedMoves : List Move
     }
 
 
