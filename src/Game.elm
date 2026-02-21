@@ -429,7 +429,7 @@ updateKurve config turningState occupiedPixels kurve =
             , y + distanceTraveledSinceLastTick * Angle.cos newDirection
             )
 
-        ( allDrawingPositions, fate ) =
+        ( checkedPositionsReversed, fate ) =
             evaluateMove
                 config
                 kurve.state.position
@@ -443,7 +443,7 @@ updateKurve config turningState occupiedPixels kurve =
                 }
                 fate
                 kurve.state.position
-                allDrawingPositions
+                checkedPositionsReversed
 
         newHoleStatus : HoleStatus
         newHoleStatus =
@@ -456,16 +456,17 @@ updateKurve config turningState occupiedPixels kurve =
             , holeStatus = newHoleStatus
             }
 
-        newReversedDrawingPositions : List ( DrawingPosition, Holiness )
-        newReversedDrawingPositions =
-            allDrawingPositions
+        drawingPositionsThisTick : List ( DrawingPosition, Holiness )
+        drawingPositionsThisTick =
+            checkedPositionsReversed
+                |> List.reverse
                 |> List.map (\drawingPosition -> ( drawingPosition, Holes.getHoliness newHoleStatus ))
 
         newKurve : Kurve
         newKurve =
             { kurve
                 | state = newKurveState
-                , reversedDrawingPositions = newReversedDrawingPositions ++ kurve.reversedDrawingPositions
+                , reversedDrawingPositionsPerTick = drawingPositionsThisTick :: kurve.reversedDrawingPositionsPerTick
             }
     in
     ( confirmedDrawingPositions

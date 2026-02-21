@@ -27,7 +27,7 @@ type alias Kurve =
     , state : State
     , stateAtSpawn : State
     , reversedInteractions : List UserInteraction
-    , reversedDrawingPositions : List ( DrawingPosition, Holiness )
+    , reversedDrawingPositionsPerTick : List (List ( DrawingPosition, Holiness )) -- The outer list is reversed; the inner lists are not.
     }
 
 
