@@ -4,8 +4,8 @@ module TestScenarioHelpers exposing
     , RefreshRate
     , RoundEndingInterpretation
     , RoundOutcome
+    , andProgramIt
     , kurvesToInitialAllPlayers
-    , makeUserInteractions
     , makeZombieKurve
     , playerIds
     , roundWith
@@ -95,6 +95,11 @@ type alias CumulativeInteraction =
 The input is a chronologically ordered list representing how a human will typically think about a Kurve's actions.
 
 -}
+andProgramIt : List CumulativeInteraction -> Kurve -> Kurve
+andProgramIt cumulativeInteractions kurve =
+    { kurve | reversedInteractions = makeUserInteractions cumulativeInteractions }
+
+
 makeUserInteractions : List CumulativeInteraction -> List UserInteraction
 makeUserInteractions cumulativeInteractions =
     let
