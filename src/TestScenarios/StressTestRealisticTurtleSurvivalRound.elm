@@ -26,10 +26,10 @@ green =
                 NoHoles
             }
         }
-        |> (List.range 1 20
+        |> andProgramIt
+            (List.range 1 20
                 |> List.concatMap makeLap
-                |> andProgramIt
-           )
+            )
 
 
 spawnedKurves : List Kurve
