@@ -20,11 +20,14 @@ settings makeMsg makeApplyPresetMsg closeMsg config =
 
 
 type alias SettingsEntry =
-    ( SettingId, String, Bool )
+    { settingId : SettingId
+    , settingLabel : String
+    , currentValue : Bool
+    }
 
 
 showEntry : (SettingId -> Bool -> msg) -> SettingsEntry -> Html msg
-showEntry makeMsg ( settingId, settingLabel, currentValue ) =
+showEntry makeMsg { settingId, settingLabel, currentValue } =
     let
         id : String
         id =
@@ -47,9 +50,18 @@ showEntry makeMsg ( settingId, settingLabel, currentValue ) =
 
 makeSettingsEntries : Config -> List SettingsEntry
 makeSettingsEntries config =
-    [ ( SpawnProtection, "Prevent spawnkills", config.spawn.spawnkillProtection )
-    , ( PersistHoleStatus, "Persist hole status between rounds", config.kurves.holes.persistBetweenRounds )
-    , ( EnableAlternativeControls, "Enable alternative controls", config.enableAlternativeControls )
+    [ { settingId = SpawnProtection
+      , settingLabel = "Prevent spawnkills"
+      , currentValue = config.spawn.spawnkillProtection
+      }
+    , { settingId = PersistHoleStatus
+      , settingLabel = "Persist hole status between rounds"
+      , currentValue = config.kurves.holes.persistBetweenRounds
+      }
+    , { settingId = EnableAlternativeControls
+      , settingLabel = "Enable alternative controls"
+      , currentValue = config.enableAlternativeControls
+      }
     ]
 
 
