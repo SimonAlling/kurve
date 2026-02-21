@@ -1,7 +1,6 @@
 port module ScenarioCLI exposing (main)
 
 import CompileScenario exposing (compileAndSerialize)
-import Platform
 
 
 port outputToOutsideWorld : String -> Cmd msg
