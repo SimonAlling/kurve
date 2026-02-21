@@ -3,7 +3,7 @@ module TestScenarios.AroundTheWorld exposing (config, expectedOutcome, spawnedKu
 import Colors
 import Config exposing (Config)
 import Holes exposing (HoleStatus(..))
-import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber, withCumulativeUserInteractions)
+import TestScenarioHelpers exposing (EffectsExpectation(..), RoundOutcome, andProgramIt, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (Kurve)
 import Types.TurningState exposing (TurningState(..))
@@ -26,7 +26,7 @@ green =
                 NoHoles
             }
         }
-        |> withCumulativeUserInteractions
+        |> andProgramIt
             -- Intended to make the Kurve touch each of the four walls on its way around the world.
             [ ( 526, TurningRight )
             , ( 45, NotTurning )

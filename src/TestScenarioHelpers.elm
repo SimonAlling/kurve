@@ -4,12 +4,12 @@ module TestScenarioHelpers exposing
     , RefreshRate
     , RoundEndingInterpretation
     , RoundOutcome
+    , andProgramIt
     , kurvesToInitialAllPlayers
     , makeZombieKurve
     , playerIds
     , roundWith
     , tickNumber
-    , withCumulativeUserInteractions
     )
 
 import Color
@@ -95,8 +95,8 @@ type alias CumulativeInteraction =
 The input is a chronologically ordered list representing how a human will typically think about a Kurve's actions.
 
 -}
-withCumulativeUserInteractions : List CumulativeInteraction -> Kurve -> Kurve
-withCumulativeUserInteractions cumulativeInteractions kurve =
+andProgramIt : List CumulativeInteraction -> Kurve -> Kurve
+andProgramIt cumulativeInteractions kurve =
     { kurve | reversedInteractions = makeUserInteractions cumulativeInteractions }
 
 

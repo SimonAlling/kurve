@@ -3,7 +3,7 @@ module TestScenarios.StressTestRealisticTurtleSurvivalRound exposing (config, ex
 import Colors
 import Config exposing (Config)
 import Holes exposing (HoleStatus(..))
-import TestScenarioHelpers exposing (CumulativeInteraction, EffectsExpectation(..), RoundOutcome, makeZombieKurve, playerIds, tickNumber, withCumulativeUserInteractions)
+import TestScenarioHelpers exposing (CumulativeInteraction, EffectsExpectation(..), RoundOutcome, andProgramIt, makeZombieKurve, playerIds, tickNumber)
 import Types.Angle exposing (Angle(..))
 import Types.Kurve exposing (Kurve)
 import Types.TurningState exposing (TurningState(..))
@@ -28,7 +28,7 @@ green =
         }
         |> (List.range 1 20
                 |> List.concatMap makeLap
-                |> withCumulativeUserInteractions
+                |> andProgramIt
            )
 
 
