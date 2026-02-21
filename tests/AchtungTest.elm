@@ -1,6 +1,5 @@
 module AchtungTest exposing (tests)
 
-import String
 import Test exposing (Test, describe, test)
 import TestHelpers exposing (expectRoundOutcome)
 import TestScenarioHelpers exposing (roundWith, tickNumber)
