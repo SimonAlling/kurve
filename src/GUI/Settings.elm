@@ -22,19 +22,21 @@ settings makeMsg makeApplyPresetMsg closeMsg config =
 type alias SettingsEntry =
     { settingId : SettingId
     , settingLabel : String
+    , settingDescription : String
     , currentValue : Bool
     }
 
 
 showEntry : (SettingId -> Bool -> msg) -> SettingsEntry -> Html msg
-showEntry makeMsg { settingId, settingLabel, currentValue } =
+showEntry makeMsg { settingId, settingLabel, settingDescription, currentValue } =
     let
         id : String
         id =
             idFor settingId
     in
     div
-        []
+        [ Attr.title settingDescription
+        ]
         [ input
             [ Attr.type_ "checkbox"
             , Attr.checked currentValue
@@ -52,14 +54,17 @@ makeSettingsEntries : Config -> List SettingsEntry
 makeSettingsEntries config =
     [ { settingId = SpawnProtection
       , settingLabel = "Prevent spawnkills"
+      , settingDescription = "Ensure a minimum distance between spawns, to minimize the risk of crashing immediately after spawning."
       , currentValue = config.spawn.spawnkillProtection
       }
     , { settingId = PersistHoleStatus
       , settingLabel = "Persist hole status between rounds"
+      , settingDescription = "Remember each player's hole status (e.g. solid with the next hole coming up in 5 ticks) when proceeding to the next round."
       , currentValue = config.kurves.holes.persistBetweenRounds
       }
     , { settingId = EnableAlternativeControls
       , settingLabel = "Enable alternative controls"
+      , settingDescription = "Make it easier to control players whose default controls are tricky to use in some way, or not present on all keyboards."
       , currentValue = config.enableAlternativeControls
       }
     ]
