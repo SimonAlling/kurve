@@ -28,7 +28,6 @@ import Input exposing (Button)
 import Overlay
 import Players exposing (ParticipatingPlayers)
 import Random
-import Replay exposing (Move)
 import Round exposing (FinishedRound(..), Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
 import Set exposing (Set)
 import Spawn exposing (SpawnState, generateKurves)
@@ -296,8 +295,8 @@ type alias HolinessTransition =
     }
 
 
-evaluateMove : Config -> Position -> Position -> OccupiedPixels -> HolinessTransition -> ( List DrawingPosition, Fate )
-evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransition =
+evaluateMove : Config -> Position -> Position -> OccupiedPixels -> ( List DrawingPosition, Fate )
+evaluateMove config startingPoint desiredEndPoint occupiedPixels =
     let
         startingPointAsDrawingPosition : DrawingPosition
         startingPointAsDrawingPosition =
@@ -341,12 +340,16 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
 
                     else
                         checkPositions (current :: checked) current rest
+    in
+    checkPositions [] startingPointAsDrawingPosition positionsToCheck
 
-        ( checkedPositionsReversed, evaluatedStatus ) =
-            checkPositions [] startingPointAsDrawingPosition positionsToCheck
 
-        { oldHoliness, newHoliness } =
-            holinessTransition
+getPositionsToDraw : HolinessTransition -> Fate -> Position -> List DrawingPosition -> List DrawingPosition
+getPositionsToDraw { oldHoliness, newHoliness } evaluatedStatus startingPoint checkedPositionsReversed =
+    let
+        startingPointAsDrawingPosition : DrawingPosition
+        startingPointAsDrawingPosition =
+            World.drawingPosition startingPoint
 
         positionsToDraw : List DrawingPosition
         positionsToDraw =
@@ -398,7 +401,7 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
                             -- The Kurve died in the middle of a solid segment. Draw all positions it could be at.
                             checkedPositionsReversed
     in
-    ( positionsToDraw |> List.reverse, evaluatedStatus )
+    List.reverse positionsToDraw
 
 
 updateKurve : Config -> TurningState -> OccupiedPixels -> Kurve -> ( List DrawingPosition, Kurve, Fate )
@@ -426,15 +429,21 @@ updateKurve config turningState occupiedPixels kurve =
             , y + distanceTraveledSinceLastTick * Angle.cos newDirection
             )
 
-        ( confirmedDrawingPositions, fate ) =
+        ( allDrawingPositions, fate ) =
             evaluateMove
                 config
                 kurve.state.position
                 newPosition
                 occupiedPixels
+
+        confirmedDrawingPositions =
+            getPositionsToDraw
                 { oldHoliness = getHoliness kurve.state.holeStatus
                 , newHoliness = getHoliness newHoleStatus
                 }
+                fate
+                kurve.state.position
+                allDrawingPositions
 
         newHoleStatus : HoleStatus
         newHoleStatus =
@@ -447,15 +456,16 @@ updateKurve config turningState occupiedPixels kurve =
             , holeStatus = newHoleStatus
             }
 
-        newMoves : List Move
-        newMoves =
-            []
+        newReversedDrawingPositions : List ( DrawingPosition, Holiness )
+        newReversedDrawingPositions =
+            allDrawingPositions
+                |> List.map (\drawingPosition -> ( drawingPosition, Holes.getHoliness newHoleStatus ))
 
         newKurve : Kurve
         newKurve =
             { kurve
                 | state = newKurveState
-                , reversedMoves = newMoves ++ kurve.reversedMoves
+                , reversedDrawingPositions = newReversedDrawingPositions ++ kurve.reversedDrawingPositions
             }
     in
     ( confirmedDrawingPositions

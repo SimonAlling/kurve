@@ -12,13 +12,12 @@ module Types.Kurve exposing
 
 import Color exposing (Color)
 import Holes exposing (HoleStatus, Holiness(..), getHoliness)
-import Replay exposing (Move)
 import Set exposing (Set)
 import Types.Angle exposing (Angle)
 import Types.PlayerId exposing (PlayerId)
 import Types.Tick exposing (Tick)
 import Types.TurningState exposing (TurningState)
-import World exposing (Position)
+import World exposing (DrawingPosition, Position)
 
 
 type alias Kurve =
@@ -28,7 +27,7 @@ type alias Kurve =
     , state : State
     , stateAtSpawn : State
     , reversedInteractions : List UserInteraction
-    , reversedMoves : List Move
+    , reversedDrawingPositions : List ( DrawingPosition, Holiness )
     }
 
 
