@@ -23,7 +23,7 @@ default : Settings
 default =
     { spawnkillProtection = True
     , persistHoleStatus = False
-    , replicateTruncationBug = False
+    , replicateTruncationBug = True
     , enableAlternativeControls = True
     }
 
