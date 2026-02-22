@@ -460,8 +460,8 @@ updateKurve config turningState occupiedPixels kurve =
         withHoliness drawingPosition =
             ( drawingPosition, Holes.getHoliness newHoleStatus )
 
-        drawingPositionsThisTick : List ( DrawingPosition, Holiness )
-        drawingPositionsThisTick =
+        reversedDrawingPositionsThisTick : List ( DrawingPosition, Holiness )
+        reversedDrawingPositionsThisTick =
             case ( fate, checkedPositionsReversed ) of
                 ( Dies, last :: rest ) ->
                     ( last, Solid ) :: List.map withHoliness rest
@@ -473,7 +473,7 @@ updateKurve config turningState occupiedPixels kurve =
         newKurve =
             { kurve
                 | state = newKurveState
-                , reversedDrawingPositionsPerTick = List.reverse drawingPositionsThisTick :: kurve.reversedDrawingPositionsPerTick
+                , reversedDrawingPositionsPerTick = reversedDrawingPositionsThisTick :: kurve.reversedDrawingPositionsPerTick
             }
     in
     ( confirmedDrawingPositions
