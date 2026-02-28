@@ -4,9 +4,9 @@ import Bitwise
 import Bytes
 import Bytes.Decode as Decode exposing (Decoder)
 import Bytes.Encode as Encode exposing (Encoder)
-import Holes exposing (Holiness(..))
 import Types.Kurve exposing (Kurve)
 import Types.PlayerId exposing (PlayerId)
+import Types.Tick as Tick exposing (Tick)
 import World exposing (DrawingPosition)
 
 
@@ -19,19 +19,16 @@ type alias Replay =
 type alias ReplayKurve =
     { playerId : PlayerId
     , initialDrawingPosition : DrawingPosition
-    , moves : List Move
-    }
 
+    -- The default is `Solid`. Each listed tick it flips. If the list starts with `Tick 0`, it means that the Kurve started out holy.
+    , holinessChanges : List Tick
 
-maxRepetitions : Int
-maxRepetitions =
-    15
-
-
-type alias Move =
-    { repetitions : Int -- 0–15. 0 means “no movement” and the direction is ignored.
-    , direction : Direction
-    , holiness : Holiness
+    -- Note: A Kurve never moves in one direction and then directly in the opposite direction.
+    -- That is instead used to denote that the kurve didn’t move at all.
+    -- `[ N, S ]` means north, then no movement.
+    -- `[ N, S, S ]` means north, then no movement twice.
+    -- `[ N, S, N ]` means north, then no movement, then north.
+    , moves : List Direction
     }
 
 
@@ -73,61 +70,60 @@ toReplayKurve movesPerTick kurve =
     in
     { playerId = kurve.id
     , initialDrawingPosition = initialDrawingPosition
+    , holinessChanges = List.reverse kurve.reversedHolinessChanges
     , moves =
         kurve.reversedDrawingPositionsPerTick
-            |> List.concatMap (pad movesPerTick)
-            |> toMoves initialDrawingPosition
-            |> optimizeRepetitions
+            |> toMoves movesPerTick initialDrawingPosition
             |> List.reverse
     }
 
 
-pad : Int -> List ( DrawingPosition, Holiness ) -> List ( DrawingPosition, Holiness )
-pad length reversedList =
+toMoves : Int -> DrawingPosition -> List (List DrawingPosition) -> List Direction
+toMoves movesPerTick initialDrawingPosition reversedDrawingPositions =
     let
-        actualLength =
-            List.length reversedList
+        ( _, _, directions ) =
+            reversedDrawingPositions
+                |> List.foldr
+                    (\tickDrawingPositions outerAcc ->
+                        let
+                            ( newLastDrawingPosition, newLastDirection, newAcc ) =
+                                tickDrawingPositions
+                                    |> List.foldr
+                                        (\drawingPosition ( lastDrawingPosition, lastDirection, acc ) ->
+                                            let
+                                                direction =
+                                                    case getDirection lastDrawingPosition drawingPosition of
+                                                        Just direction_ ->
+                                                            direction_
+
+                                                        Nothing ->
+                                                            opposite lastDirection
+                                            in
+                                            ( drawingPosition
+                                            , direction
+                                            , direction :: acc
+                                            )
+                                        )
+                                        outerAcc
+
+                            lengthDiff =
+                                movesPerTick - List.length tickDrawingPositions
+
+                            paddedAcc =
+                                if lengthDiff > 0 then
+                                    List.repeat lengthDiff (opposite newLastDirection) ++ newAcc
+
+                                else
+                                    newAcc
+                        in
+                        ( newLastDrawingPosition, newLastDirection, paddedAcc )
+                    )
+                    ( initialDrawingPosition
+                    , N
+                    , []
+                    )
     in
-    if actualLength < length then
-        let
-            padding =
-                List.head reversedList |> Maybe.withDefault ( { x = 0, y = 0 }, Holy )
-        in
-        reversedList ++ List.repeat (length - actualLength) padding
-
-    else
-        reversedList
-
-
-toMoves : DrawingPosition -> List ( DrawingPosition, Holiness ) -> List Move
-toMoves initialDrawingPosition reversedDrawingPositions =
-    reversedDrawingPositions
-        |> List.foldr
-            (\( drawingPosition, holiness ) ( lastDrawingPosition, acc ) ->
-                let
-                    move : Move
-                    move =
-                        case getDirection lastDrawingPosition drawingPosition of
-                            Just direction ->
-                                { repetitions = 1
-                                , direction = direction
-                                , holiness = holiness
-                                }
-
-                            Nothing ->
-                                { repetitions = 0
-                                , direction = N
-                                , holiness = holiness
-                                }
-                in
-                ( drawingPosition
-                , move :: acc
-                )
-            )
-            ( initialDrawingPosition
-            , []
-            )
-        |> Tuple.second
+    directions
 
 
 getDirection : DrawingPosition -> DrawingPosition -> Maybe Direction
@@ -161,42 +157,32 @@ getDirection previousDrawingPosition drawingPosition =
             Nothing
 
 
-optimizeRepetitions : List Move -> List Move
-optimizeRepetitions reversedMoves =
-    case reversedMoves of
-        [] ->
-            []
+opposite : Direction -> Direction
+opposite direction =
+    case direction of
+        N ->
+            S
 
-        last :: rest ->
-            let
-                ( finalMove, finalAcc ) =
-                    rest
-                        |> List.foldr
-                            (\move ( previousMove, acc ) ->
-                                let
-                                    repetitions =
-                                        previousMove.repetitions + move.repetitions
-                                in
-                                if
-                                    (repetitions < maxRepetitions)
-                                        && (previousMove.repetitions > 0)
-                                        && (move.repetitions > 0)
-                                        && (previousMove.direction == move.direction)
-                                        && (previousMove.holiness == move.holiness)
-                                then
-                                    ( { move | repetitions = repetitions }, acc )
+        NE ->
+            SW
 
-                                else
-                                    ( move, previousMove :: acc )
-                            )
-                            ( last, [] )
-            in
-            finalMove :: finalAcc
+        E ->
+            W
 
+        SE ->
+            NW
 
-latestVersion : Int
-latestVersion =
-    0
+        S ->
+            N
+
+        SW ->
+            NE
+
+        W ->
+            E
+
+        NW ->
+            SE
 
 
 endianness : Bytes.Endianness
@@ -204,82 +190,18 @@ endianness =
     Bytes.BE
 
 
+latestVersion : Int
+latestVersion =
+    0
+
+
 encoder : Replay -> Encoder
 encoder replay =
     Encode.sequence
         [ Encode.unsignedInt8 latestVersion
         , Encode.unsignedInt8 replay.movesPerTick
-        , Encode.unsignedInt8 (List.length replay.kurves)
-        , Encode.sequence (replay.kurves |> List.map (.playerId >> Encode.unsignedInt8))
-        , Encode.sequence (replay.kurves |> List.map (.initialDrawingPosition >> drawingPositionEncoder))
-        , Encode.sequence (replay.kurves |> List.map (.moves >> movesEncoder))
+        , kurvesEncoder replay.kurves
         ]
-
-
-drawingPositionEncoder : DrawingPosition -> Encoder
-drawingPositionEncoder { x, y } =
-    Encode.sequence
-        [ Encode.unsignedInt16 endianness x
-        , Encode.unsignedInt16 endianness y
-        ]
-
-
-movesEncoder : List Move -> Encoder
-movesEncoder moves =
-    Encode.sequence
-        [ Encode.unsignedInt32 endianness (List.length moves)
-        , Encode.sequence (List.map moveEncoder moves)
-        ]
-
-
-moveEncoder : Move -> Encoder
-moveEncoder move =
-    Encode.unsignedInt8 (moveToUint8 move)
-
-
-moveToUint8 : Move -> Int
-moveToUint8 move =
-    let
-        repetitions =
-            move.repetitions
-
-        holiness =
-            case move.holiness of
-                Holy ->
-                    1
-
-                Solid ->
-                    0
-
-        direction =
-            case move.direction of
-                N ->
-                    0
-
-                NE ->
-                    1
-
-                E ->
-                    2
-
-                SE ->
-                    3
-
-                S ->
-                    4
-
-                SW ->
-                    5
-
-                W ->
-                    6
-
-                NW ->
-                    7
-    in
-    (repetitions |> Bitwise.shiftLeftBy 4)
-        + (holiness |> Bitwise.shiftLeftBy 3)
-        + direction
 
 
 decoder : Decoder Replay
@@ -303,16 +225,267 @@ v0Decoder =
         kurvesDecoder
 
 
+kurvesEncoder : List ReplayKurve -> Encoder
+kurvesEncoder kurves =
+    Encode.sequence
+        [ Encode.unsignedInt8 (List.length kurves)
+        , Encode.sequence (List.map kurveEncoder kurves)
+        ]
+
+
 kurvesDecoder : Decoder (List ReplayKurve)
 kurvesDecoder =
     Decode.unsignedInt8
         |> Decode.andThen
-            (\numKurves ->
-                Decode.map3 (List.map3 ReplayKurve)
-                    (list numKurves Decode.unsignedInt8)
-                    (list numKurves drawingPositionDecoder)
-                    (list numKurves movesDecoder)
+            (\length ->
+                list length kurveDecoder
             )
+
+
+kurveEncoder : ReplayKurve -> Encoder
+kurveEncoder kurve =
+    Encode.sequence
+        [ Encode.unsignedInt8 kurve.playerId
+        , drawingPositionEncoder kurve.initialDrawingPosition
+        , holinessChangesEncoder kurve.holinessChanges
+        , movesEncoder kurve.moves
+        ]
+
+
+kurveDecoder : Decoder ReplayKurve
+kurveDecoder =
+    Decode.map4 ReplayKurve
+        Decode.unsignedInt8
+        drawingPositionDecoder
+        holinessChangesDecoder
+        movesDecoder
+
+
+drawingPositionEncoder : DrawingPosition -> Encoder
+drawingPositionEncoder { x, y } =
+    Encode.sequence
+        [ Encode.unsignedInt16 endianness x
+        , Encode.unsignedInt16 endianness y
+        ]
+
+
+drawingPositionDecoder : Decoder DrawingPosition
+drawingPositionDecoder =
+    Decode.map2 DrawingPosition
+        (Decode.unsignedInt16 endianness)
+        (Decode.unsignedInt16 endianness)
+
+
+holinessChangesEncoder : List Tick -> Encoder
+holinessChangesEncoder ticks =
+    Encode.sequence
+        [ Encode.unsignedInt32 endianness (List.length ticks)
+        , Encode.sequence (List.map tickEncoder ticks)
+        ]
+
+
+holinessChangesDecoder : Decoder (List Tick)
+holinessChangesDecoder =
+    Decode.unsignedInt32 endianness
+        |> Decode.andThen (\length -> list length tickDecoder)
+
+
+tickEncoder : Tick -> Encoder
+tickEncoder =
+    Tick.toInt >> Encode.unsignedInt32 endianness
+
+
+tickDecoder : Decoder Tick
+tickDecoder =
+    Decode.unsignedInt32 endianness
+        |> Decode.andThen
+            (\int ->
+                case Tick.fromInt int of
+                    Just tick ->
+                        Decode.succeed tick
+
+                    Nothing ->
+                        Decode.fail
+            )
+
+
+movesEncoder : List Direction -> Encoder
+movesEncoder moves =
+    Encode.sequence
+        [ Encode.unsignedInt32 endianness (List.length moves)
+        , Encode.sequence (movesEncoderHelper [] moves)
+        ]
+
+
+movesDecoder : Decoder (List Direction)
+movesDecoder =
+    Decode.unsignedInt32 endianness
+        |> Decode.andThen
+            (\numMoves ->
+                Decode.loop ( numMoves, [] ) movesDecoderHelper
+            )
+
+
+movesEncoderHelper : List Encoder -> List Direction -> List Encoder
+movesEncoderHelper acc moves =
+    case moves of
+        [] ->
+            List.reverse acc
+
+        _ ->
+            let
+                left =
+                    List.take 8 moves
+
+                rest =
+                    List.drop 8 moves
+
+                lengthDiff =
+                    8 - List.length left
+
+                paddedLeft =
+                    if lengthDiff > 0 then
+                        left ++ List.repeat lengthDiff N
+
+                    else
+                        left
+            in
+            movesEncoderHelper (moveEncoder paddedLeft :: acc) rest
+
+
+moveEncoder : List Direction -> Encoder
+moveEncoder piece8 =
+    let
+        combined =
+            piece8
+                |> List.foldl
+                    (\direction acc ->
+                        (acc |> Bitwise.shiftLeftBy 3) + directionToInt direction
+                    )
+                    0
+    in
+    Encode.sequence
+        [ Encode.unsignedInt8 (Bitwise.and combined b11111111_00000000_00000000)
+        , Encode.unsignedInt8 (Bitwise.and combined b00000000_11111111_00000000)
+        , Encode.unsignedInt8 (Bitwise.and combined b00000000_00000000_11111111)
+        ]
+
+
+movesDecoderHelper : ( Int, List Direction ) -> Decoder (Decode.Step ( Int, List Direction ) (List Direction))
+movesDecoderHelper ( numMoves, acc ) =
+    Decode.map3
+        (\a b c ->
+            let
+                movesLeft =
+                    numMoves - 8
+
+                toDrop =
+                    max 0 -movesLeft
+
+                combinedFull =
+                    (a |> Bitwise.shiftLeftBy 6)
+                        + (b |> Bitwise.shiftLeftBy 3)
+                        + c
+
+                combined =
+                    combinedFull
+                        |> Bitwise.shiftRightZfBy (3 * toDrop)
+
+                moves =
+                    List.range 0 (7 - toDrop)
+                        |> List.foldl
+                            (\i newAcc ->
+                                let
+                                    direction =
+                                        combined
+                                            |> Bitwise.shiftRightZfBy (3 * i)
+                                            |> Bitwise.and 7
+                                            |> intToDirection
+                                in
+                                direction :: newAcc
+                            )
+                            acc
+            in
+            if movesLeft > 0 then
+                Decode.Loop ( movesLeft, moves )
+
+            else
+                Decode.Done (List.reverse moves)
+        )
+        Decode.unsignedInt8
+        Decode.unsignedInt8
+        Decode.unsignedInt8
+
+
+b00000000_00000000_11111111 : Int
+b00000000_00000000_11111111 =
+    255
+
+
+b00000000_11111111_00000000 : Int
+b00000000_11111111_00000000 =
+    65280
+
+
+b11111111_00000000_00000000 : Int
+b11111111_00000000_00000000 =
+    16711680
+
+
+directionToInt : Direction -> Int
+directionToInt direction =
+    case direction of
+        N ->
+            0
+
+        NE ->
+            1
+
+        E ->
+            2
+
+        SE ->
+            3
+
+        S ->
+            4
+
+        SW ->
+            5
+
+        W ->
+            6
+
+        NW ->
+            7
+
+
+intToDirection : Int -> Direction
+intToDirection int =
+    case int of
+        0 ->
+            N
+
+        1 ->
+            NE
+
+        2 ->
+            E
+
+        3 ->
+            SE
+
+        4 ->
+            S
+
+        5 ->
+            SW
+
+        6 ->
+            W
+
+        _ ->
+            NW
 
 
 list : Int -> Decoder a -> Decoder (List a)
@@ -327,64 +500,3 @@ listStep itemDecoder ( n, xs ) =
 
     else
         Decode.map (\x -> Decode.Loop ( n - 1, x :: xs )) itemDecoder
-
-
-drawingPositionDecoder : Decoder DrawingPosition
-drawingPositionDecoder =
-    Decode.map2 DrawingPosition
-        (Decode.unsignedInt16 endianness)
-        (Decode.unsignedInt16 endianness)
-
-
-movesDecoder : Decoder (List Move)
-movesDecoder =
-    Decode.unsignedInt32 endianness
-        |> Decode.andThen
-            (\numMoves ->
-                list numMoves moveDecoder
-            )
-
-
-moveDecoder : Decoder Move
-moveDecoder =
-    Decode.unsignedInt8 |> Decode.map uint8ToMove
-
-
-uint8ToMove : Int -> Move
-uint8ToMove int =
-    let
-        direction =
-            case Bitwise.and int 7 of
-                0 ->
-                    N
-
-                1 ->
-                    NE
-
-                2 ->
-                    E
-
-                3 ->
-                    SE
-
-                4 ->
-                    S
-
-                5 ->
-                    SW
-
-                6 ->
-                    W
-
-                _ ->
-                    NW
-    in
-    { repetitions = int |> Bitwise.shiftRightZfBy 4
-    , holiness =
-        if Bitwise.and int 8 == 1 then
-            Solid
-
-        else
-            Holy
-    , direction = direction
-    }

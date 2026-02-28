@@ -1,6 +1,7 @@
 module GUI.TextOverlay exposing (textOverlay)
 
 import Base64
+import Bytes.Decode
 import Bytes.Encode
 import Colors
 import GUI.Hints exposing (Hint(..))
@@ -57,10 +58,20 @@ content gameState =
 
                 string =
                     Base64.fromBytes bytes |> Maybe.withDefault ""
+
+                maybeDecodedReplay =
+                    Base64.toBytes string
+                        |> Maybe.andThen (Bytes.Decode.decode Replay.decoder)
             in
             [ GUI.Hints.render HowToReplay
             , Html.a [ Attr.href ("?replay=" ++ string) ]
-                [ Html.text "Replay link" ]
+                [ Html.text "Replay link"
+                , if Just (Debug.log "replay" replay) == Debug.log "maybeDecodedReplay" maybeDecodedReplay then
+                    Html.text " OK"
+
+                  else
+                    Html.text " not equal"
+                ]
             ]
 
         RoundOver (Replay overlayState _) _ _ _ ->
