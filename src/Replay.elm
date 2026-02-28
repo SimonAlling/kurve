@@ -1,6 +1,7 @@
 module Replay exposing (..)
 
-import Bytes exposing (Bytes, Endianness(..))
+import Bitwise
+import Bytes
 import Bytes.Encode as Encode exposing (Encoder)
 import Holes exposing (Holiness(..))
 import Types.Kurve exposing (Kurve)
@@ -192,6 +193,89 @@ optimizeRepetitions reversedMoves =
             finalMove :: finalAcc
 
 
+latestVersion : Int
+latestVersion =
+    1
+
+
+endianness : Bytes.Endianness
+endianness =
+    Bytes.BE
+
+
 encoder : Replay -> Encoder
 encoder replay =
-    Encode.sequence [ Encode.unsignedInt16 BE 1 ]
+    Encode.sequence
+        [ Encode.unsignedInt8 latestVersion
+        , Encode.unsignedInt8 replay.movesPerTick
+        , Encode.unsignedInt8 (List.length replay.kurves)
+        , Encode.sequence (replay.kurves |> List.map (.playerId >> Encode.unsignedInt8))
+        , Encode.sequence (replay.kurves |> List.map (.initialDrawingPosition >> drawingPositionEncoder))
+        , Encode.sequence (replay.kurves |> List.map (.moves >> movesEncoder))
+        ]
+
+
+drawingPositionEncoder : DrawingPosition -> Encoder
+drawingPositionEncoder { x, y } =
+    Encode.sequence
+        [ Encode.unsignedInt16 endianness x
+        , Encode.unsignedInt16 endianness y
+        ]
+
+
+movesEncoder : List Move -> Encoder
+movesEncoder moves =
+    Encode.sequence
+        [ Encode.unsignedInt32 endianness (List.length moves)
+        , Encode.sequence (List.map moveEncoder moves)
+        ]
+
+
+moveEncoder : Move -> Encoder
+moveEncoder move =
+    Encode.unsignedInt8 (moveToUint8 move)
+
+
+moveToUint8 : Move -> Int
+moveToUint8 move =
+    let
+        repetitions =
+            move.repetitions
+
+        holiness =
+            case move.holiness of
+                Holy ->
+                    1
+
+                Solid ->
+                    0
+
+        direction =
+            case move.direction of
+                N ->
+                    0
+
+                NE ->
+                    1
+
+                E ->
+                    2
+
+                SE ->
+                    3
+
+                S ->
+                    4
+
+                SW ->
+                    5
+
+                W ->
+                    6
+
+                NW ->
+                    7
+    in
+    (repetitions |> Bitwise.shiftLeftBy 4)
+        + (holiness |> Bitwise.shiftLeftBy 3)
+        + direction
