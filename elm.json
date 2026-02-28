@@ -19,12 +19,14 @@
             "elm/random": "1.0.0",
             "elm/time": "1.0.0",
             "elm-community/random-extra": "3.2.0",
+            "folkertdev/elm-flate": "2.0.5",
             "tortus/elm-array-2d": "3.0.0"
         },
         "indirect": {
             "dwayne/elm-natural": "1.1.1",
             "elm/url": "1.0.0",
-            "elm/virtual-dom": "1.0.3"
+            "elm/virtual-dom": "1.0.3",
+            "elm-community/list-extra": "8.7.0"
         }
     },
     "test-dependencies": {

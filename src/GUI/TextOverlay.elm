@@ -5,6 +5,7 @@ import Bytes
 import Bytes.Decode
 import Bytes.Encode
 import Colors
+import Flate
 import GUI.Hints exposing (Hint(..))
 import GUI.Navigation.Replay
 import GUI.Text
@@ -57,11 +58,15 @@ content gameState =
                 bytes =
                     Bytes.Encode.encode (Replay.encoder replay)
 
+                compressedBytes =
+                    Flate.deflate bytes
+
                 string =
-                    Base64.fromBytes bytes |> Maybe.withDefault ""
+                    Base64.fromBytes compressedBytes |> Maybe.withDefault ""
 
                 maybeDecodedReplay =
                     Base64.toBytes string
+                        |> Maybe.andThen Flate.inflate
                         |> Maybe.andThen (Bytes.Decode.decode Replay.decoder)
             in
             [ GUI.Hints.render HowToReplay
@@ -75,6 +80,8 @@ content gameState =
                     Html.text "not equal"
                 , Html.text ", "
                 , Html.text (String.fromInt (Bytes.width bytes))
+                , Html.text ", "
+                , Html.text (String.fromInt (Bytes.width compressedBytes))
                 , Html.text ", "
                 , Html.text (String.fromInt (String.length string))
                 , Html.text ")"
