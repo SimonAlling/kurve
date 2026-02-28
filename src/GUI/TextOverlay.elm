@@ -1,6 +1,7 @@
 module GUI.TextOverlay exposing (textOverlay)
 
 import Base64
+import Bytes
 import Bytes.Decode
 import Bytes.Encode
 import Colors
@@ -66,11 +67,17 @@ content gameState =
             [ GUI.Hints.render HowToReplay
             , Html.a [ Attr.href ("?replay=" ++ string) ]
                 [ Html.text "Replay link"
+                , Html.text " ("
                 , if Just (Debug.log "replay" replay) == Debug.log "maybeDecodedReplay" maybeDecodedReplay then
-                    Html.text " OK"
+                    Html.text "OK"
 
                   else
-                    Html.text " not equal"
+                    Html.text "not equal"
+                , Html.text ", "
+                , Html.text (String.fromInt (Bytes.width bytes))
+                , Html.text ", "
+                , Html.text (String.fromInt (String.length string))
+                , Html.text ")"
                 ]
             ]
 
