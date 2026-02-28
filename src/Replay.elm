@@ -1,5 +1,7 @@
 module Replay exposing (..)
 
+import Bytes exposing (Bytes, Endianness(..))
+import Bytes.Encode as Encode exposing (Encoder)
 import Holes exposing (Holiness(..))
 import Types.Kurve exposing (Kurve)
 import Types.PlayerId exposing (PlayerId)
@@ -188,3 +190,8 @@ optimizeRepetitions reversedMoves =
                             ( last, [] )
             in
             finalMove :: finalAcc
+
+
+encoder : Replay -> Encoder
+encoder replay =
+    Encode.sequence [ Encode.unsignedInt16 BE 1 ]

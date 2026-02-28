@@ -1,5 +1,7 @@
 module GUI.TextOverlay exposing (textOverlay)
 
+import Base64
+import Bytes.Encode
 import Colors
 import GUI.Hints exposing (Hint(..))
 import GUI.Navigation.Replay
@@ -8,6 +10,9 @@ import Game exposing (GameState(..), LiveOrReplay(..), PausedOrNot(..))
 import Html exposing (Html, div, p)
 import Html.Attributes as Attr
 import Overlay
+import Replay
+import Round
+import Types.Kurve exposing (Kurve)
 
 
 textOverlay : GameState -> Html msg
@@ -35,8 +40,27 @@ content gameState =
         Active (Replay overlayState _) NotPaused _ ->
             Overlay.ifVisible overlayState [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
-        RoundOver (Live _) _ _ _ ->
+        RoundOver (Live finishedRound) _ _ _ ->
+            let
+                round =
+                    Round.unpackFinished finishedRound
+
+                theKurves : List Kurve
+                theKurves =
+                    round.kurves.alive ++ round.kurves.dead
+
+                replay =
+                    Replay.fromKurves theKurves
+
+                bytes =
+                    Bytes.Encode.encode (Replay.encoder replay)
+
+                string =
+                    Base64.fromBytes bytes |> Maybe.withDefault ""
+            in
             [ GUI.Hints.render HowToReplay
+            , Html.a [ Attr.href ("?replay=" ++ string) ]
+                [ Html.text "Replay link" ]
             ]
 
         RoundOver (Replay overlayState _) _ _ _ ->
