@@ -365,9 +365,9 @@ moveEncoder piece8 =
                     0
     in
     Encode.sequence
-        [ Encode.unsignedInt8 (Bitwise.and combined b11111111_00000000_00000000)
-        , Encode.unsignedInt8 (Bitwise.and combined b00000000_11111111_00000000)
-        , Encode.unsignedInt8 (Bitwise.and combined b00000000_00000000_11111111)
+        [ Encode.unsignedInt8 (combined |> Bitwise.shiftRightZfBy 16)
+        , Encode.unsignedInt8 (combined |> Bitwise.shiftRightZfBy 8 |> Bitwise.and b11111111)
+        , Encode.unsignedInt8 (Bitwise.and combined b11111111)
         ]
 
 
@@ -383,8 +383,8 @@ movesDecoderHelper ( numMoves, acc ) =
                     max 0 -movesLeft
 
                 combinedFull =
-                    (a |> Bitwise.shiftLeftBy 6)
-                        + (b |> Bitwise.shiftLeftBy 3)
+                    (a |> Bitwise.shiftLeftBy 16)
+                        + (b |> Bitwise.shiftLeftBy 8)
                         + c
 
                 combined =
@@ -393,13 +393,13 @@ movesDecoderHelper ( numMoves, acc ) =
 
                 moves =
                     List.range 0 (7 - toDrop)
-                        |> List.foldl
+                        |> List.foldr
                             (\i newAcc ->
                                 let
                                     direction =
                                         combined
                                             |> Bitwise.shiftRightZfBy (3 * i)
-                                            |> Bitwise.and 7
+                                            |> Bitwise.and b111
                                             |> intToDirection
                                 in
                                 direction :: newAcc
@@ -417,19 +417,14 @@ movesDecoderHelper ( numMoves, acc ) =
         Decode.unsignedInt8
 
 
-b00000000_00000000_11111111 : Int
-b00000000_00000000_11111111 =
+b111 : Int
+b111 =
+    7
+
+
+b11111111 : Int
+b11111111 =
     255
-
-
-b00000000_11111111_00000000 : Int
-b00000000_11111111_00000000 =
-    65280
-
-
-b11111111_00000000_00000000 : Int
-b11111111_00000000_00000000 =
-    16711680
 
 
 directionToInt : Direction -> Int
