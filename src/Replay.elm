@@ -128,7 +128,7 @@ toMoves movesPerTick initialDrawingPosition reversedDrawingPositions =
 
 getDirection : DrawingPosition -> DrawingPosition -> Maybe Direction
 getDirection previousDrawingPosition drawingPosition =
-    case ( compare previousDrawingPosition.x drawingPosition.x, compare previousDrawingPosition.y drawingPosition.y ) of
+    case ( compare drawingPosition.x previousDrawingPosition.x, compare drawingPosition.y previousDrawingPosition.y ) of
         ( EQ, LT ) ->
             Just N
 
