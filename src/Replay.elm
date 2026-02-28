@@ -2,6 +2,7 @@ module Replay exposing (..)
 
 import Bitwise
 import Bytes
+import Bytes.Decode as Decode exposing (Decoder)
 import Bytes.Encode as Encode exposing (Encoder)
 import Holes exposing (Holiness(..))
 import Types.Kurve exposing (Kurve)
@@ -10,14 +11,14 @@ import World exposing (DrawingPosition)
 
 
 type alias Replay =
-    { kurves : List ReplayKurve
-    , movesPerTick : Int
+    { movesPerTick : Int
+    , kurves : List ReplayKurve
     }
 
 
 type alias ReplayKurve =
-    { initialDrawingPosition : DrawingPosition
-    , playerId : PlayerId
+    { playerId : PlayerId
+    , initialDrawingPosition : DrawingPosition
     , moves : List Move
     }
 
@@ -51,8 +52,8 @@ fromKurves kurves =
         movesPerTick =
             getMovesPerTick kurves
     in
-    { kurves = List.map (toReplayKurve movesPerTick) kurves
-    , movesPerTick = movesPerTick
+    { movesPerTick = movesPerTick
+    , kurves = List.map (toReplayKurve movesPerTick) kurves
     }
 
 
@@ -70,8 +71,8 @@ toReplayKurve movesPerTick kurve =
         initialDrawingPosition =
             World.drawingPosition kurve.stateAtSpawn.position
     in
-    { initialDrawingPosition = initialDrawingPosition
-    , playerId = kurve.id
+    { playerId = kurve.id
+    , initialDrawingPosition = initialDrawingPosition
     , moves =
         kurve.reversedDrawingPositionsPerTick
             |> List.concatMap (pad movesPerTick)
@@ -195,7 +196,7 @@ optimizeRepetitions reversedMoves =
 
 latestVersion : Int
 latestVersion =
-    1
+    0
 
 
 endianness : Bytes.Endianness
@@ -279,3 +280,111 @@ moveToUint8 move =
     (repetitions |> Bitwise.shiftLeftBy 4)
         + (holiness |> Bitwise.shiftLeftBy 3)
         + direction
+
+
+decoder : Decoder Replay
+decoder =
+    Decode.unsignedInt8
+        |> Decode.andThen
+            (\version ->
+                case version of
+                    0 ->
+                        v0Decoder
+
+                    _ ->
+                        Decode.fail
+            )
+
+
+v0Decoder : Decoder Replay
+v0Decoder =
+    Decode.map2 Replay
+        Decode.unsignedInt8
+        kurvesDecoder
+
+
+kurvesDecoder : Decoder (List ReplayKurve)
+kurvesDecoder =
+    Decode.unsignedInt8
+        |> Decode.andThen
+            (\numKurves ->
+                Decode.map3 (List.map3 ReplayKurve)
+                    (list numKurves Decode.unsignedInt8)
+                    (list numKurves drawingPositionDecoder)
+                    (list numKurves movesDecoder)
+            )
+
+
+list : Int -> Decoder a -> Decoder (List a)
+list len itemDecoder =
+    Decode.loop ( len, [] ) (listStep itemDecoder)
+
+
+listStep : Decoder a -> ( Int, List a ) -> Decoder (Decode.Step ( Int, List a ) (List a))
+listStep itemDecoder ( n, xs ) =
+    if n <= 0 then
+        Decode.succeed (Decode.Done (List.reverse xs))
+
+    else
+        Decode.map (\x -> Decode.Loop ( n - 1, x :: xs )) itemDecoder
+
+
+drawingPositionDecoder : Decoder DrawingPosition
+drawingPositionDecoder =
+    Decode.map2 DrawingPosition
+        (Decode.unsignedInt16 endianness)
+        (Decode.unsignedInt16 endianness)
+
+
+movesDecoder : Decoder (List Move)
+movesDecoder =
+    Decode.unsignedInt32 endianness
+        |> Decode.andThen
+            (\numMoves ->
+                list numMoves moveDecoder
+            )
+
+
+moveDecoder : Decoder Move
+moveDecoder =
+    Decode.unsignedInt8 |> Decode.map uint8ToMove
+
+
+uint8ToMove : Int -> Move
+uint8ToMove int =
+    let
+        direction =
+            case Bitwise.and int 7 of
+                0 ->
+                    N
+
+                1 ->
+                    NE
+
+                2 ->
+                    E
+
+                3 ->
+                    SE
+
+                4 ->
+                    S
+
+                5 ->
+                    SW
+
+                6 ->
+                    W
+
+                _ ->
+                    NW
+    in
+    { repetitions = int |> Bitwise.shiftRightZfBy 4
+    , holiness =
+        if Bitwise.and int 8 == 1 then
+            Solid
+
+        else
+            Holy
+    , direction = direction
+    }
