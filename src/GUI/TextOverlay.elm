@@ -58,6 +58,7 @@ content gameState =
                 bytes =
                     Bytes.Encode.encode (Replay.encoder replay)
 
+                -- TODO: If we’re gonna do compression, I guess it should be behind the version number so we have the opportunity to improve or fix it in the future?
                 compressedBytes =
                     Flate.deflate bytes
 
