@@ -1,14 +1,17 @@
 port module Main exposing (Model, Msg(..), init, main, update)
 
 import App exposing (AppState(..), modifyGameState)
+import Base64
 import Browser
 import Browser.Events
+import Bytes.Decode
 import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
 import Drawing exposing (WhatToDraw, drawSpawnsPermanently, mergeWhatToDraw)
 import Effect exposing (Effect(..), maybeDrawSomething)
 import Events
+import Flate
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
@@ -53,6 +56,7 @@ import Players
         , participating
         )
 import Random
+import Replay exposing (Replay2)
 import Round exposing (FinishedRound, Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
 import Settings exposing (SettingId(..), Settings)
@@ -85,6 +89,15 @@ port saveToLocalStorage : String -> Cmd msg
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
+    let
+        maybeReplay : Maybe Replay2
+        maybeReplay =
+            flags.replayQueryParameter
+                |> Maybe.andThen (String.replace " " "+" >> Base64.toBytes)
+                |> Maybe.andThen Flate.inflate
+                |> Maybe.andThen (Bytes.Decode.decode Replay.decoder)
+                |> Debug.log "replay"
+    in
     ( { pressedButtons = Set.empty
       , appState = InMenu SplashScreen (Random.initialSeed flags.initialSeedValue)
       , config = Config.default |> Config.withSettings (Settings.parse flags.settingsJsonFromLocalStorage)
@@ -122,6 +135,7 @@ type Msg
 type alias Flags =
     { initialSeedValue : Int
     , settingsJsonFromLocalStorage : Maybe String
+    , replayQueryParameter : Maybe String
     }
 
 
