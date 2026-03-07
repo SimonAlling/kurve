@@ -99,7 +99,13 @@ init flags =
                 |> Debug.log "replay"
     in
     ( { pressedButtons = Set.empty
-      , appState = InMenu SplashScreen (Random.initialSeed flags.initialSeedValue)
+      , appState =
+            case maybeReplay of
+                Just replay ->
+                    InReplay replay
+
+                Nothing ->
+                    InMenu SplashScreen (Random.initialSeed flags.initialSeedValue)
       , config = Config.default |> Config.withSettings (Settings.parse flags.settingsJsonFromLocalStorage)
       , players = initialPlayers
       }
@@ -199,6 +205,9 @@ update msg ({ config } as model) =
                     , maybeDrawSomething whatToDraw
                     )
 
+                InReplay replay2 ->
+                    ä
+
                 _ ->
                     -- Not expected to ever happen.
                     ( model, DoNothing )
@@ -226,6 +235,10 @@ update msg ({ config } as model) =
                     ( model, DoNothing )
 
                 InGame _ ->
+                    -- Not expected to ever happen.
+                    ( model, DoNothing )
+
+                InReplay _ ->
                     -- Not expected to ever happen.
                     ( model, DoNothing )
 
@@ -494,6 +507,13 @@ buttonUsed button ({ config, pressedButtons } as model) =
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
 
+        InReplay _ ->
+            let
+                _ =
+                    Debug.log "keydown" button
+            in
+            ( model, DoNothing )
+
 
 proceedToNextRound : FinishedRound -> Model -> ( Model, Effect )
 proceedToNextRound finishedRound ({ config, pressedButtons } as model) =
@@ -724,6 +744,9 @@ subscriptions model =
 
             InMenu GameOver _ ->
                 Sub.none
+
+            InReplay replay2 ->
+                Browser.Events.onAnimationFrameDelta AnimationFrame
         , focusLost (always FocusLost)
         ]
 
@@ -804,6 +827,38 @@ view model =
                         , confirmQuitDialog DialogChoiceMade gameState
                         ]
                     , scoreboard gameState model.players
+                    ]
+                ]
+
+        InReplay replay2 ->
+            elmRoot
+                (Events.AllowDefaultExcept playerButtons)
+                [ Attr.class "in-game-ish"
+                , Attr.class magicClassNameToPreventUnload
+                ]
+                [ div
+                    [ Attr.id "wrapper"
+                    ]
+                    [ div
+                        [ Attr.id "border"
+                        , Attr.class "replay-mode"
+                        ]
+                        [ canvas
+                            [ Attr.id "bodyCanvas"
+                            , Attr.width 559
+                            , Attr.height 480
+                            ]
+                            []
+                        , canvas
+                            [ Attr.id "headCanvas"
+                            , Attr.width 559
+                            , Attr.height 480
+                            , Attr.class "overlay"
+                            ]
+                            []
+                        ]
+
+                    --, scoreboard gameState model.players
                     ]
                 ]
 

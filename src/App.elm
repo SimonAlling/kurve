@@ -6,11 +6,13 @@ module App exposing
 import Game exposing (GameState)
 import Menu exposing (MenuState)
 import Random
+import Replay exposing (Replay2)
 
 
 type AppState
     = InMenu MenuState Random.Seed
     | InGame GameState
+    | InReplay Replay2
 
 
 modifyGameState : (GameState -> GameState) -> AppState -> AppState
