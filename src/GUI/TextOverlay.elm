@@ -12,8 +12,8 @@ import GUI.Text
 import Game exposing (GameState(..), LiveOrReplay(..), PausedOrNot(..))
 import Html exposing (Html, div, p)
 import Html.Attributes as Attr
+import Movie
 import Overlay
-import Replay
 import Round
 import Types.Kurve exposing (Kurve)
 
@@ -52,11 +52,11 @@ content gameState =
                 theKurves =
                     round.kurves.alive ++ round.kurves.dead
 
-                replay =
-                    Replay.fromKurves theKurves
+                movie =
+                    Movie.fromKurves theKurves
 
                 bytes =
-                    Bytes.Encode.encode (Replay.encoder replay)
+                    Bytes.Encode.encode (Movie.encoder movie)
 
                 -- TODO: If we’re gonna do compression, I guess it should be behind the version number so we have the opportunity to improve or fix it in the future?
                 compressedBytes =
@@ -65,16 +65,16 @@ content gameState =
                 string =
                     Base64.fromBytes compressedBytes |> Maybe.withDefault ""
 
-                maybeDecodedReplay =
+                maybeDecodedMovie =
                     Base64.toBytes string
                         |> Maybe.andThen Flate.inflate
-                        |> Maybe.andThen (Bytes.Decode.decode Replay.decoder)
+                        |> Maybe.andThen (Bytes.Decode.decode Movie.decoder)
             in
             [ GUI.Hints.render HowToReplay
             , Html.a [ Attr.href ("?replay=" ++ string) ]
-                [ Html.text "Replay link"
+                [ Html.text "Movie link"
                 , Html.text " ("
-                , if Just (Debug.log "replay" replay) == Debug.log "maybeDecodedReplay" maybeDecodedReplay then
+                , if Just (Debug.log "movie" movie) == Debug.log "maybeDecodedMovie" maybeDecodedMovie then
                     Html.text "OK"
 
                   else

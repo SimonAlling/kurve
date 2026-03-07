@@ -42,6 +42,7 @@ import IsGameOver exposing (isGameOver)
 import JavaScript exposing (magicClassNameToPreventUnload)
 import MainLoop
 import Menu exposing (MenuState(..))
+import Movie exposing (Movie)
 import Overlay
 import Players
     exposing
@@ -56,7 +57,6 @@ import Players
         , participating
         )
 import Random
-import Replay exposing (Replay2)
 import Round exposing (FinishedRound, Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
 import Settings exposing (SettingId(..), Settings)
@@ -90,19 +90,19 @@ port saveToLocalStorage : String -> Cmd msg
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
-        maybeReplay : Maybe Replay2
+        maybeReplay : Maybe Movie
         maybeReplay =
-            flags.replayQueryParameter
+            flags.movieQueryParameter
                 |> Maybe.andThen (String.replace " " "+" >> Base64.toBytes)
                 |> Maybe.andThen Flate.inflate
-                |> Maybe.andThen (Bytes.Decode.decode Replay.decoder)
-                |> Debug.log "replay"
+                |> Maybe.andThen (Bytes.Decode.decode Movie.decoder)
+                |> Debug.log "movie"
     in
     ( { pressedButtons = Set.empty
       , appState =
             case maybeReplay of
                 Just replay ->
-                    InReplay replay
+                    InMovie replay
 
                 Nothing ->
                     InMenu SplashScreen (Random.initialSeed flags.initialSeedValue)
@@ -141,7 +141,7 @@ type Msg
 type alias Flags =
     { initialSeedValue : Int
     , settingsJsonFromLocalStorage : Maybe String
-    , replayQueryParameter : Maybe String
+    , movieQueryParameter : Maybe String
     }
 
 
@@ -205,7 +205,7 @@ update msg ({ config } as model) =
                     , maybeDrawSomething whatToDraw
                     )
 
-                InReplay replay2 ->
+                InMovie movie ->
                     ä
 
                 _ ->
@@ -238,7 +238,7 @@ update msg ({ config } as model) =
                     -- Not expected to ever happen.
                     ( model, DoNothing )
 
-                InReplay _ ->
+                InMovie _ ->
                     -- Not expected to ever happen.
                     ( model, DoNothing )
 
@@ -507,7 +507,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
 
-        InReplay _ ->
+        InMovie _ ->
             let
                 _ =
                     Debug.log "keydown" button
@@ -745,7 +745,7 @@ subscriptions model =
             InMenu GameOver _ ->
                 Sub.none
 
-            InReplay replay2 ->
+            InMovie _ ->
                 Browser.Events.onAnimationFrameDelta AnimationFrame
         , focusLost (always FocusLost)
         ]
@@ -830,7 +830,7 @@ view model =
                     ]
                 ]
 
-        InReplay replay2 ->
+        InMovie _ ->
             elmRoot
                 (Events.AllowDefaultExcept playerButtons)
                 [ Attr.class "in-game-ish"

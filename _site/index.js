@@ -18,7 +18,7 @@ const THE_SETTINGS_KEY = "zatacka_settings";
 const flags = {
     initialSeedValue: Math.floor(Math.random() * 0x100000000),
     settingsJsonFromLocalStorage: window.localStorage.getItem(THE_SETTINGS_KEY),
-    replayQueryParameter: new URLSearchParams(window.location.search).get("replay"),
+    movieQueryParameter: new URLSearchParams(window.location.search).get("movie"),
 };
 
 const app = Elm.Main.init({ node: document.getElementById("elm-node"), flags: flags });

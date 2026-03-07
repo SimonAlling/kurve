@@ -1,4 +1,4 @@
-module Replay exposing (..)
+module Movie exposing (..)
 
 import Bitwise
 import Bytes
@@ -10,13 +10,13 @@ import Types.Tick as Tick exposing (Tick)
 import World exposing (DrawingPosition)
 
 
-type alias Replay2 =
+type alias Movie =
     { movesPerTick : Int
-    , kurves : List ReplayKurve
+    , kurves : List MovieKurve
     }
 
 
-type alias ReplayKurve =
+type alias MovieKurve =
     { playerId : PlayerId
     , initialDrawingPosition : DrawingPosition
 
@@ -43,14 +43,14 @@ type Direction
     | NW
 
 
-fromKurves : List Kurve -> Replay2
+fromKurves : List Kurve -> Movie
 fromKurves kurves =
     let
         movesPerTick =
             getMovesPerTick kurves
     in
     { movesPerTick = movesPerTick
-    , kurves = List.map (toReplayKurve movesPerTick) kurves
+    , kurves = List.map (toMovieKurve movesPerTick) kurves
     }
 
 
@@ -62,8 +62,8 @@ getMovesPerTick kurves =
         |> Maybe.withDefault 0
 
 
-toReplayKurve : Int -> Kurve -> ReplayKurve
-toReplayKurve movesPerTick kurve =
+toMovieKurve : Int -> Kurve -> MovieKurve
+toMovieKurve movesPerTick kurve =
     let
         initialDrawingPosition =
             World.drawingPosition kurve.stateAtSpawn.position
@@ -195,16 +195,16 @@ latestVersion =
     0
 
 
-encoder : Replay2 -> Encoder
-encoder replay =
+encoder : Movie -> Encoder
+encoder movie =
     Encode.sequence
         [ Encode.unsignedInt8 latestVersion
-        , Encode.unsignedInt8 replay.movesPerTick
-        , kurvesEncoder replay.kurves
+        , Encode.unsignedInt8 movie.movesPerTick
+        , kurvesEncoder movie.kurves
         ]
 
 
-decoder : Decoder Replay2
+decoder : Decoder Movie
 decoder =
     Decode.unsignedInt8
         |> Decode.andThen
@@ -218,14 +218,14 @@ decoder =
             )
 
 
-v0Decoder : Decoder Replay2
+v0Decoder : Decoder Movie
 v0Decoder =
-    Decode.map2 Replay2
+    Decode.map2 Movie
         Decode.unsignedInt8
         kurvesDecoder
 
 
-kurvesEncoder : List ReplayKurve -> Encoder
+kurvesEncoder : List MovieKurve -> Encoder
 kurvesEncoder kurves =
     Encode.sequence
         [ Encode.unsignedInt8 (List.length kurves)
@@ -233,7 +233,7 @@ kurvesEncoder kurves =
         ]
 
 
-kurvesDecoder : Decoder (List ReplayKurve)
+kurvesDecoder : Decoder (List MovieKurve)
 kurvesDecoder =
     Decode.unsignedInt8
         |> Decode.andThen
@@ -242,7 +242,7 @@ kurvesDecoder =
             )
 
 
-kurveEncoder : ReplayKurve -> Encoder
+kurveEncoder : MovieKurve -> Encoder
 kurveEncoder kurve =
     Encode.sequence
         [ Encode.unsignedInt8 kurve.playerId
@@ -252,9 +252,9 @@ kurveEncoder kurve =
         ]
 
 
-kurveDecoder : Decoder ReplayKurve
+kurveDecoder : Decoder MovieKurve
 kurveDecoder =
-    Decode.map4 ReplayKurve
+    Decode.map4 MovieKurve
         Decode.unsignedInt8
         drawingPositionDecoder
         holinessChangesDecoder

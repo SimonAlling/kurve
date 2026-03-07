@@ -5,14 +5,14 @@ module App exposing
 
 import Game exposing (GameState)
 import Menu exposing (MenuState)
+import Movie exposing (Movie)
 import Random
-import Replay exposing (Replay2)
 
 
 type AppState
     = InMenu MenuState Random.Seed
     | InGame GameState
-    | InReplay Replay2
+    | InMovie Movie
 
 
 modifyGameState : (GameState -> GameState) -> AppState -> AppState
