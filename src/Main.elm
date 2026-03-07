@@ -1,18 +1,14 @@
 port module Main exposing (Model, Msg(..), init, main, update)
 
 import App exposing (AppState(..), modifyGameState)
-import Base64
 import Browser
 import Browser.Events
-import Bytes.Decode
 import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
-import Dict
 import Drawing exposing (WhatToDraw, drawSpawnsPermanently, mergeWhatToDraw)
 import Effect exposing (Effect(..), maybeDrawSomething)
 import Events
-import Flate
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
@@ -35,10 +31,10 @@ import Game
         , recordUserInteraction
         , tickResultToGameState
         )
-import Holes exposing (HoleStatus(..))
+import Holes exposing (HoleStatus)
 import Html exposing (Html, canvas, div)
 import Html.Attributes as Attr
-import Input exposing (Button(..), ButtonDirection(..), toStringSetControls, updatePressedButtons)
+import Input exposing (Button(..), ButtonDirection(..), updatePressedButtons)
 import IsGameOver exposing (isGameOver)
 import JavaScript exposing (magicClassNameToPreventUnload)
 import MainLoop
@@ -57,15 +53,13 @@ import Players
         , participating
         )
 import Random
-import Replay exposing (Replay2)
-import Round exposing (FinishedRound(..), Round, initialStateForReplaying, modifyAlive, modifyKurves)
+import Round exposing (FinishedRound, Round, initialStateForReplaying, modifyAlive, modifyKurves)
 import Set exposing (Set)
 import Settings exposing (SettingId(..), Settings)
 import Spawn exposing (flickerFrequencyToTicksPerSecond, makeSpawnState, stepSpawnState)
 import Time
-import Types.Angle exposing (Angle(..))
 import Types.FrameTime exposing (FrameTime)
-import Types.Kurve as Kurve exposing (Kurve, getHoleStatus, hasPlayerId)
+import Types.Kurve exposing (Kurve, getHoleStatus, hasPlayerId)
 import Types.PlayerId exposing (PlayerId)
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -91,63 +85,9 @@ port saveToLocalStorage : String -> Cmd msg
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    let
-        maybeDecodedReplay =
-            flags.replayUrlParameter
-                |> Maybe.andThen Base64.toBytes
-                |> Maybe.andThen Flate.inflate
-                |> Maybe.andThen (Bytes.Decode.decode Replay.decoder)
-
-        seed =
-            Random.initialSeed flags.initialSeedValue
-
-        config =
-            Config.default |> Config.withSettings (Settings.parse flags.settingsJsonFromLocalStorage)
-
-        appState =
-            case maybeDecodedReplay of
-                Just replay ->
-                    let
-                        theKurves : List Kurve
-                        theKurves =
-                            replay.kurves
-                                |> List.filterMap
-                                    (\replayKurve ->
-                                        Dict.get replayKurve.playerId Players.initialPlayers
-                                            |> Maybe.map
-                                                (\( player, _ ) ->
-                                                    let
-                                                        state : Kurve.State
-                                                        state =
-                                                            { position = ( 0, 0 )
-                                                            , direction = Angle 0
-                                                            , holeStatus = NoHoles
-                                                            }
-                                                    in
-                                                    { color = player.color
-                                                    , id = replayKurve.playerId
-                                                    , controls = toStringSetControls config.enableAlternativeControls player.controls
-                                                    , state = state
-                                                    , stateAtSpawn = state
-                                                    , reversedInteractions = []
-                                                    , reversedHolinessChanges = []
-                                                    , reversedDrawingPositionsPerTick = []
-                                                    }
-                                                )
-                                    )
-
-                        round : Round
-                        round =
-                            prepareReplayRound config.world { seedAfterSpawn = seed, spawnedKurves = theKurves }
-                    in
-                    InGame (startRoundGameState (Replay Overlay.Visible (Finished round) replay) config round)
-
-                Nothing ->
-                    InMenu SplashScreen seed
-    in
     ( { pressedButtons = Set.empty
-      , appState = appState
-      , config = config
+      , appState = InMenu SplashScreen (Random.initialSeed flags.initialSeedValue)
+      , config = Config.default |> Config.withSettings (Settings.parse flags.settingsJsonFromLocalStorage)
       , players = initialPlayers
       }
     , Cmd.none
@@ -159,17 +99,12 @@ startRound liveOrReplay model midRoundState =
     let
         gameState : GameState
         gameState =
-            startRoundGameState liveOrReplay model.config midRoundState
+            Active liveOrReplay NotPaused <|
+                Spawning
+                    (makeSpawnState model.config.spawn.numberOfFlickers midRoundState)
+                    midRoundState
     in
     ( { model | appState = InGame gameState }, ClearEverything )
-
-
-startRoundGameState : LiveOrReplay () -> Config -> Round -> GameState
-startRoundGameState liveOrReplay config midRoundState =
-    Active liveOrReplay NotPaused <|
-        Spawning
-            (makeSpawnState config.spawn.numberOfFlickers midRoundState)
-            midRoundState
 
 
 type Msg
@@ -187,7 +122,6 @@ type Msg
 type alias Flags =
     { initialSeedValue : Int
     , settingsJsonFromLocalStorage : Maybe String
-    , replayUrlParameter : Maybe String
     }
 
 
@@ -201,7 +135,7 @@ update msg ({ config } as model) =
                         Live () ->
                             ( { model | appState = InGame (Active liveOrReplay Paused s) }, DoNothing )
 
-                        Replay _ _ _ ->
+                        Replay _ _ ->
                             -- Not important to pause on focus lost when replaying.
                             ( model, DoNothing )
 
@@ -373,40 +307,36 @@ buttonUsed button ({ config, pressedButtons } as model) =
                                 Live _ ->
                                     ( handleUserInteraction Down button model, DoNothing )
 
-                                Replay overlayState _ replay ->
+                                Replay overlayState _ ->
                                     let
                                         fakeActiveGameState : ActiveGameState
                                         fakeActiveGameState =
                                             Moving MainLoop.noLeftoverFrameTime tickThatEndedIt unpackedFinishedRound
                                     in
-                                    rewindReplay overlayState pausedOrNot fakeActiveGameState finishedRound replay model
+                                    rewindReplay overlayState pausedOrNot fakeActiveGameState finishedRound model
 
                         Key "KeyO" ->
                             case liveOrReplay of
                                 Live _ ->
                                     ( handleUserInteraction Down button model, DoNothing )
 
-                                Replay overlayState _ replay ->
-                                    ( { model | appState = InGame (RoundOver (Replay (Overlay.toggle overlayState) finishedRound replay) pausedOrNot tickThatEndedIt dialogState) }, DoNothing )
+                                Replay overlayState _ ->
+                                    ( { model | appState = InGame (RoundOver (Replay (Overlay.toggle overlayState) finishedRound) pausedOrNot tickThatEndedIt dialogState) }, DoNothing )
 
                         Key "KeyR" ->
                             let
-                                ( newOverlayState, replay ) =
+                                newOverlayState : Overlay.State
+                                newOverlayState =
                                     case liveOrReplay of
                                         Live _ ->
-                                            let
-                                                theKurves : List Kurve
-                                                theKurves =
-                                                    unpackedFinishedRound.kurves.alive ++ unpackedFinishedRound.kurves.dead
-                                            in
                                             -- Users might perceive the replay as the next live round if the overlay is gone, so we reset it here.
-                                            ( Overlay.Visible, Replay.fromKurves theKurves )
+                                            Overlay.Visible
 
-                                        Replay overlayState _ replay_ ->
+                                        Replay overlayState _ ->
                                             -- Users are probably mentally "in replay mode". They'll know that they've recently hidden the overlay themselves, and that it's still a replay.
-                                            ( overlayState, replay_ )
+                                            overlayState
                             in
-                            startRound (Replay newOverlayState finishedRound replay) model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
+                            startRound (Replay newOverlayState finishedRound) model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
 
                         Key "Escape" ->
                             let
@@ -487,28 +417,28 @@ buttonUsed button ({ config, pressedButtons } as model) =
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
 
-        InGame (Active (Replay overlayState finishedRound replay) Paused s) ->
+        InGame (Active (Replay overlayState finishedRound) Paused s) ->
             case button of
                 Key "Space" ->
                     proceedToNextRound finishedRound model
 
                 Key "Enter" ->
-                    ( { model | appState = InGame (Active (Replay overlayState finishedRound replay) NotPaused s) }, DoNothing )
+                    ( { model | appState = InGame (Active (Replay overlayState finishedRound) NotPaused s) }, DoNothing )
 
                 Key "ArrowLeft" ->
-                    rewindReplay overlayState Paused s finishedRound replay model
+                    rewindReplay overlayState Paused s finishedRound model
 
                 Key "ArrowRight" ->
-                    fastForwardReplay overlayState Paused s finishedRound replay model
+                    fastForwardReplay overlayState Paused s finishedRound model
 
                 Key "KeyE" ->
-                    stepOneTick overlayState s finishedRound replay model
+                    stepOneTick overlayState s finishedRound model
 
                 Key "KeyO" ->
-                    ( { model | appState = InGame (Active (Replay (Overlay.toggle overlayState) finishedRound replay) Paused s) }, DoNothing )
+                    ( { model | appState = InGame (Active (Replay (Overlay.toggle overlayState) finishedRound) Paused s) }, DoNothing )
 
                 Key "KeyR" ->
-                    startRound (Replay overlayState finishedRound replay) model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
+                    startRound (Replay overlayState finishedRound) model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
 
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
@@ -516,28 +446,28 @@ buttonUsed button ({ config, pressedButtons } as model) =
         InGame (Active (Live ()) NotPaused _) ->
             ( handleUserInteraction Down button model, DoNothing )
 
-        InGame (Active (Replay overlayState finishedRound replay) NotPaused s) ->
+        InGame (Active (Replay overlayState finishedRound) NotPaused s) ->
             case button of
                 Key "ArrowLeft" ->
-                    rewindReplay overlayState NotPaused s finishedRound replay model
+                    rewindReplay overlayState NotPaused s finishedRound model
 
                 Key "ArrowRight" ->
-                    fastForwardReplay overlayState NotPaused s finishedRound replay model
+                    fastForwardReplay overlayState NotPaused s finishedRound model
 
                 Key "KeyE" ->
-                    stepOneTick overlayState s finishedRound replay model
+                    stepOneTick overlayState s finishedRound model
 
                 Key "KeyO" ->
-                    ( { model | appState = InGame (Active (Replay (Overlay.toggle overlayState) finishedRound replay) NotPaused s) }, DoNothing )
+                    ( { model | appState = InGame (Active (Replay (Overlay.toggle overlayState) finishedRound) NotPaused s) }, DoNothing )
 
                 Key "KeyR" ->
-                    startRound (Replay overlayState finishedRound replay) model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
+                    startRound (Replay overlayState finishedRound) model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
 
                 Key "Space" ->
                     proceedToNextRound finishedRound model
 
                 Key "Enter" ->
-                    ( { model | appState = InGame (Active (Replay overlayState finishedRound replay) Paused s) }, DoNothing )
+                    ( { model | appState = InGame (Active (Replay overlayState finishedRound) Paused s) }, DoNothing )
 
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
@@ -583,8 +513,8 @@ proceedToNextRound finishedRound ({ config, pressedButtons } as model) =
         startRound (Live ()) modelWithRecentResults <| prepareLiveRound config unpackedFinishedRound.seed (participating getHoleStatusById playersWithRecentResults) pressedButtons
 
 
-stepOneTick : Overlay.State -> ActiveGameState -> FinishedRound -> Replay2 -> Model -> ( Model, Effect )
-stepOneTick overlayState activeGameState finishedRound replay model =
+stepOneTick : Overlay.State -> ActiveGameState -> FinishedRound -> Model -> ( Model, Effect )
+stepOneTick overlayState activeGameState finishedRound model =
     case activeGameState of
         Spawning _ _ ->
             ( model, DoNothing )
@@ -603,13 +533,13 @@ stepOneTick overlayState activeGameState finishedRound replay model =
                         lastTick
                         midRoundState
             in
-            ( { model | appState = InGame (tickResultToGameState (Replay overlayState finishedRound replay) Paused tickResult) }
+            ( { model | appState = InGame (tickResultToGameState (Replay overlayState finishedRound) Paused tickResult) }
             , maybeDrawSomething whatToDraw
             )
 
 
-fastForwardReplay : Overlay.State -> PausedOrNot -> ActiveGameState -> FinishedRound -> Replay2 -> Model -> ( Model, Effect )
-fastForwardReplay overlayState pausedOrNot activeGameState finishedRound replay ({ config } as model) =
+fastForwardReplay : Overlay.State -> PausedOrNot -> ActiveGameState -> FinishedRound -> Model -> ( Model, Effect )
+fastForwardReplay overlayState pausedOrNot activeGameState finishedRound ({ config } as model) =
     case activeGameState of
         Spawning _ plannedMidRoundState ->
             let
@@ -621,7 +551,7 @@ fastForwardReplay overlayState pausedOrNot activeGameState finishedRound replay 
                 whatToDraw =
                     drawSpawnsPermanently plannedMidRoundState.kurves.alive
             in
-            ( { model | appState = InGame <| Active (Replay overlayState finishedRound replay) NotPaused newActiveGameState }
+            ( { model | appState = InGame <| Active (Replay overlayState finishedRound) NotPaused newActiveGameState }
             , DrawSomething whatToDraw
             )
 
@@ -635,16 +565,16 @@ fastForwardReplay overlayState pausedOrNot activeGameState finishedRound replay 
                         lastTick
                         midRoundState
             in
-            ( { model | appState = InGame (tickResultToGameState (Replay overlayState finishedRound replay) pausedOrNot tickResult) }
+            ( { model | appState = InGame (tickResultToGameState (Replay overlayState finishedRound) pausedOrNot tickResult) }
             , maybeDrawSomething whatToDraw
             )
 
 
-rewindReplay : Overlay.State -> PausedOrNot -> ActiveGameState -> FinishedRound -> Replay2 -> Model -> ( Model, Effect )
-rewindReplay overlayState pausedOrNot activeGameState finishedRound replay model =
+rewindReplay : Overlay.State -> PausedOrNot -> ActiveGameState -> FinishedRound -> Model -> ( Model, Effect )
+rewindReplay overlayState pausedOrNot activeGameState finishedRound model =
     case activeGameState of
         Spawning _ _ ->
-            startRound (Replay overlayState finishedRound replay) model <| prepareReplayRound model.config.world (initialStateForReplaying finishedRound)
+            startRound (Replay overlayState finishedRound) model <| prepareReplayRound model.config.world (initialStateForReplaying finishedRound)
 
         Moving _ lastTick _ ->
             let
@@ -693,7 +623,7 @@ rewindReplay overlayState pausedOrNot activeGameState finishedRound replay model
                         Just whatToDrawForSkippingAhead ->
                             mergeWhatToDraw whatToDrawForSpawns whatToDrawForSkippingAhead
             in
-            ( { model | appState = InGame (tickResultToGameState (Replay overlayState finishedRound replay) pausedOrNot tickResult) }
+            ( { model | appState = InGame (tickResultToGameState (Replay overlayState finishedRound) pausedOrNot tickResult) }
             , ClearAndThenDraw whatToDraw
             )
 

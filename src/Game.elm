@@ -28,7 +28,6 @@ import Input exposing (Button)
 import Overlay
 import Players exposing (ParticipatingPlayers)
 import Random
-import Replay exposing (Replay2)
 import Round exposing (FinishedRound(..), Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
 import Set exposing (Set)
 import Spawn exposing (SpawnState, generateKurves)
@@ -90,7 +89,7 @@ getFinishedRound liveOrReplay =
         Live finishedRound ->
             finishedRound
 
-        Replay _ finishedRound _ ->
+        Replay _ finishedRound ->
             finishedRound
 
 
@@ -109,7 +108,7 @@ modifyMidRoundState f gameState =
 
 type LiveOrReplay liveData
     = Live liveData
-    | Replay Overlay.State FinishedRound Replay2
+    | Replay Overlay.State FinishedRound
 
 
 isReplay : GameState -> Bool
@@ -120,7 +119,7 @@ isReplay gameState =
                 Live _ ->
                     False
 
-                Replay _ _ _ ->
+                Replay _ _ ->
                     True
 
         RoundOver liveOrReplay _ _ _ ->
@@ -128,7 +127,7 @@ isReplay gameState =
                 Live _ ->
                     False
 
-                Replay _ _ _ ->
+                Replay _ _ ->
                     True
 
 
@@ -237,10 +236,10 @@ tickResultToGameState liveOrReplay pausedOrNot tickResult =
                         Live () ->
                             Live finishedRound
 
-                        Replay overlayState originalFinishedRound replay ->
+                        Replay overlayState originalFinishedRound ->
                             -- The freshly computed finished round should™ be equal to the original one that we already have, so we should be able to use either one.
                             -- I think it feels more natural to keep the one we already have.
-                            Replay overlayState originalFinishedRound replay
+                            Replay overlayState originalFinishedRound
             in
             RoundOver liveOrReplayWithFinishedRound pausedOrNot tickThatEndedIt Dialog.NotOpen
 
@@ -504,7 +503,7 @@ eventPrevention playerButtons gameState =
                     -- * Player inputs clashing with keyboard shortcuts (e.g. Alt to open the menu bar or Ctrl + 1 to switch to the first tab)
                     PreventDefault
 
-                Replay _ _ _ ->
+                Replay _ _ ->
                     AllowDefaultExcept playerButtons
 
         RoundOver _ _ _ _ ->

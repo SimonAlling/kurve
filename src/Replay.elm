@@ -10,7 +10,7 @@ import Types.Tick as Tick exposing (Tick)
 import World exposing (DrawingPosition)
 
 
-type alias Replay2 =
+type alias Replay =
     { movesPerTick : Int
     , kurves : List ReplayKurve
     }
@@ -43,7 +43,7 @@ type Direction
     | NW
 
 
-fromKurves : List Kurve -> Replay2
+fromKurves : List Kurve -> Replay
 fromKurves kurves =
     let
         movesPerTick =
@@ -195,7 +195,7 @@ latestVersion =
     0
 
 
-encoder : Replay2 -> Encoder
+encoder : Replay -> Encoder
 encoder replay =
     Encode.sequence
         [ Encode.unsignedInt8 latestVersion
@@ -204,7 +204,7 @@ encoder replay =
         ]
 
 
-decoder : Decoder Replay2
+decoder : Decoder Replay
 decoder =
     Decode.unsignedInt8
         |> Decode.andThen
@@ -218,9 +218,9 @@ decoder =
             )
 
 
-v0Decoder : Decoder Replay2
+v0Decoder : Decoder Replay
 v0Decoder =
-    Decode.map2 Replay2
+    Decode.map2 Replay
         Decode.unsignedInt8
         kurvesDecoder
 

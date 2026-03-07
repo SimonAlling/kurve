@@ -36,11 +36,11 @@ content gameState =
         Active (Live _) NotPaused _ ->
             []
 
-        Active (Replay overlayState _ _) Paused _ ->
+        Active (Replay overlayState _) Paused _ ->
             -- Hint on how to continue deliberately omitted here. See the PR/commit that added this comment for details.
             Overlay.ifVisible overlayState [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
-        Active (Replay overlayState _ _) NotPaused _ ->
+        Active (Replay overlayState _) NotPaused _ ->
             Overlay.ifVisible overlayState [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
         RoundOver (Live finishedRound) _ _ _ ->
@@ -71,8 +71,6 @@ content gameState =
                         |> Maybe.andThen (Bytes.Decode.decode Replay.decoder)
             in
             [ GUI.Hints.render HowToReplay
-
-            -- It might make more sense having a hotkey in the replay that lets you copy the link?
             , Html.a [ Attr.href ("?replay=" ++ string) ]
                 [ Html.text "Replay link"
                 , Html.text " ("
@@ -91,7 +89,7 @@ content gameState =
                 ]
             ]
 
-        RoundOver (Replay overlayState _ _) _ _ _ ->
+        RoundOver (Replay overlayState _) _ _ _ ->
             Overlay.ifVisible overlayState [ replayIndicator, GUI.Navigation.Replay.replayNavigation ]
 
 
