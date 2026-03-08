@@ -1,14 +1,17 @@
 port module Main exposing (Model, Msg(..), init, main, update)
 
-import App exposing (AppState(..), modifyGameState)
+import App exposing (AppState(..), modifyGameState, toPlayingMovie)
+import Base64
 import Browser
 import Browser.Events
+import Bytes.Decode
 import Canvas exposing (clearEverything, drawingCmd)
 import Config exposing (Config)
 import Dialog
 import Drawing exposing (WhatToDraw, drawSpawnsPermanently, mergeWhatToDraw)
 import Effect exposing (Effect(..), maybeDrawSomething)
 import Events
+import Flate
 import GUI.ConfirmQuitDialog exposing (confirmQuitDialog)
 import GUI.EndScreen exposing (endScreen)
 import GUI.Lobby exposing (lobby)
@@ -39,6 +42,7 @@ import IsGameOver exposing (isGameOver)
 import JavaScript exposing (magicClassNameToPreventUnload)
 import MainLoop
 import Menu exposing (MenuState(..))
+import Movie exposing (Movie)
 import Overlay
 import Players
     exposing
@@ -85,8 +89,23 @@ port saveToLocalStorage : String -> Cmd msg
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
+    let
+        maybeMovie =
+            flags.movieQueryParameter
+                |> Maybe.andThen (String.replace " " "+" >> Base64.toBytes)
+                |> Maybe.andThen Flate.inflate
+                |> Maybe.andThen (Bytes.Decode.decode Movie.decoder)
+                |> Maybe.map toPlayingMovie
+                |> Debug.log "movie"
+    in
     ( { pressedButtons = Set.empty
-      , appState = InMenu SplashScreen (Random.initialSeed flags.initialSeedValue)
+      , appState =
+            case maybeMovie of
+                Just movie ->
+                    InMovie movie
+
+                Nothing ->
+                    InMenu SplashScreen (Random.initialSeed flags.initialSeedValue)
       , config = Config.default |> Config.withSettings (Settings.parse flags.settingsJsonFromLocalStorage)
       , players = initialPlayers
       }
@@ -122,6 +141,7 @@ type Msg
 type alias Flags =
     { initialSeedValue : Int
     , settingsJsonFromLocalStorage : Maybe String
+    , movieQueryParameter : Maybe String
     }
 
 
@@ -185,6 +205,26 @@ update msg ({ config } as model) =
                     , maybeDrawSomething whatToDraw
                     )
 
+                InMovie movie ->
+                    let
+                        ( tickResult, whatToDraw ) =
+                            MainLoop.consumeMovieAnimationFrame
+                                config
+                                delta
+                                movie
+
+                        appState =
+                            case tickResult of
+                                MainLoop.MovieKeepsGoing newMovie ->
+                                    InMovie newMovie
+
+                                MainLoop.MovieEnds newMovie ->
+                                    InMovie newMovie
+                    in
+                    ( { model | appState = appState }
+                    , maybeDrawSomething whatToDraw
+                    )
+
                 _ ->
                     -- Not expected to ever happen.
                     ( model, DoNothing )
@@ -212,6 +252,10 @@ update msg ({ config } as model) =
                     ( model, DoNothing )
 
                 InGame _ ->
+                    -- Not expected to ever happen.
+                    ( model, DoNothing )
+
+                InMovie _ ->
                     -- Not expected to ever happen.
                     ( model, DoNothing )
 
@@ -480,6 +524,13 @@ buttonUsed button ({ config, pressedButtons } as model) =
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
 
+        InMovie _ ->
+            let
+                _ =
+                    Debug.log "keydown" button
+            in
+            ( model, DoNothing )
+
 
 proceedToNextRound : FinishedRound -> Model -> ( Model, Effect )
 proceedToNextRound finishedRound ({ config, pressedButtons } as model) =
@@ -710,6 +761,13 @@ subscriptions model =
 
             InMenu GameOver _ ->
                 Sub.none
+
+            InMovie movie ->
+                if movie.isPlaying then
+                    Browser.Events.onAnimationFrameDelta AnimationFrame
+
+                else
+                    Sub.none
         , focusLost (always FocusLost)
         ]
 
@@ -790,6 +848,38 @@ view model =
                         , confirmQuitDialog DialogChoiceMade gameState
                         ]
                     , scoreboard gameState model.players
+                    ]
+                ]
+
+        InMovie _ ->
+            elmRoot
+                (Events.AllowDefaultExcept playerButtons)
+                [ Attr.class "in-game-ish"
+                , Attr.class magicClassNameToPreventUnload
+                ]
+                [ div
+                    [ Attr.id "wrapper"
+                    ]
+                    [ div
+                        [ Attr.id "border"
+                        , Attr.class "replay-mode"
+                        ]
+                        [ canvas
+                            [ Attr.id "bodyCanvas"
+                            , Attr.width 559
+                            , Attr.height 480
+                            ]
+                            []
+                        , canvas
+                            [ Attr.id "headCanvas"
+                            , Attr.width 559
+                            , Attr.height 480
+                            , Attr.class "overlay"
+                            ]
+                            []
+                        ]
+
+                    --, scoreboard gameState model.players
                     ]
                 ]
 

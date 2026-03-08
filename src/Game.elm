@@ -261,7 +261,7 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
             turningStateFromHistory tick kurve
 
         ( newKurveDrawingPositions, checkedKurve, fate ) =
-            updateKurve config turningState occupiedPixels kurve
+            updateKurve config tick turningState occupiedPixels kurve
 
         occupiedPixelsAfterCheckingThisKurve : OccupiedPixels
         occupiedPixelsAfterCheckingThisKurve =
@@ -295,8 +295,8 @@ type alias HolinessTransition =
     }
 
 
-evaluateMove : Config -> Position -> Position -> OccupiedPixels -> HolinessTransition -> ( List DrawingPosition, Fate )
-evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransition =
+evaluateMove : Config -> Position -> Position -> OccupiedPixels -> ( List DrawingPosition, Fate )
+evaluateMove config startingPoint desiredEndPoint occupiedPixels =
     let
         startingPointAsDrawingPosition : DrawingPosition
         startingPointAsDrawingPosition =
@@ -340,12 +340,16 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
 
                     else
                         checkPositions (current :: checked) current rest
+    in
+    checkPositions [] startingPointAsDrawingPosition positionsToCheck
 
-        ( checkedPositionsReversed, evaluatedStatus ) =
-            checkPositions [] startingPointAsDrawingPosition positionsToCheck
 
-        { oldHoliness, newHoliness } =
-            holinessTransition
+getPositionsToDraw : HolinessTransition -> Fate -> Position -> List DrawingPosition -> List DrawingPosition
+getPositionsToDraw { oldHoliness, newHoliness } evaluatedStatus startingPoint checkedPositionsReversed =
+    let
+        startingPointAsDrawingPosition : DrawingPosition
+        startingPointAsDrawingPosition =
+            World.drawingPosition startingPoint
 
         positionsToDraw : List DrawingPosition
         positionsToDraw =
@@ -397,11 +401,11 @@ evaluateMove config startingPoint desiredEndPoint occupiedPixels holinessTransit
                             -- The Kurve died in the middle of a solid segment. Draw all positions it could be at.
                             checkedPositionsReversed
     in
-    ( positionsToDraw |> List.reverse, evaluatedStatus )
+    List.reverse positionsToDraw
 
 
-updateKurve : Config -> TurningState -> OccupiedPixels -> Kurve -> ( List DrawingPosition, Kurve, Fate )
-updateKurve config turningState occupiedPixels kurve =
+updateKurve : Config -> Tick -> TurningState -> OccupiedPixels -> Kurve -> ( List DrawingPosition, Kurve, Fate )
+updateKurve config tick turningState occupiedPixels kurve =
     let
         distanceTraveledSinceLastTick : Float
         distanceTraveledSinceLastTick =
@@ -425,15 +429,25 @@ updateKurve config turningState occupiedPixels kurve =
             , y + distanceTraveledSinceLastTick * Angle.cos newDirection
             )
 
-        ( confirmedDrawingPositions, fate ) =
+        ( checkedPositionsReversed, fate ) =
             evaluateMove
                 config
                 kurve.state.position
                 newPosition
                 occupiedPixels
-                { oldHoliness = getHoliness kurve.state.holeStatus
-                , newHoliness = getHoliness newHoleStatus
-                }
+
+        holinessTransition : HolinessTransition
+        holinessTransition =
+            { oldHoliness = getHoliness kurve.state.holeStatus
+            , newHoliness = getHoliness newHoleStatus
+            }
+
+        confirmedDrawingPositions =
+            getPositionsToDraw
+                holinessTransition
+                fate
+                kurve.state.position
+                checkedPositionsReversed
 
         newHoleStatus : HoleStatus
         newHoleStatus =
@@ -446,9 +460,21 @@ updateKurve config turningState occupiedPixels kurve =
             , holeStatus = newHoleStatus
             }
 
+        newReversedHolinessChanges : List Tick
+        newReversedHolinessChanges =
+            if holinessTransition.oldHoliness /= holinessTransition.newHoliness then
+                tick :: kurve.reversedHolinessChanges
+
+            else
+                kurve.reversedHolinessChanges
+
         newKurve : Kurve
         newKurve =
-            { kurve | state = newKurveState }
+            { kurve
+                | state = newKurveState
+                , reversedHolinessChanges = newReversedHolinessChanges
+                , reversedDrawingPositionsPerTick = checkedPositionsReversed :: kurve.reversedDrawingPositionsPerTick
+            }
     in
     ( confirmedDrawingPositions
     , newKurve

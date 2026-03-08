@@ -17,7 +17,7 @@ import Types.Angle exposing (Angle)
 import Types.PlayerId exposing (PlayerId)
 import Types.Tick exposing (Tick)
 import Types.TurningState exposing (TurningState)
-import World exposing (Position)
+import World exposing (DrawingPosition, Position)
 
 
 type alias Kurve =
@@ -27,6 +27,8 @@ type alias Kurve =
     , state : State
     , stateAtSpawn : State
     , reversedInteractions : List UserInteraction
+    , reversedHolinessChanges : List Tick
+    , reversedDrawingPositionsPerTick : List (List DrawingPosition) -- Both the outer list and the inner lists are reversed.
     }
 
 

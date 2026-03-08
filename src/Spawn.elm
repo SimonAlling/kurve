@@ -16,6 +16,7 @@ import Types.Kurve as Kurve exposing (Kurve)
 import Types.Player exposing (Player)
 import Types.PlayerId exposing (PlayerId)
 import Types.Radius as Radius
+import Types.Tick as Tick
 import Util exposing (curry, isEven)
 import World exposing (Position, distanceBetween)
 
@@ -141,6 +142,14 @@ generateKurve config id numberOfPlayers existingPositions player holeStatusFromP
                 , state = state
                 , stateAtSpawn = state
                 , reversedInteractions = []
+                , reversedHolinessChanges =
+                    case Holes.getHoliness state.holeStatus of
+                        Solid ->
+                            []
+
+                        Holy ->
+                            [ Tick.genesis ]
+                , reversedDrawingPositionsPerTick = []
                 }
             )
 
