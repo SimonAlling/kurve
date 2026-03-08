@@ -7,14 +7,12 @@ module MainLoop exposing (TickResultMovie(..), consumeAnimationFrame, consumeMov
 
 -}
 
-import Colors
+import App exposing (Move(..), PlayingMovie, PlayingMovieKurve)
 import Config exposing (Config)
-import Dict
 import Drawing exposing (DrawingAccumulator, WhatToDraw)
 import Game exposing (TickResult(..))
 import Holes exposing (Holiness(..))
 import Movie exposing (Direction(..), Movie, MovieKurve)
-import Players
 import Round exposing (Round)
 import Types.FrameTime exposing (FrameTime, LeftoverFrameTime)
 import Types.Tick as Tick exposing (Tick)
@@ -76,52 +74,42 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRou
     recurse timeToConsume lastTick midRoundState Drawing.initialize |> Tuple.mapSecond Drawing.finalize
 
 
-type TickResultMovie a
-    = MovieKeepsGoing a
-    | MovieEnds Tick Movie
+type TickResultMovie
+    = MovieKeepsGoing PlayingMovie
+    | MovieEnds PlayingMovie
 
 
 consumeMovieAnimationFrame :
     Config
     -> FrameTime
-    -> LeftoverFrameTime
-    -> Tick
-    -> Movie
-    -> ( TickResultMovie ( LeftoverFrameTime, Tick, Movie ), Maybe WhatToDraw )
-consumeMovieAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick movie =
+    -> PlayingMovie
+    -> ( TickResultMovie, Maybe WhatToDraw )
+consumeMovieAnimationFrame config delta movie =
     let
         timeToConsume : FrameTime
         timeToConsume =
-            delta + leftoverTimeFromPreviousFrame
+            delta + movie.leftoverTimeFromPreviousFrame
 
         timestep : FrameTime
         timestep =
             1000 / Tickrate.toFloat config.kurves.tickrate
 
         recurse :
-            LeftoverFrameTime
-            -> Tick
-            -> Movie
+            PlayingMovie
             -> DrawingAccumulator
-            -> ( TickResultMovie ( LeftoverFrameTime, Tick, Movie ), DrawingAccumulator )
-        recurse timeLeftToConsume lastTickReactedTo movieSoFar drawingAccumulator =
-            if timeLeftToConsume >= timestep then
+            -> ( TickResultMovie, DrawingAccumulator )
+        recurse movieSoFar drawingAccumulator =
+            if movieSoFar.leftoverTimeFromPreviousFrame >= timestep then
                 let
                     incrementedTick : Tick
                     incrementedTick =
-                        Tick.succ lastTickReactedTo
+                        Tick.succ movieSoFar.lastTick
 
                     ( newKurves, newColoredDrawingPositions, headDraws ) =
                         movieSoFar.kurves
                             |> List.foldl
                                 (\kurve ( accKurves, accDrawing, accHeadDraws ) ->
                                     let
-                                        color =
-                                            Players.initialPlayers
-                                                |> Dict.get kurve.playerId
-                                                |> Maybe.map (Tuple.first >> .color)
-                                                |> Maybe.withDefault Colors.red
-
                                         ( newKurve, newAccDrawing ) =
                                             List.repeat movieSoFar.movesPerTick ()
                                                 |> List.foldl
@@ -133,15 +121,15 @@ consumeMovieAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick m
                                                             move :: rest ->
                                                                 let
                                                                     drawingPosition =
-                                                                        applyMove move accKurve.initialDrawingPosition
+                                                                        applyMove move accKurve.drawingPosition
                                                                 in
                                                                 ( { accKurve
                                                                     | moves = rest
-                                                                    , initialDrawingPosition = drawingPosition
+                                                                    , drawingPosition = drawingPosition
                                                                   }
-                                                                , case accKurve.initialHoliness of
+                                                                , case accKurve.holiness of
                                                                     Solid ->
-                                                                        ( color, drawingPosition ) :: accDrawing_
+                                                                        ( accKurve.color, drawingPosition ) :: accDrawing_
 
                                                                     Holy ->
                                                                         accDrawing_
@@ -154,18 +142,23 @@ consumeMovieAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick m
                                                 accHeadDraws
 
                                             else
-                                                ( color, newKurve.initialDrawingPosition ) :: accHeadDraws
+                                                ( newKurve.color, newKurve.drawingPosition ) :: accHeadDraws
                                     in
                                     ( newKurve :: accKurves, newAccDrawing, newAccHeadDraws )
                                 )
                                 ( [], [], [] )
 
+                    newMovie : PlayingMovie
                     newMovie =
-                        { movieSoFar | kurves = List.reverse newKurves }
+                        { movieSoFar
+                            | kurves = List.reverse newKurves
+                            , lastTick = incrementedTick
+                            , leftoverTimeFromPreviousFrame = movieSoFar.leftoverTimeFromPreviousFrame - timestep
+                        }
 
                     tickResult =
                         if List.isEmpty headDraws then
-                            MovieEnds incrementedTick newMovie
+                            MovieEnds { newMovie | isPlaying = False }
 
                         else
                             MovieKeepsGoing newMovie
@@ -182,22 +175,20 @@ consumeMovieAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick m
                 in
                 case tickResult of
                     MovieKeepsGoing newMovie_ ->
-                        recurse (timeLeftToConsume - timestep) incrementedTick newMovie_ newDrawingAccumulator
+                        recurse newMovie_ newDrawingAccumulator
 
-                    MovieEnds tickThatEndedIt finishedMovie ->
-                        ( MovieEnds tickThatEndedIt finishedMovie
-                        , newDrawingAccumulator
-                        )
+                    MovieEnds finishedMovie ->
+                        ( MovieEnds finishedMovie, newDrawingAccumulator )
 
             else
-                ( MovieKeepsGoing ( timeLeftToConsume, lastTickReactedTo, movieSoFar )
+                ( MovieKeepsGoing movieSoFar
                 , drawingAccumulator
                 )
     in
-    recurse timeToConsume lastTick movie Drawing.initialize |> Tuple.mapSecond Drawing.finalize
+    recurse { movie | leftoverTimeFromPreviousFrame = timeToConsume } Drawing.initialize |> Tuple.mapSecond Drawing.finalize
 
 
-applyHolinessChange : Tick -> MovieKurve -> MovieKurve
+applyHolinessChange : Tick -> PlayingMovieKurve -> PlayingMovieKurve
 applyHolinessChange tick kurve =
     case kurve.holinessChanges of
         [] ->
@@ -207,39 +198,44 @@ applyHolinessChange tick kurve =
             if next == tick then
                 { kurve
                     | holinessChanges = rest
-                    , initialHoliness = flipHoliness kurve.initialHoliness
+                    , holiness = flipHoliness kurve.holiness
                 }
 
             else
                 kurve
 
 
-applyMove : Movie.Direction -> DrawingPosition -> DrawingPosition
-applyMove direction { x, y } =
-    case direction of
-        N ->
-            { x = x, y = y - 1 }
+applyMove : Move -> DrawingPosition -> DrawingPosition
+applyMove move { x, y } =
+    case move of
+        NoMove ->
+            { x = x, y = y }
 
-        NE ->
-            { x = x + 1, y = y - 1 }
+        MoveDirection direction ->
+            case direction of
+                N ->
+                    { x = x, y = y - 1 }
 
-        E ->
-            { x = x + 1, y = y }
+                NE ->
+                    { x = x + 1, y = y - 1 }
 
-        SE ->
-            { x = x + 1, y = y + 1 }
+                E ->
+                    { x = x + 1, y = y }
 
-        S ->
-            { x = x, y = y + 1 }
+                SE ->
+                    { x = x + 1, y = y + 1 }
 
-        SW ->
-            { x = x - 1, y = y + 1 }
+                S ->
+                    { x = x, y = y + 1 }
 
-        W ->
-            { x = x - 1, y = y }
+                SW ->
+                    { x = x - 1, y = y + 1 }
 
-        NW ->
-            { x = x - 1, y = y - 1 }
+                W ->
+                    { x = x - 1, y = y }
+
+                NW ->
+                    { x = x - 1, y = y - 1 }
 
 
 flipHoliness : Holiness -> Holiness

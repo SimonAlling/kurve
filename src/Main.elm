@@ -1,6 +1,6 @@
 port module Main exposing (Model, Msg(..), init, main, update)
 
-import App exposing (AppState(..), modifyGameState)
+import App exposing (AppState(..), modifyGameState, toPlayingMovie)
 import Base64
 import Browser
 import Browser.Events
@@ -90,19 +90,19 @@ port saveToLocalStorage : String -> Cmd msg
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
-        maybeReplay : Maybe Movie
-        maybeReplay =
+        maybeMovie =
             flags.movieQueryParameter
                 |> Maybe.andThen (String.replace " " "+" >> Base64.toBytes)
                 |> Maybe.andThen Flate.inflate
                 |> Maybe.andThen (Bytes.Decode.decode Movie.decoder)
+                |> Maybe.map toPlayingMovie
                 |> Debug.log "movie"
     in
     ( { pressedButtons = Set.empty
       , appState =
-            case maybeReplay of
-                Just replay ->
-                    InMovie MainLoop.noLeftoverFrameTime Tick.genesis replay
+            case maybeMovie of
+                Just movie ->
+                    InMovie movie
 
                 Nothing ->
                     InMenu SplashScreen (Random.initialSeed flags.initialSeedValue)
@@ -205,23 +205,21 @@ update msg ({ config } as model) =
                     , maybeDrawSomething whatToDraw
                     )
 
-                InMovie leftoverTimeFromPreviousFrame lastTick movie ->
+                InMovie movie ->
                     let
                         ( tickResult, whatToDraw ) =
                             MainLoop.consumeMovieAnimationFrame
                                 config
                                 delta
-                                leftoverTimeFromPreviousFrame
-                                lastTick
                                 movie
 
                         appState =
                             case tickResult of
-                                MainLoop.MovieKeepsGoing ( newLeftoverFrameTime, newTick, newMovie ) ->
-                                    InMovie newLeftoverFrameTime newTick newMovie
+                                MainLoop.MovieKeepsGoing newMovie ->
+                                    InMovie newMovie
 
-                                MainLoop.MovieEnds newTick newMovie ->
-                                    InMovie MainLoop.noLeftoverFrameTime newTick newMovie
+                                MainLoop.MovieEnds newMovie ->
+                                    InMovie newMovie
                     in
                     ( { model | appState = appState }
                     , maybeDrawSomething whatToDraw
@@ -257,7 +255,7 @@ update msg ({ config } as model) =
                     -- Not expected to ever happen.
                     ( model, DoNothing )
 
-                InMovie _ _ _ ->
+                InMovie _ ->
                     -- Not expected to ever happen.
                     ( model, DoNothing )
 
@@ -526,7 +524,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
 
-        InMovie _ _ _ ->
+        InMovie _ ->
             let
                 _ =
                     Debug.log "keydown" button
@@ -764,8 +762,12 @@ subscriptions model =
             InMenu GameOver _ ->
                 Sub.none
 
-            InMovie _ _ _ ->
-                Browser.Events.onAnimationFrameDelta AnimationFrame
+            InMovie movie ->
+                if movie.isPlaying then
+                    Browser.Events.onAnimationFrameDelta AnimationFrame
+
+                else
+                    Sub.none
         , focusLost (always FocusLost)
         ]
 
@@ -849,7 +851,7 @@ view model =
                     ]
                 ]
 
-        InMovie _ _ _ ->
+        InMovie _ ->
             elmRoot
                 (Events.AllowDefaultExcept playerButtons)
                 [ Attr.class "in-game-ish"
