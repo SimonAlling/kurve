@@ -71,7 +71,7 @@ content gameState =
                         |> Maybe.andThen (Bytes.Decode.decode Movie.decoder)
             in
             [ GUI.Hints.render HowToReplay
-            , Html.a [ Attr.href ("?replay=" ++ string) ]
+            , Html.a [ Attr.href ("?movie=" ++ string) ]
                 [ Html.text "Movie link"
                 , Html.text " ("
                 , if Just (Debug.log "movie" movie) == Debug.log "maybeDecodedMovie" maybeDecodedMovie then

@@ -4,6 +4,7 @@ import Bitwise
 import Bytes
 import Bytes.Decode as Decode exposing (Decoder)
 import Bytes.Encode as Encode exposing (Encoder)
+import Holes exposing (Holiness(..))
 import Types.Kurve exposing (Kurve)
 import Types.PlayerId exposing (PlayerId)
 import Types.Tick as Tick exposing (Tick)
@@ -19,8 +20,9 @@ type alias Movie =
 type alias MovieKurve =
     { playerId : PlayerId
     , initialDrawingPosition : DrawingPosition
+    , initialHoliness : Holiness
 
-    -- The default is `Solid`. Each listed tick it flips. If the list starts with `Tick 0`, it means that the Kurve started out holy.
+    -- Each listed tick the holiness flips. Note that the smallest possible tick is 1 (not 0).
     , holinessChanges : List Tick
 
     -- Note: A Kurve never moves in one direction and then directly in the opposite direction.
@@ -70,6 +72,7 @@ toMovieKurve movesPerTick kurve =
     in
     { playerId = kurve.id
     , initialDrawingPosition = initialDrawingPosition
+    , initialHoliness = Holes.getHoliness kurve.stateAtSpawn.holeStatus
     , holinessChanges = List.reverse kurve.reversedHolinessChanges
     , moves =
         kurve.reversedDrawingPositionsPerTick
@@ -247,6 +250,7 @@ kurveEncoder kurve =
     Encode.sequence
         [ Encode.unsignedInt8 kurve.playerId
         , drawingPositionEncoder kurve.initialDrawingPosition
+        , holinessEncoder kurve.initialHoliness
         , holinessChangesEncoder kurve.holinessChanges
         , movesEncoder kurve.moves
         ]
@@ -254,9 +258,10 @@ kurveEncoder kurve =
 
 kurveDecoder : Decoder MovieKurve
 kurveDecoder =
-    Decode.map4 MovieKurve
+    Decode.map5 MovieKurve
         Decode.unsignedInt8
         drawingPositionDecoder
+        holinessDecoder
         holinessChangesDecoder
         movesDecoder
 
@@ -274,6 +279,35 @@ drawingPositionDecoder =
     Decode.map2 DrawingPosition
         (Decode.unsignedInt16 endianness)
         (Decode.unsignedInt16 endianness)
+
+
+holinessEncoder : Holiness -> Encoder
+holinessEncoder holiness =
+    Encode.unsignedInt8
+        (case holiness of
+            Holy ->
+                0
+
+            Solid ->
+                1
+        )
+
+
+holinessDecoder : Decoder Holiness
+holinessDecoder =
+    Decode.unsignedInt8
+        |> Decode.andThen
+            (\int ->
+                case int of
+                    0 ->
+                        Decode.succeed Holy
+
+                    1 ->
+                        Decode.succeed Solid
+
+                    _ ->
+                        Decode.fail
+            )
 
 
 holinessChangesEncoder : List Tick -> Encoder

@@ -102,7 +102,7 @@ init flags =
       , appState =
             case maybeReplay of
                 Just replay ->
-                    InMovie replay
+                    InMovie MainLoop.noLeftoverFrameTime Tick.genesis replay
 
                 Nothing ->
                     InMenu SplashScreen (Random.initialSeed flags.initialSeedValue)
@@ -205,8 +205,27 @@ update msg ({ config } as model) =
                     , maybeDrawSomething whatToDraw
                     )
 
-                InMovie movie ->
-                    ä
+                InMovie leftoverTimeFromPreviousFrame lastTick movie ->
+                    let
+                        ( tickResult, whatToDraw ) =
+                            MainLoop.consumeMovieAnimationFrame
+                                config
+                                delta
+                                leftoverTimeFromPreviousFrame
+                                lastTick
+                                movie
+
+                        appState =
+                            case tickResult of
+                                MainLoop.MovieKeepsGoing ( newLeftoverFrameTime, newTick, newMovie ) ->
+                                    InMovie newLeftoverFrameTime newTick newMovie
+
+                                MainLoop.MovieEnds newTick newMovie ->
+                                    InMovie MainLoop.noLeftoverFrameTime newTick newMovie
+                    in
+                    ( { model | appState = appState }
+                    , maybeDrawSomething whatToDraw
+                    )
 
                 _ ->
                     -- Not expected to ever happen.
@@ -238,7 +257,7 @@ update msg ({ config } as model) =
                     -- Not expected to ever happen.
                     ( model, DoNothing )
 
-                InMovie _ ->
+                InMovie _ _ _ ->
                     -- Not expected to ever happen.
                     ( model, DoNothing )
 
@@ -507,7 +526,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
 
-        InMovie _ ->
+        InMovie _ _ _ ->
             let
                 _ =
                     Debug.log "keydown" button
@@ -745,7 +764,7 @@ subscriptions model =
             InMenu GameOver _ ->
                 Sub.none
 
-            InMovie _ ->
+            InMovie _ _ _ ->
                 Browser.Events.onAnimationFrameDelta AnimationFrame
         , focusLost (always FocusLost)
         ]
@@ -830,7 +849,7 @@ view model =
                     ]
                 ]
 
-        InMovie _ ->
+        InMovie _ _ _ ->
             elmRoot
                 (Events.AllowDefaultExcept playerButtons)
                 [ Attr.class "in-game-ish"

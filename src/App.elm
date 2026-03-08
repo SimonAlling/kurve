@@ -7,12 +7,14 @@ import Game exposing (GameState)
 import Menu exposing (MenuState)
 import Movie exposing (Movie)
 import Random
+import Types.FrameTime exposing (LeftoverFrameTime)
+import Types.Tick exposing (Tick)
 
 
 type AppState
     = InMenu MenuState Random.Seed
     | InGame GameState
-    | InMovie Movie
+    | InMovie LeftoverFrameTime Tick Movie
 
 
 modifyGameState : (GameState -> GameState) -> AppState -> AppState
