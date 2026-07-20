@@ -2,9 +2,9 @@
 *.sublime-workspace
 node_modules
 *.log
-*.map
-*.js
-*.css
+_site/**/*.map
+_site/**/*.js
+_site/**/*.css
 elm-stuff
 .compiled-scenario.gdb
 gdb-log.txt
