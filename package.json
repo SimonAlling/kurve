@@ -5,7 +5,7 @@
     "postinstall": "elm-tooling install",
     "install-hooks": "[ -d .git/ ] && cp hooks/* .git/hooks",
     "sass-build": "sass --source-map src/css/:_site/css/",
-    "build": "elm-watch make --optimize && tsc && npm run sass-build",
+    "build": "elm-watch make --optimize && tsc --project tsconfig.json && npm run sass-build",
     "build:scenario-in-original-game": "elm make --optimize tools/ScenarioInOriginalGame/ScenarioCLI.elm --output tools/ScenarioInOriginalGame/ScenarioCLI.js",
     "check-formatting": "elm-format --validate .",
     "review": "elm-review",
