@@ -3,11 +3,11 @@
 customElements.define(
   "window-events-workaround",
   class extends HTMLElement {
-    addEventListener(...args) {
+    addEventListener(...args: Parameters<HTMLElement["addEventListener"]>) {
       return window.addEventListener(...args);
     }
 
-    removeEventListener(...args) {
+    removeEventListener(...args: Parameters<HTMLElement["removeEventListener"]>) {
       return window.removeEventListener(...args);
     }
   },
@@ -22,19 +22,19 @@ const flags = {
 
 const app = Elm.Main.init({ node: document.getElementById("elm-node"), flags: flags });
 
-function drawSquare(canvas, { position: { x, y }, thickness, color }) {
+function drawSquare(canvas: HTMLCanvasElement, { position: { x, y }, thickness, color }: { position: { x: number; y: number }; thickness: number; color: string }) {
     const context = canvas.getContext("2d");
     context.fillStyle = color;
     context.fillRect(x, y, thickness, thickness);
 }
 
-function clearRectangleIfCanvasExists(canvas, { x, y, width, height }) {
+function clearRectangleIfCanvasExists(canvas: HTMLCanvasElement | null, { x, y, width, height }: { x: number, y: number, width: number, height: number }) {
     const context = canvas?.getContext("2d");
     context?.clearRect(x, y, width, height);
 }
 
-app.ports.renderBodies.subscribe(({ clearFirst, squares }) => {
-    const bodyCanvas = document.getElementById("bodyCanvas");
+app.ports.renderBodies.subscribe(async ({ clearFirst, squares }) => {
+    const bodyCanvas = document.getElementById("bodyCanvas") as HTMLCanvasElement | null;
     if (clearFirst) {
         clearRectangleIfCanvasExists(bodyCanvas, { x: 0, y: 0, width: bodyCanvas?.width, height: bodyCanvas?.height });
     }
@@ -43,13 +43,13 @@ app.ports.renderBodies.subscribe(({ clearFirst, squares }) => {
     }
 });
 
-app.ports.clearBodies.subscribe(() => {
-    const bodyCanvas = document.getElementById("bodyCanvas");
+app.ports.clearBodies.subscribe(async () => {
+    const bodyCanvas = document.getElementById("bodyCanvas") as HTMLCanvasElement | null;
     clearRectangleIfCanvasExists(bodyCanvas, { x: 0, y: 0, width: bodyCanvas?.width, height: bodyCanvas?.height });
 });
 
-app.ports.renderHeads.subscribe(squares => {
-    const headCanvas = document.getElementById("headCanvas");
+app.ports.renderHeads.subscribe(async squares => {
+    const headCanvas = document.getElementById("headCanvas") as HTMLCanvasElement | null;
     clearRectangleIfCanvasExists(headCanvas, { x: 0, y: 0, width: headCanvas?.width, height: headCanvas?.height }); // Very large numbers don't work; see the commit that added this comment.
     for (const square of squares) {
         drawSquare(headCanvas, square);
@@ -70,7 +70,7 @@ window.addEventListener("blur", () => {
 window.addEventListener(
     "mousedown",
     (event) => {
-        if (event.target.closest(".stop-propagation-on-mousedown") !== null) {
+        if ((event.target as Element).closest(".stop-propagation-on-mousedown") !== null) {
             event.stopPropagation();
         }
     },
@@ -83,7 +83,7 @@ window.addEventListener("beforeunload", event => {
     }
 });
 
-function toggleFullscreen() {
+async function toggleFullscreen() {
     if (document.fullscreenElement !== null) {
         document.exitFullscreen();
         return;
@@ -94,7 +94,7 @@ function toggleFullscreen() {
     });
 }
 
-function saveToLocalStorage(jsonString) {
+async function saveToLocalStorage(jsonString: string) {
     window.localStorage.setItem(THE_SETTINGS_KEY, jsonString);
 }
 
