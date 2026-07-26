@@ -2,6 +2,7 @@
 *.sublime-workspace
 node_modules
 *.log
+src/typescript/**/*.elm.d.ts
 _site/**/*.map
 _site/**/*.js
 _site/**/*.css

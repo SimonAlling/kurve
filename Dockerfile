@@ -8,6 +8,8 @@ RUN npm ci
 
 COPY elm.json .
 COPY elm-watch.json .
+COPY elm-watch-postprocess.js .
+COPY tsconfig.json .
 COPY review review
 COPY tools/ScenarioInOriginalGame tools/ScenarioInOriginalGame
 COPY tests tests

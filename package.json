@@ -5,21 +5,23 @@
     "postinstall": "elm-tooling install",
     "install-hooks": "[ -d .git/ ] && cp hooks/* .git/hooks",
     "sass-build": "sass --source-map src/css/:_site/css/",
-    "build": "elm-watch make --optimize && npm run sass-build",
+    "build": "elm-watch make --optimize && tsc --project tsconfig.json && npm run sass-build",
     "build:scenario-in-original-game": "elm make --optimize tools/ScenarioInOriginalGame/ScenarioCLI.elm --output tools/ScenarioInOriginalGame/ScenarioCLI.js",
     "check-formatting": "elm-format --validate .",
     "review": "elm-review",
     "test": "elm-test",
-    "start": "npm run install-hooks && run-pty % elm-watch hot % esbuild --serve --servedir=./_site/ % sass --watch --source-map src/css/:_site/css/"
+    "start": "npm run install-hooks && run-pty % elm-watch hot % tsc --watch % esbuild --serve --servedir=./_site/ % sass --watch --source-map src/css/:_site/css/"
   },
   "author": "Simon Alling",
   "devDependencies": {
     "elm-review": "2.13.5",
     "elm-test": "0.19.1-revision17",
     "elm-tooling": "1.17.0",
+    "elm-ts-types": "1.0.1",
     "elm-watch": "1.2.5",
     "esbuild": "0.25.12",
-    "sass": "1.43.3"
+    "sass": "1.43.3",
+    "typescript": "7.0.2"
   },
   "optionalDependencies": {
     "run-pty": "^5.0.0"
