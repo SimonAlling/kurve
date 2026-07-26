@@ -3,11 +3,11 @@
 customElements.define(
   "window-events-workaround",
   class extends HTMLElement {
-    addEventListener(...args: Parameters<HTMLElement["addEventListener"]>) {
+    override addEventListener(...args: Parameters<HTMLElement["addEventListener"]>) {
       return window.addEventListener(...args);
     }
 
-    removeEventListener(...args: Parameters<HTMLElement["removeEventListener"]>) {
+    override removeEventListener(...args: Parameters<HTMLElement["removeEventListener"]>) {
       return window.removeEventListener(...args);
     }
   },
