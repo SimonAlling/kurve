@@ -42,12 +42,12 @@ makeSpawnState numberOfFlickers round =
     }
 
 
-stepSpawnState : SpawnState -> ( Maybe SpawnState, WhatToDraw )
-stepSpawnState ({ kurvesLeft, alreadySpawnedKurves, ticksLeftStartingValue, ticksLeft } as spawnState) =
+stepSpawnState : Bool -> SpawnState -> ( Maybe SpawnState, WhatToDraw )
+stepSpawnState replicateTruncationBug ({ kurvesLeft, alreadySpawnedKurves, ticksLeftStartingValue, ticksLeft } as spawnState) =
     case kurvesLeft of
         [] ->
             -- All Kurves have spawned.
-            ( Nothing, drawSpawnsPermanently alreadySpawnedKurves )
+            ( Nothing, drawSpawnsPermanently replicateTruncationBug alreadySpawnedKurves )
 
         spawning :: waiting ->
             let
@@ -71,7 +71,7 @@ stepSpawnState ({ kurvesLeft, alreadySpawnedKurves, ticksLeftStartingValue, tick
                     else
                         { spawnState | ticksLeft = ticksLeft - 1 }
             in
-            ( Just newSpawnState, drawSpawnsTemporarily kurvesToDraw )
+            ( Just newSpawnState, drawSpawnsTemporarily replicateTruncationBug kurvesToDraw )
 
 
 numberOfFlickersToNumberOfTicks : Int -> Int

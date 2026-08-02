@@ -45,7 +45,7 @@ expectRoundOutcome config { tickThatShouldEndIt, howItShouldEnd, effectsItShould
             else
                 Expect.fail <| "Expected round to end on tick " ++ showTick tickThatShouldEndIt ++ " but it ended on tick " ++ showTick actualEndTick ++ "."
         , \_ ->
-            interpretRoundEnding actualRoundResult
+            interpretRoundEnding config.world.replicateTruncationBug actualRoundResult
                 |> Expect.equal howItShouldEnd
         , \_ ->
             case effectsItShouldProduce of
@@ -60,8 +60,8 @@ expectRoundOutcome config { tickThatShouldEndIt, howItShouldEnd, effectsItShould
         ()
 
 
-interpretRoundEnding : FinishedRound -> RoundEndingInterpretation
-interpretRoundEnding (Finished { kurves }) =
+interpretRoundEnding : Bool -> FinishedRound -> RoundEndingInterpretation
+interpretRoundEnding replicateTruncationBug (Finished { kurves }) =
     { aliveAtTheEnd =
         kurves.alive
             |> List.map
@@ -74,7 +74,7 @@ interpretRoundEnding (Finished { kurves }) =
             |> List.map
                 (\kurve ->
                     { id = kurve.id
-                    , theDrawingPositionItNeverMadeItTo = World.drawingPosition kurve.state.position
+                    , theDrawingPositionItNeverMadeItTo = World.drawingPosition replicateTruncationBug kurve.state.position
                     }
                 )
     }

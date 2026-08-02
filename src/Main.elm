@@ -150,7 +150,7 @@ update msg ({ config } as model) =
                 InGame (Active liveOrReplay NotPaused (Spawning spawnState plannedMidRoundState)) ->
                     let
                         ( maybeSpawnState, whatToDraw ) =
-                            stepSpawnState spawnState
+                            stepSpawnState config.world.replicateTruncationBug spawnState
 
                         activeGameState : ActiveGameState
                         activeGameState =
@@ -225,6 +225,9 @@ update msg ({ config } as model) =
 
                         PersistHoleStatus ->
                             Config.withPersistHoleStatus newValue model.config
+
+                        ReplicateTruncationBug ->
+                            Config.withReplicateTruncationBug newValue model.config
 
                         EnableAlternativeControls ->
                             Config.withEnableAlternativeControls newValue model.config
@@ -549,7 +552,7 @@ fastForwardReplay overlayState pausedOrNot activeGameState finishedRound ({ conf
 
                 whatToDraw : WhatToDraw
                 whatToDraw =
-                    drawSpawnsPermanently plannedMidRoundState.kurves.alive
+                    drawSpawnsPermanently config.world.replicateTruncationBug plannedMidRoundState.kurves.alive
             in
             ( { model | appState = InGame <| Active (Replay overlayState finishedRound) NotPaused newActiveGameState }
             , DrawSomething whatToDraw
@@ -604,7 +607,9 @@ rewindReplay overlayState pausedOrNot activeGameState finishedRound model =
 
                 whatToDrawForSpawns : WhatToDraw
                 whatToDrawForSpawns =
-                    drawSpawnsPermanently roundAtBeginning.kurves.alive
+                    drawSpawnsPermanently
+                        model.config.world.replicateTruncationBug
+                        roundAtBeginning.kurves.alive
 
                 ( tickResult, maybeWhatToDrawForSkippingAhead ) =
                     MainLoop.consumeAnimationFrame

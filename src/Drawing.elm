@@ -60,20 +60,20 @@ mergeWhatToDraw whatFirst whatThen =
     }
 
 
-drawSpawnsPermanently : List Kurve -> WhatToDraw
-drawSpawnsPermanently kurves =
+drawSpawnsPermanently : Bool -> List Kurve -> WhatToDraw
+drawSpawnsPermanently replicateTruncationBug kurves =
     { headDrawing = []
-    , bodyDrawing = kurves |> List.filter isSolid |> List.map getColorAndDrawingPosition
+    , bodyDrawing = kurves |> List.filter isSolid |> List.map (getColorAndDrawingPosition replicateTruncationBug)
     }
 
 
-drawSpawnsTemporarily : List Kurve -> WhatToDraw
-drawSpawnsTemporarily kurves =
-    { headDrawing = kurves |> List.map getColorAndDrawingPosition
+drawSpawnsTemporarily : Bool -> List Kurve -> WhatToDraw
+drawSpawnsTemporarily replicateTruncationBug kurves =
+    { headDrawing = kurves |> List.map (getColorAndDrawingPosition replicateTruncationBug)
     , bodyDrawing = []
     }
 
 
-getColorAndDrawingPosition : Kurve -> ( Color, DrawingPosition )
-getColorAndDrawingPosition kurve =
-    ( kurve.color, World.drawingPosition kurve.state.position )
+getColorAndDrawingPosition : Bool -> Kurve -> ( Color, DrawingPosition )
+getColorAndDrawingPosition replicateTruncationBug kurve =
+    ( kurve.color, World.drawingPosition replicateTruncationBug kurve.state.position )
