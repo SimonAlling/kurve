@@ -10,6 +10,7 @@ module Config exposing
     , withEnableAlternativeControls
     , withHardcodedHoles
     , withPersistHoleStatus
+    , withPixelatedGraphics
     , withSettings
     , withSpawnkillProtection
     , withSpeed
@@ -52,6 +53,7 @@ default =
         { skipStepInMs = 5000
         }
     , enableAlternativeControls = Settings.default.enableAlternativeControls
+    , pixelatedGraphics = Settings.default.pixelatedGraphics
     }
 
 
@@ -61,6 +63,7 @@ type alias Config =
     , world : WorldConfig
     , replay : ReplayConfig
     , enableAlternativeControls : Bool
+    , pixelatedGraphics : Bool
     }
 
 
@@ -108,6 +111,7 @@ getSettings config =
     { spawnkillProtection = config.spawn.spawnkillProtection
     , persistHoleStatus = config.kurves.holes.persistBetweenRounds
     , enableAlternativeControls = config.enableAlternativeControls
+    , pixelatedGraphics = config.pixelatedGraphics
     }
 
 
@@ -146,6 +150,11 @@ withPersistHoleStatus newValue config =
 withEnableAlternativeControls : Bool -> Config -> Config
 withEnableAlternativeControls newValue config =
     { config | enableAlternativeControls = newValue }
+
+
+withPixelatedGraphics : Bool -> Config -> Config
+withPixelatedGraphics newValue config =
+    { config | pixelatedGraphics = newValue }
 
 
 withSpeed : Speed -> Config -> Config
