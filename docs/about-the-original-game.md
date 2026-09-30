@@ -15,9 +15,9 @@ This document outlines our understanding of [the 1995 MS-DOS game _Achtung, die 
 |--------|---------------------------------------|-------------|
 |      0 | x coordinates                         | float[6]    |
 |     24 | y coordinates                         | float[6]    |
-|     48 | Directions[^1]                        | float[6]    |
+|     48 | Directions[^directions]               | float[6]    |
 
-[^1]: Counter-clockwise radians zeroed at down/south, _not_ normalized/clamped.
+[^directions]: Counter-clockwise radians zeroed at down/south, _not_ normalized/clamped.
 
 ### Finding addresses
 
@@ -33,19 +33,19 @@ This works with [DOSBox] 0.74-3 and [scanmem] 0.17 in Ubuntu 24.04, including in
 
   1. Launch the original game:
 
-     #### Native Linux[^2]
+     #### Native Linux[^memsize]
 
      ```bash
      dosbox docs/original-game/ZATACKA.EXE -userconf -conf ./tools/dosbox-linux.conf
      ```
 
-     #### WSL[^2]
+     #### WSL[^memsize]
 
      ```bash
      dosbox docs/original-game/ZATACKA.EXE -userconf -conf ./tools/dosbox-wsl.conf
      ```
 
-     [^2]: See `git log --grep memsize` for more info about the difference between native Linux and WSL.
+     [^memsize]: See `git log --grep memsize` for more info about the difference between native Linux and WSL.
 
   1. In another terminal:
 
@@ -57,9 +57,9 @@ This works with [DOSBox] 0.74-3 and [scanmem] 0.17 in Ubuntu 24.04, including in
 
   1. Make sure both players are moving roughly horizontally to the right.
 
-  1. Pause the emulation by pressing Alt + Pause[^3].
+  1. Pause the emulation by pressing Alt + Pause[^pause].
 
-     [^3]: If the keyboard doesn't have a Pause key, remap e.g. Insert with `xmodmap -e "keycode 118 = Pause"`.
+     [^pause]: If the keyboard doesn't have a Pause key, remap e.g. Insert with `xmodmap -e "keycode 118 = Pause"`.
 
   1. In scanmem, perform a rough initial search for candidate x values:
 
