@@ -96,7 +96,7 @@ See `git log --grep FILE_NAME_OF_THE_TOOL` for info about each tool.
 
 ### History
 
-See #93 and `git log 22da84b1d5a2fae47b0c322925dbb84e9f8badae^.. -- tools/`.
+See [#93] and `git log 22da84b1d5a2fae47b0c322925dbb84e9f8badae^.. -- tools/`.
 In particular, these PRs tell the story quite well:
 
   1. [#164 - Add script for manipulating original game][pr-164]
@@ -114,6 +114,7 @@ In particular, these PRs tell the story quite well:
 [disable ASLR]: https://askubuntu.com/questions/318315/how-can-i-temporarily-disable-aslr-address-space-layout-randomization/318476#318476
 [DOSBox]: https://www.dosbox.com/index.php
 [scanmem]: https://github.com/scanmem/scanmem
+[#93]: https://github.com/SimonAlling/kurve/issues/93
 [pr-164]: https://github.com/SimonAlling/kurve/pull/164
 [pr-165]: https://github.com/SimonAlling/kurve/pull/165
 [pr-170]: https://github.com/SimonAlling/kurve/pull/170
