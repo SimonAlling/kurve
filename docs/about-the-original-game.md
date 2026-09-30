@@ -99,18 +99,28 @@ See `git log --grep FILE_NAME_OF_THE_TOOL` for info about each tool.
 See #93 and `git log 22da84b1d5a2fae47b0c322925dbb84e9f8badae^.. -- tools/`.
 In particular, these PRs tell the story quite well:
 
-  1. #164
-  1. #165
-  1. #170
-  1. #183
-  1. #187
-  1. #211
-  1. #216
-  1. #223
-  1. #231
-  1. #237
+  1. [#164 - Add script for manipulating original game][pr-164]
+  1. [#165 - Enable automation in scenario script][pr-165]
+  1. [#170 - Add script for showing game state][pr-170]
+  1. [#183 - Un-hardcode base address in tools][pr-183]
+  1. [#187 - Make scenario script work in WSL on my Windows PC][pr-187]
+  1. [#211 - Enforce automation in scenario script][pr-211]
+  1. [#216 - Enable dry-running scenario script][pr-216]
+  1. [#223 - Rewrite original-game scenario DSL in Elm][pr-223]
+  1. [#231 - Replace scanmem with gdb in scenario script][pr-231]
+  1. [#237 - Add support for Blue in scenario script][pr-237]
 
 [oldgames]: https://www.oldgames.sk/en/game/achtung-die-kurve
 [disable ASLR]: https://askubuntu.com/questions/318315/how-can-i-temporarily-disable-aslr-address-space-layout-randomization/318476#318476
 [DOSBox]: https://www.dosbox.com/index.php
 [scanmem]: https://github.com/scanmem/scanmem
+[pr-164]: https://github.com/SimonAlling/kurve/pull/164
+[pr-165]: https://github.com/SimonAlling/kurve/pull/165
+[pr-170]: https://github.com/SimonAlling/kurve/pull/170
+[pr-183]: https://github.com/SimonAlling/kurve/pull/183
+[pr-187]: https://github.com/SimonAlling/kurve/pull/187
+[pr-211]: https://github.com/SimonAlling/kurve/pull/211
+[pr-216]: https://github.com/SimonAlling/kurve/pull/216
+[pr-223]: https://github.com/SimonAlling/kurve/pull/223
+[pr-231]: https://github.com/SimonAlling/kurve/pull/231
+[pr-237]: https://github.com/SimonAlling/kurve/pull/237
