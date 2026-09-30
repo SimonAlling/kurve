@@ -33,16 +33,19 @@ This works with [DOSBox] 0.74-3 and [scanmem] 0.17 in Ubuntu 24.04, including in
 
   1. Launch the original game:
 
-     ```bash
-     # Native Linux:
-     dosbox docs/original-game/ZATACKA.EXE -userconf -conf ./tools/dosbox-linux.conf
+     #### Native Linux[^2]
 
-     # WSL:
+     ```bash
+     dosbox docs/original-game/ZATACKA.EXE -userconf -conf ./tools/dosbox-linux.conf
+     ```
+
+     #### WSL[^2]
+
+     ```bash
      dosbox docs/original-game/ZATACKA.EXE -userconf -conf ./tools/dosbox-wsl.conf
      ```
 
-     > [!NOTE]
-     > See `git log --grep memsize` for more info about the difference between native Linux and WSL.
+     [^2]: See `git log --grep memsize` for more info about the difference between native Linux and WSL.
 
   1. In another terminal:
 
@@ -54,14 +57,9 @@ This works with [DOSBox] 0.74-3 and [scanmem] 0.17 in Ubuntu 24.04, including in
 
   1. Make sure both players are moving roughly horizontally to the right.
 
-  1. Pause the emulation by pressing Alt + Pause.
+  1. Pause the emulation by pressing Alt + Pause[^3].
 
-     > [!TIP]
-     > If the keyboard doesn't have a Pause key, remap e.g. Insert:
-     >
-     > ```bash
-     > xmodmap -e "keycode 118 = Pause"
-     > ```
+     [^3]: If the keyboard doesn't have a Pause key, remap e.g. Insert with `xmodmap -e "keycode 118 = Pause"`.
 
   1. In scanmem, perform a rough initial search for candidate x values:
 
