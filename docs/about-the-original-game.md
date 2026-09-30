@@ -9,7 +9,7 @@ This document outlines our understanding of [the 1995 MS-DOS game _Achtung, die 
 > Offsets are relative to it.
 
 > [!NOTE]
-> Player order is always Red, Yellow, Orange, Green, Pink, Blue.
+> Player order is always 🟥 Red, 🟨 Yellow, 🟧 Orange, 🟩 Green, 🟪 Pink, 🟦 Blue.
 
 | Offset | Content                               | Type        |
 |--------|---------------------------------------|-------------|
