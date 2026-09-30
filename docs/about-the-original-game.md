@@ -124,7 +124,7 @@ Somewhat counterintuitively, painting where another player has already painted i
 
 In 2016, @Titanothere, Edvin Broman and I came up with [a theoretical "perfect overpainting"]:
 
-![Demo of perfect overpainting](recordings/perfect-overpainting.png){height=240}
+<img alt="Demo of perfect overpainting" src="recordings/perfect-overpainting.png" width="320" />
 
 Our clone has worked like that ever since 2aa51793d871d9ca334734e4e75cce2e8bc4e429, and in 2025 we finally [proved] that it is indeed possible; see [this recording] (from which the animated image above was extracted).
 
