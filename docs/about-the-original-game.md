@@ -122,7 +122,7 @@ In particular, these PRs tell the story quite well:
 
 Somewhat counterintuitively, painting where another player has already painted is possible without dying.
 
-In 2016, @Titanothere, Edvin Broman and I came up with [a theoretical "perfect overpainting"]:
+In 2016, [Brage Salhus Bunk], Edvin Broman and I came up with [a theoretical "perfect overpainting"]:
 
 <img alt="Demo of perfect overpainting" src="recordings/perfect-overpainting.png" width="320" />
 
@@ -190,6 +190,7 @@ Our clone has worked like that ever since 2aa51793d871d9ca334734e4e75cce2e8bc4e4
 [#223]: https://github.com/SimonAlling/kurve/pull/223
 [#231]: https://github.com/SimonAlling/kurve/pull/231
 [#237]: https://github.com/SimonAlling/kurve/pull/237
+[Brage Salhus Bunk]: https://github.com/Titanothere
 [a theoretical "perfect overpainting"]: https://www.youtube.com/watch?v=6O6PUdb5_Jo
 [proved]: https://github.com/SimonAlling/kurve/issues/93#issuecomment-3463651308
 [this recording]: recordings/perfect-overpainting.mp4
