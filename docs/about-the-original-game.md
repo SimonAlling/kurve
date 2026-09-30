@@ -81,9 +81,13 @@ This works with [DOSBox] 0.74-3 and [scanmem] 0.17 in Ubuntu 24.04, including in
 
          > -
 
-  1. It should say `info: we currently have 1 matches.` Use `list` to print it.
+     It should say `info: we currently have 1 matches.`
 
-  1. The printed address (e.g. `0x7fffd8010ff6`) holds Red's x coordinate.
+  1. Print the only remaining match:
+
+         > list
+
+     The printed address (e.g. `0x7fffd8010ff6`) holds Red's x coordinate.
 
 ## Tooling
 
