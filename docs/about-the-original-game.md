@@ -8,26 +8,14 @@ This document outlines our understanding of [the 1995 MS-DOS game _Achtung, die 
 > We refer to the address of Red's x coordinate as the **base address**.
 > Offsets are relative to it.
 
-| Offset | Content                               | Type    |
-|--------|---------------------------------------|---------|
-|      0 | Red's x                               | float32 |
-|      4 | Yellow's x                            | float32 |
-|      8 | Orange's x                            | float32 |
-|     12 | Green's x                             | float32 |
-|     16 | Pink's x                              | float32 |
-|     20 | Blue's x                              | float32 |
-|     24 | Red's y                               | float32 |
-|     28 | Yellow's y                            | float32 |
-|     32 | Orange's y                            | float32 |
-|     36 | Green's y                             | float32 |
-|     40 | Pink's y                              | float32 |
-|     44 | Blue's y                              | float32 |
-|     48 | Red's direction[^1]                   | float32 |
-|     52 | Yellow's direction[^1]                | float32 |
-|     56 | Orange's direction[^1]                | float32 |
-|     60 | Green's direction[^1]                 | float32 |
-|     64 | Pink's direction[^1]                  | float32 |
-|     68 | Blue's direction[^1]                  | float32 |
+> [!NOTE]
+> Player order is always Red, Yellow, Orange, Green, Pink, Blue.
+
+| Offset | Content                               | Type        |
+|--------|---------------------------------------|-------------|
+|      0 | x coordinates                         | float[6]    |
+|     24 | y coordinates                         | float[6]    |
+|     48 | Directions[^1]                        | float[6]    |
 
 [^1]: Counter-clockwise radians zeroed at down/south, _not_ normalized/clamped.
 
