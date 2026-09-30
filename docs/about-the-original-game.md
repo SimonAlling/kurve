@@ -49,7 +49,9 @@ This works with [DOSBox] 0.74-3 and [scanmem] 0.17 in Ubuntu 24.04, including in
 
   1. In another terminal:
 
-         sudo scanmem `pgrep dosbox` --errexit --command 'option endianness 1;option scan_data_type float32'
+     ```bash
+     sudo scanmem `pgrep dosbox` --errexit --command 'option endianness 1;option scan_data_type float32'
+     ```
 
   1. Join with Red and another player, then start the game.
 
