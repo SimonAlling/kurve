@@ -116,6 +116,65 @@ In particular, these PRs tell the story quite well:
   1. [#231 - Replace scanmem with gdb in scenario script][#231]
   1. [#237 - Add support for Blue in scenario script][#237]
 
+## Surprising behavior
+
+### Overpainting
+
+Somewhat counterintuitively, painting where another player has already painted is possible without dying.
+
+In 2016, @Titanothere, Edvin Broman and I came up with [a theoretical "perfect overpainting"]:
+
+![Demo of perfect overpainting](recordings/perfect-overpainting.png)
+
+Our clone has worked like that ever since 2aa51793d871d9ca334734e4e75cce2e8bc4e429, and in 2025 we finally [proved] that it is indeed possible; see [this recording] (from which the animated image above was extracted).
+
+<details>
+
+<summary>How to reproduce</summary>
+
+  1. Checkout c50dda59aa3dc81d7caecf7676ed3917ffe8513e.
+
+  1. Define this scenario in `TheScenario.elm`:
+
+     ```elm
+     theScenario : Scenario
+     theScenario =
+         [ ( Red
+           , { x = 100
+             , y = 50
+             , direction = -pi * 1 / 4
+             }
+           )
+         , ( Yellow
+           , { x = 100
+             , y = 400
+             , direction = pi / 2
+             }
+           )
+         , ( Orange
+           , { x = 20
+             , y = 20
+             , direction = pi * 1 / 4
+             }
+           )
+         , ( Green
+           , { x = 50
+             , y = 100
+             , direction = pi * 3 / 4
+             }
+           )
+         ]
+     ```
+
+  1. Stage the scenario:
+
+     ```bash
+     BASE_ADDRESS=0x7fff… # See "Finding addresses" above. We've seen 0x7fffc1c65ff6 and 0x7fffac604ff6 work in WSL; and 0x7fffd8010ff6 in native Linux.
+     ./tools/scenario.py docs/original-game/ZATACKA.EXE ${BASE_ADDRESS:?} tools/dosbox-wsl.conf
+     ```
+
+</details>
+
 [oldgames]: https://www.oldgames.sk/en/game/achtung-die-kurve
 [disable ASLR]: https://askubuntu.com/questions/318315/how-can-i-temporarily-disable-aslr-address-space-layout-randomization/318476#318476
 [DOSBox]: https://www.dosbox.com/index.php
@@ -131,3 +190,6 @@ In particular, these PRs tell the story quite well:
 [#223]: https://github.com/SimonAlling/kurve/pull/223
 [#231]: https://github.com/SimonAlling/kurve/pull/231
 [#237]: https://github.com/SimonAlling/kurve/pull/237
+[a theoretical "perfect overpainting"]: https://www.youtube.com/watch?v=6O6PUdb5_Jo
+[proved]: https://github.com/SimonAlling/kurve/issues/93#issuecomment-3463651308
+[this recording]: recordings/perfect-overpainting.mp4
