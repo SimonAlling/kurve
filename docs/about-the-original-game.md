@@ -130,7 +130,7 @@ Our clone has worked like that ever since 2aa51793d871d9ca334734e4e75cce2e8bc4e4
 
 <details>
 
-<summary>How to reproduce</summary>
+<summary>ℹ️ How to reproduce</summary>
 
   1. Checkout c50dda59aa3dc81d7caecf7676ed3917ffe8513e.
 
