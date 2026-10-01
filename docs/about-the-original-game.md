@@ -122,11 +122,13 @@ In particular, these PRs tell the story quite well:
 
 Somewhat counterintuitively, painting where another player has already painted is possible without dying.
 
-In 2016, [Brage Salhus Bunk], Edvin Broman and I came up with [a theoretical "perfect overpainting"]:
+In 2016, [Brage Salhus Bunk], Edvin Broman and I came up with [a theoretical "perfect overpainting"], which we finally [proved] possible in 2025:
 
 <img alt="Demo of perfect overpainting" src="recordings/perfect-overpainting.png" width="320" />
 
-Our clone has worked like that ever since 2aa51793d871d9ca334734e4e75cce2e8bc4e429, and in 2025 we finally [proved] that it is indeed possible; see [this recording] (from which the animated image above was extracted).
+See [this recording] for the full round from which the animated image above was extracted.
+
+Our clone has supported the perfect overpainting ever since 2aa51793d871d9ca334734e4e75cce2e8bc4e429.
 
 <details>
 
