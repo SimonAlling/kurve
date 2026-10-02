@@ -7,5 +7,6 @@ _site/**/*.map
 _site/**/*.js
 _site/**/*.css
 elm-stuff
+tools/ScenarioInOriginalGame/ScenarioCLI.js
 .compiled-scenario.gdb
 gdb-log.txt
