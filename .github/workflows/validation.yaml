@@ -17,7 +17,7 @@ jobs:
 
   tools:
     name: Check Tools
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v1.2.0
       - name: Setup Node
