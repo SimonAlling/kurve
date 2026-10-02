@@ -34,7 +34,7 @@ jobs:
       - name: Check Python lint
         run: ruff check ./tools
       - name: Install npm dependencies
-        run: npm ci --omit optional --no-audit
+        run: npm ci --no-audit
       - name: Install xdotool
         run: sudo apt-get install --yes xdotool
       - name: Dry-run scenario script (Linux)
