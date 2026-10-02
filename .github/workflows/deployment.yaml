@@ -4,17 +4,13 @@ on:
   push:
     branches:
       - main
+  pull_request: # Dry-run: build, but don't deploy.
+    branches:
+      - main
   workflow_dispatch: # Enables running this workflow manually from the Actions tab.
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages:
 permissions:
   contents: read
-  pages: write
-  id-token: write # https://github.com/actions/deploy-pages/issues/329#issuecomment-2030341950
-
-concurrency:
-  group: deploy-to-github-pages
-  cancel-in-progress: false
 
 jobs:
   build-job:
@@ -61,14 +57,29 @@ jobs:
         run: |
           cp --recursive legacy-javascript-version/ website-root/legacy # Assumption: target directory doesn't already exist; created here.
 
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v5.0.0
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4.0.0
         with:
           name: github-pages
           path: website-root/
+
+  deploy-job:
+    name: Deploy
+    needs: build-job
+    if: >- # Deploy only from main, and only on push or manual run (not e.g. on PRs):
+      github.ref == 'refs/heads/main'
+      && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages:
+    permissions:
+      pages: write
+      id-token: write # https://github.com/actions/deploy-pages/issues/329#issuecomment-2030341950
+    concurrency:
+      group: deploy-to-github-pages
+      cancel-in-progress: false
+    steps:
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5.0.0
 
       - name: Deploy to GitHub Pages
         id: deployment
