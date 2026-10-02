@@ -58,7 +58,7 @@ jobs:
           cp --recursive legacy-javascript-version/ website-root/legacy # Assumption: target directory doesn't already exist; created here.
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4.0.0
+        uses: actions/upload-pages-artifact@v5.0.0
         with:
           name: github-pages
           path: website-root/
