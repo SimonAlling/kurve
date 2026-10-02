@@ -126,7 +126,7 @@ In 2016, [Brage Salhus Bunk], Edvin Broman and I came up with [a theoretical "pe
 
 <img alt="Demo of perfect overpainting" src="recordings/perfect-overpainting.png" width="320" />
 
-See [this recording] for the full round from which the animated image above was extracted.
+See [`perfect-overpainting.mp4`] for the full round from which the animated image above was extracted.
 
 Our clone has supported the perfect overpainting ever since 2aa51793d871d9ca334734e4e75cce2e8bc4e429.
 
@@ -177,6 +177,14 @@ Our clone has supported the perfect overpainting ever since 2aa51793d871d9ca3347
 
 </details>
 
+### Wall off-by-one error
+
+It's possible to be up to (but not including) 1 pixel outside the **top and left wall**, although the Kurve is still _drawn_ entirely within the canvas bounds:
+
+<img alt="Demo of wall off-by-one error" src="recordings/wall-off-by-one-error.png" width="320" />
+
+See [#263] for details and [`wall-off-by-one-error.mp4`] for the full round from which the animated image above was extracted.
+
 [oldgames]: https://www.oldgames.sk/en/game/achtung-die-kurve
 [disable ASLR]: https://askubuntu.com/questions/318315/how-can-i-temporarily-disable-aslr-address-space-layout-randomization/318476#318476
 [DOSBox]: https://www.dosbox.com/index.php
@@ -195,4 +203,6 @@ Our clone has supported the perfect overpainting ever since 2aa51793d871d9ca3347
 [Brage Salhus Bunk]: https://github.com/Titanothere
 [a theoretical "perfect overpainting"]: https://www.youtube.com/watch?v=6O6PUdb5_Jo
 [proved]: https://github.com/SimonAlling/kurve/issues/93#issuecomment-3463651308
-[this recording]: recordings/perfect-overpainting.mp4
+[`perfect-overpainting.mp4`]: recordings/perfect-overpainting.mp4
+[#263]: https://github.com/SimonAlling/kurve/pull/263
+[`wall-off-by-one-error.mp4`]: recordings/wall-off-by-one-error.mp4
