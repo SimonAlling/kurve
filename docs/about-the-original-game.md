@@ -187,6 +187,41 @@ See [`wall-off-by-one-error.mp4`] for the full round from which the animated ima
 
 Our clone has replicated this quirk since [#263]; see that PR for details.
 
+<details>
+
+<summary>ℹ️ How to reproduce</summary>
+
+  1. Checkout 44b15998c5aa709cd0dcbab2fbd031a9fea5e40b.
+
+  1. Define this scenario in `TheScenario.elm`:
+
+     ```elm
+     theScenario : Scenario
+     theScenario =
+         [ ( Red
+           , { x = 50
+             , y = 3
+             , direction = pi / 2 + 0.01
+             }
+           )
+         , ( Green
+           , { x = 50
+             , y = 100
+             , direction = pi / 2
+             }
+           )
+         ]
+     ```
+
+  1. Stage the scenario:
+
+     ```bash
+     BASE_ADDRESS=0x7fff… # See "Finding addresses" above. We've seen 0x7fffc1c65ff6 and 0x7fffac604ff6 work in WSL; and 0x7fffd8010ff6 in native Linux.
+     ./tools/scenario.py docs/original-game/ZATACKA.EXE ${BASE_ADDRESS:?} tools/dosbox-wsl.conf
+     ```
+
+</details>
+
 [oldgames]: https://www.oldgames.sk/en/game/achtung-die-kurve
 [disable ASLR]: https://askubuntu.com/questions/318315/how-can-i-temporarily-disable-aslr-address-space-layout-randomization/318476#318476
 [DOSBox]: https://www.dosbox.com/index.php
