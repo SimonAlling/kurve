@@ -181,7 +181,7 @@ Our clone has supported the perfect overpainting ever since 2aa51793d871d9ca3347
 
 It's possible to be up to (but not including) 1 pixel outside the **top and left wall**, although the Kurve is still _drawn_ entirely within the canvas bounds:
 
-<img alt="Demo of wall off-by-one error" src="recordings/wall-off-by-one-error.png" width="320" />
+<img alt="Demo of wall off-by-one error" src="recordings/wall-off-by-one-error.png" width="840" />
 
 See [`wall-off-by-one-error.mp4`] for the full round from which the animated image above was extracted.
 
