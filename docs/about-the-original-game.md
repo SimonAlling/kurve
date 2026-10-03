@@ -183,7 +183,9 @@ It's possible to be up to (but not including) 1 pixel outside the **top and left
 
 <img alt="Demo of wall off-by-one error" src="recordings/wall-off-by-one-error.png" width="320" />
 
-See [#263] for details and [`wall-off-by-one-error.mp4`] for the full round from which the animated image above was extracted.
+See [`wall-off-by-one-error.mp4`] for the full round from which the animated image above was extracted.
+
+Our clone has replicated this quirk since [#263]; see that PR for details.
 
 [oldgames]: https://www.oldgames.sk/en/game/achtung-die-kurve
 [disable ASLR]: https://askubuntu.com/questions/318315/how-can-i-temporarily-disable-aslr-address-space-layout-randomization/318476#318476
