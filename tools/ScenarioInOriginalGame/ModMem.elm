@@ -3,12 +3,11 @@ module ModMem exposing
     , ModMemCmd(..)
     , RelativeAddress(..)
     , parseAddress
-    , resolveAddress
     , serializeAddress
     )
 
 import Hex exposing (hex, parseHex)
-import Integer exposing (Integer, add)
+import Integer exposing (Integer)
 
 
 type AbsoluteAddress
@@ -35,8 +34,3 @@ parseAddress =
 serializeAddress : AbsoluteAddress -> String
 serializeAddress (AbsoluteAddress address) =
     hex address
-
-
-resolveAddress : AbsoluteAddress -> RelativeAddress -> AbsoluteAddress
-resolveAddress (AbsoluteAddress base) (RelativeAddress relative) =
-    AbsoluteAddress (add base (Integer.fromSafeInt relative))
