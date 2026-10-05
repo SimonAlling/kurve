@@ -8,7 +8,7 @@ This document outlines our understanding of [the 1995 MS-DOS game _Achtung, die 
 > We refer to the address of Red's x coordinate as the **base address**.
 > Offsets are relative to it.
 
-The base address is always at guest address `0xCFE6` in DOSBox's emulated RAM.
+The base address is always at guest address `0xCFE6` in DOSBox's emulated RAM, but that can end up at different host addresses.
 
 > [!NOTE]
 > Player order is always 🟥 Red, 🟨 Yellow, 🟧 Orange, 🟩 Green, 🟪 Pink, 🟦 Blue.
@@ -24,6 +24,9 @@ The base address is always at guest address `0xCFE6` in DOSBox's emulated RAM.
 ### Finding addresses
 
 Below follows a summary of how to locate game state in memory, using **Red's x coordinate** as an example.
+
+> [!NOTE]
+> `tools/scenario.py` finds the host address automatically since [#451].
 
 This works with [DOSBox] 0.74-3 and [scanmem] 0.17 in Ubuntu 24.04, including in WSL on Windows 11 25H2.
 
