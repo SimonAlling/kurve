@@ -149,7 +149,7 @@ def click_mouse_button() -> None:
 
 def with_base_address(
     gdb_program_with_base_address_placeholder: str, base_address: int
-):
+) -> str:
     REPLACE_ALL_OCCURRENCES = -1
     return gdb_program_with_base_address_placeholder.replace(
         BASE_ADDRESS_PLACEHOLDER, hex(base_address), REPLACE_ALL_OCCURRENCES
