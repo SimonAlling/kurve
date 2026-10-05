@@ -86,7 +86,7 @@ serializeRelativeAddress (RelativeAddress offset) =
 
 baseAddressVariable : String
 baseAddressVariable =
-    "$baseAddress"
+    "$theBaseAddress"
 
 
 {-| The original game writes a couple of times to Red's y address before writing the actual value. We have to wait for the "real" write before we write our value; otherwise it's just immediately overwritten.
