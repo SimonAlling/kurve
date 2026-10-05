@@ -81,8 +81,12 @@ def find_dosbox(have_just_launched_it: bool) -> str | None:
 
 # DOSBox emulates the guest's RAM as one contiguous block in its own (host) memory, so a guest address is just an offset from the start of that block.
 BIOS_DATE = b"01/01/92"  # DOSBox's hardcoded BIOS date.
-GUEST_ADDRESS_OF_BIOS_DATE = 0xFFFF5  # Like a real PC BIOS, DOSBox puts its BIOS date at guest address 0xFFFF5.
-GUEST_ADDRESS_OF_GAME_STATE = 0xCFE6  # Where the original game stores the state that we're concerned with.
+GUEST_ADDRESS_OF_BIOS_DATE = (
+    0xFFFF5  # Like a real PC BIOS, DOSBox puts its BIOS date at guest address 0xFFFF5.
+)
+GUEST_ADDRESS_OF_GAME_STATE = (
+    0xCFE6  # Where the original game stores the state that we're concerned with.
+)
 
 
 def find_base_address(dosbox_pid: int) -> int:
@@ -143,8 +147,12 @@ def click_mouse_button() -> None:
     subprocess.run(["xdotool", "mouseup", str(mouse_button)])
 
 
-def with_base_address(gdb_program_with_base_address_placeholder: str, base_address: int):
-    return gdb_program_with_base_address_placeholder.replace(BASE_ADDRESS_PLACEHOLDER, hex(base_address))
+def with_base_address(
+    gdb_program_with_base_address_placeholder: str, base_address: int
+):
+    return gdb_program_with_base_address_placeholder.replace(
+        BASE_ADDRESS_PLACEHOLDER, hex(base_address)
+    )
 
 
 def launch_original_game_and_stage_scenario(
@@ -170,7 +178,9 @@ def launch_original_game_and_stage_scenario(
     GDB_PROGRAM_FILE = ".compiled-scenario.gdb"
     with open(GDB_PROGRAM_FILE, "+w") as f:
         print(f"📝 Writing {GDB_PROGRAM_FILE} …")
-        f.write(with_base_address(gdb_program_with_base_address_placeholder, base_address))
+        f.write(
+            with_base_address(gdb_program_with_base_address_placeholder, base_address)
+        )
 
     find_and_focus_dosbox()
 
@@ -255,7 +265,9 @@ def main() -> None:
 
     compiled_scenario = compile_scenario()
 
-    gdb_program_with_base_address_placeholder: str = compiled_scenario["gdbProgramWithBaseAddressPlaceholder"]
+    gdb_program_with_base_address_placeholder: str = compiled_scenario[
+        "gdbProgramWithBaseAddressPlaceholder"
+    ]
 
     participating_players = [
         PlayerId(i) for i in compiled_scenario["participatingPlayersById"]
