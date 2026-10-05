@@ -123,7 +123,7 @@ def click_mouse_button() -> None:
 def launch_original_game_and_stage_scenario(
     path_to_original_game: str,
     participating_players: list[PlayerId],
-    gdb_program_file: str,
+    gdb_program: str,
 ) -> None:
     print(f"🚀 Launching original game at {path_to_original_game} …")
 
@@ -139,11 +139,16 @@ def launch_original_game_and_stage_scenario(
         stderr=subprocess.DEVNULL,
     )
 
+    GDB_PROGRAM_FILE = ".compiled-scenario.gdb"
+    with open(GDB_PROGRAM_FILE, "+w") as f:
+        print(f"📝 Writing {GDB_PROGRAM_FILE} …")
+        f.write(gdb_program)
+
     time.sleep(2)  # Prevents intermittent failure to find/focus DOSBox.
 
     find_and_focus_dosbox()
 
-    stage_scenario(proc.pid, gdb_program_file)
+    stage_scenario(proc.pid, GDB_PROGRAM_FILE)
 
     time.sleep(2)
     press_key("space")
@@ -251,15 +256,10 @@ def main() -> None:
             "💡 Blue is participating; make sure to keep the cursor within the DOSBox window."
         )
 
-    GDB_PROGRAM_FILE = ".compiled-scenario.gdb"
-    with open(GDB_PROGRAM_FILE, "+w") as f:
-        print(f"📝 Writing {GDB_PROGRAM_FILE} …")
-        f.write(gdb_program)
-
     launch_original_game_and_stage_scenario(
         path_to_original_game,
         participating_players,
-        GDB_PROGRAM_FILE,
+        gdb_program,
     )
 
 
