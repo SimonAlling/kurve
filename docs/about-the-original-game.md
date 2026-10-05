@@ -134,8 +134,6 @@ Our clone has supported the perfect overpainting ever since 2aa51793d871d9ca3347
 
 <summary>ℹ️ How to reproduce</summary>
 
-  1. Checkout c50dda59aa3dc81d7caecf7676ed3917ffe8513e.
-
   1. Define this scenario in `TheScenario.elm`:
 
      ```elm
@@ -190,8 +188,6 @@ Our clone has replicated this quirk since [#263]; see that PR for details.
 <details>
 
 <summary>ℹ️ How to reproduce</summary>
-
-  1. Checkout 44b15998c5aa709cd0dcbab2fbd031a9fea5e40b.
 
   1. Define this scenario in `TheScenario.elm`:
 
