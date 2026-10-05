@@ -8,6 +8,8 @@ This document outlines our understanding of [the 1995 MS-DOS game _Achtung, die 
 > We refer to the address of Red's x coordinate as the **base address**.
 > Offsets are relative to it.
 
+The base address is always at guest address `0xCFE6` in DOSBox's emulated RAM.
+
 > [!NOTE]
 > Player order is always 🟥 Red, 🟨 Yellow, 🟧 Orange, 🟩 Green, 🟪 Pink, 🟦 Blue.
 
