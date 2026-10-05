@@ -10,30 +10,30 @@ import Test exposing (Test, describe, test)
 tests : Test
 tests =
     describe "Scenario compilation"
-        [ test "Scenario with Red and Green in parallel on my laptop" <|
+        [ test "Scenario with Red and Green in parallel" <|
             \_ ->
                 compileScenario
-                    [ "7fffd8010ff6" ]
+                    [ "EXAMPLE_BASE_ADDRESS_PLACEHOLDER" ]
                     scenario_RedAndGreenInParallel
                     |> Expect.equal expectedResult_RedAndGreenInParallel
-        , test "Scenario with all players in WSL on my main PC" <|
+        , test "Scenario with all players" <|
             \_ ->
                 compileScenario
-                    [ "7fffc1c65ff6" ]
+                    [ "VERY_COOL_BASE_ADDRESS_PLACEHOLDER" ]
                     scenario_AllPlayers
                     |> Expect.equal expectedResult_AllPlayers
-        , test "Base address with '0x' prefix and capital letters" <|
+        , test "Empty base address placeholder" <|
             \_ ->
                 compileScenario
-                    [ "0x7FFFD8010FF6" ]
-                    scenario_RedAndGreenInParallel
-                    |> Expect.equal expectedResult_RedAndGreenInParallel
-        , test "Invalid base address" <|
-            \_ ->
-                compileScenario
-                    [ "LOL" ]
+                    [ "" ]
                     scenario_Empty
-                    |> Expect.equal (CompilationFailure "Cannot parse base address: LOL (must be hexadecimal, with or without '0x' prefix).")
+                    |> Expect.equal (CompilationFailure "Base address placeholder cannot be empty or consist only of whitespace.")
+        , test "Whitespace-only base address placeholder" <|
+            \_ ->
+                compileScenario
+                    [ "   " ]
+                    scenario_Empty
+                    |> Expect.equal (CompilationFailure "Base address placeholder cannot be empty or consist only of whitespace.")
         , test "Too few arguments" <|
             \_ ->
                 compileScenario
@@ -49,25 +49,25 @@ tests =
         , test "No players" <|
             \_ ->
                 compileScenario
-                    [ "0xdeadbeef" ]
+                    [ "EXAMPLE_BASE_ADDRESS_PLACEHOLDER" ]
                     scenario_Empty
                     |> Expect.equal (CompilationFailure "Scenario must have at least 2 players, but had 0.")
         , test "Only one player" <|
             \_ ->
                 compileScenario
-                    [ "0xdeadbeef" ]
+                    [ "EXAMPLE_BASE_ADDRESS_PLACEHOLDER" ]
                     scenario_OnlyOnePlayer
                     |> Expect.equal (CompilationFailure "Scenario must have at least 2 players, but had 1.")
         , test "Duplicate player" <|
             \_ ->
                 compileScenario
-                    [ "0xdeadbeef" ]
+                    [ "EXAMPLE_BASE_ADDRESS_PLACEHOLDER" ]
                     scenario_DuplicatePlayer
                     |> Expect.equal (CompilationFailure "Red specified more than once.")
         , test "Players in wrong order" <|
             \_ ->
                 compileScenario
-                    [ "0xdeadbeef" ]
+                    [ "EXAMPLE_BASE_ADDRESS_PLACEHOLDER" ]
                     scenario_WrongOrder
                     |> Expect.equal (CompilationFailure "Players must be specified in this order: Red, Yellow, Orange, Green, Pink, Blue.")
         ]
@@ -153,7 +153,7 @@ expectedResult_RedAndGreenInParallel =
         , compiledProgram =
             String.trim <|
                 """
-set $theBaseAddress = 0x7fffd8010ff6
+set $theBaseAddress = EXAMPLE_BASE_ADDRESS_PLACEHOLDER
 set pagination off
 set logging file gdb-log.txt
 set logging overwrite on
@@ -292,7 +292,7 @@ expectedResult_AllPlayers =
         , compiledProgram =
             String.trim <|
                 """
-set $theBaseAddress = 0x7fffc1c65ff6
+set $theBaseAddress = VERY_COOL_BASE_ADDRESS_PLACEHOLDER
 set pagination off
 set logging file gdb-log.txt
 set logging overwrite on

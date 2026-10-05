@@ -1,7 +1,7 @@
-module GDB exposing (compile)
+module GDB exposing (BaseAddressPlaceholder(..), compile)
 
 import MemoryLayout exposing (StateComponent(..), relativeAddressFor)
-import ModMem exposing (AbsoluteAddress, ModMemCmd(..), RelativeAddress(..), serializeAddress)
+import ModMem exposing (ModMemCmd(..), RelativeAddress(..))
 import OriginalGamePlayers exposing (PlayerId(..))
 import ScenarioComments exposing (ignoreBogusWriteComment, sectionEnd, sectionStart)
 
@@ -10,19 +10,23 @@ type alias GdbCommand =
     String
 
 
-compile : AbsoluteAddress -> List ModMemCmd -> String
-compile baseAddress core =
+compile : BaseAddressPlaceholder -> List ModMemCmd -> String
+compile baseAddressPlaceholder core =
     let
         coreCommands : List GdbCommand
         coreCommands =
             compileCore core
     in
     List.concat
-        [ setupCommands baseAddress
+        [ setupCommands baseAddressPlaceholder
         , coreCommands
         , teardownCommands
         ]
         |> String.join "\n"
+
+
+type BaseAddressPlaceholder
+    = BaseAddressPlaceholder String
 
 
 compileCore : List ModMemCmd -> List GdbCommand
@@ -63,9 +67,9 @@ compileCore =
         whatToDoAfterHittingLastWatchpoint
 
 
-setupCommands : AbsoluteAddress -> List GdbCommand
-setupCommands baseAddress =
-    [ "set " ++ baseAddressVariable ++ " = " ++ serializeAddress baseAddress
+setupCommands : BaseAddressPlaceholder -> List GdbCommand
+setupCommands (BaseAddressPlaceholder placeholder) =
+    [ "set " ++ baseAddressVariable ++ " = " ++ placeholder
     , "set pagination off"
     , "set logging file gdb-log.txt"
     , "set logging overwrite on" -- Otherwise gdb appends to the log file, instead of overwriting it.

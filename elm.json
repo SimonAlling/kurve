@@ -9,7 +9,6 @@
         "direct": {
             "Elm-Canvas/raster-shapes": "1.1.2",
             "avh4/elm-color": "1.0.0",
-            "dwayne/elm-integer": "1.0.0",
             "elm/browser": "1.0.2",
             "elm/core": "1.0.5",
             "elm/html": "1.0.0",
@@ -20,7 +19,6 @@
             "tortus/elm-array-2d": "3.0.0"
         },
         "indirect": {
-            "dwayne/elm-natural": "1.1.1",
             "elm/url": "1.0.0",
             "elm/virtual-dom": "1.0.3"
         }
