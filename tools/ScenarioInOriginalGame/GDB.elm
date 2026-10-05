@@ -1,7 +1,7 @@
 module GDB exposing (compile)
 
 import MemoryLayout exposing (StateComponent(..), relativeAddressFor)
-import ModMem exposing (AbsoluteAddress, ModMemCmd(..), resolveAddress, serializeAddress)
+import ModMem exposing (AbsoluteAddress, ModMemCmd(..), RelativeAddress(..), serializeAddress)
 import OriginalGamePlayers exposing (PlayerId(..))
 import ScenarioComments exposing (ignoreBogusWriteComment, sectionEnd, sectionStart)
 
@@ -15,18 +15,18 @@ compile baseAddress core =
     let
         coreCommands : List GdbCommand
         coreCommands =
-            compileCore baseAddress core
+            compileCore core
     in
     List.concat
-        [ setupCommands
+        [ setupCommands baseAddress
         , coreCommands
         , teardownCommands
         ]
         |> String.join "\n"
 
 
-compileCore : AbsoluteAddress -> List ModMemCmd -> List GdbCommand
-compileCore baseAddress =
+compileCore : List ModMemCmd -> List GdbCommand
+compileCore =
     let
         whatToDoAfterHittingLastWatchpoint : List GdbCommand
         whatToDoAfterHittingLastWatchpoint =
@@ -38,7 +38,7 @@ compileCore baseAddress =
             let
                 serializedAddress : String
                 serializedAddress =
-                    resolveAddress baseAddress relativeAddress |> serializeAddress
+                    serializeRelativeAddress relativeAddress
 
                 applyWorkaroundForRedYIfApplicable : List GdbCommand -> List GdbCommand
                 applyWorkaroundForRedYIfApplicable =
@@ -63,9 +63,10 @@ compileCore baseAddress =
         whatToDoAfterHittingLastWatchpoint
 
 
-setupCommands : List GdbCommand
-setupCommands =
-    [ "set pagination off"
+setupCommands : AbsoluteAddress -> List GdbCommand
+setupCommands baseAddress =
+    [ "set " ++ baseAddressVariable ++ " = " ++ serializeAddress baseAddress
+    , "set pagination off"
     , "set logging file gdb-log.txt"
     , "set logging overwrite on" -- Otherwise gdb appends to the log file, instead of overwriting it.
     , "set logging enabled on" -- Must be after the other `set logging` commands for them to have effect.
@@ -76,6 +77,16 @@ teardownCommands : List GdbCommand
 teardownCommands =
     [ "continue"
     ]
+
+
+serializeRelativeAddress : RelativeAddress -> String
+serializeRelativeAddress (RelativeAddress offset) =
+    "(" ++ baseAddressVariable ++ " + " ++ String.fromInt offset ++ ")"
+
+
+baseAddressVariable : String
+baseAddressVariable =
+    "$theBaseAddress"
 
 
 {-| The original game writes a couple of times to Red's y address before writing the actual value. We have to wait for the "real" write before we write our value; otherwise it's just immediately overwritten.

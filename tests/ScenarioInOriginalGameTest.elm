@@ -153,64 +153,65 @@ expectedResult_RedAndGreenInParallel =
         , compiledProgram =
             String.trim <|
                 """
+set $theBaseAddress = 0x7fffd8010ff6
 set pagination off
 set logging file gdb-log.txt
 set logging overwrite on
 set logging enabled on
 
 print "⏳ 🟥 Set Red's x"
-watch *(float*)0x7fffd8010ff6
+watch *(float*)($theBaseAddress + 0)
 commands
-set {float}0x7fffd8010ff6 = 10
+set {float}($theBaseAddress + 0) = 10
 delete $bpnum
 print "✅ 🟥 Set Red's x"
 
 print "⏳ 🔧 Ignore bogus write to Red's y"
-watch *(float*)0x7fffd801100e
+watch *(float*)($theBaseAddress + 24)
 commands
-x/4bx 0x7fffd801100e
+x/4bx ($theBaseAddress + 24)
 delete $bpnum
 print "✅ 🔧 Ignore bogus write to Red's y"
 
 print "⏳ 🔧 Ignore bogus write to Red's y"
-watch *(float*)0x7fffd801100e
+watch *(float*)($theBaseAddress + 24)
 commands
-x/4bx 0x7fffd801100e
+x/4bx ($theBaseAddress + 24)
 delete $bpnum
 print "✅ 🔧 Ignore bogus write to Red's y"
 
 print "⏳ 🟥 Set Red's y"
-watch *(float*)0x7fffd801100e
+watch *(float*)($theBaseAddress + 24)
 commands
-set {float}0x7fffd801100e = 10
+set {float}($theBaseAddress + 24) = 10
 delete $bpnum
 print "✅ 🟥 Set Red's y"
 
 print "⏳ 🟥 Set Red's direction"
-watch *(float*)0x7fffd8011026
+watch *(float*)($theBaseAddress + 48)
 commands
-set {float}0x7fffd8011026 = 1.5707963267948966
+set {float}($theBaseAddress + 48) = 1.5707963267948966
 delete $bpnum
 print "✅ 🟥 Set Red's direction"
 
 print "⏳ 🟩 Set Green's x"
-watch *(float*)0x7fffd8011002
+watch *(float*)($theBaseAddress + 12)
 commands
-set {float}0x7fffd8011002 = 200
+set {float}($theBaseAddress + 12) = 200
 delete $bpnum
 print "✅ 🟩 Set Green's x"
 
 print "⏳ 🟩 Set Green's y"
-watch *(float*)0x7fffd801101a
+watch *(float*)($theBaseAddress + 36)
 commands
-set {float}0x7fffd801101a = 150
+set {float}($theBaseAddress + 36) = 150
 delete $bpnum
 print "✅ 🟩 Set Green's y"
 
 print "⏳ 🟩 Set Green's direction"
-watch *(float*)0x7fffd8011032
+watch *(float*)($theBaseAddress + 60)
 commands
-set {float}0x7fffd8011032 = 1.5707963267948966
+set {float}($theBaseAddress + 60) = 1.5707963267948966
 delete $bpnum
 print "✅ 🟩 Set Green's direction"
 exit
@@ -291,148 +292,149 @@ expectedResult_AllPlayers =
         , compiledProgram =
             String.trim <|
                 """
+set $theBaseAddress = 0x7fffc1c65ff6
 set pagination off
 set logging file gdb-log.txt
 set logging overwrite on
 set logging enabled on
 
 print "⏳ 🟥 Set Red's x"
-watch *(float*)0x7fffc1c65ff6
+watch *(float*)($theBaseAddress + 0)
 commands
-set {float}0x7fffc1c65ff6 = 10
+set {float}($theBaseAddress + 0) = 10
 delete $bpnum
 print "✅ 🟥 Set Red's x"
 
 print "⏳ 🔧 Ignore bogus write to Red's y"
-watch *(float*)0x7fffc1c6600e
+watch *(float*)($theBaseAddress + 24)
 commands
-x/4bx 0x7fffc1c6600e
+x/4bx ($theBaseAddress + 24)
 delete $bpnum
 print "✅ 🔧 Ignore bogus write to Red's y"
 
 print "⏳ 🔧 Ignore bogus write to Red's y"
-watch *(float*)0x7fffc1c6600e
+watch *(float*)($theBaseAddress + 24)
 commands
-x/4bx 0x7fffc1c6600e
+x/4bx ($theBaseAddress + 24)
 delete $bpnum
 print "✅ 🔧 Ignore bogus write to Red's y"
 
 print "⏳ 🟥 Set Red's y"
-watch *(float*)0x7fffc1c6600e
+watch *(float*)($theBaseAddress + 24)
 commands
-set {float}0x7fffc1c6600e = 10
+set {float}($theBaseAddress + 24) = 10
 delete $bpnum
 print "✅ 🟥 Set Red's y"
 
 print "⏳ 🟥 Set Red's direction"
-watch *(float*)0x7fffc1c66026
+watch *(float*)($theBaseAddress + 48)
 commands
-set {float}0x7fffc1c66026 = 1.5707963267948966
+set {float}($theBaseAddress + 48) = 1.5707963267948966
 delete $bpnum
 print "✅ 🟥 Set Red's direction"
 
 print "⏳ 🟨 Set Yellow's x"
-watch *(float*)0x7fffc1c65ffa
+watch *(float*)($theBaseAddress + 4)
 commands
-set {float}0x7fffc1c65ffa = 10
+set {float}($theBaseAddress + 4) = 10
 delete $bpnum
 print "✅ 🟨 Set Yellow's x"
 
 print "⏳ 🟨 Set Yellow's y"
-watch *(float*)0x7fffc1c66012
+watch *(float*)($theBaseAddress + 28)
 commands
-set {float}0x7fffc1c66012 = 50
+set {float}($theBaseAddress + 28) = 50
 delete $bpnum
 print "✅ 🟨 Set Yellow's y"
 
 print "⏳ 🟨 Set Yellow's direction"
-watch *(float*)0x7fffc1c6602a
+watch *(float*)($theBaseAddress + 52)
 commands
-set {float}0x7fffc1c6602a = 0
+set {float}($theBaseAddress + 52) = 0
 delete $bpnum
 print "✅ 🟨 Set Yellow's direction"
 
 print "⏳ 🟧 Set Orange's x"
-watch *(float*)0x7fffc1c65ffe
+watch *(float*)($theBaseAddress + 8)
 commands
-set {float}0x7fffc1c65ffe = 200
+set {float}($theBaseAddress + 8) = 200
 delete $bpnum
 print "✅ 🟧 Set Orange's x"
 
 print "⏳ 🟧 Set Orange's y"
-watch *(float*)0x7fffc1c66016
+watch *(float*)($theBaseAddress + 32)
 commands
-set {float}0x7fffc1c66016 = 200
+set {float}($theBaseAddress + 32) = 200
 delete $bpnum
 print "✅ 🟧 Set Orange's y"
 
 print "⏳ 🟧 Set Orange's direction"
-watch *(float*)0x7fffc1c6602e
+watch *(float*)($theBaseAddress + 56)
 commands
-set {float}0x7fffc1c6602e = 2.5
+set {float}($theBaseAddress + 56) = 2.5
 delete $bpnum
 print "✅ 🟧 Set Orange's direction"
 
 print "⏳ 🟩 Set Green's x"
-watch *(float*)0x7fffc1c66002
+watch *(float*)($theBaseAddress + 12)
 commands
-set {float}0x7fffc1c66002 = 200
+set {float}($theBaseAddress + 12) = 200
 delete $bpnum
 print "✅ 🟩 Set Green's x"
 
 print "⏳ 🟩 Set Green's y"
-watch *(float*)0x7fffc1c6601a
+watch *(float*)($theBaseAddress + 36)
 commands
-set {float}0x7fffc1c6601a = 250
+set {float}($theBaseAddress + 36) = 250
 delete $bpnum
 print "✅ 🟩 Set Green's y"
 
 print "⏳ 🟩 Set Green's direction"
-watch *(float*)0x7fffc1c66032
+watch *(float*)($theBaseAddress + 60)
 commands
-set {float}0x7fffc1c66032 = 2.356194490192345
+set {float}($theBaseAddress + 60) = 2.356194490192345
 delete $bpnum
 print "✅ 🟩 Set Green's direction"
 
 print "⏳ 🟪 Set Pink's x"
-watch *(float*)0x7fffc1c66006
+watch *(float*)($theBaseAddress + 16)
 commands
-set {float}0x7fffc1c66006 = 500
+set {float}($theBaseAddress + 16) = 500
 delete $bpnum
 print "✅ 🟪 Set Pink's x"
 
 print "⏳ 🟪 Set Pink's y"
-watch *(float*)0x7fffc1c6601e
+watch *(float*)($theBaseAddress + 40)
 commands
-set {float}0x7fffc1c6601e = 477
+set {float}($theBaseAddress + 40) = 477
 delete $bpnum
 print "✅ 🟪 Set Pink's y"
 
 print "⏳ 🟪 Set Pink's direction"
-watch *(float*)0x7fffc1c66036
+watch *(float*)($theBaseAddress + 64)
 commands
-set {float}0x7fffc1c66036 = -1.5707963267948966
+set {float}($theBaseAddress + 64) = -1.5707963267948966
 delete $bpnum
 print "✅ 🟪 Set Pink's direction"
 
 print "⏳ 🟦 Set Blue's x"
-watch *(float*)0x7fffc1c6600a
+watch *(float*)($theBaseAddress + 20)
 commands
-set {float}0x7fffc1c6600a = 400
+set {float}($theBaseAddress + 20) = 400
 delete $bpnum
 print "✅ 🟦 Set Blue's x"
 
 print "⏳ 🟦 Set Blue's y"
-watch *(float*)0x7fffc1c66022
+watch *(float*)($theBaseAddress + 44)
 commands
-set {float}0x7fffc1c66022 = 234.5
+set {float}($theBaseAddress + 44) = 234.5
 delete $bpnum
 print "✅ 🟦 Set Blue's y"
 
 print "⏳ 🟦 Set Blue's direction"
-watch *(float*)0x7fffc1c6603a
+watch *(float*)($theBaseAddress + 68)
 commands
-set {float}0x7fffc1c6603a = 0.01
+set {float}($theBaseAddress + 68) = 0.01
 delete $bpnum
 print "✅ 🟦 Set Blue's direction"
 exit
