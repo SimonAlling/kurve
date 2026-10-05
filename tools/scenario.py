@@ -172,7 +172,7 @@ def launch_original_game_and_stage_scenario(
         stderr=subprocess.DEVNULL,
     )
 
-    time.sleep(2)  # Prevents intermittent failure to find base address.
+    time.sleep(2)  # Prevents intermittent failure to find base address and find/focus DOSBox window.
 
     base_address = find_base_address(proc.pid)
 
