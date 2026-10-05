@@ -117,6 +117,7 @@ In particular, these PRs tell the story quite well:
   1. [#223 - Rewrite original-game scenario DSL in Elm][#223]
   1. [#231 - Replace scanmem with gdb in scenario script][#231]
   1. [#237 - Add support for Blue in scenario script][#237]
+  1. [#451 - Acquire base address automatically in scenario script][#451]
 
 ## Surprising behavior
 
@@ -239,6 +240,7 @@ Our clone has replicated this quirk since [#263]; see that PR for details.
 [#223]: https://github.com/SimonAlling/kurve/pull/223
 [#231]: https://github.com/SimonAlling/kurve/pull/231
 [#237]: https://github.com/SimonAlling/kurve/pull/237
+[#451]: https://github.com/SimonAlling/kurve/pull/451
 [Brage Salhus Bunk]: https://github.com/Titanothere
 [a theoretical "perfect overpainting"]: https://www.youtube.com/watch?v=6O6PUdb5_Jo
 [proved]: https://github.com/SimonAlling/kurve/issues/93#issuecomment-3463651308
