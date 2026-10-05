@@ -144,7 +144,7 @@ def click_mouse_button() -> None:
 
 
 def with_base_address(gdb_program_with_base_address_placeholder: str, base_address: int):
-    return gdb_program_with_base_address_placeholder.replace(BASE_ADDRESS_PLACEHOLDER, hex(base_address), 1)
+    return gdb_program_with_base_address_placeholder.replace(BASE_ADDRESS_PLACEHOLDER, hex(base_address))
 
 
 def launch_original_game_and_stage_scenario(
