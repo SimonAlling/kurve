@@ -9,6 +9,8 @@ import sys
 import time
 from typing import Callable, Literal, TypedDict
 
+from dosbox_memory import find_base_address
+
 path_to_original_game = sys.argv[1]
 
 ENV_VAR_DRY_RUN = "DRY_RUN"
@@ -79,54 +81,6 @@ def find_dosbox(have_just_launched_it: bool) -> str | None:
     return None
 
 
-# DOSBox emulates the guest's RAM as one contiguous block in its own (host) memory, so a guest address is just an offset from the start of that block.
-BIOS_DATE = b"01/01/92"  # DOSBox's hardcoded BIOS date.
-GUEST_ADDRESS_OF_BIOS_DATE = (
-    0xFFFF5  # Like a real PC BIOS, DOSBox puts its BIOS date at guest address 0xFFFF5.
-)
-GUEST_ADDRESS_OF_GAME_STATE = (
-    0xCFE6  # Where the original game stores the state that we're concerned with.
-)
-
-
-def find_base_address(dosbox_pid: int) -> int:
-    """
-    Returns the host address of the game state, i.e. what the relative addresses in the gdb program are relative to.
-    """
-    return find_guest_ram(dosbox_pid) + GUEST_ADDRESS_OF_GAME_STATE
-
-
-def find_guest_ram(dosbox_pid: int) -> int:
-    """
-    Returns the host address where DOSBox's emulated RAM starts, by searching DOSBox's memory for the BIOS date.
-    """
-    # We can read DOSBox's memory without sudo because DOSBox is our child process.
-    with (
-        open(f"/proc/{dosbox_pid}/maps") as maps,
-        open(f"/proc/{dosbox_pid}/mem", "rb", buffering=0) as mem,
-    ):
-        for line in maps:
-            # Each line describes a memory region, e.g.:
-            #
-            #     7fffac5f8000-7fffad5f9000 rw-p 00000000 00:00 0
-            #
-            address_range, permissions, *_ = line.split()
-            if not permissions.startswith("rw"):
-                continue  # The guest RAM is writable, so this can't be it.
-            start, end = (int(x, 16) for x in address_range.split("-"))
-            try:
-                mem.seek(start)
-                region = mem.read(end - start)
-            except OSError:
-                continue  # Some regions just can't be read.
-            offset_in_region = region.find(BIOS_DATE)
-            if offset_in_region != -1:
-                host_address_of_bios_date = start + offset_in_region
-                return host_address_of_bios_date - GUEST_ADDRESS_OF_BIOS_DATE
-    print("❌ Couldn't find DOSBox's emulated RAM.")
-    exit(1)
-
-
 def stage_scenario(process_id: int, gdb_program_file: str) -> None:
     subprocess.Popen(
         ["sudo", "gdb", "--pid", str(process_id), "--command", gdb_program_file],
@@ -149,10 +103,9 @@ def click_mouse_button() -> None:
 
 def with_base_address(
     gdb_program_with_base_address_placeholder: str, base_address: int
-) -> str:
-    REPLACE_ALL_OCCURRENCES = -1
+):
     return gdb_program_with_base_address_placeholder.replace(
-        BASE_ADDRESS_PLACEHOLDER, hex(base_address), REPLACE_ALL_OCCURRENCES
+        BASE_ADDRESS_PLACEHOLDER, hex(base_address), 1
     )
 
 
@@ -172,11 +125,13 @@ def launch_original_game_and_stage_scenario(
         stderr=subprocess.DEVNULL,
     )
 
-    time.sleep(
-        2
-    )  # Prevents intermittent failure to find base address and find/focus DOSBox window.
+    time.sleep(2)  # Prevents intermittent failure to find base address.
 
+    # We can read DOSBox's memory without sudo because DOSBox is our child process.
     base_address = find_base_address(proc.pid)
+    if base_address is None:
+        print("❌ Couldn't find DOSBox's emulated RAM.")
+        exit(1)
 
     GDB_PROGRAM_FILE = ".compiled-scenario.gdb"
     with open(GDB_PROGRAM_FILE, "+w") as f:

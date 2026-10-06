@@ -25,9 +25,6 @@ The base address is always at guest address `0xCFE6` in DOSBox's emulated RAM, b
 
 Below follows a summary of how to locate game state in memory, using **Red's x coordinate** as an example.
 
-> [!NOTE]
-> `tools/scenario.py` finds the host address automatically since [#451], but `tools/show-game-state.sh` doesn't.
-
 This works with [DOSBox] 0.74-3 and [scanmem] 0.17 in Ubuntu 24.04, including in WSL on Windows 11 25H2.
 
   1. Temporarily [disable ASLR]:
@@ -101,7 +98,7 @@ This works with [DOSBox] 0.74-3 and [scanmem] 0.17 in Ubuntu 24.04, including in
 | Use case         | Tool                       |
 |------------------|----------------------------|
 | Stage a scenario | `tools/scenario.py`        |
-| View game state  | `tools/show-game-state.sh` |
+| View game state  | `tools/show-game-state.py` |
 
 See `git log --grep FILE_NAME_OF_THE_TOOL` for info about each tool.
 
