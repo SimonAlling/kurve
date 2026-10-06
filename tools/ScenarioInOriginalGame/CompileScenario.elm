@@ -2,7 +2,6 @@ module CompileScenario exposing (CompilationResult(..), compileAndSerialize, com
 
 import GDB
 import Json.Encode as Encode
-import ModMem exposing (AbsoluteAddress, parseAddress)
 import OriginalGamePlayers exposing (PlayerId, playerIndex)
 import ScenarioCore exposing (Scenario, checkScenario, toModMem)
 import TheScenario exposing (theScenario)
@@ -27,12 +26,12 @@ compileAndSerialize commandLineArgs =
 compileScenario : List String -> Scenario -> CompilationResult
 compileScenario commandLineArgs scenario =
     case parseArguments commandLineArgs of
-        Accepted baseAddress ->
+        Accepted baseAddressPlaceholder ->
             case checkScenario scenario of
                 Ok checkedScenario ->
                     CompilationSuccess
                         { participating = participatingPlayers scenario
-                        , compiledProgram = checkedScenario |> toModMem |> GDB.compile baseAddress
+                        , compiledProgram = checkedScenario |> toModMem |> GDB.compile baseAddressPlaceholder
                         }
 
                 Err reason ->
@@ -43,20 +42,19 @@ compileScenario commandLineArgs scenario =
 
 
 type ParsedArguments
-    = Accepted AbsoluteAddress
+    = Accepted GDB.BaseAddressPlaceholder
     | Rejected String
 
 
 parseArguments : List String -> ParsedArguments
 parseArguments commandLineArgs =
     case commandLineArgs of
-        [ rawBaseAddress ] ->
-            case parseAddress rawBaseAddress of
-                Just baseAddress ->
-                    Accepted baseAddress
+        [ rawBaseAddressPlaceholder ] ->
+            if not (String.isEmpty (String.trim rawBaseAddressPlaceholder)) then
+                Accepted (GDB.BaseAddressPlaceholder rawBaseAddressPlaceholder)
 
-                Nothing ->
-                    Rejected <| "Cannot parse base address: " ++ rawBaseAddress ++ " (must be hexadecimal, with or without '0x' prefix)."
+            else
+                Rejected "Base address placeholder cannot be empty or consist only of whitespace."
 
         _ ->
             Rejected <| "Unexpected number of arguments. Expected 1, but got " ++ (List.length commandLineArgs |> String.fromInt) ++ "."
@@ -76,7 +74,7 @@ encodeCompilationResultAsJson result =
                 , ( "compiledScenario"
                   , Encode.object
                         [ ( "participatingPlayersById", Encode.list Encode.int (List.map playerIndex participating) )
-                        , ( "gdbProgram", Encode.string compiledProgram )
+                        , ( "gdbProgramWithBaseAddressPlaceholder", Encode.string compiledProgram )
                         ]
                   )
                 ]

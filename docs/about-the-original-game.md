@@ -8,6 +8,8 @@ This document outlines our understanding of [the 1995 MS-DOS game _Achtung, die 
 > We refer to the address of Red's x coordinate as the **base address**.
 > Offsets are relative to it.
 
+The base address is always at guest address `0xCFE6` in DOSBox's emulated RAM, but that can end up at different host addresses.
+
 > [!NOTE]
 > Player order is always 🟥 Red, 🟨 Yellow, 🟧 Orange, 🟩 Green, 🟪 Pink, 🟦 Blue.
 
@@ -22,6 +24,9 @@ This document outlines our understanding of [the 1995 MS-DOS game _Achtung, die 
 ### Finding addresses
 
 Below follows a summary of how to locate game state in memory, using **Red's x coordinate** as an example.
+
+> [!NOTE]
+> `tools/scenario.py` finds the host address automatically since [#451], but `tools/show-game-state.sh` doesn't.
 
 This works with [DOSBox] 0.74-3 and [scanmem] 0.17 in Ubuntu 24.04, including in WSL on Windows 11 25H2.
 
@@ -115,6 +120,7 @@ In particular, these PRs tell the story quite well:
   1. [#223 - Rewrite original-game scenario DSL in Elm][#223]
   1. [#231 - Replace scanmem with gdb in scenario script][#231]
   1. [#237 - Add support for Blue in scenario script][#237]
+  1. [#451 - Acquire base address automatically in scenario script][#451]
 
 ## Surprising behavior
 
@@ -169,8 +175,7 @@ Our clone has supported the perfect overpainting ever since 2aa51793d871d9ca3347
   1. Stage the scenario:
 
      ```bash
-     BASE_ADDRESS=0x7fff… # See "Finding addresses" above. We've seen 0x7fffc1c65ff6 and 0x7fffac604ff6 work in WSL; and 0x7fffd8010ff6 in native Linux.
-     ./tools/scenario.py docs/original-game/ZATACKA.EXE ${BASE_ADDRESS:?} tools/dosbox-wsl.conf
+     ./tools/scenario.py docs/original-game/ZATACKA.EXE
      ```
 
 </details>
@@ -212,8 +217,7 @@ Our clone has replicated this quirk since [#263]; see that PR for details.
   1. Stage the scenario:
 
      ```bash
-     BASE_ADDRESS=0x7fff… # See "Finding addresses" above. We've seen 0x7fffc1c65ff6 and 0x7fffac604ff6 work in WSL; and 0x7fffd8010ff6 in native Linux.
-     ./tools/scenario.py docs/original-game/ZATACKA.EXE ${BASE_ADDRESS:?} tools/dosbox-wsl.conf
+     ./tools/scenario.py docs/original-game/ZATACKA.EXE
      ```
 
 </details>
@@ -233,6 +237,7 @@ Our clone has replicated this quirk since [#263]; see that PR for details.
 [#223]: https://github.com/SimonAlling/kurve/pull/223
 [#231]: https://github.com/SimonAlling/kurve/pull/231
 [#237]: https://github.com/SimonAlling/kurve/pull/237
+[#451]: https://github.com/SimonAlling/kurve/pull/451
 [Brage Salhus Bunk]: https://github.com/Titanothere
 [a theoretical "perfect overpainting"]: https://www.youtube.com/watch?v=6O6PUdb5_Jo
 [proved]: https://github.com/SimonAlling/kurve/issues/93#issuecomment-3463651308
