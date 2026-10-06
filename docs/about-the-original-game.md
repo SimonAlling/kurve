@@ -175,8 +175,7 @@ Our clone has supported the perfect overpainting ever since 2aa51793d871d9ca3347
   1. Stage the scenario:
 
      ```bash
-     BASE_ADDRESS=0x7fff… # See "Finding addresses" above. We've seen 0x7fffc1c65ff6 and 0x7fffac604ff6 work in WSL; and 0x7fffd8010ff6 in native Linux.
-     ./tools/scenario.py docs/original-game/ZATACKA.EXE ${BASE_ADDRESS:?} tools/dosbox-wsl.conf
+     ./tools/scenario.py docs/original-game/ZATACKA.EXE
      ```
 
 </details>
@@ -218,8 +217,7 @@ Our clone has replicated this quirk since [#263]; see that PR for details.
   1. Stage the scenario:
 
      ```bash
-     BASE_ADDRESS=0x7fff… # See "Finding addresses" above. We've seen 0x7fffc1c65ff6 and 0x7fffac604ff6 work in WSL; and 0x7fffd8010ff6 in native Linux.
-     ./tools/scenario.py docs/original-game/ZATACKA.EXE ${BASE_ADDRESS:?} tools/dosbox-wsl.conf
+     ./tools/scenario.py docs/original-game/ZATACKA.EXE
      ```
 
 </details>
