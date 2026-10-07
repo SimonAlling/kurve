@@ -5,6 +5,7 @@ import Colors
 import Config exposing (Config)
 import Effect exposing (Effect(..))
 import Expect
+import GUI.Hints as Hints
 import Game exposing (ActiveGameState(..), GameState(..), LiveOrReplay(..), PausedOrNot(..), prepareReplayRound)
 import Input exposing (Button(..))
 import List exposing (repeat)
@@ -50,6 +51,7 @@ initialModel =
     , appState = InGame (Active (Replay Overlay.Visible finishedRound) NotPaused (Moving 0 Tick.genesis initialRound))
     , config = config
     , players = initialPlayers
+    , hints = Hints.initial
     }
 
 
