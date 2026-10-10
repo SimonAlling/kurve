@@ -7,12 +7,14 @@ import Json.Encode as Encode
 type SettingId
     = SpawnProtection
     | PersistHoleStatus
+    | ReplicateTruncationBug
     | EnableAlternativeControls
 
 
 type alias Settings =
     { spawnkillProtection : Bool
     , persistHoleStatus : Bool
+    , replicateTruncationBug : Bool
     , enableAlternativeControls : Bool
     }
 
@@ -21,6 +23,7 @@ default : Settings
 default =
     { spawnkillProtection = True
     , persistHoleStatus = False
+    , replicateTruncationBug = True
     , enableAlternativeControls = True
     }
 
@@ -29,6 +32,7 @@ trueOriginalExperience : Settings
 trueOriginalExperience =
     { spawnkillProtection = False
     , persistHoleStatus = True
+    , replicateTruncationBug = True
     , enableAlternativeControls = False
     }
 
@@ -51,10 +55,11 @@ stringify settings =
 
 settingsDecoder : Decoder Settings
 settingsDecoder =
-    Decode.map3
+    Decode.map4
         Settings
         (Decode.maybe (Decode.field "spawnkillProtectionSetting" Decode.bool) |> Decode.map (Maybe.withDefault default.spawnkillProtection))
         (Decode.maybe (Decode.field "persistHoleStatusSetting" Decode.bool) |> Decode.map (Maybe.withDefault default.persistHoleStatus))
+        (Decode.maybe (Decode.field "replicateTruncationBugSetting" Decode.bool) |> Decode.map (Maybe.withDefault default.replicateTruncationBug))
         (Decode.maybe (Decode.field "enableAlternativeControlsSetting" Decode.bool) |> Decode.map (Maybe.withDefault default.enableAlternativeControls))
 
 
@@ -63,5 +68,6 @@ settingsEncoder settings =
     Encode.object
         [ ( "spawnkillProtectionSetting", Encode.bool settings.spawnkillProtection )
         , ( "persistHoleStatusSetting", Encode.bool settings.persistHoleStatus )
+        , ( "replicateTruncationBugSetting", Encode.bool settings.replicateTruncationBug )
         , ( "enableAlternativeControlsSetting", Encode.bool settings.enableAlternativeControls )
         ]

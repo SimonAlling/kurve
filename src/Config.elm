@@ -10,6 +10,7 @@ module Config exposing
     , withEnableAlternativeControls
     , withHardcodedHoles
     , withPersistHoleStatus
+    , withReplicateTruncationBug
     , withSettings
     , withSpawnkillProtection
     , withSpeed
@@ -47,6 +48,7 @@ default =
     , world =
         { width = 559
         , height = 480
+        , replicateTruncationBug = Settings.default.replicateTruncationBug
         }
     , replay =
         { skipStepInMs = 5000
@@ -86,6 +88,7 @@ type alias SpawnConfig =
 type alias WorldConfig =
     { width : Int
     , height : Int
+    , replicateTruncationBug : Bool
     }
 
 
@@ -107,6 +110,7 @@ getSettings : Config -> Settings
 getSettings config =
     { spawnkillProtection = config.spawn.spawnkillProtection
     , persistHoleStatus = config.kurves.holes.persistBetweenRounds
+    , replicateTruncationBug = config.world.replicateTruncationBug
     , enableAlternativeControls = config.enableAlternativeControls
     }
 
@@ -116,6 +120,7 @@ withSettings settings config =
     config
         |> withSpawnkillProtection settings.spawnkillProtection
         |> withPersistHoleStatus settings.persistHoleStatus
+        |> withReplicateTruncationBug settings.replicateTruncationBug
         |> withEnableAlternativeControls settings.enableAlternativeControls
 
 
@@ -141,6 +146,16 @@ withPersistHoleStatus newValue config =
             kurveConfig.holes
     in
     { config | kurves = { kurveConfig | holes = { holeConfig | persistBetweenRounds = newValue } } }
+
+
+withReplicateTruncationBug : Bool -> Config -> Config
+withReplicateTruncationBug newValue config =
+    let
+        worldConfig : WorldConfig
+        worldConfig =
+            config.world
+    in
+    { config | world = { worldConfig | replicateTruncationBug = newValue } }
 
 
 withEnableAlternativeControls : Bool -> Config -> Config
