@@ -228,10 +228,10 @@ Our clone has replicated this quirk since [#263]; see that PR for details.
 </details>
 
 [oldgames]: https://www.oldgames.sk/en/game/achtung-die-kurve
+[this repo]: https://github.com/SimonAlling/zatacka-decomp
 [disable ASLR]: https://askubuntu.com/questions/318315/how-can-i-temporarily-disable-aslr-address-space-layout-randomization/318476#318476
 [DOSBox]: https://www.dosbox.com/index.php
 [scanmem]: https://github.com/scanmem/scanmem
-[this repo]: https://github.com/SimonAlling/zatacka-decomp
 [#93]: https://github.com/SimonAlling/kurve/issues/93
 [#164]: https://github.com/SimonAlling/kurve/pull/164
 [#165]: https://github.com/SimonAlling/kurve/pull/165
