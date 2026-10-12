@@ -187,7 +187,7 @@ Our clone has supported the perfect overpainting ever since 2aa51793d871d9ca3347
 
 ### Wall off-by-one error
 
-[It's possible to be up to (but not including) 1 pixel outside the **top and left wall**][edge-case], although [the Kurve is still _drawn_ entirely within the canvas bounds][edge-case-draw]:
+[It's possible to be up to (but not including) 1 pixel outside the **top and left wall**][edge-case], although [the Kurve is still _drawn_ entirely within the canvas bounds][edge-case-draw] (see [the drawing code]):
 
 <img alt="Demo of wall off-by-one error" src="recordings/wall-off-by-one-error.png" width="840" />
 
@@ -250,6 +250,7 @@ Our clone has replicated this quirk since [#263]; see that PR for details.
 [proved]: https://github.com/SimonAlling/kurve/issues/93#issuecomment-3463651308
 [`perfect-overpainting.mp4`]: recordings/perfect-overpainting.mp4
 [edge-case]: https://github.com/SimonAlling/zatacka-decomp/blob/17d557f4b54ac55b0dd05ae0827be1f5e9ff9f52/zatacka.cpp#L249-L250
-[edge-case-draw]: https://github.com/SimonAlling/zatacka-decomp/blob/17d557f4b54ac55b0dd05ae0827be1f5e9ff9f52/zatacka.cpp#L451-L465
+[edge-case-draw]: https://github.com/SimonAlling/zatacka-decomp/blob/17d557f4b54ac55b0dd05ae0827be1f5e9ff9f52/zatacka.cpp#L266-L267
+[the drawing code]: https://github.com/SimonAlling/zatacka-decomp/blob/17d557f4b54ac55b0dd05ae0827be1f5e9ff9f52/zatacka.cpp#L451-L465
 [#263]: https://github.com/SimonAlling/kurve/pull/263
 [`wall-off-by-one-error.mp4`]: recordings/wall-off-by-one-error.mp4
