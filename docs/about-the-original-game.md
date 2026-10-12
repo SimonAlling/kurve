@@ -2,7 +2,12 @@
 
 This document outlines our understanding of [the 1995 MS-DOS game _Achtung, die Kurve!_][oldgames], also known as `ZATACKA.EXE` (referred to by us as "the original game").
 
+**Its reconstructed source code is available in [this repo].**
+
 ## Memory layout
+
+> [!NOTE]
+> How and where the game state is stored in memory used to be important for our reverse-engineering efforts, but with the source code available, it probably isn't anymore.
 
 > [!NOTE]
 > We refer to the address of Red's x coordinate as the **base address**.
@@ -126,7 +131,7 @@ In particular, these PRs tell the story quite well:
 
 ### Overpainting
 
-Somewhat counterintuitively, painting where another player has already painted is possible without dying.
+Somewhat counterintuitively, [painting where another player has already painted is possible without dying][overpainting].
 
 In 2016, [Brage Salhus Bunk], Edvin Broman and I came up with [a theoretical "perfect overpainting"], which we finally [proved] possible in 2025:
 
@@ -182,7 +187,7 @@ Our clone has supported the perfect overpainting ever since 2aa51793d871d9ca3347
 
 ### Wall off-by-one error
 
-It's possible to be up to (but not including) 1 pixel outside the **top and left wall**, although the Kurve is still _drawn_ entirely within the canvas bounds:
+[It's possible to be up to (but not including) 1 pixel outside the **top and left wall**][edge-case], although [the Kurve is still _drawn_ entirely within the canvas bounds][edge-case-draw] (see [the drawing code]):
 
 <img alt="Demo of wall off-by-one error" src="recordings/wall-off-by-one-error.png" width="840" />
 
@@ -223,6 +228,7 @@ Our clone has replicated this quirk since [#263]; see that PR for details.
 </details>
 
 [oldgames]: https://www.oldgames.sk/en/game/achtung-die-kurve
+[this repo]: https://github.com/SimonAlling/zatacka-decomp
 [disable ASLR]: https://askubuntu.com/questions/318315/how-can-i-temporarily-disable-aslr-address-space-layout-randomization/318476#318476
 [DOSBox]: https://www.dosbox.com/index.php
 [scanmem]: https://github.com/scanmem/scanmem
@@ -238,9 +244,13 @@ Our clone has replicated this quirk since [#263]; see that PR for details.
 [#231]: https://github.com/SimonAlling/kurve/pull/231
 [#237]: https://github.com/SimonAlling/kurve/pull/237
 [#451]: https://github.com/SimonAlling/kurve/pull/451
+[overpainting]: https://github.com/SimonAlling/zatacka-decomp/blob/17d557f4b54ac55b0dd05ae0827be1f5e9ff9f52/zatacka.cpp#L257-L265
 [Brage Salhus Bunk]: https://github.com/Titanothere
 [a theoretical "perfect overpainting"]: https://www.youtube.com/watch?v=6O6PUdb5_Jo
 [proved]: https://github.com/SimonAlling/kurve/issues/93#issuecomment-3463651308
 [`perfect-overpainting.mp4`]: recordings/perfect-overpainting.mp4
+[edge-case]: https://github.com/SimonAlling/zatacka-decomp/blob/17d557f4b54ac55b0dd05ae0827be1f5e9ff9f52/zatacka.cpp#L249-L250
+[edge-case-draw]: https://github.com/SimonAlling/zatacka-decomp/blob/17d557f4b54ac55b0dd05ae0827be1f5e9ff9f52/zatacka.cpp#L266-L267
+[the drawing code]: https://github.com/SimonAlling/zatacka-decomp/blob/17d557f4b54ac55b0dd05ae0827be1f5e9ff9f52/zatacka.cpp#L451-L465
 [#263]: https://github.com/SimonAlling/kurve/pull/263
 [`wall-off-by-one-error.mp4`]: recordings/wall-off-by-one-error.mp4
