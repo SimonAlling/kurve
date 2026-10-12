@@ -21,6 +21,8 @@ Then visit <http://localhost:8000> in your browser.
 
 The original MS-DOS game (whose author I haven't been able to determine; see #136) is included for reference.
 To launch it, install [DOSBox](https://www.dosbox.com) and then run `dosbox docs/original-game/ZATACKA.EXE`.
+To view its reconstructed source code (matching decompilation), visit [this repo].
 
 [Simon Alling]: https://github.com/SimonAlling
 [Simon Lydell]: https://github.com/lydell
+[this repo]: https://github.com/SimonAlling/zatacka-decomp
