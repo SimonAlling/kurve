@@ -26,3 +26,7 @@ To view its reconstructed source code (matching decompilation), visit [this repo
 [Simon Alling]: https://github.com/SimonAlling
 [Simon Lydell]: https://github.com/lydell
 [this repo]: https://github.com/SimonAlling/zatacka-decomp
+
+## Play online
+
+Also playable on [WASM Arcade](https://www.wasmarcade.online/arcade/achtung-die-kurve/) — free, no download.
