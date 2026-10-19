@@ -16,6 +16,7 @@ import Types.Distance as Distance
 import Types.Kurve as Kurve exposing (Kurve)
 import Types.Player exposing (Player)
 import Types.PlayerId exposing (PlayerId)
+import Types.Radius as Radius
 import Util exposing (curry, isEven)
 import World exposing (Position, distanceBetween)
 
@@ -112,7 +113,7 @@ isTooCloseFor numberOfPlayers config point1 point2 =
     let
         desiredMinimumDistance : Float
         desiredMinimumDistance =
-            theThickness + computeTurningRadius config.kurves * config.spawn.desiredMinimumDistanceTurningRadiusFactor
+            theThickness + Radius.toFloat (computeTurningRadius config.kurves) * config.spawn.desiredMinimumDistanceTurningRadiusFactor
 
         ( ( left, top ), ( right, bottom ) ) =
             spawnArea config.spawn config.world

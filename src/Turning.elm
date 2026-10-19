@@ -9,6 +9,7 @@ import Config exposing (KurveConfig)
 import Set exposing (Set)
 import Types.Angle as Angle exposing (Angle(..))
 import Types.Kurve exposing (Kurve, UserInteraction(..))
+import Types.Radius exposing (Radius(..))
 import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -50,9 +51,9 @@ computeTurningState pressedButtons kurve =
             NotTurning
 
 
-computeTurningRadius : KurveConfig -> Float
+computeTurningRadius : KurveConfig -> Radius
 computeTurningRadius { tickrate, turningRate, speed } =
-    Speed.toFloat speed / (Tickrate.toFloat tickrate * Angle.toFloat turningRate)
+    Radius (Speed.toFloat speed / (Tickrate.toFloat tickrate * Angle.toFloat turningRate))
 
 
 turningStateFromHistory : Tick -> Kurve -> TurningState
