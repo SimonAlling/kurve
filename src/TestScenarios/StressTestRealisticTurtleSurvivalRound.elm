@@ -52,12 +52,12 @@ makeLap i =
 
 expectedOutcome : RoundOutcome
 expectedOutcome =
-    { tickThatShouldEndIt = tickNumber 23875
+    { tickThatShouldEndIt = tickNumber 23876
     , howItShouldEnd =
         { aliveAtTheEnd = []
         , deadAtTheEnd =
             [ { id = playerIds.green
-              , theDrawingPositionItNeverMadeItTo = { x = 372, y = 217 }
+              , theDrawingPositionItNeverMadeItTo = { x = 363, y = 190 }
               }
             ]
         }
