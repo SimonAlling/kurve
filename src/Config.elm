@@ -16,7 +16,7 @@ module Config exposing
     )
 
 import Settings exposing (Settings)
-import Types.Radius exposing (Radius(..))
+import Types.Angle exposing (Angle(..))
 import Types.Speed exposing (Speed(..))
 import Types.Tickrate exposing (Tickrate(..))
 
@@ -25,7 +25,7 @@ default : Config
 default =
     { kurves =
         { tickrate = Tickrate 60
-        , turningRadius = Radius 28.5
+        , turningRate = Angle 0.035 -- radians per tick
         , speed = Speed 60
         , holes =
             { minSolidTicks = 89
@@ -67,7 +67,7 @@ type alias Config =
 type alias KurveConfig =
     { tickrate : Tickrate
     , speed : Speed
-    , turningRadius : Radius
+    , turningRate : Angle
     , holes : HoleConfig
     }
 

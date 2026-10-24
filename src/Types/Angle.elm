@@ -4,6 +4,7 @@ module Types.Angle exposing
     , cos
     , negate
     , sin
+    , toFloat
     )
 
 {-| Angles are measured in radians. Somewhat unconventionally, 0 is down (not right), to match the original game's internal representation.

@@ -32,7 +32,7 @@ green =
             , ( 45, NotTurning )
             , ( 420, TurningRight )
             , ( 45, NotTurning )
-            , ( 491, TurningRight )
+            , ( 488, TurningRight )
             , ( 44, NotTurning )
             ]
 
@@ -44,7 +44,7 @@ spawnedKurves =
 
 expectedOutcome : RoundOutcome
 expectedOutcome =
-    { tickThatShouldEndIt = tickNumber 2012
+    { tickThatShouldEndIt = tickNumber 2014
     , howItShouldEnd =
         { aliveAtTheEnd = []
         , deadAtTheEnd =

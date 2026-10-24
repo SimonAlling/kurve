@@ -1,5 +1,6 @@
 module Turning exposing
     ( computeAngleChange
+    , computeTurningRadius
     , computeTurningState
     , turningStateFromHistory
     )
@@ -8,7 +9,7 @@ import Config exposing (KurveConfig)
 import Set exposing (Set)
 import Types.Angle as Angle exposing (Angle(..))
 import Types.Kurve exposing (Kurve, UserInteraction(..))
-import Types.Radius as Radius
+import Types.Radius exposing (Radius(..))
 import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -19,10 +20,10 @@ computeAngleChange : KurveConfig -> TurningState -> Angle
 computeAngleChange kurveConfig turningState =
     case turningState of
         TurningLeft ->
-            computedAngleChange kurveConfig
+            kurveConfig.turningRate
 
         TurningRight ->
-            Angle.negate <| computedAngleChange kurveConfig
+            Angle.negate <| kurveConfig.turningRate
 
         NotTurning ->
             Angle 0
@@ -50,9 +51,9 @@ computeTurningState pressedButtons kurve =
             NotTurning
 
 
-computedAngleChange : KurveConfig -> Angle
-computedAngleChange { tickrate, turningRadius, speed } =
-    Angle (Speed.toFloat speed / (Tickrate.toFloat tickrate * Radius.toFloat turningRadius))
+computeTurningRadius : KurveConfig -> Radius
+computeTurningRadius { tickrate, turningRate, speed } =
+    Radius (Speed.toFloat speed / (Tickrate.toFloat tickrate * Angle.toFloat turningRate))
 
 
 turningStateFromHistory : Tick -> Kurve -> TurningState

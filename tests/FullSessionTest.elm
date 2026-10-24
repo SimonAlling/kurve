@@ -79,7 +79,7 @@ messages numberOfSpawnTicks =
 
         -- Green turns until it crashes into itself:
         , press (Key "ArrowLeft")
-        , repeat 166 (AnimationFrame frameDeltaInMs)
+        , repeat 167 (AnimationFrame frameDeltaInMs)
 
         -- Round over; button is released:
         , release (Key "ArrowLeft")
@@ -90,7 +90,7 @@ messages numberOfSpawnTicks =
         -- User waits for the replay to finish:
         , repeat numberOfSpawnTicks SpawnTick
         , repeat 20 (AnimationFrame frameDeltaInMs)
-        , repeat 166 (AnimationFrame frameDeltaInMs)
+        , repeat 167 (AnimationFrame frameDeltaInMs)
 
         -- User quits to lobby:
         , pressAndRelease (Key "Escape")
