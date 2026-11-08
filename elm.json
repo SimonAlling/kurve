@@ -2,6 +2,7 @@
     "type": "application",
     "source-directories": [
         "tools/ScenarioInOriginalGame",
+        "tools/CompareWithOriginal",
         "src"
     ],
     "elm-version": "0.19.1",

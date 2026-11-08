@@ -1,0 +1,3 @@
+[submodule "tools/CompareWithOriginal/zatacka-decomp"]
+	path = tools/CompareWithOriginal/zatacka-decomp
+	url = https://github.com/SimonAlling/zatacka-decomp.git

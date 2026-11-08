@@ -39,3 +39,10 @@ jobs:
         run: sudo apt-get install --yes xdotool
       - name: Dry-run scenario script
         run: DRY_RUN=true ./tools/scenario.py docs/original-game/ZATACKA.EXE
+      - name: Fetch zatacka-decomp submodule
+        run: git submodule update --init tools/CompareWithOriginal/zatacka-decomp
+      - name: Smoke-test comparison with original game
+        # Only checks that the tooling works end to end, not that the clone behaves like the original.
+        run: |
+          npm run compare-with-original -- --seeds 1 --rounds 1 --json comparison.json
+          jq --exit-status '.[0].verdict | type == "string"' comparison.json
