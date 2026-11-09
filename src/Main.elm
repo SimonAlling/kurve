@@ -228,6 +228,9 @@ update msg ({ config } as model) =
 
                         EnableAlternativeControls ->
                             Config.withEnableAlternativeControls newValue model.config
+
+                        PixelatedGraphics ->
+                            Config.withPixelatedGraphics newValue model.config
             in
             ( { model | config = newConfig }, SaveSettings (Config.getSettings newConfig) )
 
@@ -717,13 +720,19 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     let
+        pixelatedGraphics : Bool
+        pixelatedGraphics =
+            model.config.pixelatedGraphics
+
         playerButtons : List Button
         playerButtons =
             getAllPlayerButtons model.players
     in
     case model.appState of
         InMenu Lobby _ ->
-            elmRoot (Events.AllowDefaultExcept playerButtons)
+            elmRoot
+                pixelatedGraphics
+                (Events.AllowDefaultExcept playerButtons)
                 [ Attr.class "in-game-ish"
                 ]
                 [ div
@@ -739,7 +748,9 @@ view model =
                 ]
 
         InMenu SettingsScreen _ ->
-            elmRoot (Events.AllowDefaultExcept playerButtons)
+            elmRoot
+                pixelatedGraphics
+                (Events.AllowDefaultExcept playerButtons)
                 [ Attr.class "in-game-ish"
                 ]
                 [ div
@@ -755,13 +766,22 @@ view model =
                 ]
 
         InMenu GameOver _ ->
-            elmRoot (Events.AllowDefaultExcept playerButtons) [] [ endScreen model.players ]
+            elmRoot
+                pixelatedGraphics
+                (Events.AllowDefaultExcept playerButtons)
+                []
+                [ endScreen model.players ]
 
         InMenu SplashScreen _ ->
-            elmRoot (Events.AllowDefaultExcept playerButtons) [] [ splashScreen RequestToggleFullscreen ]
+            elmRoot
+                pixelatedGraphics
+                (Events.AllowDefaultExcept playerButtons)
+                []
+                [ splashScreen RequestToggleFullscreen ]
 
         InGame gameState ->
             elmRoot
+                pixelatedGraphics
                 (Game.eventPrevention playerButtons gameState)
                 [ Attr.class "in-game-ish"
                 , Attr.class magicClassNameToPreventUnload
@@ -794,9 +814,18 @@ view model =
                 ]
 
 
-elmRoot : Events.Prevention -> List (Html.Attribute Msg) -> List (Html Msg) -> Html Msg
-elmRoot prevention attrs content =
-    div (Attr.id "elm-root" :: attrs) (Events.eventsElement prevention ButtonUsed :: content)
+elmRoot : Bool -> Events.Prevention -> List (Html.Attribute Msg) -> List (Html Msg) -> Html Msg
+elmRoot pixelatedGraphics prevention attrs content =
+    let
+        graphicsScalingAttribute : Html.Attribute msg
+        graphicsScalingAttribute =
+            if pixelatedGraphics then
+                Attr.class "pixelated-graphics"
+
+            else
+                Attr.class "blurry-graphics"
+    in
+    div (Attr.id "elm-root" :: graphicsScalingAttribute :: attrs) (Events.eventsElement prevention ButtonUsed :: content)
 
 
 borderAttributes : GameState -> List (Html.Attribute msg)
