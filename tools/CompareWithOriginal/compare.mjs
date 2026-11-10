@@ -57,8 +57,14 @@ async function main() {
     }
 
     const players = options.players.split(",").map(parsePlayer).sort((a, b) => a - b); // The clone keeps its Kurves sorted by ID too.
+    if (new Set(players).size !== players.length) fail(`Duplicate player in: ${options.players}`);
+    if (players.length < 2) fail("At least 2 players are needed.");
     const seeds = parseRange(options.seeds);
-    const holes = options.holes !== "off";
+    requireInt(options.rounds, "--rounds", 1);
+    requireInt(options["max-ticks"], "--max-ticks", 0);
+    if (options["bot-seed"] !== undefined) requireInt(options["bot-seed"], "--bot-seed", 0);
+    if (!["on", "off"].includes(options.holes)) fail(`--holes must be "on" or "off", not "${options.holes}".`);
+    const holes = options.holes === "on";
     const floatModel = options["float-model"];
     if (!["float", "double"].includes(floatModel)) fail(`Unknown float model: ${floatModel}`);
 
@@ -443,6 +449,10 @@ function printSummary(results) {
 
 // ---- Utilities ----
 
+function requireInt(s, name, min) {
+    if (!/^\d+$/.test(s) || Number(s) < min) fail(`${name} must be an integer ≥ ${min}, not "${s}".`);
+}
+
 function parsePlayer(s) {
     const id = /^\d$/.test(s) ? Number(s) : PLAYER_IDS_BY_NAME[s.toLowerCase()];
     if (id === undefined || id < 0 || id > 5) fail(`Unknown player: ${s}`);
@@ -454,6 +464,7 @@ function parseRange(s) {
     if (match === null) fail(`Invalid range: ${s}`);
     const from = Number(match[1]);
     const to = match[2] === undefined ? from : Number(match[2]);
+    if (to < from) fail(`Invalid range: ${s} (end is before start)`);
     return Array.from({ length: to - from + 1 }, (_, i) => from + i);
 }
 
