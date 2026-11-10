@@ -127,7 +127,7 @@ function cloneScenarioFrom(round, { holes, whatIfOriginalOrder }, dumpTicks = []
             y: player.y,
             direction: player.dir,
             turning: turningFor(player.id, ticks),
-            solidity: holes ? solidityFor(player.id, start, ticks, start.spawnErasedInFirstTick[i]) : null,
+            solidity: holes ? solidityFor(player.id, start, ticks, start.spawnErasedInFirstTick[i]) : [true],
         })),
     };
 }
@@ -249,7 +249,7 @@ function compareRound(round, clone, scenario) {
         // Known, explainable differences in the final canvas:
         const lastTickMovedInOriginal = (id) => (unprocessedInFinalTick.includes(id) ? originalEndTick - 1 : originalEndTick);
         const holyHeadsInOriginal = scenario.kurves
-            .filter((k) => k.solidity !== null && !k.solidity[Math.min(lastTickMovedInOriginal(k.id), k.solidity.length - 1)])
+            .filter((k) => !k.solidity[Math.min(lastTickMovedInOriginal(k.id), k.solidity.length - 1)])
             .map((k) => end.players.find((p) => p.id === k.id))
             .map((p) => [p.px, p.py]);
         const movedOnlyInClone = unprocessedInFinalTick

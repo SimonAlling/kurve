@@ -63,7 +63,7 @@ type alias KurveScenario =
     , y : Float
     , direction : Float
     , turning : List ( Int, TurningState ) -- (tick, turning state from that tick on), chronologically
-    , solidity : Maybe (Array Bool) -- whether the Kurve is solid in tick n (0 = at spawn); Nothing means no holes at all
+    , solidity : Array Bool -- whether the Kurve is solid in tick n (0 = at spawn); the last value applies to all later ticks
     }
 
 
@@ -84,7 +84,7 @@ kurveScenarioDecoder =
         (Decode.field "y" Decode.float)
         (Decode.field "direction" Decode.float)
         (Decode.field "turning" (Decode.list (Decode.map2 Tuple.pair (Decode.index 0 Decode.int) (Decode.index 1 turningStateDecoder))))
-        (Decode.field "solidity" (Decode.nullable (Decode.array Decode.bool)))
+        (Decode.field "solidity" (Decode.array Decode.bool))
 
 
 turningStateDecoder : Decoder TurningState
@@ -117,7 +117,7 @@ playOut scenario =
     let
         solidities : List ( PlayerId, Array Bool )
         solidities =
-            List.filterMap (\k -> k.solidity |> Maybe.map (Tuple.pair k.id)) scenario.kurves
+            List.map (\k -> ( k.id, k.solidity )) scenario.kurves
 
         initialRound : Round
         initialRound =
@@ -190,13 +190,7 @@ toKurve k =
         state =
             { position = ( k.x, k.y )
             , direction = Angle k.direction
-            , holeStatus =
-                case k.solidity of
-                    Nothing ->
-                        NoHoles
-
-                    Just solidity ->
-                        holeStatusFor solidity 1
+            , holeStatus = holeStatusFor k.solidity 1
             }
     in
     { color = colorFor k.id
