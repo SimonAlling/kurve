@@ -311,7 +311,9 @@ function decodeCanvas(runs) {
 }
 
 /**
- * Pixels that are only in one of the canvases, except those that are explained by known differences:
+ * Pixels that are only in one of the canvases, except those that are explained by known differences.
+ * Any pixel in one of the 3×3 squares below counts as explained, so a real difference that happens to be in such a square goes unnoticed.
+ * The known differences:
  *
  *   - Holy heads: The original always has every head on screen, holy or not. The clone doesn't consider holy heads occupied (README.md#holy-heads).
  *   - When the round ends, the original doesn't move the Kurves after the one whose death ended the round. The clone does (README.md#round-ends-mid-tick).
