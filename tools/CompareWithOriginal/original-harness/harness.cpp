@@ -101,7 +101,7 @@ int getch(void) { return 0; }
 static unsigned char framebuffer[SCREEN_HEIGHT][SCREEN_WIDTH];
 static int current_color = 15;
 static int current_fill_color = 0;
-static long out_of_bounds_getpixel_count = 0;
+static long out_of_bounds_getpixel_count = 0; // should stay 0; otherwise, results depend on what our getpixel returns outside the screen (see original.mjs)
 
 // The game resets dead[] before we get to see the outcome of the round, so we keep our own copy.
 // Every death is followed by bar() calls (when the scoreboard is updated), which is when we take it.

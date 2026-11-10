@@ -101,6 +101,11 @@ export function runOriginal(harness, { players, rounds, seed, botSeed, holes, ma
                 break;
         }
     }
+    // The harness's getpixel returns 0 outside the screen, which may or may not be what the real BGI does, so results could be unreliable.
+    const outOfBoundsGetpixelCount = roundsPlayed.at(-1)?.end.outOfBoundsGetpixelCount ?? 0; // cumulative over all rounds
+    if (outOfBoundsGetpixelCount > 0) {
+        console.warn(`⚠️ The original game called getpixel outside the screen ${outOfBoundsGetpixelCount} times. See ${path.join(HERE, "original-harness", "harness.cpp")}.`);
+    }
     return roundsPlayed;
 }
 
