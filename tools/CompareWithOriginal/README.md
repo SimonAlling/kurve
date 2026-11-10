@@ -36,7 +36,11 @@ The DOSBox validation additionally requires DOSBox 0.74 (no window or `sudo` nee
 ### The original: `original-harness/`
 
 `harness.cpp` `#include`s the reconstructed source code of the original game and runs its `main()` **as is**.
-Only two mechanical transformations are applied (in `original.mjs`): inline `asm` lines are removed and `main` is renamed.
+The only changes to the game's code are mechanical:
+
+  * `original.mjs` removes inline `asm` lines and renames `main`. With `--float-model double`, it also turns `x`, `y` and `dir` into `double`.
+  * `harness.cpp` redefines a few names with macros before `#include`-ing the source code: `random` (Borland's, see below), `sin` and `cos` (extended precision, and `sin` detects the start of a round), and `malloc` as `calloc` (the game assumes that fresh heap memory is zeroed).
+
 The game thinks it's talking to BGI and DOS, but it's talking to the stand-ins in `shim/` and `harness.cpp`:
 
   * BGI draws into an in-memory 640×480 framebuffer, and `getpixel` reads from it, so **collision detection is the game's own** (including all its quirks).
