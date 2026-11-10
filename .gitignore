@@ -10,3 +10,4 @@ elm-stuff
 tools/ScenarioInOriginalGame/ScenarioCLI.js
 .compiled-scenario.gdb
 gdb-log.txt
+tools/CompareWithOriginal/.build/

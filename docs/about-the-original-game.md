@@ -103,12 +103,13 @@ This works with [DOSBox] 0.74-3 and [scanmem] 0.17 in Ubuntu 24.04, including in
 
 ### Summary
 
-| Use case         | Tool                       |
-|------------------|----------------------------|
-| Stage a scenario | `tools/scenario.py`        |
-| View game state  | `tools/show-game-state.sh` |
+| Use case                          | Tool                        |
+|-----------------------------------|-----------------------------|
+| Stage a scenario                  | `tools/scenario.py`         |
+| View game state                   | `tools/show-game-state.sh`  |
+| Compare rounds with the clone     | `tools/CompareWithOriginal` |
 
-See `git log --grep FILE_NAME_OF_THE_TOOL` for info about each tool.
+See `git log --grep FILE_NAME_OF_THE_TOOL` for info about each tool, and [`tools/CompareWithOriginal/README.md`](../tools/CompareWithOriginal/README.md) for the comparison tooling, including differences between the original and the clone that it has uncovered.
 
 ### History
 

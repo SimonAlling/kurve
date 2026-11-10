@@ -7,7 +7,9 @@
     "sass-build": "sass --source-map src/css/:_site/css/",
     "build": "elm-watch make --optimize && tsc --project tsconfig.json && npm run sass-build",
     "build:scenario-in-original-game": "elm make --optimize tools/ScenarioInOriginalGame/ScenarioCLI.elm --output tools/ScenarioInOriginalGame/ScenarioCLI.js",
+    "build:compare-with-original": "elm make --optimize tools/CompareWithOriginal/CloneSimulation.elm --output tools/CompareWithOriginal/.build/CloneSimulation.js",
     "check-formatting": "elm-format --validate .",
+    "compare-with-original": "node tools/CompareWithOriginal/compare.mjs",
     "review": "elm-review",
     "test": "elm-test",
     "start": "npm run install-hooks && run-pty % elm-watch hot % tsc --watch % esbuild --serve --servedir=./_site/ % sass --watch --source-map src/css/:_site/css/"
