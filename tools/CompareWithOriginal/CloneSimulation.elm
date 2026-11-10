@@ -67,15 +67,15 @@ type alias KurveScenario =
     }
 
 
-{-| Whether the Kurve is solid in tick n (0 = at spawn). Non-empty by construction: the last value is stored separately and applies to all later ticks.
+{-| Whether the Kurve is solid in tick n (0 = at spawn): `Solidity initial final` means `initial` for the first ticks, then `final` forever.
 -}
 type Solidity
     = Solidity (Array Bool) Bool
 
 
 solidIn : Int -> Solidity -> Bool
-solidIn n (Solidity ticks last) =
-    Array.get n ticks |> Maybe.withDefault last
+solidIn n (Solidity initial final) =
+    Array.get n initial |> Maybe.withDefault final
 
 
 solidityDecoder : Decoder Solidity
@@ -84,8 +84,8 @@ solidityDecoder =
         |> Decode.andThen
             (\ticks ->
                 case Array.get (Array.length ticks - 1) ticks of
-                    Just last ->
-                        Decode.succeed (Solidity ticks last)
+                    Just final ->
+                        Decode.succeed (Solidity (Array.slice 0 -1 ticks) final)
 
                     Nothing ->
                         Decode.fail "solidity must be non-empty"
