@@ -295,6 +295,8 @@ function reconstruct(samples, players) {
                     continue;
                 }
                 // Nobody turns in the first tick (see recordDosbox).
+                // If we missed some ticks, we only see their net turn, so e.g. L then R looks like no turn at all and isn't flagged as ambiguous.
+                // That makes the replay go straight where the real game didn't, which shows up as a mismatch (a false match would require ending up in exactly the same float position).
                 const turns = previous.dir === null ? 0 : Math.round((s.dir - previous.dir) / TURN_RATE);
                 const button = turns > 0 ? "L" : "R";
                 if (turns !== 0 && Math.abs(turns) !== ticks) {
