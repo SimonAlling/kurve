@@ -63,8 +63,33 @@ type alias KurveScenario =
     , y : Float
     , direction : Float
     , turning : List ( Int, TurningState ) -- (tick, turning state from that tick on), chronologically
-    , solidity : Array Bool -- whether the Kurve is solid in tick n (0 = at spawn); the last value applies to all later ticks
+    , solidity : Solidity
     }
+
+
+{-| Whether the Kurve is solid in tick n (0 = at spawn). Non-empty by construction: the last value is stored separately and applies to all later ticks.
+-}
+type Solidity
+    = Solidity (Array Bool) Bool
+
+
+solidIn : Int -> Solidity -> Bool
+solidIn n (Solidity ticks last) =
+    Array.get n ticks |> Maybe.withDefault last
+
+
+solidityDecoder : Decoder Solidity
+solidityDecoder =
+    Decode.array Decode.bool
+        |> Decode.andThen
+            (\ticks ->
+                case Array.get (Array.length ticks - 1) ticks of
+                    Just last ->
+                        Decode.succeed (Solidity ticks last)
+
+                    Nothing ->
+                        Decode.fail "solidity must be non-empty"
+            )
 
 
 scenarioDecoder : Decoder Scenario
@@ -84,7 +109,7 @@ kurveScenarioDecoder =
         (Decode.field "y" Decode.float)
         (Decode.field "direction" Decode.float)
         (Decode.field "turning" (Decode.list (Decode.map2 Tuple.pair (Decode.index 0 Decode.int) (Decode.index 1 turningStateDecoder))))
-        (Decode.field "solidity" (Decode.array Decode.bool))
+        (Decode.field "solidity" solidityDecoder)
 
 
 turningStateDecoder : Decoder TurningState
@@ -115,7 +140,7 @@ config =
 playOut : Scenario -> Encode.Value
 playOut scenario =
     let
-        solidities : List ( PlayerId, Array Bool )
+        solidities : List ( PlayerId, Solidity )
         solidities =
             List.map (\k -> ( k.id, k.solidity )) scenario.kurves
 
@@ -229,16 +254,12 @@ colorFor id =
 
 {-| A hole status that makes the Kurve have the given solidity before and in the given tick. See README.md#hole-mapping.
 -}
-holeStatusFor : Array Bool -> Int -> HoleStatus
+holeStatusFor : Solidity -> Int -> HoleStatus
 holeStatusFor solidity tick =
     let
-        solidIn : Int -> Bool
-        solidIn n =
-            Array.get (min n (Array.length solidity - 1)) solidity |> Maybe.withDefault True
-
         holinessBefore : Holiness
         holinessBefore =
-            if solidIn (tick - 1) then
+            if solidIn (tick - 1) solidity then
                 Solid
 
             else
@@ -248,7 +269,7 @@ holeStatusFor solidity tick =
         { holiness = holinessBefore
         , ticksLeft =
             -- The clone toggles holiness when ticksLeft is 0.
-            if solidIn tick == solidIn (tick - 1) then
+            if solidIn tick solidity == solidIn (tick - 1) solidity then
                 1
 
             else
@@ -257,7 +278,7 @@ holeStatusFor solidity tick =
         }
 
 
-forceHoleStatus : List ( PlayerId, Array Bool ) -> Int -> Kurve -> Kurve
+forceHoleStatus : List ( PlayerId, Solidity ) -> Int -> Kurve -> Kurve
 forceHoleStatus solidities tick kurve =
     case List.filter (Tuple.first >> (==) kurve.id) solidities of
         ( _, solidity ) :: _ ->

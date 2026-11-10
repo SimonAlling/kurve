@@ -127,7 +127,7 @@ function cloneScenarioFrom(round, { holes, whatIfOriginalOrder }, dumpTicks = []
             y: player.y,
             direction: player.dir,
             turning: turningFor(player.id, ticks),
-            solidity: holes ? solidityFor(player.id, start, ticks, start.spawnErasedInFirstTick[i]) : [true],
+            solidity: holes ? solidityFor(player.id, start, ticks, start.spawnErasedInFirstTick[i]) : ALWAYS_SOLID,
         })),
     };
 }
@@ -165,6 +165,14 @@ function solidityFor(id, start, ticks, spawnErasedInFirstTick) {
         before = record.players.find((p) => p.id === id);
     }
     return solidity;
+}
+
+// A solidity array is non-empty; its last value applies to all later ticks.
+const ALWAYS_SOLID = [true];
+
+function solidIn(solidity, tick) {
+    if (solidity.length === 0) throw new Error("solidity must be non-empty");
+    return solidity[Math.min(tick, solidity.length - 1)];
 }
 
 function runClone(Elm, scenario) {
@@ -249,7 +257,7 @@ function compareRound(round, clone, scenario) {
         // Known, explainable differences in the final canvas:
         const lastTickMovedInOriginal = (id) => (unprocessedInFinalTick.includes(id) ? originalEndTick - 1 : originalEndTick);
         const holyHeadsInOriginal = scenario.kurves
-            .filter((k) => !k.solidity[Math.min(lastTickMovedInOriginal(k.id), k.solidity.length - 1)])
+            .filter((k) => !solidIn(k.solidity, lastTickMovedInOriginal(k.id)))
             .map((k) => end.players.find((p) => p.id === k.id))
             .map((p) => [p.px, p.py]);
         const movedOnlyInClone = unprocessedInFinalTick
