@@ -101,11 +101,11 @@ playOutRound config initialState =
                 RoundEnds tickThatEndedIt actualRoundResult ->
                     ( tickThatEndedIt, actualRoundResult )
 
-        round : Round
-        round =
+        initialRound : Round
+        initialRound =
             prepareRoundFromKnownInitialState config.world initialState
     in
-    recurse Tick.genesis round
+    recurse Tick.genesis initialRound
 
 
 playOutRoundWithEffects : Config -> RoundInitialState -> List Effect
