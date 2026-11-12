@@ -250,7 +250,7 @@ handleDialogChoice option model =
                         finishedRound =
                             getFinishedRound liveOrReplay
                     in
-                    goToLobby (Round.unpackFinished finishedRound).seed model
+                    goToLobby (Round.unpackFinished finishedRound).initialState.seedAfterSpawn model
 
                 Dialog.Cancel ->
                     ( { model | appState = InGame (RoundOver liveOrReplay pausedOrNot tickThatEndedIt Dialog.NotOpen) }, DoNothing )
@@ -482,10 +482,10 @@ proceedToNextRound finishedRound ({ config, pressedButtons } as model) =
                 |> Maybe.map getHoleStatus
     in
     if isGameOver (participating noExtraData playersWithRecentResults) then
-        gameOver unpackedFinishedRound.seed modelWithRecentResults
+        gameOver unpackedFinishedRound.initialState.seedAfterSpawn modelWithRecentResults
 
     else
-        startRound (Live ()) modelWithRecentResults <| prepareLiveRound config unpackedFinishedRound.seed (participating getHoleStatusById playersWithRecentResults) pressedButtons
+        startRound (Live ()) modelWithRecentResults <| prepareLiveRound config unpackedFinishedRound.initialState.seedAfterSpawn (participating getHoleStatusById playersWithRecentResults) pressedButtons
 
 
 startReplayFromBeginning : Overlay.State -> FinishedRound -> Model -> ( Model, Effect )

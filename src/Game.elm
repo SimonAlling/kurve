@@ -168,7 +168,6 @@ prepareRoundFromKnownInitialState worldConfig initialState =
             { kurves = { alive = theKurves, dead = [] }
             , occupiedPixels = initialOccupiedPixels worldConfig theKurves
             , initialState = initialState
-            , seed = initialState.seedAfterSpawn
             }
     in
     round
@@ -205,7 +204,6 @@ reactToTick config tick currentRound =
             { kurves = newKurves
             , occupiedPixels = newOccupiedPixels
             , initialState = currentRound.initialState
-            , seed = currentRound.seed
             }
 
         tickResult : TickResult Round
