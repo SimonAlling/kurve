@@ -30,6 +30,7 @@ import Game
         , prepareReplayRound
         , recordUserInteraction
         , tickResultToGameState
+        , togglePaused
         )
 import Holes exposing (HoleStatus)
 import Html exposing (Html, canvas, div)
@@ -417,25 +418,25 @@ buttonUsed button ({ config, pressedButtons } as model) =
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
 
-        InGame (Active (Replay overlayState finishedRound) Paused s) ->
+        InGame (Active (Replay overlayState finishedRound) pausedOrNot s) ->
             case button of
                 Key "Space" ->
                     proceedToNextRound finishedRound model
 
                 Key "Enter" ->
-                    ( { model | appState = InGame (Active (Replay overlayState finishedRound) NotPaused s) }, DoNothing )
+                    ( { model | appState = InGame (Active (Replay overlayState finishedRound) (togglePaused pausedOrNot) s) }, DoNothing )
 
                 Key "ArrowLeft" ->
-                    rewindReplay overlayState Paused s finishedRound model
+                    rewindReplay overlayState pausedOrNot s finishedRound model
 
                 Key "ArrowRight" ->
-                    fastForwardReplay overlayState Paused s finishedRound model
+                    fastForwardReplay overlayState pausedOrNot s finishedRound model
 
                 Key "KeyE" ->
                     stepOneTick overlayState s finishedRound model
 
                 Key "KeyO" ->
-                    ( { model | appState = InGame (Active (Replay (Overlay.toggle overlayState) finishedRound) Paused s) }, DoNothing )
+                    ( { model | appState = InGame (Active (Replay (Overlay.toggle overlayState) finishedRound) pausedOrNot s) }, DoNothing )
 
                 Key "KeyR" ->
                     startRound (Replay overlayState finishedRound) model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
@@ -445,32 +446,6 @@ buttonUsed button ({ config, pressedButtons } as model) =
 
         InGame (Active (Live ()) NotPaused _) ->
             ( handleUserInteraction Down button model, DoNothing )
-
-        InGame (Active (Replay overlayState finishedRound) NotPaused s) ->
-            case button of
-                Key "ArrowLeft" ->
-                    rewindReplay overlayState NotPaused s finishedRound model
-
-                Key "ArrowRight" ->
-                    fastForwardReplay overlayState NotPaused s finishedRound model
-
-                Key "KeyE" ->
-                    stepOneTick overlayState s finishedRound model
-
-                Key "KeyO" ->
-                    ( { model | appState = InGame (Active (Replay (Overlay.toggle overlayState) finishedRound) NotPaused s) }, DoNothing )
-
-                Key "KeyR" ->
-                    startRound (Replay overlayState finishedRound) model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
-
-                Key "Space" ->
-                    proceedToNextRound finishedRound model
-
-                Key "Enter" ->
-                    ( { model | appState = InGame (Active (Replay overlayState finishedRound) Paused s) }, DoNothing )
-
-                _ ->
-                    ( handleUserInteraction Down button model, DoNothing )
 
         InMenu GameOver seed ->
             case button of

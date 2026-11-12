@@ -16,6 +16,7 @@ module Game exposing
     , reactToTick
     , recordUserInteraction
     , tickResultToGameState
+    , togglePaused
     )
 
 import Color exposing (Color)
@@ -482,3 +483,13 @@ eventPrevention playerButtons gameState =
 
         RoundOver _ _ _ _ ->
             AllowDefaultExcept playerButtons
+
+
+togglePaused : PausedOrNot -> PausedOrNot
+togglePaused pausedOrNot =
+    case pausedOrNot of
+        Paused ->
+            NotPaused
+
+        NotPaused ->
+            Paused
