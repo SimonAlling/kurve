@@ -97,8 +97,8 @@ getFinishedRound liveOrReplay =
 modifyMidRoundState : (Round -> Round) -> GameState -> GameState
 modifyMidRoundState f gameState =
     case gameState of
-        Active liveOrReplay p (Moving t leftoverFrameTime midRoundState) ->
-            Active liveOrReplay p <| Moving t leftoverFrameTime <| f midRoundState
+        Active liveOrReplay p (Moving leftoverFrameTime t midRoundState) ->
+            Active liveOrReplay p <| Moving leftoverFrameTime t <| f midRoundState
 
         Active liveOrReplay p (Spawning s midRoundState) ->
             Active liveOrReplay p <| Spawning s <| f midRoundState
