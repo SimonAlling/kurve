@@ -24,7 +24,6 @@ type alias Round =
     { kurves : Kurves
     , occupiedPixels : OccupiedPixels
     , initialState : RoundInitialState
-    , seed : Random.Seed
     }
 
 
