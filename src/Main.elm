@@ -25,7 +25,7 @@ import Game
         , firstUpdateTick
         , getFinishedRound
         , isReplay
-        , modifyMidRoundState
+        , modifyRound
         , prepareLiveRound
         , prepareReplayRound
         , recordUserInteraction
@@ -96,14 +96,14 @@ init flags =
 
 
 startRound : LiveOrReplay () -> Model -> Round -> ( Model, Effect )
-startRound liveOrReplay model midRoundState =
+startRound liveOrReplay model round =
     let
         gameState : GameState
         gameState =
             Active liveOrReplay NotPaused <|
                 Spawning
-                    (makeSpawnState model.config.spawn.numberOfFlickers midRoundState)
-                    midRoundState
+                    (makeSpawnState model.config.spawn.numberOfFlickers round)
+                    round
     in
     ( { model | appState = InGame gameState }, ClearEverything )
 
@@ -148,7 +148,7 @@ update msg ({ config } as model) =
 
         SpawnTick ->
             case model.appState of
-                InGame (Active liveOrReplay NotPaused (Spawning spawnState plannedMidRoundState)) ->
+                InGame (Active liveOrReplay NotPaused (Spawning spawnState plannedRound)) ->
                     let
                         ( maybeSpawnState, whatToDraw ) =
                             stepSpawnState spawnState
@@ -157,10 +157,10 @@ update msg ({ config } as model) =
                         activeGameState =
                             case maybeSpawnState of
                                 Just newSpawnState ->
-                                    Spawning newSpawnState plannedMidRoundState
+                                    Spawning newSpawnState plannedRound
 
                                 Nothing ->
-                                    Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
+                                    Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedRound
                     in
                     ( { model | appState = InGame <| Active liveOrReplay NotPaused activeGameState }
                     , DrawSomething whatToDraw
@@ -172,7 +172,7 @@ update msg ({ config } as model) =
 
         AnimationFrame delta ->
             case model.appState of
-                InGame (Active liveOrReplay NotPaused (Moving leftoverTimeFromPreviousFrame lastTick midRoundState)) ->
+                InGame (Active liveOrReplay NotPaused (Moving leftoverTimeFromPreviousFrame lastTick round)) ->
                     let
                         ( tickResult, whatToDraw ) =
                             MainLoop.consumeAnimationFrame
@@ -180,7 +180,7 @@ update msg ({ config } as model) =
                                 delta
                                 leftoverTimeFromPreviousFrame
                                 lastTick
-                                midRoundState
+                                round
                     in
                     ( { model | appState = InGame (tickResultToGameState liveOrReplay NotPaused tickResult) }
                     , maybeDrawSomething whatToDraw
@@ -499,7 +499,7 @@ stepOneTick overlayState activeGameState finishedRound model =
         Spawning _ _ ->
             ( model, DoNothing )
 
-        Moving _ lastTick midRoundState ->
+        Moving _ lastTick round ->
             let
                 timeToSkipInMs : FrameTime
                 timeToSkipInMs =
@@ -511,7 +511,7 @@ stepOneTick overlayState activeGameState finishedRound model =
                         timeToSkipInMs
                         MainLoop.noLeftoverFrameTime
                         lastTick
-                        midRoundState
+                        round
             in
             ( { model | appState = InGame (tickResultToGameState (Replay overlayState finishedRound) Paused tickResult) }
             , maybeDrawSomething whatToDraw
@@ -521,21 +521,21 @@ stepOneTick overlayState activeGameState finishedRound model =
 fastForwardReplay : Overlay.State -> PausedOrNot -> ActiveGameState -> FinishedRound -> Model -> ( Model, Effect )
 fastForwardReplay overlayState pausedOrNot activeGameState finishedRound ({ config } as model) =
     case activeGameState of
-        Spawning _ plannedMidRoundState ->
+        Spawning _ plannedRound ->
             let
                 newActiveGameState : ActiveGameState
                 newActiveGameState =
-                    Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedMidRoundState
+                    Moving MainLoop.noLeftoverFrameTime Tick.genesis plannedRound
 
                 whatToDraw : WhatToDraw
                 whatToDraw =
-                    drawSpawnsPermanently plannedMidRoundState.kurves.alive
+                    drawSpawnsPermanently plannedRound.kurves.alive
             in
             ( { model | appState = InGame <| Active (Replay overlayState finishedRound) NotPaused newActiveGameState }
             , DrawSomething whatToDraw
             )
 
-        Moving _ lastTick midRoundState ->
+        Moving _ lastTick round ->
             let
                 ( tickResult, whatToDraw ) =
                     MainLoop.consumeAnimationFrame
@@ -543,7 +543,7 @@ fastForwardReplay overlayState pausedOrNot activeGameState finishedRound ({ conf
                         (toFloat config.replay.skipStepInMs |> MainLoop.withFloatingPointRoundingErrorCompensation)
                         MainLoop.noLeftoverFrameTime
                         lastTick
-                        midRoundState
+                        round
             in
             ( { model | appState = InGame (tickResultToGameState (Replay overlayState finishedRound) pausedOrNot tickResult) }
             , maybeDrawSomething whatToDraw
@@ -659,7 +659,7 @@ handleUserInteraction direction button model =
     in
     { model
         | pressedButtons = newPressedButtons
-        , appState = modifyGameState (modifyMidRoundState howToModifyRound) model.appState
+        , appState = modifyGameState (modifyRound howToModifyRound) model.appState
     }
 
 

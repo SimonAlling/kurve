@@ -9,7 +9,7 @@ module Game exposing
     , getCurrentRound
     , getFinishedRound
     , isReplay
-    , modifyMidRoundState
+    , modifyRound
     , prepareLiveRound
     , prepareReplayRound
     , prepareRoundFromKnownInitialState
@@ -94,14 +94,14 @@ getFinishedRound liveOrReplay =
             finishedRound
 
 
-modifyMidRoundState : (Round -> Round) -> GameState -> GameState
-modifyMidRoundState f gameState =
+modifyRound : (Round -> Round) -> GameState -> GameState
+modifyRound f gameState =
     case gameState of
-        Active liveOrReplay p (Moving leftoverFrameTime t midRoundState) ->
-            Active liveOrReplay p <| Moving leftoverFrameTime t <| f midRoundState
+        Active liveOrReplay p (Moving leftoverFrameTime t round) ->
+            Active liveOrReplay p <| Moving leftoverFrameTime t <| f round
 
-        Active liveOrReplay p (Spawning s midRoundState) ->
-            Active liveOrReplay p <| Spawning s <| f midRoundState
+        Active liveOrReplay p (Spawning s round) ->
+            Active liveOrReplay p <| Spawning s <| f round
 
         _ ->
             gameState
@@ -224,8 +224,8 @@ reactToTick config tick currentRound =
 tickResultToGameState : LiveOrReplay () -> PausedOrNot -> TickResult ( LeftoverFrameTime, Tick, Round ) -> GameState
 tickResultToGameState liveOrReplay pausedOrNot tickResult =
     case tickResult of
-        RoundKeepsGoing ( leftoverFrameTime, tick, midRoundState ) ->
-            Active liveOrReplay pausedOrNot (Moving leftoverFrameTime tick midRoundState)
+        RoundKeepsGoing ( leftoverFrameTime, tick, round ) ->
+            Active liveOrReplay pausedOrNot (Moving leftoverFrameTime tick round)
 
         RoundEnds tickThatEndedIt finishedRound ->
             let
