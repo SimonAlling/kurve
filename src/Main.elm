@@ -337,7 +337,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                                             -- Users are probably mentally "in replay mode". They'll know that they've recently hidden the overlay themselves, and that it's still a replay.
                                             overlayState
                             in
-                            startRound (Replay newOverlayState finishedRound) model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
+                            startReplayFromBeginning newOverlayState finishedRound model
 
                         Key "Escape" ->
                             let
@@ -439,7 +439,7 @@ buttonUsed button ({ config, pressedButtons } as model) =
                     ( { model | appState = InGame (Active (Replay (Overlay.toggle overlayState) finishedRound) pausedOrNot s) }, DoNothing )
 
                 Key "KeyR" ->
-                    startRound (Replay overlayState finishedRound) model <| prepareReplayRound config.world (initialStateForReplaying finishedRound)
+                    startReplayFromBeginning overlayState finishedRound model
 
                 _ ->
                     ( handleUserInteraction Down button model, DoNothing )
@@ -486,6 +486,11 @@ proceedToNextRound finishedRound ({ config, pressedButtons } as model) =
 
     else
         startRound (Live ()) modelWithRecentResults <| prepareLiveRound config unpackedFinishedRound.seed (participating getHoleStatusById playersWithRecentResults) pressedButtons
+
+
+startReplayFromBeginning : Overlay.State -> FinishedRound -> Model -> ( Model, Effect )
+startReplayFromBeginning overlayState finishedRound model =
+    startRound (Replay overlayState finishedRound) model <| prepareReplayRound model.config.world (initialStateForReplaying finishedRound)
 
 
 stepOneTick : Overlay.State -> ActiveGameState -> FinishedRound -> Model -> ( Model, Effect )
@@ -549,7 +554,7 @@ rewindReplay : Overlay.State -> PausedOrNot -> ActiveGameState -> FinishedRound 
 rewindReplay overlayState pausedOrNot activeGameState finishedRound model =
     case activeGameState of
         Spawning _ _ ->
-            startRound (Replay overlayState finishedRound) model <| prepareReplayRound model.config.world (initialStateForReplaying finishedRound)
+            startReplayFromBeginning overlayState finishedRound model
 
         Moving _ lastTick _ ->
             let
