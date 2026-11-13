@@ -23,7 +23,7 @@ consumeAnimationFrame :
     -> Tick
     -> Round
     -> ( TickResult ( LeftoverFrameTime, Tick, Round ), Maybe WhatToDraw )
-consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick round =
+consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick midRoundState =
     let
         timeToConsume : FrameTime
         timeToConsume =
@@ -39,7 +39,7 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick round 
             -> Round
             -> DrawingAccumulator
             -> ( TickResult ( LeftoverFrameTime, Tick, Round ), DrawingAccumulator )
-        recurse timeLeftToConsume lastTickReactedTo roundSoFar drawingAccumulator =
+        recurse timeLeftToConsume lastTickReactedTo midRoundStateSoFar drawingAccumulator =
             if timeLeftToConsume >= timestep then
                 let
                     incrementedTick : Tick
@@ -47,15 +47,15 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick round 
                         Tick.succ lastTickReactedTo
 
                     ( tickResult, whatToDrawForThisTick ) =
-                        Game.reactToTick config incrementedTick roundSoFar
+                        Game.reactToTick config incrementedTick midRoundStateSoFar
 
                     newDrawingAccumulator : DrawingAccumulator
                     newDrawingAccumulator =
                         Drawing.accumulate drawingAccumulator whatToDrawForThisTick
                 in
                 case tickResult of
-                    RoundKeepsGoing newRound ->
-                        recurse (timeLeftToConsume - timestep) incrementedTick newRound newDrawingAccumulator
+                    RoundKeepsGoing newMidRoundState ->
+                        recurse (timeLeftToConsume - timestep) incrementedTick newMidRoundState newDrawingAccumulator
 
                     RoundEnds tickThatEndedIt finishedRound ->
                         ( RoundEnds tickThatEndedIt finishedRound
@@ -63,11 +63,11 @@ consumeAnimationFrame config delta leftoverTimeFromPreviousFrame lastTick round 
                         )
 
             else
-                ( RoundKeepsGoing ( timeLeftToConsume, lastTickReactedTo, roundSoFar )
+                ( RoundKeepsGoing ( timeLeftToConsume, lastTickReactedTo, midRoundStateSoFar )
                 , drawingAccumulator
                 )
     in
-    recurse timeToConsume lastTick round Drawing.initialize |> Tuple.mapSecond Drawing.finalize
+    recurse timeToConsume lastTick midRoundState Drawing.initialize |> Tuple.mapSecond Drawing.finalize
 
 
 noLeftoverFrameTime : LeftoverFrameTime
