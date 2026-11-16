@@ -92,15 +92,15 @@ generateKurves config players =
         numberOfPlayers =
             Dict.size players
 
-        generateNewAndPrepend : Maybe HoleStatus -> ( PlayerId, Player ) -> List Kurve -> Random.Generator (List Kurve)
-        generateNewAndPrepend maybeHoleStatus ( id, player ) precedingKurves =
+        generateNewAndAppend : Maybe HoleStatus -> ( PlayerId, Player ) -> List Kurve -> Random.Generator (List Kurve)
+        generateNewAndAppend maybeHoleStatus ( id, player ) precedingKurves =
             generateKurve config id numberOfPlayers (List.map (.state >> .position) precedingKurves) player maybeHoleStatus
-                |> Random.map (\kurve -> kurve :: precedingKurves)
+                |> Random.map (\kurve -> precedingKurves ++ [ kurve ])
     in
-    Dict.foldr
+    Dict.foldl
         (\id ( player, _, maybeHoleStatusFromPreviousRound ) precedingKurvesGenerator ->
             precedingKurvesGenerator
-                |> Random.andThen (generateNewAndPrepend maybeHoleStatusFromPreviousRound ( id, player ))
+                |> Random.andThen (generateNewAndAppend maybeHoleStatusFromPreviousRound ( id, player ))
         )
         (Random.constant [])
         players
