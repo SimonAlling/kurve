@@ -17,7 +17,7 @@ import Types.Kurve as Kurve exposing (Kurve)
 import Types.Player exposing (Player)
 import Types.PlayerId exposing (PlayerId)
 import Types.Radius as Radius
-import Util exposing (curry, isEven)
+import Util exposing (isEven)
 import World exposing (Position, distanceBetween)
 
 
@@ -98,7 +98,10 @@ generateKurves config players =
                 |> Random.map (\kurve -> kurve :: precedingKurves)
     in
     Dict.foldr
-        (\id ( player, _, maybeHoleStatusFromPreviousRound ) -> curry (Random.andThen << generateNewAndPrepend maybeHoleStatusFromPreviousRound) id player)
+        (\id ( player, _, maybeHoleStatusFromPreviousRound ) precedingKurvesGenerator ->
+            precedingKurvesGenerator
+                |> Random.andThen (generateNewAndPrepend maybeHoleStatusFromPreviousRound ( id, player ))
+        )
         (Random.constant [])
         players
 
