@@ -243,16 +243,19 @@ tickResultToGameState liveOrReplay pausedOrNot tickResult =
             RoundOver liveOrReplayWithFinishedRound pausedOrNot tickThatEndedIt Dialog.NotOpen
 
 
+type alias ResultOfCheckingOneKurve =
+    ( Kurves
+    , OccupiedPixels
+    , List ( Color, DrawingPosition )
+    )
+
+
 checkIndividualKurve :
     Config
     -> Tick
     -> Kurve
-    -> ( Kurves, OccupiedPixels, List ( Color, DrawingPosition ) )
-    ->
-        ( Kurves
-        , OccupiedPixels
-        , List ( Color, DrawingPosition )
-        )
+    -> ResultOfCheckingOneKurve
+    -> ResultOfCheckingOneKurve
 checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredDrawingPositions ) =
     let
         turningState : TurningState
