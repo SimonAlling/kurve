@@ -9,7 +9,7 @@ module Game exposing
     , getCurrentRound
     , getFinishedRound
     , isReplay
-    , modifyMidRoundState
+    , modifyRoundState
     , prepareLiveRound
     , prepareReplayRound
     , prepareRoundFromKnownInitialState
@@ -94,14 +94,14 @@ getFinishedRound liveOrReplay =
             finishedRound
 
 
-modifyMidRoundState : (Round -> Round) -> GameState -> GameState
-modifyMidRoundState f gameState =
+modifyRoundState : (Round -> Round) -> GameState -> GameState
+modifyRoundState f gameState =
     case gameState of
-        Active liveOrReplay p (Moving leftoverFrameTime t midRoundState) ->
-            Active liveOrReplay p <| Moving leftoverFrameTime t <| f midRoundState
+        Active liveOrReplay p (Moving leftoverFrameTime t roundState) ->
+            Active liveOrReplay p <| Moving leftoverFrameTime t <| f roundState
 
-        Active liveOrReplay p (Spawning s midRoundState) ->
-            Active liveOrReplay p <| Spawning s <| f midRoundState
+        Active liveOrReplay p (Spawning s roundState) ->
+            Active liveOrReplay p <| Spawning s <| f roundState
 
         _ ->
             gameState
@@ -189,7 +189,7 @@ reactToTick : Config -> Tick -> Round -> ( TickResult Round, WhatToDraw )
 reactToTick config tick currentRound =
     let
         ( newKurves, newOccupiedPixels, newColoredDrawingPositions ) =
-            List.foldr
+            List.foldl
                 (checkIndividualKurve config tick)
                 ( { alive = [] -- We start with the empty list because the new one we'll create may not include all the Kurves from the old one.
                   , dead = currentRound.kurves.dead -- Dead Kurves, however, will not spring to life again.
@@ -224,8 +224,8 @@ reactToTick config tick currentRound =
 tickResultToGameState : LiveOrReplay () -> PausedOrNot -> TickResult ( LeftoverFrameTime, Tick, Round ) -> GameState
 tickResultToGameState liveOrReplay pausedOrNot tickResult =
     case tickResult of
-        RoundKeepsGoing ( leftoverFrameTime, tick, midRoundState ) ->
-            Active liveOrReplay pausedOrNot (Moving leftoverFrameTime tick midRoundState)
+        RoundKeepsGoing ( leftoverFrameTime, tick, roundState ) ->
+            Active liveOrReplay pausedOrNot (Moving leftoverFrameTime tick roundState)
 
         RoundEnds tickThatEndedIt finishedRound ->
             let
@@ -271,7 +271,7 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
 
         coloredDrawingPositionsAfterCheckingThisKurve : List ( Color, DrawingPosition )
         coloredDrawingPositionsAfterCheckingThisKurve =
-            List.map (Tuple.pair kurve.color) newKurveDrawingPositions ++ coloredDrawingPositions
+            coloredDrawingPositions ++ List.map (Tuple.pair kurve.color) newKurveDrawingPositions
 
         kurvesAfterCheckingThisKurve : Kurves -> Kurves
         kurvesAfterCheckingThisKurve =
@@ -280,7 +280,7 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
                     modifyDead ((::) checkedKurve)
 
                 Lives ->
-                    modifyAlive ((::) checkedKurve)
+                    modifyAlive (\k -> k ++ [ checkedKurve ])
     in
     ( kurvesAfterCheckingThisKurve checkedKurves
     , occupiedPixelsAfterCheckingThisKurve

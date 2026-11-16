@@ -84,7 +84,7 @@ playOutRound : Config -> RoundInitialState -> ( Tick, FinishedRound )
 playOutRound config initialState =
     let
         recurse : Tick -> Round -> ( Tick, FinishedRound )
-        recurse lastTick midRoundState =
+        recurse lastTick roundState =
             let
                 incrementedTick : Tick
                 incrementedTick =
@@ -92,11 +92,11 @@ playOutRound config initialState =
 
                 tickResult : TickResult Round
                 tickResult =
-                    reactToTick config incrementedTick midRoundState |> Tuple.first
+                    reactToTick config incrementedTick roundState |> Tuple.first
             in
             case tickResult of
-                RoundKeepsGoing nextMidRoundState ->
-                    recurse incrementedTick nextMidRoundState
+                RoundKeepsGoing nextRoundState ->
+                    recurse incrementedTick nextRoundState
 
                 RoundEnds tickThatEndedIt actualRoundResult ->
                     ( tickThatEndedIt, actualRoundResult )

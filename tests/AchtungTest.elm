@@ -1,9 +1,14 @@
 module AchtungTest exposing (tests)
 
+import Dict exposing (Dict)
+import Expect
+import Fuzz
+import Round
 import Test exposing (Test, describe, test)
-import TestHelpers exposing (expectRoundOutcome)
-import TestScenarioHelpers exposing (roundWith, tickNumber)
+import TestHelpers exposing (expectRoundOutcome, playOutRound)
+import TestScenarioHelpers exposing (playerIds, roundWith, tickNumber)
 import TestScenarios.AroundTheWorld
+import TestScenarios.CrashInSameTick
 import TestScenarios.CrashIntoKurveTiming
 import TestScenarios.CrashIntoTailEnd90Degrees
 import TestScenarios.CrashIntoTipOfTailEnd
@@ -21,6 +26,8 @@ import TestScenarios.CuttingCornersPerfectOverpainting
 import TestScenarios.HoleSizeAndSpacing
 import TestScenarios.SpeedEffectOnGame
 import TestScenarios.StressTestRealisticTurtleSurvivalRound
+import Types.PlayerId exposing (PlayerId)
+import Types.Score exposing (Score(..))
 import Types.Speed as Speed exposing (Speed(..))
 
 
@@ -36,6 +43,7 @@ tests =
         , stressTests
         , holeTests
         , drawingTests
+        , playerOrderTests
         ]
 
 
@@ -263,4 +271,36 @@ holeTests =
                     |> expectRoundOutcome
                         TestScenarios.HoleSizeAndSpacing.config
                         TestScenarios.HoleSizeAndSpacing.expectedOutcome
+        ]
+
+
+playerOrderTests : Test
+playerOrderTests =
+    describe "Player-order tests"
+        [ Test.fuzz (Fuzz.uniformInt 10) "When players crash in the same tick, they die in player order (Red first, Blue last)" <|
+            \fuzzed ->
+                let
+                    y : Float
+                    y =
+                        460 + toFloat fuzzed
+
+                    ( _, finishedRound ) =
+                        roundWith (TestScenarios.CrashInSameTick.spawnedKurves y)
+                            |> playOutRound
+                                TestScenarios.CrashInSameTick.config
+
+                    actualScores : Dict PlayerId Score
+                    actualScores =
+                        finishedRound |> Round.unpackFinished |> Round.scores
+
+                    expectedScores : Dict PlayerId Score
+                    expectedScores =
+                        Dict.fromList
+                            [ ( playerIds.red, Score 0 )
+                            , ( playerIds.green, Score 1 )
+                            , ( playerIds.blue, Score 2 )
+                            ]
+                in
+                actualScores
+                    |> Expect.equalDicts expectedScores
         ]
