@@ -273,16 +273,16 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
         coloredDrawingPositionsAfterCheckingThisKurve =
             coloredDrawingPositions ++ List.map (Tuple.pair kurve.color) newKurveDrawingPositions
 
-        kurvesAfterCheckingThisKurve : Kurves -> Kurves
+        kurvesAfterCheckingThisKurve : Kurves
         kurvesAfterCheckingThisKurve =
             case fate of
                 Dies ->
-                    modifyDead ((::) checkedKurve)
+                    modifyDead ((::) checkedKurve) checkedKurves
 
                 Lives ->
-                    modifyAlive (\k -> k ++ [ checkedKurve ])
+                    modifyAlive (\k -> k ++ [ checkedKurve ]) checkedKurves
     in
-    ( kurvesAfterCheckingThisKurve checkedKurves
+    ( kurvesAfterCheckingThisKurve
     , occupiedPixelsAfterCheckingThisKurve
     , coloredDrawingPositionsAfterCheckingThisKurve
     )
