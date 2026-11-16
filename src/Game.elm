@@ -189,7 +189,7 @@ reactToTick : Config -> Tick -> Round -> ( TickResult Round, WhatToDraw )
 reactToTick config tick currentRound =
     let
         ( newKurves, newOccupiedPixels, newColoredDrawingPositions ) =
-            List.foldr
+            List.foldl
                 (checkIndividualKurve config tick)
                 ( { alive = [] -- We start with the empty list because the new one we'll create may not include all the Kurves from the old one.
                   , dead = currentRound.kurves.dead -- Dead Kurves, however, will not spring to life again.
@@ -271,7 +271,7 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
 
         coloredDrawingPositionsAfterCheckingThisKurve : List ( Color, DrawingPosition )
         coloredDrawingPositionsAfterCheckingThisKurve =
-            List.map (Tuple.pair kurve.color) newKurveDrawingPositions ++ coloredDrawingPositions
+            coloredDrawingPositions ++ List.map (Tuple.pair kurve.color) newKurveDrawingPositions
 
         kurvesAfterCheckingThisKurve : Kurves -> Kurves
         kurvesAfterCheckingThisKurve =
@@ -280,7 +280,7 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
                     modifyDead ((::) checkedKurve)
 
                 Lives ->
-                    modifyAlive ((::) checkedKurve)
+                    modifyAlive (\k -> k ++ [ checkedKurve ])
     in
     ( kurvesAfterCheckingThisKurve checkedKurves
     , occupiedPixelsAfterCheckingThisKurve
