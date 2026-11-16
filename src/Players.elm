@@ -88,7 +88,12 @@ noExtraData =
 -}
 includeResultsFrom : Round -> AllPlayers -> AllPlayers
 includeResultsFrom round =
-    Dict.map (\id -> Tuple.mapSecond (Dict.get id (Round.scores round) |> combineScores))
+    let
+        updateScoreIfParticipating : PlayerId -> PlayerStatus -> PlayerStatus
+        updateScoreIfParticipating id status =
+            combineScores (Dict.get id (Round.scores round)) status
+    in
+    Dict.map (\id -> Tuple.mapSecond (updateScoreIfParticipating id))
 
 
 combineScores : Maybe Score -> PlayerStatus -> PlayerStatus
