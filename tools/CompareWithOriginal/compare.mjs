@@ -25,8 +25,6 @@ Options:
   --holes on|off      (default: on)
   --float-model M     "float" (like the original) or "double" (like the clone) for positions and directions in the original (default: float)
   --max-ticks N       After this many ticks, bots stop steering (default: 20000)
-  --what-if-original-order
-                      Make the clone process the Kurves in the same order as the original (Red first) instead of Blue first
   --verbose           Show details about every divergence
   --json FILE         Also write all results as JSON to FILE
   --no-build          Don't (re)build anything
@@ -43,7 +41,6 @@ async function main() {
             holes: { type: "string", default: "on" },
             "float-model": { type: "string", default: "float" },
             "max-ticks": { type: "string", default: "20000" },
-            "what-if-original-order": { type: "boolean", default: false },
             verbose: { type: "boolean", default: false },
             json: { type: "string" },
             "no-build": { type: "boolean", default: false },
@@ -77,7 +74,7 @@ async function main() {
     requireBuilt(cloneSimulationJs);
     const { Elm } = createRequire(import.meta.url)(cloneSimulationJs);
 
-    const cloneOptions = { holes, whatIfOriginalOrder: options["what-if-original-order"] };
+    const cloneOptions = { holes };
     const results = [];
     for (const seed of seeds) {
         const botSeed = options["bot-seed"] ?? String(seed);
@@ -121,12 +118,11 @@ function buildCloneSimulation() {
 /**
  * Translates what happened in the original game into a scenario for the clone.
  */
-function cloneScenarioFrom(round, { holes, whatIfOriginalOrder }, dumpTicks = []) {
+function cloneScenarioFrom(round, { holes }, dumpTicks = []) {
     const { start, ticks } = round;
     return {
         maxTicks: ticks.length + 10,
         dumpTicks,
-        whatIfOriginalOrder,
         kurves: start.players.map((player, i) => ({
             id: player.id,
             x: player.x,

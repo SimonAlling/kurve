@@ -79,7 +79,6 @@ With `--verbose`, the surroundings of the first difference are printed for both 
 Options for isolating differences:
 
   * `--float-model double`: makes the original use double precision (like the clone) for positions and directions.
-  * `--what-if-original-order`: makes the clone process the Kurves in the same order as the original.
   * `--holes off`: no holes in either game.
 
 ## Validation against DOSBox
@@ -94,14 +93,13 @@ Result: with 5 players, 19 rounds and ~5000 ticks with buttons held, all **16,07
 
 Each section has an explicit anchor that doesn't depend on its heading. Code that handles a finding refers to it as `README.md#<anchor>`, so `git grep <anchor>` finds both the explanation and the code.
 
-Rounds diverge mostly because of **float32 vs double**. With that taken out of the equation, **processing order** explains almost everything else.
+Rounds diverge mostly because of **float32 vs double**.
 
 | Configuration                                       | Rounds | Identical | Equivalent | Diverged / different                                                                                                              |
 |-----------------------------------------------------|-------:|----------:|-----------:|-----------------------------------------------------------------------------------------------------------------------------------|
-| 6 players (`--seeds 1-100 --rounds 2`)              |    200 |         1 |          0 | 199: 185 `differentPosition`, 11 `diesOnlyInClone`, 3 `diesOnlyInOriginal`                                                        |
-| 2 players (`--players red,yellow`, same seeds)      |    200 |        20 |         32 | 148: 147 `differentPosition`, 1 `diesOnlyInClone`                                                                                 |
-| 6 players, `--float-model double` (seeds 1–150)     |    300 |       124 |        138 | 38: 29 `diesOnlyInClone`, 8 `diesOnlyInOriginal`, 1 `differentSurvivors`                                                          |
-| … and `--what-if-original-order`                    |    300 |       136 |        160 | 4: 2 `diesOnlyInOriginal` ([holy heads](#holy-heads)), 1 `differentSurvivors` ([round end](#round-ends-mid-tick)), 1 `differentCanvas` ([erased pixel](#holy-kurve-erases-pixels)) |
+| 6 players (`--seeds 1-100 --rounds 2`)              |    200 |         1 |          0 | 199: 196 `differentPosition`, 1 `diesOnlyInClone`, 2 `diesOnlyInOriginal`                                                         |
+| 2 players (`--players red,yellow`, same seeds)      |    200 |        20 |         33 | 147: 147 `differentPosition`                                                                                                      |
+| 6 players, `--float-model double` (seeds 1–150)     |    300 |       136 |        160 | 4: 2 `diesOnlyInOriginal`, 1 `differentSurvivors`, 1 `differentCanvas`                                                            |
 
 <a id="float32-precision"></a>
 ### Positions and directions are float32 in the original
@@ -117,19 +115,6 @@ npm run compare-with-original -- --players red,yellow --seeds 2 --rounds 2 --ver
 
 Making the clone round to float32 after every update of position and direction would fix this (see [Fixing float32 in the clone](#fixing-float32)).
 
-<a id="processing-order"></a>
-### The clone processes the Kurves in reverse order
-
-In each tick, the original moves Red first and Blue last.
-The clone's `reactToTick` uses `List.foldr` over the (ID-sorted) alive Kurves, so it moves **Blue first and Red last**.
-This decides who survives when two Kurves move into the same pixels in the same tick: in the original, the _later_ Kurve dies, because the earlier one has already been drawn.
-In the 300 rounds above, this caused 35 of 37 death-related divergences.
-
-```bash
-npm run compare-with-original -- --players red,yellow --seeds 25 --float-model double --verbose  # Red dies only in the clone
-npm run compare-with-original -- --players red,yellow --seeds 25 --float-model double --what-if-original-order
-```
-
 <a id="holy-heads"></a>
 ### Holy heads are obstacles in the original
 
@@ -138,7 +123,7 @@ Since collision detection is `getpixel`, **you can crash into the head of a holy
 In the clone, a holy Kurve occupies nothing.
 
 ```bash
-npm run compare-with-original -- --seeds 10 --rounds 2 --float-model double --what-if-original-order --verbose  # Blue crashes into holy Orange
+npm run compare-with-original -- --seeds 10 --rounds 2 --float-model double --verbose  # Blue crashes into holy Orange
 ```
 
 (At the end of a round, a holy head is also left on screen in the original. That's counted as `equivalent`.)
@@ -164,7 +149,7 @@ In a hole, the original saves the 3×3 background before drawing the head, and p
 If another Kurve paints there in between, that paint is erased when the background is restored.
 
 ```bash
-npm run compare-with-original -- --seeds 123 --rounds 2 --float-model double --what-if-original-order --verbose  # Orange erases a Pink pixel
+npm run compare-with-original -- --seeds 123 --rounds 2 --float-model double --verbose  # Orange erases a Pink pixel
 ```
 
 <a id="stale-spawn-background"></a>
