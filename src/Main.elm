@@ -54,7 +54,7 @@ import Players
         , participating
         )
 import Random
-import Round exposing (FinishedRound, Round, initialStateForReplaying, modifyKurves)
+import Round exposing (FinishedRound, Round, initialStateForReplaying, mapAliveKurves)
 import Set exposing (Set)
 import Settings exposing (SettingId(..), Settings)
 import Spawn exposing (flickerFrequencyToTicksPerSecond, makeSpawnState, stepSpawnState)
@@ -655,7 +655,7 @@ handleUserInteraction direction button model =
 
         recordInteractionBefore : Tick -> Round -> Round
         recordInteractionBefore tick =
-            modifyKurves <| \kurves -> { kurves | alive = List.map (recordUserInteraction newPressedButtons tick) kurves.alive }
+            mapAliveKurves (recordUserInteraction newPressedButtons tick)
     in
     { model
         | pressedButtons = newPressedButtons

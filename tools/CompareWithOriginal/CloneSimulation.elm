@@ -166,8 +166,8 @@ playOut scenario =
 
                 roundWithForcedHoles : Round
                 roundWithForcedHoles =
-                    Round.modifyKurves
-                        (\kurves -> { kurves | alive = kurves.alive |> List.map (forceHoleStatus solidities (Tick.toInt tick)) })
+                    Round.mapAliveKurves
+                        (forceHoleStatus solidities (Tick.toInt tick))
                         round
             in
             case reactToTick config tick roundWithForcedHoles |> Tuple.first of
