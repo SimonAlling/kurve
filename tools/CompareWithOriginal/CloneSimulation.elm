@@ -53,7 +53,6 @@ type alias Scenario =
     { kurves : List KurveScenario
     , maxTicks : Int
     , dumpTicks : List Int -- after which ticks (0 = at spawn) to output the occupied pixels
-    , whatIfOriginalOrder : Bool -- process Kurves in the same order as the original (Red first) instead of the clone's order (Blue first); see README.md#processing-order
     }
 
 
@@ -94,11 +93,10 @@ solidityDecoder =
 
 scenarioDecoder : Decoder Scenario
 scenarioDecoder =
-    Decode.map4 Scenario
+    Decode.map3 Scenario
         (Decode.field "kurves" (Decode.list kurveScenarioDecoder))
         (Decode.field "maxTicks" Decode.int)
         (Decode.field "dumpTicks" (Decode.list Decode.int))
-        (Decode.field "whatIfOriginalOrder" Decode.bool)
 
 
 kurveScenarioDecoder : Decoder KurveScenario
@@ -166,19 +164,10 @@ playOut scenario =
                 tick =
                     Tick.succ lastTick
 
-                order : List Kurve -> List Kurve
-                order =
-                    if scenario.whatIfOriginalOrder then
-                        -- reactToTick processes the Kurves from last to first.
-                        List.sortBy (.id >> negate)
-
-                    else
-                        identity
-
                 roundWithForcedHoles : Round
                 roundWithForcedHoles =
                     Round.modifyKurves
-                        (\kurves -> { kurves | alive = kurves.alive |> List.map (forceHoleStatus solidities (Tick.toInt tick)) |> order })
+                        (\kurves -> { kurves | alive = kurves.alive |> List.map (forceHoleStatus solidities (Tick.toInt tick)) })
                         round
             in
             case reactToTick config tick roundWithForcedHoles |> Tuple.first of
