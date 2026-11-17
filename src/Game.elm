@@ -29,7 +29,7 @@ import Input exposing (Button)
 import Overlay
 import Players exposing (ParticipatingPlayers)
 import Random
-import Round exposing (FinishedRound(..), Kurves, Round, RoundInitialState, modifyAlive, modifyDead, roundIsOver)
+import Round exposing (FinishedRound(..), Kurves, Round, RoundInitialState, roundIsOver)
 import Set exposing (Set)
 import Spawn exposing (SpawnState, generateKurves)
 import Thickness exposing (theThickness)
@@ -280,10 +280,10 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
         kurvesAfterCheckingThisKurve =
             case fate of
                 Dies ->
-                    modifyDead ((::) checkedKurve) checkedKurves
+                    { checkedKurves | dead = checkedKurve :: checkedKurves.dead }
 
                 Lives ->
-                    modifyAlive (\k -> k ++ [ checkedKurve ]) checkedKurves
+                    { checkedKurves | alive = checkedKurves.alive ++ [ checkedKurve ] }
     in
     ( kurvesAfterCheckingThisKurve
     , occupiedPixelsAfterCheckingThisKurve
