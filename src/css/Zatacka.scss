@@ -199,13 +199,13 @@ $minWidthForCenteredCanvas: (
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    opacity: 0.5;
 }
 
 .textInUpperLeftCorner {
     position: absolute;
     top: 16px;
     left: 16px;
+    opacity: 0.5;
 }
 
 .largeDigit {
@@ -411,12 +411,32 @@ button.buttony-button {
 .hint {
     position: absolute;
     bottom: 16px;
+
+    .hintText {
+        opacity: 0.5;
+    }
+
+    button.dismissHint {
+        width: 8px;
+        height: 8px;
+        background-image: url("../resources/cross-small.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        border: none;
+        margin-left: 8px;
+        opacity: 0.5;
+
+        &:hover, &:focus {
+            opacity: 0.8;
+        }
+    }
 }
 
 .replayNavigation {
     position: absolute;
     bottom: 16px;
     left: 16px;
+    opacity: 0.5;
 
     p:not(:last-child) {
         margin-bottom: 8px;
