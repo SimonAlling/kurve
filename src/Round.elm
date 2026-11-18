@@ -3,18 +3,19 @@ module Round exposing
     , Kurves
     , Round
     , RoundInitialState
+    , initScores
     , initialStateForReplaying
     , mapAliveKurves
     , roundIsOver
-    , scores
     , unpackFinished
+    , updateScores
     )
 
 import Dict exposing (Dict)
 import Random
 import Types.Kurve as Kurve exposing (Kurve)
 import Types.PlayerId exposing (PlayerId)
-import Types.Score exposing (Score(..))
+import Types.Score as Score exposing (Score(..))
 import World exposing (OccupiedPixels)
 
 
@@ -37,6 +38,7 @@ unpackFinished (Finished round) =
 type alias Kurves =
     { alive : List Kurve
     , dead : List Kurve
+    , roundScores : Dict PlayerId Score
     }
 
 
@@ -79,20 +81,29 @@ initialStateForReplaying (Finished round) =
     { initialState | spawnedKurves = theKurves |> List.map Kurve.reset |> sortKurves }
 
 
-scores : Round -> Dict PlayerId Score
-scores { kurves } =
-    let
-        scoresOfDead : List ( Score, Kurve )
-        scoresOfDead =
-            List.indexedMap (Score >> Tuple.pair) (List.reverse kurves.dead)
-
-        scoresOfAlive : List ( Score, Kurve )
-        scoresOfAlive =
-            List.map (Tuple.pair (Score <| List.length kurves.dead)) kurves.alive
-    in
-    scoresOfDead ++ scoresOfAlive |> List.foldl (\( score, kurve ) -> Dict.insert kurve.id score) Dict.empty
-
-
 sortKurves : List Kurve -> List Kurve
 sortKurves =
     List.sortBy .id
+
+
+initScores : List Kurve -> Dict PlayerId Score
+initScores spawnedKurves =
+    List.foldl (\kurve scores -> Dict.insert kurve.id (Score 0) scores) Dict.empty spawnedKurves
+
+
+updateScores : List Kurve -> Dict PlayerId Score -> Dict PlayerId Score
+updateScores deadIncludingWhoJustDied roundScores =
+    let
+        deadIds : List PlayerId
+        deadIds =
+            List.map .id deadIncludingWhoJustDied
+
+        awardPointIfStillAlive : PlayerId -> Score -> Score
+        awardPointIfStillAlive id score =
+            if List.member id deadIds then
+                score
+
+            else
+                Score.increment score
+    in
+    roundScores |> Dict.map awardPointIfStillAlive

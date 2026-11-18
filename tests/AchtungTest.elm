@@ -291,7 +291,7 @@ playerOrderTests =
 
                     actualScores : Dict PlayerId Score
                     actualScores =
-                        finishedRound |> Round.unpackFinished |> Round.scores
+                        (finishedRound |> Round.unpackFinished).kurves.roundScores
 
                     expectedScores : Dict PlayerId Score
                     expectedScores =
