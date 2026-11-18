@@ -67,6 +67,11 @@ makeSettingsEntries config =
       , settingDescription = "Make it easier to control players whose default controls are tricky to use in some way, or not present on all keyboards."
       , currentValue = config.enableAlternativeControls
       }
+    , { settingId = PixelatedGraphics
+      , settingLabel = "Pixelated graphics"
+      , settingDescription = "Make graphics crisp and pixelated instead of smooth and blurry. Works best when both OS scaling and browser zoom level are a multiple of 100%."
+      , currentValue = config.pixelatedGraphics
+      }
     ]
 
 
@@ -135,3 +140,6 @@ idFor settingId =
 
         EnableAlternativeControls ->
             "enable-alternative-controls"
+
+        PixelatedGraphics ->
+            "pixelated-graphics"

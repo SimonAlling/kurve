@@ -8,12 +8,14 @@ type SettingId
     = SpawnProtection
     | PersistHoleStatus
     | EnableAlternativeControls
+    | PixelatedGraphics
 
 
 type alias Settings =
     { spawnkillProtection : Bool
     , persistHoleStatus : Bool
     , enableAlternativeControls : Bool
+    , pixelatedGraphics : Bool
     }
 
 
@@ -22,6 +24,7 @@ default =
     { spawnkillProtection = True
     , persistHoleStatus = False
     , enableAlternativeControls = True
+    , pixelatedGraphics = True
     }
 
 
@@ -30,6 +33,7 @@ trueOriginalExperience =
     { spawnkillProtection = False
     , persistHoleStatus = True
     , enableAlternativeControls = False
+    , pixelatedGraphics = True
     }
 
 
@@ -51,11 +55,12 @@ stringify settings =
 
 settingsDecoder : Decoder Settings
 settingsDecoder =
-    Decode.map3
+    Decode.map4
         Settings
         (Decode.maybe (Decode.field "spawnkillProtectionSetting" Decode.bool) |> Decode.map (Maybe.withDefault default.spawnkillProtection))
         (Decode.maybe (Decode.field "persistHoleStatusSetting" Decode.bool) |> Decode.map (Maybe.withDefault default.persistHoleStatus))
         (Decode.maybe (Decode.field "enableAlternativeControlsSetting" Decode.bool) |> Decode.map (Maybe.withDefault default.enableAlternativeControls))
+        (Decode.maybe (Decode.field "pixelatedGraphicsSetting" Decode.bool) |> Decode.map (Maybe.withDefault default.pixelatedGraphics))
 
 
 settingsEncoder : Settings -> Encode.Value
@@ -64,4 +69,5 @@ settingsEncoder settings =
         [ ( "spawnkillProtectionSetting", Encode.bool settings.spawnkillProtection )
         , ( "persistHoleStatusSetting", Encode.bool settings.persistHoleStatus )
         , ( "enableAlternativeControlsSetting", Encode.bool settings.enableAlternativeControls )
+        , ( "pixelatedGraphicsSetting", Encode.bool settings.pixelatedGraphics )
         ]

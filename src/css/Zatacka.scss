@@ -5,7 +5,14 @@ $nativeHeight: 480px;
     margin: 0;
     padding: 0;
     font-family: "Consolas", monospace;
+}
+
+.pixelated-graphics * {
     image-rendering: pixelated;
+}
+
+.blurry-graphics * {
+    image-rendering: auto;
 }
 
 html,
