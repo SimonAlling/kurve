@@ -4,9 +4,7 @@ module Round exposing
     , Round
     , RoundInitialState
     , initialStateForReplaying
-    , modifyAlive
-    , modifyDead
-    , modifyKurves
+    , mapAliveKurves
     , roundIsOver
     , scores
     , unpackFinished
@@ -48,19 +46,9 @@ type alias RoundInitialState =
     }
 
 
-modifyKurves : (Kurves -> Kurves) -> Round -> Round
-modifyKurves f round =
-    { round | kurves = f round.kurves }
-
-
-modifyAlive : (List Kurve -> List Kurve) -> Kurves -> Kurves
-modifyAlive f kurves =
-    { kurves | alive = f kurves.alive }
-
-
-modifyDead : (List Kurve -> List Kurve) -> Kurves -> Kurves
-modifyDead f kurves =
-    { kurves | dead = f kurves.dead }
+mapAliveKurves : (Kurve -> Kurve) -> Round -> Round
+mapAliveKurves f ({ kurves } as round) =
+    { round | kurves = { kurves | alive = List.map f kurves.alive } }
 
 
 roundIsOver : Kurves -> Bool
