@@ -47,12 +47,7 @@ type alias RoundInitialState =
 
 
 mapAliveKurves : (Kurve -> Kurve) -> Round -> Round
-mapAliveKurves f round =
-    let
-        kurves : Kurves
-        kurves =
-            round.kurves
-    in
+mapAliveKurves f ({ kurves } as round) =
     { round | kurves = { kurves | alive = List.map f kurves.alive } }
 
 
