@@ -165,7 +165,11 @@ prepareRoundFromKnownInitialState worldConfig initialState =
 
         round : Round
         round =
-            { kurves = { alive = theKurves, dead = [] }
+            { kurves =
+                { alive = theKurves
+                , dead = []
+                , roundScores = Round.initScores theKurves
+                }
             , occupiedPixels = initialOccupiedPixels worldConfig theKurves
             , initialState = initialState
             }
@@ -193,6 +197,7 @@ reactToTick config tick currentRound =
                 (checkIndividualKurve config tick)
                 ( { alive = [] -- We start with the empty list because the new one we'll create may not include all the Kurves from the old one.
                   , dead = currentRound.kurves.dead -- Dead Kurves, however, will not spring to life again.
+                  , roundScores = currentRound.kurves.roundScores
                   }
                 , currentRound.occupiedPixels
                 , []
@@ -280,10 +285,20 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
         kurvesAfterCheckingThisKurve =
             case fate of
                 Dies ->
-                    { checkedKurves | dead = checkedKurve :: checkedKurves.dead }
+                    let
+                        deadAfterCheckingThisKurve : List Kurve
+                        deadAfterCheckingThisKurve =
+                            checkedKurve :: checkedKurves.dead
+                    in
+                    { checkedKurves
+                        | dead = deadAfterCheckingThisKurve
+                        , roundScores = Round.updateScores deadAfterCheckingThisKurve checkedKurves.roundScores
+                    }
 
                 Lives ->
-                    { checkedKurves | alive = checkedKurves.alive ++ [ checkedKurve ] }
+                    { checkedKurves
+                        | alive = checkedKurves.alive ++ [ checkedKurve ]
+                    }
     in
     ( kurvesAfterCheckingThisKurve
     , occupiedPixelsAfterCheckingThisKurve

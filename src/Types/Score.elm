@@ -1,5 +1,6 @@
 module Types.Score exposing
     ( Score(..)
+    , increment
     , isAtLeast
     )
 
@@ -11,3 +12,8 @@ type Score
 isAtLeast : Score -> Score -> Bool
 isAtLeast (Score threshold) (Score s) =
     s >= threshold
+
+
+increment : Score -> Score
+increment (Score s) =
+    Score (s + 1)

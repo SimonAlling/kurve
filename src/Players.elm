@@ -91,7 +91,7 @@ includeResultsFrom round =
     let
         updateScoreIfParticipating : PlayerId -> PlayerStatus -> PlayerStatus
         updateScoreIfParticipating id status =
-            combineScores (Dict.get id (Round.scores round)) status
+            combineScores (Dict.get id round.kurves.roundScores) status
     in
     Dict.map (\id -> Tuple.mapSecond (updateScoreIfParticipating id))
 
