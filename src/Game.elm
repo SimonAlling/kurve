@@ -261,7 +261,7 @@ checkIndividualKurve :
     -> Kurve
     -> ResultOfCheckingOneKurve
     -> ResultOfCheckingOneKurve
-checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredDrawingPositions ) =
+checkIndividualKurve config tick kurve ( kurves, occupiedPixels, coloredDrawingPositions ) =
     let
         turningState : TurningState
         turningState =
@@ -288,16 +288,16 @@ checkIndividualKurve config tick kurve ( checkedKurves, occupiedPixels, coloredD
                     let
                         deadAfterCheckingThisKurve : List Kurve
                         deadAfterCheckingThisKurve =
-                            checkedKurve :: checkedKurves.dead
+                            checkedKurve :: kurves.dead
                     in
-                    { checkedKurves
+                    { kurves
                         | dead = deadAfterCheckingThisKurve
-                        , roundScores = Round.updateScores deadAfterCheckingThisKurve checkedKurves.roundScores
+                        , roundScores = Round.updateScores deadAfterCheckingThisKurve kurves.roundScores
                     }
 
                 Lives ->
-                    { checkedKurves
-                        | alive = checkedKurves.alive ++ [ checkedKurve ]
+                    { kurves
+                        | alive = kurves.alive ++ [ checkedKurve ]
                     }
     in
     ( kurvesAfterCheckingThisKurve
