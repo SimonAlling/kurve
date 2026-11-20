@@ -193,15 +193,21 @@ reactToTick : Config -> Tick -> Round -> ( TickResult Round, WhatToDraw )
 reactToTick config tick currentRound =
     let
         ( newKurves, newOccupiedPixels, newColoredDrawingPositions ) =
+            ( checkResult.kurves, checkResult.occupiedPixels, checkResult.coloredDrawingPositions )
+
+        checkResult : ResultOfCheckingOneKurve
+        -- Type name is slightly awkward; here it's the result of checking _all_ of them.
+        checkResult =
             List.foldl
                 (checkIndividualKurve config tick)
-                ( { alive = [] -- We start with the empty list because the new one we'll create may not include all the Kurves from the old one.
-                  , dead = currentRound.kurves.dead -- Dead Kurves, however, will not spring to life again.
-                  , roundScores = currentRound.kurves.roundScores
-                  }
-                , currentRound.occupiedPixels
-                , []
-                )
+                { kurves =
+                    { alive = [] -- We start with the empty list because the new one we'll create may not include all the Kurves from the old one.
+                    , dead = currentRound.kurves.dead -- Dead Kurves, however, will not spring to life again.
+                    , roundScores = currentRound.kurves.roundScores
+                    }
+                , occupiedPixels = currentRound.occupiedPixels
+                , coloredDrawingPositions = []
+                }
                 currentRound.kurves.alive
 
         newCurrentRound : Round
@@ -249,10 +255,10 @@ tickResultToGameState liveOrReplay pausedOrNot tickResult =
 
 
 type alias ResultOfCheckingOneKurve =
-    ( Kurves
-    , OccupiedPixels
-    , List ( Color, DrawingPosition )
-    )
+    { kurves : Kurves
+    , occupiedPixels : OccupiedPixels
+    , coloredDrawingPositions : List ( Color, DrawingPosition )
+    }
 
 
 checkIndividualKurve :
@@ -261,7 +267,7 @@ checkIndividualKurve :
     -> Kurve
     -> ResultOfCheckingOneKurve
     -> ResultOfCheckingOneKurve
-checkIndividualKurve config tick kurve ( kurves, occupiedPixels, coloredDrawingPositions ) =
+checkIndividualKurve config tick kurve { kurves, occupiedPixels, coloredDrawingPositions } =
     let
         turningState : TurningState
         turningState =
@@ -300,10 +306,10 @@ checkIndividualKurve config tick kurve ( kurves, occupiedPixels, coloredDrawingP
                         | alive = kurves.alive ++ [ checkedKurve ]
                     }
     in
-    ( kurvesAfterCheckingThisKurve
-    , occupiedPixelsAfterCheckingThisKurve
-    , coloredDrawingPositionsAfterCheckingThisKurve
-    )
+    { kurves = kurvesAfterCheckingThisKurve
+    , occupiedPixels = occupiedPixelsAfterCheckingThisKurve
+    , coloredDrawingPositions = coloredDrawingPositionsAfterCheckingThisKurve
+    }
 
 
 type alias HolinessTransition =
