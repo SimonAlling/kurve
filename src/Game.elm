@@ -192,9 +192,6 @@ initialOccupiedPixels worldConfig =
 reactToTick : Config -> Tick -> Round -> ( TickResult Round, WhatToDraw )
 reactToTick config tick currentRound =
     let
-        ( newKurves, newOccupiedPixels, newColoredDrawingPositions ) =
-            ( checkResult.kurves, checkResult.occupiedPixels, checkResult.coloredDrawingPositions )
-
         checkResult : ResultOfCheckingOneKurve
         -- Type name is slightly awkward; here it's the result of checking _all_ of them.
         checkResult =
@@ -212,22 +209,22 @@ reactToTick config tick currentRound =
 
         newCurrentRound : Round
         newCurrentRound =
-            { kurves = newKurves
-            , occupiedPixels = newOccupiedPixels
+            { kurves = checkResult.kurves
+            , occupiedPixels = checkResult.occupiedPixels
             , initialState = currentRound.initialState
             }
 
         tickResult : TickResult Round
         tickResult =
-            if roundIsOver newKurves then
+            if roundIsOver checkResult.kurves then
                 RoundEnds tick (Finished newCurrentRound)
 
             else
                 RoundKeepsGoing newCurrentRound
     in
     ( tickResult
-    , { headDrawing = newKurves.alive |> List.map getColorAndDrawingPosition
-      , bodyDrawing = newColoredDrawingPositions
+    , { headDrawing = checkResult.kurves.alive |> List.map getColorAndDrawingPosition
+      , bodyDrawing = checkResult.coloredDrawingPositions
       }
     )
 
