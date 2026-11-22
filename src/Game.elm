@@ -22,6 +22,7 @@ module Game exposing
 import Color exposing (Color)
 import Config exposing (Config, WorldConfig)
 import Dialog
+import Dict exposing (Dict)
 import Drawing exposing (WhatToDraw, getColorAndDrawingPosition)
 import Events exposing (Prevention(..))
 import Holes exposing (HoleStatus, Holiness(..), getHoliness, updateHoleStatus)
@@ -37,6 +38,8 @@ import Turning exposing (computeAngleChange, computeTurningState, turningStateFr
 import Types.Angle as Angle exposing (Angle)
 import Types.FrameTime exposing (LeftoverFrameTime)
 import Types.Kurve as Kurve exposing (Fate(..), Kurve, UserInteraction(..), modifyReversedInteractions)
+import Types.PlayerId exposing (PlayerId)
+import Types.Score exposing (Score)
 import Types.Speed as Speed
 import Types.Tick as Tick exposing (Tick)
 import Types.Tickrate as Tickrate
@@ -168,8 +171,8 @@ prepareRoundFromKnownInitialState worldConfig initialState =
             { kurves =
                 { alive = theKurves
                 , dead = []
-                , roundScores = Round.initScores theKurves
                 }
+            , roundScores = Round.initScores theKurves
             , occupiedPixels = initialOccupiedPixels worldConfig theKurves
             , initialState = initialState
             }
@@ -203,8 +206,8 @@ reactToTick config tick currentRound =
                 { kurves =
                     { alive = [] -- We start with the empty list because the new one we'll create may not include all the Kurves from the old one.
                     , dead = currentRound.kurves.dead -- Dead Kurves, however, will not spring to life again.
-                    , roundScores = currentRound.kurves.roundScores
                     }
+                , roundScores = currentRound.roundScores
                 , occupiedPixels = currentRound.occupiedPixels
                 , coloredDrawingPositions = []
                 }
@@ -213,6 +216,7 @@ reactToTick config tick currentRound =
         newCurrentRound : Round
         newCurrentRound =
             { kurves = newKurves
+            , roundScores = checkResult.roundScores
             , occupiedPixels = newOccupiedPixels
             , initialState = currentRound.initialState
             }
@@ -256,6 +260,7 @@ tickResultToGameState liveOrReplay pausedOrNot tickResult =
 
 type alias ResultOfCheckingOneKurve =
     { kurves : Kurves
+    , roundScores : Dict PlayerId Score
     , occupiedPixels : OccupiedPixels
     , coloredDrawingPositions : List ( Color, DrawingPosition )
     }
@@ -267,7 +272,7 @@ checkIndividualKurve :
     -> Kurve
     -> ResultOfCheckingOneKurve
     -> ResultOfCheckingOneKurve
-checkIndividualKurve config tick kurve { kurves, occupiedPixels, coloredDrawingPositions } =
+checkIndividualKurve config tick kurve { kurves, roundScores, occupiedPixels, coloredDrawingPositions } =
     let
         turningState : TurningState
         turningState =
@@ -287,8 +292,7 @@ checkIndividualKurve config tick kurve { kurves, occupiedPixels, coloredDrawingP
         coloredDrawingPositionsAfterCheckingThisKurve =
             coloredDrawingPositions ++ List.map (Tuple.pair kurve.color) newKurveDrawingPositions
 
-        kurvesAfterCheckingThisKurve : Kurves
-        kurvesAfterCheckingThisKurve =
+        ( kurvesAfterCheckingThisKurve, roundScoresAfterCheckingThisKurve ) =
             case fate of
                 Dies ->
                     let
@@ -296,17 +300,21 @@ checkIndividualKurve config tick kurve { kurves, occupiedPixels, coloredDrawingP
                         deadAfterCheckingThisKurve =
                             checkedKurve :: kurves.dead
                     in
-                    { kurves
+                    ( { kurves
                         | dead = deadAfterCheckingThisKurve
-                        , roundScores = Round.updateScores deadAfterCheckingThisKurve kurves.roundScores
-                    }
+                      }
+                    , Round.updateScores deadAfterCheckingThisKurve roundScores
+                    )
 
                 Lives ->
-                    { kurves
+                    ( { kurves
                         | alive = kurves.alive ++ [ checkedKurve ]
-                    }
+                      }
+                    , roundScores
+                    )
     in
     { kurves = kurvesAfterCheckingThisKurve
+    , roundScores = roundScoresAfterCheckingThisKurve
     , occupiedPixels = occupiedPixelsAfterCheckingThisKurve
     , coloredDrawingPositions = coloredDrawingPositionsAfterCheckingThisKurve
     }
