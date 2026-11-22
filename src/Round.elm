@@ -21,6 +21,7 @@ import World exposing (OccupiedPixels)
 
 type alias Round =
     { kurves : Kurves
+    , roundScores : Dict PlayerId Score
     , occupiedPixels : OccupiedPixels
     , initialState : RoundInitialState
     }
@@ -38,7 +39,6 @@ unpackFinished (Finished round) =
 type alias Kurves =
     { alive : List Kurve
     , dead : List Kurve
-    , roundScores : Dict PlayerId Score
     }
 
 
