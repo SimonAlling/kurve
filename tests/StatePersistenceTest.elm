@@ -3,6 +3,7 @@ module StatePersistenceTest exposing (theTest)
 import App exposing (AppState(..))
 import Config exposing (Config)
 import Expect
+import GUI.Hints as Hints
 import Game exposing (ActiveGameState(..), GameState(..), LiveOrReplay(..), PausedOrNot(..), prepareRoundFromKnownInitialState)
 import Holes exposing (HoleStatus(..), Holiness(..))
 import Input exposing (Button(..))
@@ -78,6 +79,7 @@ initialModel roundInitialState =
     , appState = InGame (Active (Live ()) NotPaused (Moving MainLoop.noLeftoverFrameTime Tick.genesis round))
     , config = config
     , players = kurvesToInitialAllPlayers TestScenarios.HoleStatusPersistsBetweenRounds.spawnedKurves
+    , hints = Hints.initial
     }
 
 

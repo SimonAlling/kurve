@@ -3,6 +3,7 @@ module FullSessionTest exposing (theTest)
 import App exposing (AppState(..))
 import Config exposing (Config)
 import Expect
+import GUI.Hints as Hints exposing (Hint(..))
 import Input exposing (Button(..))
 import List exposing (repeat)
 import Main exposing (Model, Msg(..))
@@ -56,6 +57,7 @@ initialModel =
     , appState = InMenu SplashScreen (Random.initialSeed 1337)
     , config = config
     , players = initialPlayers
+    , hints = Hints.initial
     }
 
 
@@ -84,6 +86,9 @@ messages numberOfSpawnTicks =
         -- Round over; button is released:
         , release (Key "ArrowLeft")
 
+        -- Replay hint is dismissed:
+        , [ HintDismissed HowToReplay ]
+
         -- Round is replayed:
         , pressAndRelease (Key "KeyR")
 
@@ -105,6 +110,7 @@ expectedModel =
     , appState = InMenu Lobby dummySeed
     , config = config
     , players = initialPlayers
+    , hints = Hints.initial |> Hints.dismiss HowToReplay
     }
 
 
